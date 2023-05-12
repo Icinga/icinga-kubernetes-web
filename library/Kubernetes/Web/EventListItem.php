@@ -5,11 +5,13 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Event;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
@@ -28,12 +30,15 @@ class EventListItem extends BaseListItem
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        $content = Html::sprintf(
-            t('%s:%s', '<type>: <reason>'),
-            Html::tag('span', ['class' => 'event-text'], $this->item->type),
-            Html::tag('span', ['class' => 'event-text'], $this->item->reason)
-        );
-        $title->addHtml($content);
+        $title->addHtml(new Link(
+            Html::sprintf(
+                t('%s:%s', '<type>: <reason>'),
+                Html::tag('span', ['class' => 'event-text'], $this->item->type),
+                Html::tag('span', ['class' => 'event-text'], $this->item->reason)
+            ),
+            Links::event($this->item->namespace, $this->item->name),
+            ['class' => 'subject']
+        ));
     }
 
     protected function assembleHeader(BaseHtmlElement $header): void
