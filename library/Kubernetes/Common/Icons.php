@@ -14,6 +14,14 @@ abstract class Icons
 
     public const POD_FAILED = 'exclamation-triangle';
 
+    public const DEPLOYMENT_HEALTHY = 'circle-check';
+
+    public const DEPLOYMENT_UNHEALTHY = 'exclamation-triangle';
+
+    public const DEPLOYMENT_CRITICAL = 'circle-exclamation';
+
+    public const DEPLOYMENT_UNKNOWN = 'pause-circle';
+
     public const CRITICAL = 'circle-exclamation';
 
     public const ERROR = 'circle-xmark';
