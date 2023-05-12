@@ -21,8 +21,11 @@ class DeploymentController extends CompatController
             ->filter(Filter::equal('name', $name))
             ->first();
 
-        var_dump($deployment);
-
         $this->addContent(new DeploymentDetail($deployment));
+    }
+
+    protected function getPageSize($default)
+    {
+        return parent::getPageSize($default ?? 50);
     }
 }
