@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Model;
 
 use ipl\Orm\Behavior\Binary;
+use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
@@ -69,6 +70,10 @@ class Node extends Model
 //        $behaviors->add(new Binary([
 //            'id'
 //        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
     public function createRelations(Relations $relations)
