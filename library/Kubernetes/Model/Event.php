@@ -5,7 +5,6 @@
 namespace Icinga\Module\Kubernetes\Model;
 
 use ipl\Orm\Behavior\Binary;
-use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -51,20 +50,6 @@ class Event extends Model
         ];
     }
 
-//    public function getColumnDefinitions()
-//    {
-//        return [
-//            'object_id'     => t('Object Id'),
-//            'started_at'    => t('Started At'),
-//            'recovered_at'  => t('Recovered At'),
-//            'severity'      => t('Severity')
-//        ];
-//    }
-//
-//    public function getSearchColumns()
-//    {
-//        return ['severity'];
-//    }
 //
     public function getDefaultSort()
     {
@@ -76,26 +61,15 @@ class Event extends Model
         $behaviors->add(new Binary([
             'id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'first_seen',
             'last_seen',
-            'count',
             'created'
         ]));
     }
 
     public function createRelations(Relations $relations)
     {
-//        $relations->belongsTo('pod', Pod::class);
-//
-//        $relations
-//            ->belongsToMany('event', Event::class)
-//            ->through('incident_event');
-//
-//        $relations->belongsToMany('contact', Contact::class)
-//            ->through('incident_contact');
-//
-//        $relations->hasMany('incident_contact', IncidentContact::class);
-//        $relations->hasMany('incident_history', IncidentHistory::class);
     }
 }

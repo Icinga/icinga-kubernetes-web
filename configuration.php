@@ -51,6 +51,14 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Events'),
+    [
+        'description'   => $this->translate('Events'),
+        'url'           => 'kubernetes/events'
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [

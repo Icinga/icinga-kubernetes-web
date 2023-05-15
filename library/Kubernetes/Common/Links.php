@@ -32,7 +32,7 @@ abstract class Links
     {
         return Url::fromPath('kubernetes/statefulset', ['namespace' => $namespace, 'name' => $name]);
     }
-    
+
     public static function replicaSet(string $namespace, string $name): Url
     {
         return Url::fromPath('kubernetes/replicaSet', ['namespace' => $namespace, 'name' => $name]);
@@ -41,5 +41,10 @@ abstract class Links
     public static function daemonSet(string $namespace, string $name): Url
     {
         return Url::fromPath('kubernetes/daemonset', ['namespace' => $namespace, 'name' => $name]);
+    }
+
+    public static function event(string $namespace, string $name): Url
+    {
+        return Url::fromPath('kubernetes/event', ['namespace' => $namespace, 'name' => $name]);
     }
 }

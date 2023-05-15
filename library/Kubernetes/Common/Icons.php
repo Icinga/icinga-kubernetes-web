@@ -22,7 +22,6 @@ abstract class Icons
 
     public const DEPLOYMENT_UNKNOWN = 'pause-circle';
 
-
     public const STATEFULSET_HEALTHY = 'circle-check';
 
     public const STATEFULSET_UNHEALTHY = 'exclamation-triangle';
@@ -44,6 +43,12 @@ abstract class Icons
     public const DAEMONSET_UNHEALTHY = 'exclamation-triangle';
 
     public const DAEMONSET_UNKNOWN = 'pause-circle';
+
+    public const EVENT_NORMAL = 'circle-check';
+
+    public const EVENT_WARNING = 'exclamation-triangle';
+
+    public const EVENT_UNKNOWN = 'pause-circle';
 
     public const CRITICAL = 'circle-exclamation';
 
