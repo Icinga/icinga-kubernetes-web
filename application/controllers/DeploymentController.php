@@ -4,11 +4,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Deployment;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DeploymentDetail;
 use ipl\Stdlib\Filter;
-use ipl\Web\Compat\CompatController;
 
-class DeploymentController extends CompatController
+class DeploymentController extends Controller
 {
     public function indexAction(): void
     {

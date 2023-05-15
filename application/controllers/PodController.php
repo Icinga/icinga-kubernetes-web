@@ -14,10 +14,10 @@ class PodController extends CompatController
 {
     public function indexAction(): void
     {
-        $this->addTitleTab($this->translate('Pod'));
-
         $namespace = $this->params->getRequired('namespace');
         $name = $this->params->getRequired('name');
+
+        $this->addTitleTab("Pod $namespace/$name");
 
         $query = Pod::on(Database::connection())
             ->filter(Filter::all(

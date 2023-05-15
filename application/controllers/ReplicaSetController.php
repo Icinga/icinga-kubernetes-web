@@ -4,11 +4,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\ReplicaSetDetail;
 use ipl\Stdlib\Filter;
-use ipl\Web\Compat\CompatController;
 
-class ReplicaSetController extends CompatController
+class ReplicaSetController extends Controller
 {
     public function indexAction(): void
     {

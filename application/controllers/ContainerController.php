@@ -4,13 +4,13 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
-use Icinga\Module\Kubernetes\Model\Pod;
-use Icinga\Module\Kubernetes\Web\PodDetail;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Model\Pod;
+use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\PodDetail;
 use ipl\Stdlib\Filter;
-use ipl\Web\Compat\CompatController;
 
-class ContainerController extends CompatController
+class ContainerController extends Controller
 {
     public function indexAction(): void
     {

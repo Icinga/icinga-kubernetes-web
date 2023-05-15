@@ -6,12 +6,12 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Application\Config;
 use Icinga\Module\Kubernetes\Forms\DatabaseConfigForm;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Web\Notification;
 use Icinga\Web\Widget\Tab;
 use Icinga\Web\Widget\Tabs;
-use ipl\Web\Compat\CompatController;
 
-class ConfigController extends CompatController
+class ConfigController extends Controller
 {
     public function init()
     {

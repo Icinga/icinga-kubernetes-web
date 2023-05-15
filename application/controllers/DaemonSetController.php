@@ -4,13 +4,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
-use Icinga\Module\Kubernetes\Model\StatefulSet;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DaemonSetDetail;
-use Icinga\Module\Kubernetes\Web\StatefulSetDetail;
 use ipl\Stdlib\Filter;
-use ipl\Web\Compat\CompatController;
 
-class DaemonSetController extends CompatController
+class DaemonSetController extends Controller
 {
     public function indexAction(): void
     {

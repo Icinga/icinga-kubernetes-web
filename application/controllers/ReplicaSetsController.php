@@ -5,13 +5,13 @@ namespace Icinga\Module\Kubernetes\Controllers;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\ReplicaSetList;
-use ipl\Web\Compat\CompatController;
 use ipl\Web\Compat\SearchControls;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
 
-class ReplicaSetsController extends CompatController
+class ReplicaSetsController extends Controller
 {
     use SearchControls;
 

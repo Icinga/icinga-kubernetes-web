@@ -5,13 +5,13 @@ namespace Icinga\Module\Kubernetes\Controllers;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\StatefulSetList;
-use ipl\Web\Compat\CompatController;
 use ipl\Web\Compat\SearchControls;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
 
-class StatefulSetsController extends CompatController
+class StatefulSetsController extends Controller
 {
     use SearchControls;
 

@@ -4,11 +4,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\EventDetail;
 use ipl\Stdlib\Filter;
-use ipl\Web\Compat\CompatController;
 
-class EventController extends CompatController
+class EventController extends Controller
 {
     public function indexAction(): void
     {
