@@ -113,14 +113,13 @@ class ContainerListItem extends BaseListItem
 
         switch ($this->item->state) {
             case Container::STATE_RUNNING:
-                return new VerticalKeyValue('Started', new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp()));
+                return new VerticalKeyValue('Started At', new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp()));
             case Container::STATE_TERMINATED:
             case Container::STATE_WAITING:
                 return new HtmlElement(
                     'div',
                     null,
                     new VerticalKeyValue('Reason', $stateDetails->reason)
-                    //new HorizontalKeyValue('Message', $stateDetails->message)
                 );
             default:
                 throw new LogicException();

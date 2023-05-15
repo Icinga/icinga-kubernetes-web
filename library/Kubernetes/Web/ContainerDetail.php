@@ -4,64 +4,77 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Common\Database;
-use Icinga\Module\Kubernetes\Model\Event;
-use Icinga\Module\Kubernetes\Model\Label;
+use DateTime;
+use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Pod;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
-use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
+use ipl\Web\Widget\Icon;
+use ipl\Web\Widget\TimeAgo;
+use ipl\Web\Widget\VerticalKeyValue;
+use LogicException;
 
 class ContainerDetail extends BaseHtmlElement
 {
     /** @var Pod */
-    protected $pod;
+    protected $container;
 
     protected $defaultAttributes = [
-        'class' => 'pod-detail',
+        'class' => 'container-detail',
     ];
 
     protected $tag = 'div';
 
-    public function __construct(Pod $pod)
+    public function __construct(Container $container)
     {
-        $this->pod = $pod;
+        $this->container = $container;
     }
 
     protected function assemble()
     {
-        $details = new HtmlElement('div');
-        $details->addHtml(new HtmlElement('h2', null, new Text('Details')));
-        $details->addHtml(new HorizontalKeyValue(t('Name'), $this->pod->name));
-        $details->addHtml(new HorizontalKeyValue(t('IP'), $this->pod->ip));
-        $details->addHtml(new HorizontalKeyValue(t('Namespace'), $this->pod->namespace));
-        $details->addHtml(new HorizontalKeyValue(t('Node'), $this->pod->node_name));
-        $details->addHtml(new HorizontalKeyValue(t('QoS Class'), ucfirst(Str::camel($this->pod->qos))));
-        $details->addHtml(new HorizontalKeyValue(t('Restart Policy'), ucfirst(Str::camel($this->pod->restart_policy))));
-        $details->addHtml(new HorizontalKeyValue(t('Created'), $this->pod->created->format('Y-m-d H:i:s')));
-        $labels = new HtmlElement('div');
-        /** @var Label $label */
-        foreach ($this->pod->label as $label) {
-            $labels->addHtml(new HorizontalKeyValue($label->name, $label->value));
-        }
-        $this->addHtml(
-            $details,
-            new HtmlElement('h2', null, new Text('Conditions')),
-            new ConditionTable($this->pod),
-            new HtmlElement('h2', null, new Text('Labels')),
-            $labels,
-            new HtmlElement('h2', null, new Text('Containers')),
-            new ContainerList($this->pod->container),
-            new HtmlElement('h2', null, new Text('Events')),
-            new EventList(Event::on(Database::connection())
-                ->filter(Filter::all(
-                    Filter::equal('reference_kind', 'Pod'),
-                    Filter::equal('reference_namespace', $this->pod->namespace),
-                    Filter::equal('reference_name', $this->pod->name)
-                )))
+        $this->addHtml(new Details([
+            t('Name')          => $this->container->name,
+            t('Image')         => $this->container->image,
+            t('Started')       => new Icon($this->container->started ? 'check' : 'xmark'),
+            t('Ready')         => new Icon($this->container->ready ? 'check' : 'xmark'),
+            t('Restart Count') => $this->container->restart_count
+        ]));
+
+        $state = new HtmlElement(
+            'section',
+            new Attributes(['class' => 'container-state']),
+            new HtmlElement('h2', null, new Text(t('State'))),
+            new HorizontalKeyValue(t('State'), ucfirst(Str::camel($this->container->state)))
         );
+        $this->addHtml($state);
+        $stateDetails = json_decode($this->container->state_details);
+        switch ($this->container->state) {
+            case Container::STATE_RUNNING:
+                $state->add(new HorizontalKeyValue(
+                    'Started At',
+                    new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp())
+                ));
+
+                break;
+            case Container::STATE_TERMINATED:
+            case Container::STATE_WAITING:
+                $state->add(new HorizontalKeyValue('Reason', $stateDetails->reason));
+                $state->add(new HorizontalKeyValue('Message', $stateDetails->message));
+
+                break;
+            default:
+                throw new LogicException();
+        }
+
+        $this->addHtml(new HtmlElement(
+            'section',
+            new Attributes(['class' => 'container-logs']),
+            new HtmlElement('h2', null, new Text(t('Logs'))),
+            new HtmlElement('p', null, new Text($this->container->logs))
+        ));
     }
 }

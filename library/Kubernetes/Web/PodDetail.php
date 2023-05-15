@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Label;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\PodCondition;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -43,7 +44,11 @@ class PodDetail extends BaseHtmlElement
         $details->addHtml(new HorizontalKeyValue(t('QoS Class'), ucfirst(Str::camel($this->pod->qos))));
         $details->addHtml(new HorizontalKeyValue(t('Restart Policy'), ucfirst(Str::camel($this->pod->restart_policy))));
         $details->addHtml(new HorizontalKeyValue(t('Created'), $this->pod->created->format('Y-m-d H:i:s')));
-        $labels = new HtmlElement('div');
+        $labels = new HtmlElement(
+            'section',
+            new Attributes(['class' => 'labels']),
+            new HtmlElement('h2', null, new Text(t('Labels')))
+        );
         /** @var Label $label */
         foreach ($this->pod->label as $label) {
             $labels->addHtml(new HorizontalKeyValue($label->name, $label->value));
@@ -51,7 +56,6 @@ class PodDetail extends BaseHtmlElement
         $this->addHtml(
             $details,
             new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),
-            new HtmlElement('h2', null, new Text('Labels')),
             $labels,
             new HtmlElement('h2', null, new Text('Containers')),
             new ContainerList($this->pod->container),

@@ -52,21 +52,23 @@ class Pod extends Model
         ];
     }
 
-//    public function getColumnDefinitions()
-//    {
-//        return [
-//            'object_id'     => t('Object Id'),
-//            'started_at'    => t('Started At'),
-//            'recovered_at'  => t('Recovered At'),
-//            'severity'      => t('Severity')
-//        ];
-//    }
-//
-//    public function getSearchColumns()
-//    {
-//        return ['severity'];
-//    }
-//
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace' => t('Namespace'),
+            'name'      => t('Name'),
+            'ip'        => t('IP'),
+            'phase'     => t('Phase'),
+            'qos'       => t('Quality of Service'),
+            'created'   => t('Created At')
+        ];
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
     public function getDefaultSort()
     {
         return ['namespace', 'created desc'];

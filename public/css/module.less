@@ -327,3 +327,26 @@ width: 14em;
     height: 100%;
   }
 }
+
+.monospace() {
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+
+.container-logs {
+  p {
+    .monospace();
+    padding: 1em;
+    background-color: black;
+    color: white;
+    white-space: pre;
+    max-height: 30em;
+    overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+}
+
+.labels .horizontal-key-value > .key {
+  width: 25em;
+}
