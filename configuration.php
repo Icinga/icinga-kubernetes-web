@@ -27,6 +27,14 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Stateful Sets'),
+    [
+        'description'   => $this->translate('Stateful Sets'),
+        'url'           => 'kubernetes/statefulsets'
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [

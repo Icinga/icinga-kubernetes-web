@@ -27,4 +27,9 @@ abstract class Links
     {
         return Url::fromPath('kubernetes/deployment', ['namespace' => $namespace, 'name' => $name]);
     }
+
+    public static function statefulSet(string $namespace, string $name): Url
+    {
+        return Url::fromPath('kubernetes/statefulset', ['namespace' => $namespace, 'name' => $name]);
+    }
 }
