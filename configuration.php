@@ -19,6 +19,14 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Deployments'),
+    [
+        'description'   => $this->translate('Deployments'),
+        'url'           => 'kubernetes/deployments'
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [

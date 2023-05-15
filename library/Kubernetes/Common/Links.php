@@ -22,4 +22,9 @@ abstract class Links
     {
         return Url::fromPath('kubernetes/pod', ['namespace' => $namespace, 'name' => $name]);
     }
+
+    public static function deployment(string $namespace, string $name): Url
+    {
+        return Url::fromPath('kubernetes/deployment', ['namespace' => $namespace, 'name' => $name]);
+    }
 }
