@@ -35,6 +35,14 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('ReplicaSets'),
+    [
+        'description'   => $this->translate('ReplicaSets'),
+        'url'           => 'kubernetes/replicasets'
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [

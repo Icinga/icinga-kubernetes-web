@@ -31,6 +31,14 @@ abstract class Icons
 
     public const STATEFULSET_UNKNOWN = 'pause-circle';
 
+    public const REPLICASET_HEALTHY = 'circle-check';
+
+    public const REPLICASET_UNHEALTHY = 'exclamation-triangle';
+
+    public const REPLICASET_CRITICAL = 'circle-exclamation';
+
+    public const REPLICASET_UNKNOWN = 'pause-circle';
+
     public const CRITICAL = 'circle-exclamation';
 
     public const ERROR = 'circle-xmark';
