@@ -96,6 +96,14 @@ class Pod extends Model
             ->belongsTo('node', Node::class)
             ->setCandidateKey('node_name')
             ->setForeignKey('name');
+
+        $relations
+            ->belongsToMany('stateful_set', StatefulSet::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');

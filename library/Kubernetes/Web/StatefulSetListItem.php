@@ -6,11 +6,16 @@ use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
+use ipl\Html\HtmlElement;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
+use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
+use ipl\Web\Widget\VerticalKeyValue;
+use LogicException;
 
 class StatefulSetListItem extends BaseListItem
 {
@@ -37,7 +42,7 @@ class StatefulSetListItem extends BaseListItem
                 Links::statefulSet($this->item->namespace, $this->item->name),
                 ['class' => 'subject']
             ),
-            Html::tag('span', ['class' => 'statefulset-text'], $this->getHealthIcon())
+            Html::tag('span', ['class' => 'statefulset-text'], $this->getState())
         );
 
         $title->addHtml($content);
@@ -52,19 +57,54 @@ class StatefulSetListItem extends BaseListItem
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->add($this->createHeader());
+
+        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
+        $main->addHtml($keyValue);
+
+        $desired = $this->item->desired_replicas;
+        $unknown = $desired - $this->item->actual_replicas;
+        $available = $this->item->available_replicas;
+        $pending = $available - $this->item->ready_replicas;
+        $critical = $desired - $unknown - $available - $pending;
+        $pods = new HtmlElement('span');
+        for ($i = 0; $i < $critical; $i++) {
+            $pods->addHtml(new StateBall('critical', StateBall::SIZE_MEDIUM));
+        }
+        for ($i = 0; $i < $pending; $i++) {
+            $pods->addHtml(new StateBall('pending', StateBall::SIZE_MEDIUM));
+        }
+        for ($i = 0; $i < $unknown; $i++) {
+            $pods->addHtml(new StateBall('unknown', StateBall::SIZE_MEDIUM));
+        }
+        for ($i = 0; $i < $available; $i++) {
+            $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
+        }
+        $keyValue->add(new VerticalKeyValue('Pods', $pods));
     }
 
     protected function getHealthIcon(): string
     {
-        if ($this->item->ready_replicas !== $this->item->replicas &&
-            $this->item->current_replicas !== 0) {
-            return Icons::STATEFULSET_UNHEALTHY;
-        } else if ($this->item->ready_replicas === $this->item->replicas) {
-            return Icons::STATEFULSET_HEALTHY;
-        } else if ($this->item->ready_replicas === 0 && $this->item->replicas !== 0) {
-            return Icons::STATEFULSET_CRITICAL;
-        } else {
-            return Icons::STATEFULSET_UNKNOWN;
+        switch ($this->getState()) {
+            case StatefulSet::STATE_HEALTHY:
+                return Icons::STATEFULSET_HEALTHY;
+            case StatefulSet::STATE_DEGRADED:
+                return Icons::STATEFULSET_UNHEALTHY;
+            case StatefulSet::STATE_UNHEALTHY:
+                return Icons::STATEFULSET_CRITICAL;
+            default:
+                throw new LogicException();
+        }
+    }
+
+    protected function getState(): string
+    {
+        switch (true) {
+            case $this->item->available_replicas === 0:
+                return StatefulSet::STATE_UNHEALTHY;
+            case $this->item->available_replicas < $this->item->desired_replicas:
+                return StatefulSet::STATE_DEGRADED;
+            default:
+                return StatefulSet::STATE_HEALTHY;
         }
     }
 }

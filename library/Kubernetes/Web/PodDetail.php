@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Label;
 use Icinga\Module\Kubernetes\Model\Pod;
+use Icinga\Module\Kubernetes\Model\PodCondition;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -49,8 +50,7 @@ class PodDetail extends BaseHtmlElement
         }
         $this->addHtml(
             $details,
-            new HtmlElement('h2', null, new Text('Conditions')),
-            new PodConditionTable($this->pod),
+            new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),
             new HtmlElement('h2', null, new Text('Labels')),
             $labels,
             new HtmlElement('h2', null, new Text('Containers')),

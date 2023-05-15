@@ -4,41 +4,39 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Model\Pod;
-use Icinga\Module\Kubernetes\Model\PodCondition;
+use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\Table;
 use ipl\Html\Text;
 use ipl\Web\Widget\TimeAgo;
 
-class PodConditionTable extends Table
+class ConditionTable extends Table
 {
     protected $defaultAttributes = [
         'class' => 'condition-table collapsible'
     ];
 
-    /** @var Pod $pod */
-    protected $pod;
+    protected $columnDefinitions;
 
-    public function __construct(Pod $pod)
+    protected $resource;
+
+    public function __construct($resource, array $columnDefinitions)
     {
-        $this->pod = $pod;
+        $this->columnDefinitions = $columnDefinitions;
+        $this->resource = $resource;
     }
 
     public function assemble()
     {
-        $columns = (new PodCondition())->getColumnDefinitions();
-
         $header = new HtmlElement('tr');
-        foreach ($columns as $label) {
+        foreach ($this->columnDefinitions as $label) {
             $header->addHtml(new HtmlElement('th', null, Text::create($label)));
         }
         $this->getHeader()->addHtml($header);
 
-        /** @var PodCondition $condition */
-        foreach ($this->pod->condition as $condition) {
+        foreach ($this->resource->condition as $condition) {
             $row = new HtmlElement('tr');
-            foreach ($columns as $column => $_) {
+            foreach ($this->columnDefinitions as $column => $_) {
                 if ($column === 'last_probe' || $column === 'last_transition') {
                     $content = new TimeAgo($condition->$column->getTimestamp());
                 } else {
@@ -48,5 +46,11 @@ class PodConditionTable extends Table
             }
             $this->addHtml($row);
         }
+
+        $this->addWrapper(new HtmlElement(
+            'section',
+            new Attributes(['class' => 'conditions']),
+            new HtmlElement('h2', null, new Text(t('Conditions')))
+        ));
     }
 }

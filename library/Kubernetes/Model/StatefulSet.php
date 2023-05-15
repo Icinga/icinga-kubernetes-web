@@ -2,6 +2,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -9,6 +10,12 @@ use ipl\Orm\Relations;
 
 class StatefulSet extends Model
 {
+    public const STATE_DEGRADED = 'degraded';
+
+    public const STATE_HEALTHY = 'healthy';
+
+    public const STATE_UNHEALTHY = 'unhealthy';
+
     public function getTableName()
     {
         return 'stateful_set';
@@ -16,7 +23,7 @@ class StatefulSet extends Model
 
     public function getKeyName()
     {
-        return 'uid';
+        return 'id';
     }
 
     public function getColumns()
@@ -25,21 +32,26 @@ class StatefulSet extends Model
             'namespace',
             'name',
             'uid',
-            'replicas',
+            'desired_replicas',
             'service_name',
+            'pod_management_policy',
+            'update_strategy',
+            'min_ready_seconds',
+            'ordinals',
+            'actual_replicas',
             'ready_replicas',
             'current_replicas',
             'updated_replicas',
             'available_replicas',
-            'current_revision',
-            'update_revision',
-            'collision_count',
             'created',
         ];
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
+        $behaviors->add(new Binary([
+            'id'
+        ]));
         $behaviors->add(new MillisecondTimestamp([
             'created'
         ]));
@@ -47,5 +59,10 @@ class StatefulSet extends Model
 
     public function createRelations(Relations $relations)
     {
+        $relations
+            ->belongsToMany('pods', Pod::class)
+            ->through('pod_owner');
+
+        $relations->hasMany('condition', StatefulSetCondition::class);
     }
 }

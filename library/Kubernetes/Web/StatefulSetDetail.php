@@ -3,6 +3,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Model\StatefulSet;
+use Icinga\Module\Kubernetes\Model\StatefulSetCondition;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -14,7 +15,7 @@ class StatefulSetDetail extends BaseHtmlElement
     /** @var StatefulSet */
     private $statefulSet;
 
-    protected $tag = 'ul';
+    protected $tag = 'div';
 
     public function __construct($statefulSet)
     {
@@ -23,26 +24,21 @@ class StatefulSetDetail extends BaseHtmlElement
 
     protected function assemble()
     {
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'stateful-set-detail-item']),
-            new Text(sprintf('UID: %s', $this->statefulSet->uid))));
+        $this->addHtml(new Details([
+            t('Name')         => $this->statefulSet->name,
+            t('Namespace')    => $this->statefulSet->namespace,
+            t('UID')          => $this->statefulSet->uid,
+            t('Service Name') => $this->statefulSet->service_name,
+            t('Created')      => new TimeAgo($this->statefulSet->created->getTimestamp())
+        ]));
 
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'stateful-set-detail-item']),
-            new Text(sprintf('Namespace/Name: %s/%s', $this->statefulSet->namespace, $this->statefulSet->name))));
+        $this->addHtml(new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions()));
 
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'stateful-set-detail-item']),
-            new Text(sprintf('Service name: %s', $this->statefulSet->service_name))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'stateful-set-detail-item']),
-            new Text(sprintf('Current Revision: %s', $this->statefulSet->current_revision))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'stateful-set-detail-item']),
-            new Text(sprintf('Replicas: %d/%d', $this->statefulSet->ready_replicas, $this->statefulSet->replicas))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'stateful-set-detail-item']),
-            new Text(sprintf('Collisions: %s', $this->statefulSet->collision_count))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'stateful-set-detail-item']),
-            new Text('Created: '), new TimeAgo($this->statefulSet->created->getTimestamp())));
+        $this->addHtml(new HtmlElement(
+            'section',
+            new Attributes(['class' => 'stateful-set-pods']),
+            new HtmlElement('h2', null, new Text(t('Pods'))),
+            new PodList($this->statefulSet->pods)
+        ));
     }
-
 }

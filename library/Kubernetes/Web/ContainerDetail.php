@@ -50,7 +50,7 @@ class ContainerDetail extends BaseHtmlElement
         $this->addHtml(
             $details,
             new HtmlElement('h2', null, new Text('Conditions')),
-            new PodConditionTable($this->pod),
+            new ConditionTable($this->pod),
             new HtmlElement('h2', null, new Text('Labels')),
             $labels,
             new HtmlElement('h2', null, new Text('Containers')),

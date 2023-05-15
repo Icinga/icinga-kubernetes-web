@@ -44,6 +44,9 @@ class Event extends Model
             'reference_kind',
             'reference_namespace',
             'reference_name',
+            'first_seen',
+            'last_seen',
+            'count',
             'created'
         ];
     }
@@ -65,7 +68,7 @@ class Event extends Model
 //
     public function getDefaultSort()
     {
-        return ['created desc'];
+        return ['last_seen desc'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
@@ -74,6 +77,9 @@ class Event extends Model
             'id'
         ]));
         $behaviors->add(new MillisecondTimestamp([
+            'first_seen',
+            'last_seen',
+            'count',
             'created'
         ]));
     }
