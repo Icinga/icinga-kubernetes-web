@@ -4,6 +4,21 @@
 
 /** @var \Icinga\Application\Modules\Module $this */
 
+$section = $this->menuSection(
+    'Kubernetes',
+    [
+        'icon' => 'globe',
+    ]
+);
+
+$section->add(
+    N_('Pods'),
+    [
+        'description'   => $this->translate('Pods'),
+        'url'           => 'kubernetes/pods'
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [
