@@ -37,4 +37,9 @@ abstract class Links
     {
         return Url::fromPath('kubernetes/replicaSet', ['namespace' => $namespace, 'name' => $name]);
     }
+
+    public static function daemonSet(string $namespace, string $name): Url
+    {
+        return Url::fromPath('kubernetes/daemonset', ['namespace' => $namespace, 'name' => $name]);
+    }
 }

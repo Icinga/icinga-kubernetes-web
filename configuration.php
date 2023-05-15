@@ -43,6 +43,14 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Daemon Sets'),
+    [
+        'description'   => $this->translate('Daemon Sets'),
+        'url'           => 'kubernetes/daemonsets'
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [
