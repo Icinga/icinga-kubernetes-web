@@ -5,23 +5,22 @@
 namespace Icinga\Module\Kubernetes\Model;
 
 use ipl\Orm\Behavior\Binary;
+use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
-class Pod extends Model
+class Container extends Model
 {
-    public const PHASE_PENDING = 'pending';
-    public const PHASE_RUNNING = 'running';
+    public const STATE_WAITING = 'waiting';
+    public const STATE_RUNNING = 'running';
 
-    public const PHASE_SUCCEEDED = 'succeeded';
-
-    public const PHASE_FAILED = 'failed';
+    public const STATE_TERMINATED = 'terminated';
 
     public function getTableName()
     {
-        return 'pod';
+        return 'container';
     }
 
     public function getKeyName()
@@ -32,23 +31,19 @@ class Pod extends Model
     public function getColumns()
     {
         return [
-            'namespace',
+            'pod_id',
             'name',
-            'uid',
-            'resource_version',
-            'node_name',
-            'nominated_node_name',
-            'ip',
-            'phase',
-            'restart_policy',
+            'image',
             'cpu_limits',
             'cpu_requests',
             'memory_limits',
             'memory_requests',
-            'reason',
-            'message',
-            'qos',
-            'created'
+            'state',
+            'state_details',
+            'ready',
+            'started',
+            'restart_count',
+            'logs'
         ];
     }
 
@@ -67,15 +62,20 @@ class Pod extends Model
 //        return ['severity'];
 //    }
 //
-    public function getDefaultSort()
-    {
-        return ['namespace', 'created desc'];
-    }
+//    public function getDefaultSort()
+//    {
+//        return ['incident.started_at desc'];
+//    }
 
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
-            'id'
+            'id',
+            'pod_id'
+        ]));
+        $behaviors->add(new BoolCast([
+            'ready',
+            'started'
         ]));
         $behaviors->add(new MillisecondTimestamp([
             'created'
@@ -84,18 +84,11 @@ class Pod extends Model
 
     public function createRelations(Relations $relations)
     {
-        $relations->hasMany('container', Container::class);
-
-        $relations->hasMany('condition', PodCondition::class);
-
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('pod_label');
-
-        $relations
-            ->belongsTo('node', Node::class)
-            ->setCandidateKey('node_name')
-            ->setForeignKey('name');
+        $relations->belongsTo('pod', Pod::class);
+//
+//        $relations
+//            ->belongsToMany('event', Event::class)
+//            ->through('incident_event');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');

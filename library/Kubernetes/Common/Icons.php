@@ -6,13 +6,13 @@ namespace Icinga\Module\Kubernetes\Common;
 
 abstract class Icons
 {
-    public const POD_PENDING = 'circle-exclamation';
+    public const POD_PENDING = 'spinner';
 
-    public const POD_RUNNING = 'exclamation-triangle';
+    public const POD_RUNNING = 'circle-check';
 
-    public const POD_SUCCEEDED = 'circle-check';
+    public const POD_SUCCEEDED = 'hourglass-end';
 
-    public const POD_FAILED = 'exclamation-triangle';
+    public const POD_FAILED = 'circle-triangle';
 
     public const CRITICAL = 'circle-exclamation';
 

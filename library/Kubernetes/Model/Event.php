@@ -5,23 +5,22 @@
 namespace Icinga\Module\Kubernetes\Model;
 
 use ipl\Orm\Behavior\Binary;
+use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
-class Pod extends Model
+class Event extends Model
 {
-    public const PHASE_PENDING = 'pending';
-    public const PHASE_RUNNING = 'running';
+    public const STATE_WAITING = 'waiting';
+    public const STATE_RUNNING = 'running';
 
-    public const PHASE_SUCCEEDED = 'succeeded';
-
-    public const PHASE_FAILED = 'failed';
+    public const STATE_TERMINATED = 'terminated';
 
     public function getTableName()
     {
-        return 'pod';
+        return 'event';
     }
 
     public function getKeyName()
@@ -36,18 +35,15 @@ class Pod extends Model
             'name',
             'uid',
             'resource_version',
-            'node_name',
-            'nominated_node_name',
-            'ip',
-            'phase',
-            'restart_policy',
-            'cpu_limits',
-            'cpu_requests',
-            'memory_limits',
-            'memory_requests',
+            'reporting_controller',
+            'reporting_instance',
+            'action',
             'reason',
-            'message',
-            'qos',
+            'note',
+            'type',
+            'reference_kind',
+            'reference_namespace',
+            'reference_name',
             'created'
         ];
     }
@@ -69,7 +65,7 @@ class Pod extends Model
 //
     public function getDefaultSort()
     {
-        return ['namespace', 'created desc'];
+        return ['created desc'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
@@ -84,18 +80,11 @@ class Pod extends Model
 
     public function createRelations(Relations $relations)
     {
-        $relations->hasMany('container', Container::class);
-
-        $relations->hasMany('condition', PodCondition::class);
-
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('pod_label');
-
-        $relations
-            ->belongsTo('node', Node::class)
-            ->setCandidateKey('node_name')
-            ->setForeignKey('name');
+//        $relations->belongsTo('pod', Pod::class);
+//
+//        $relations
+//            ->belongsToMany('event', Event::class)
+//            ->through('incident_event');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');

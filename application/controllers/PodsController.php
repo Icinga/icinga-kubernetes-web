@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
 use Icinga\Module\Kubernetes\Web\PodList;
+use ipl\Sql\Expression;
 use ipl\Web\Compat\CompatController;
 use ipl\Web\Compat\SearchControls;
 use ipl\Web\Control\LimitControl;
@@ -19,14 +20,18 @@ class PodsController extends CompatController
 
     public function indexAction(): void
     {
-        $this->addTitleTab(t('Pods'));
+        $this->addTitleTab($this->translate('Pods'));
 
-        $pods = Pod::on(Database::connection());
+        $pods = Pod::on(Database::connection())
+            ->with(['node']);
 
         $limitControl = $this->createLimitControl();
         $sortControl = $this->createSortControl(
             $pods,
-            ['pod.created' => t('Created')]
+            [
+                'pod.name'    => $this->translate('Name'),
+                'pod.created' => $this->translate('Created')
+            ]
         );
 
         $paginationControl = $this->createPaginationControl($pods);

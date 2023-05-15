@@ -8,6 +8,11 @@ use ipl\Web\Url;
 
 abstract class Links
 {
+    public static function container(string $name): Url
+    {
+        return Url::fromPath('kubernetes/container', ['name' => $name]);
+    }
+
     public static function node(string $name): Url
     {
         return Url::fromPath('kubernetes/node', ['name' => $name]);
