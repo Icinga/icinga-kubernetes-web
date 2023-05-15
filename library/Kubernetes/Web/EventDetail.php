@@ -3,6 +3,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Events\Model\Event;
+use Icinga\Module\Icingadb\Util\PluginOutput;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -11,10 +12,15 @@ use ipl\Web\Widget\TimeAgo;
 
 class EventDetail extends BaseHtmlElement
 {
-    /** @var Event */
-    private $event;
+    protected $tag = 'div';
 
-    protected $tag = 'ul';
+    protected $defaultAttributes = [
+        'class' => 'event-detail',
+    ];
+
+    /** @var Event */
+    protected $event;
+
 
     public function __construct($event)
     {
@@ -23,38 +29,29 @@ class EventDetail extends BaseHtmlElement
 
     protected function assemble()
     {
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-            new Text(sprintf('UID: %s', $this->event->uid))));
+        $this->addHtml(new Details([
+            t('Name')                 => $this->event->name,
+            t('Namespace')            => $this->event->namespace,
+            t('UID')                  => $this->event->uid,
+            t('First Seen')           => new TimeAgo($this->event->first_seen->getTimestamp()),
+            t('Last Seen')            => new TimeAgo($this->event->last_seen->getTimestamp()),
+            t('Created')              => new TimeAgo($this->event->created->getTimestamp()),
+            t('Count')                => $this->event->count,
+            t('Type')                 => $this->event->type,
+            t('Reason')               => $this->event->reason,
+            t('Action')               => $this->event->action,
+            t('Reporting Controller') => $this->event->reporting_controller,
+            t('Reporting Instance')   => $this->event->reporting_instance,
+            t('Reference Kind')       => $this->event->reference_kind,
+            t('Reference Namespace')  => $this->event->reference_namespace,
+            t('Reference Name')       => $this->event->reference_name
+        ]));
 
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-            new Text(sprintf('Namespace/Name: %s/%s', $this->event->namespace, $this->event->name))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-            new Text(sprintf('Type: %s', $this->event->type))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-            new Text(sprintf('Reason: %s', $this->event->reason))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-            new Text(sprintf('Note: %s', $this->event->note))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-            new Text(sprintf('Reference Object: %s - %s', $this->event->reference_kind, $this->event->reference))));
-
-        if ($this->event->reporting_controller) {
-            $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-                new Text(sprintf('Reporting Controller: %s', $this->event->reporting_controller))));
-        }
-
-        if ($this->event->reporting_instance) {
-            $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-                new Text(sprintf('Reporting Controller: %s', $this->event->reporting_instance))));
-        }
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-            new Text(sprintf('Action: %s', $this->event->action))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'event-detail-item']),
-            new Text('Created: '), new TimeAgo($this->event->created->getTimestamp())));
+        $this->addHtml(new HtmlElement(
+            'section',
+            new Attributes(['class' => 'event-note']),
+            new HtmlElement('h2', null, new Text(t('Note'))),
+            new Text($this->event->note)
+        ));
     }
 }
