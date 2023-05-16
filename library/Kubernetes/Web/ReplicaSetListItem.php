@@ -56,11 +56,11 @@ class ReplicaSetListItem extends BaseListItem
 
     protected function getHealthIcon(): string
     {
-        if ($this->item->ready_replicas !== $this->item->replicas) {
+        if ($this->item->ready_replicas !== $this->item->actual_replicas) {
             return Icons::REPLICASET_UNHEALTHY;
-        } else if ($this->item->ready_replicas === $this->item->replicas) {
+        } else if ($this->item->ready_replicas === $this->item->actual_replicas) {
             return Icons::REPLICASET_HEALTHY;
-        } else if ($this->item->ready_replicas === 0 && $this->item->replicas !== 0) {
+        } else if ($this->item->ready_replicas === 0 && $this->item->actual_replicas !== 0) {
             return Icons::REPLICASET_CRITICAL;
         } else {
             return Icons::REPLICASET_UNKNOWN;

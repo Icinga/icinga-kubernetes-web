@@ -33,7 +33,7 @@ class ReplicaSetDetail extends BaseHtmlElement
             new Text(sprintf('Desired replicas: %s', $this->replicaSet->desired_replicas))));
 
         $this->add(new HtmlElement('li', new Attributes(['class' => 'replica-set-detail-item']),
-            new Text(sprintf('Replicas: %d/%d', $this->replicaSet->ready_replicas, $this->replicaSet->replicas))));
+            new Text(sprintf('Replicas: %d/%d', $this->replicaSet->ready_replicas, $this->replicaSet->actual_replicas))));
 
         $this->add(new HtmlElement('li', new Attributes(['class' => 'replica-set-detail-item']),
             new Text(sprintf('Fully labeled replicas: %s', $this->replicaSet->fully_labeled_replicas))));
