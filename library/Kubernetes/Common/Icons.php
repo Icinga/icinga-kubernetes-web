@@ -28,6 +28,14 @@ abstract class Icons
 
     public const STATEFULSET_CRITICAL = 'circle-exclamation';
 
+    public const HEALTHY = 'circle-check';
+
+    public const DEGRADED = 'exclamation-triangle';
+
+    public const UNHEALTHY = 'circle-exclamation';
+
+    public const UNDECIDABLE = 'circle-check';
+
     public const STATEFULSET_UNKNOWN = 'pause-circle';
 
     public const REPLICASET_HEALTHY = 'circle-check';

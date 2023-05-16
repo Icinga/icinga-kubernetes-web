@@ -10,6 +10,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Stdlib\Str;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
@@ -24,12 +25,7 @@ class StatefulSetListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $content = new Icon($this->getHealthIcon());
-//
-//        if ($this->item->severity === 'ok' || $this->item->severity === 'err') {
-//            $content->setStyle('fa-regular');
-//        }
-
+        $content = new Icon($this->getHealthIcon(), ['class' => ['health-' . $this->getState()]]);
         $visual->addHtml($content);
     }
 
@@ -66,7 +62,7 @@ class StatefulSetListItem extends BaseListItem
         $available = $this->item->available_replicas;
         $pending = $available - $this->item->ready_replicas;
         $critical = $desired - $unknown - $available - $pending;
-        $pods = new HtmlElement('span');
+        $pods = new HtmlElement('div', new Attributes(['class' => 'pod-balls']));
         for ($i = 0; $i < $critical; $i++) {
             $pods->addHtml(new StateBall('critical', StateBall::SIZE_MEDIUM));
         }
@@ -80,6 +76,11 @@ class StatefulSetListItem extends BaseListItem
             $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
         }
         $keyValue->add(new VerticalKeyValue('Pods', $pods));
+        $keyValue->add(new VerticalKeyValue('Service Name', $this->item->service_name));
+        $keyValue->add(new VerticalKeyValue('Management Policy', ucfirst(Str::camel($this->item->pod_management_policy))));
+        $keyValue->add(new VerticalKeyValue('Update Strategy', ucfirst(Str::camel($this->item->update_strategy))));
+        $keyValue->add(new VerticalKeyValue('Min Ready Seconds', $this->item->min_ready_seconds));
+        $keyValue->add(new VerticalKeyValue('Namespace', $this->item->namespace));
     }
 
     protected function getHealthIcon(): string

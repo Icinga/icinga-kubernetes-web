@@ -2,47 +2,73 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
+use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Model\ReplicaSet;
+use Icinga\Module\Kubernetes\Model\ReplicaSetCondition;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\Stdlib\Filter;
+use ipl\Stdlib\Str;
 use ipl\Web\Widget\TimeAgo;
 
-class DaemonSetDetail  extends BaseHtmlElement
+class DaemonSetDetail extends BaseHtmlElement
 {
-    /** @var DaemonSet */
-    private $daemonSet;
+    protected $defaultAttributes = [
+        'class' => 'daemon-set-detail'
+    ];
 
-    protected $tag = 'ul';
+    protected $tag = 'div';
 
-    public function __construct($daemonSet)
+    /** @var ReplicaSet */
+    protected $daemonSet;
+
+    public function __construct(DaemonSet $daemonSet)
     {
         $this->daemonSet = $daemonSet;
     }
 
     protected function assemble()
     {
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'daemon-set-detail-item']),
-            new Text(sprintf('UID: %s', $this->daemonSet->uid))));
+        $this->addHtml(new Details([
+            t('Name')                     => $this->daemonSet->name,
+            t('Namespace')                => $this->daemonSet->namespace,
+            t('UID')                      => $this->daemonSet->uid,
+            t('Update Strategy')          => ucfirst(Str::camel($this->daemonSet->update_strategy)),
+            t('Min Ready Seconds')        => $this->daemonSet->min_ready_seconds,
+            t('Desired Number Scheduled') => $this->daemonSet->desired_number_scheduled,
+            t('Current Number Scheduled') => $this->daemonSet->current_number_scheduled,
+            t('Update Number Scheduled')  => $this->daemonSet->update_number_scheduled,
+            t('Number Misscheduled')      => $this->daemonSet->number_misscheduled,
+            t('Number Ready')             => $this->daemonSet->number_ready,
+            t('Number Available')         => $this->daemonSet->number_available,
+            t('Number Unavailable')       => $this->daemonSet->number_unavailable,
+            t('Created')                  => new TimeAgo($this->daemonSet->created->getTimestamp())
+        ]));
 
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'daemon-set-detail-item']),
-            new Text(sprintf('Namespace/Name: %s/%s', $this->daemonSet->namespace, $this->daemonSet->name))));
+        $this->addHtml(new ConditionTable($this->daemonSet, (new ReplicaSetCondition())->getColumnDefinitions()));
 
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'daemon-set-detail-item']),
-            new Text(sprintf('Misscheduled: %s', $this->daemonSet->number_misscheduled))));
+        $this->addHtml(new HtmlElement(
+            'section',
+            new Attributes(['class' => 'resource-pods']),
+            new HtmlElement('h2', null, new Text(t('Pods'))),
+            new PodList($this->daemonSet->pods->with(['node']))
+        ));
 
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'daemon-set-detail-item']),
-            new Text(sprintf('Scheduled/Desired: %s/%s', $this->daemonSet->current_number_scheduled, $this->daemonSet->desired_number_scheduled))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'daemon-set-detail-item']),
-            new Text(sprintf('Ready: %d', $this->daemonSet->number_ready))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'daemon-set-detail-item']),
-            new Text(sprintf('Collisions: %s', $this->daemonSet->collision_count))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'daemon-set-detail-item']),
-            new Text('Created: '), new TimeAgo($this->daemonSet->created->getTimestamp())));
+//        $this->addHtml(new HtmlElement(
+//            'section',
+//            new Attributes(['class' => 'resource-events']),
+//            new HtmlElement('h2', null, new Text(t('Events'))),
+//            new EventList(Event::on(Database::connection())
+//                ->filter(Filter::all(
+//                    Filter::equal('reference_kind', 'DaemonSet'),
+//                    Filter::equal('reference_namespace', $this->daemonSet->namespace),
+//                    Filter::equal('reference_name', $this->daemonSet->name)
+//                )))
+//        ));
     }
 
 }

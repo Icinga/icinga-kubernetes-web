@@ -2,6 +2,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -16,7 +17,7 @@ class Deployment extends Model
 
     public function getKeyName()
     {
-        return 'uid';
+        return 'id';
     }
 
     public function getColumns()
@@ -25,19 +26,27 @@ class Deployment extends Model
             'namespace',
             'name',
             'uid',
+            'resource_version',
+            'desired_replicas',
             'strategy',
+            'min_ready_seconds',
+            'progress_deadline_seconds',
             'paused',
-            'replicas',
+            'actual_replicas',
+            'updated_replicas',
             'ready_replicas',
             'available_replicas',
             'unavailable_replicas',
-            'collision_count',
             'created',
         ];
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'created'
         ]));
@@ -45,5 +54,10 @@ class Deployment extends Model
 
     public function createRelations(Relations $relations)
     {
+        $relations
+            ->belongsToMany('pods', Pod::class)
+            ->through('pod_owner');
+
+        $relations->hasMany('condition', DeploymentCondition::class);
     }
 }

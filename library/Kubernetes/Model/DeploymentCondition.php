@@ -10,23 +10,23 @@ use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
-class StatefulSetCondition extends Model
+class DeploymentCondition extends Model
 {
     public function getTableName()
     {
-        return 'stateful_set_condition';
+        return 'deployment_condition';
     }
 
     public function getKeyName()
     {
-        return ['stateful_set_id', 'type'];
+        return ['deployment_id', 'type'];
     }
 
     public function getColumns()
     {
         return [
-            'type',
             'status',
+            'last_update',
             'last_transition',
             'message',
             'reason'
@@ -38,6 +38,7 @@ class StatefulSetCondition extends Model
         return [
             'type'            => t('Type'),
             'status'          => t('Status'),
+            'last_update'     => t('Last Update'),
             'last_transition' => t('Last Transition'),
             'message'         => t('Message'),
             'reason'          => t('Reason')
@@ -52,15 +53,17 @@ class StatefulSetCondition extends Model
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
-            'stateful_set_id'
+            'deployment_id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
+            'last_update',
             'last_transition'
         ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations->belongsTo('stateful_set', StatefulSet::class);
+        $relations->belongsTo('deployment', Deployment::class);
     }
 }

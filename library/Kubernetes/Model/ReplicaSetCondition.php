@@ -10,16 +10,16 @@ use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
-class StatefulSetCondition extends Model
+class ReplicaSetCondition extends Model
 {
     public function getTableName()
     {
-        return 'stateful_set_condition';
+        return 'replica_set_condition';
     }
 
     public function getKeyName()
     {
-        return ['stateful_set_id', 'type'];
+        return ['replica_set_id', 'type'];
     }
 
     public function getColumns()
@@ -52,7 +52,7 @@ class StatefulSetCondition extends Model
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
-            'stateful_set_id'
+            'replica_set_id'
         ]));
         $behaviors->add(new MillisecondTimestamp([
             'last_transition'
@@ -61,6 +61,6 @@ class StatefulSetCondition extends Model
 
     public function createRelations(Relations $relations)
     {
-        $relations->belongsTo('stateful_set', StatefulSet::class);
+        $relations->belongsTo('replica_set', ReplicaSet::class);
     }
 }

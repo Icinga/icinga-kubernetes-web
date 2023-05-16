@@ -31,11 +31,7 @@ class EventListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(new Link(
-            Html::sprintf(
-                t('%s:%s', '<type>: <reason>'),
-                Html::tag('span', ['class' => 'event-text'], $this->item->type),
-                Html::tag('span', ['class' => 'event-text'], $this->item->reason)
-            ),
+            Html::tag('span', ['class' => 'event-text'], $this->item->reason),
             Links::event($this->item->namespace, $this->item->name),
             ['class' => 'subject']
         ));

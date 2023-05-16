@@ -100,7 +100,31 @@ class Pod extends Model
             ->setForeignKey('name');
 
         $relations
+            ->belongsToMany('daemon_set', DaemonSet::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
             ->belongsToMany('stateful_set', StatefulSet::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsToMany('replica_set', ReplicaSet::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsToMany('deployment', Deployment::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')

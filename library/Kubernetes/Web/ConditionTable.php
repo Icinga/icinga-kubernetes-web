@@ -37,7 +37,11 @@ class ConditionTable extends Table
         foreach ($this->resource->condition as $condition) {
             $row = new HtmlElement('tr');
             foreach ($this->columnDefinitions as $column => $_) {
-                if ($column === 'last_probe' || $column === 'last_transition') {
+                if (
+                    $column === 'last_probe'
+                    || $column === 'last_transition'
+                    || $column === 'last_update'
+                ) {
                     $content = new TimeAgo($condition->$column->getTimestamp());
                 } else {
                     $content = Text::create($condition->$column);

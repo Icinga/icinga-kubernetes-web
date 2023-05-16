@@ -1,45 +1,58 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Model\Deployment;
+use Icinga\Module\Kubernetes\Model\DeploymentCondition;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\Stdlib\Str;
 use ipl\Web\Widget\TimeAgo;
 
 class DeploymentDetail extends BaseHtmlElement
 {
+    protected $defaultAttributes = [
+        'class' => 'deployment-detail',
+    ];
+
+    protected $tag = 'div';
+
     /** @var Deployment */
-    private $item;
+    private $deployment;
 
-    protected $tag = 'ul';
-
-    public function __construct($item)
+    public function __construct(Deployment $deployment)
     {
-        $this->item = $item;
+        $this->deployment = $deployment;
     }
 
     protected function assemble()
     {
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'deployment-detail-item']),
-            new Text(sprintf('UID: %s', $this->item->uid))));
+        $this->addHtml(new Details([
+            t('Name')                => $this->deployment->name,
+            t('Namespace')           => $this->deployment->namespace,
+            t('UID')                 => $this->deployment->uid,
+            t('Strategy')            => ucfirst(Str::camel($this->deployment->strategy)),
+            t('Min Ready Seconds')   => $this->deployment->min_ready_seconds,
+            t('Desired Replicas')    => $this->deployment->desired_replicas,
+            t('Actual Replicas')     => $this->deployment->actual_replicas,
+            t('Updated Replicas')    => $this->deployment->updated_replicas,
+            t('Ready Replicas')      => $this->deployment->ready_replicas,
+            t('Available Replicas')  => $this->deployment->available_replicas,
+            t('Unvailable Replicas') => $this->deployment->unavailable_replicas,
+            t('Created')             => new TimeAgo($this->deployment->created->getTimestamp())
+        ]));
 
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'deployment-detail-item']),
-            new Text(sprintf('Namespace/Name: %s/%s', $this->item->namespace, $this->item->name))));
+        $this->addHtml(new ConditionTable($this->deployment, (new DeploymentCondition())->getColumnDefinitions()));
 
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'deployment-detail-item']),
-            new Text(sprintf('Replicas: %d/%d', $this->item->ready_replicas, $this->item->replicas))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'deployment-detail-item']),
-            new Text(sprintf('Unavailable Replicas: %d', $this->item->unavailable_replicas))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'deployment-detail-item']),
-            new Text(sprintf('Strategy: %s', $this->item->strategy))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'deployment-detail-item']),
-            new Text('Created: '), new TimeAgo($this->item->created->getTimestamp())));
+        $this->addHtml(new HtmlElement(
+            'section',
+            new Attributes(['class' => 'resource-pods']),
+            new HtmlElement('h2', null, new Text(t('Pods'))),
+            new PodList($this->deployment->pods->with(['node']))
+        ));
     }
-
 }

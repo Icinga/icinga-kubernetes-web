@@ -20,16 +20,20 @@
   color: @state-pending;
 }
 
-.phase-running, .phase-succeeded, .state-running {
+.phase-running, .phase-succeeded, .state-running, .health-healthy {
   color: @state-ok;
 }
 
-.phase-failed, .state-terminated {
+.phase-failed, .state-terminated, .health-unhealthy {
   color: @state-critical;
 }
 
 .state-waiting {
   color: @state-pending;
+}
+
+.health-degraded {
+  color: @state-warning;
 }
 
 .item-list {
@@ -231,6 +235,10 @@
   display: flex;
   justify-content: space-between;
 
+  .horizontal-key-value, .vertical-key-value {
+    flex: 0 1 auto;
+  }
+
   .horizontal-key-value {
     padding: 0;
 width: 14em;
@@ -242,12 +250,12 @@ width: 14em;
   .vertical-key-value {
     &:first-child {
       .text-ellipsis();
-      margin-right: 1em;
+      //margin-right: 1em;
     }
 
     &:last-child {
       white-space: nowrap;
-      margin-left: 1em;
+      //margin-left: 1em;
     }
   }
 
@@ -347,6 +355,18 @@ width: 14em;
   }
 }
 
-.labels .horizontal-key-value > .key {
-  width: 25em;
+.resource-details, .labels {
+  .horizontal-key-value > .key {
+    width: 25em;
+  }
+}
+
+.pod-balls {
+  display: inline-block;
+}
+
+.list-item .key-value {
+  > .vertical-key-value, > .horizontal-key-value {
+    width: 10em;
+  }
 }
