@@ -57,13 +57,13 @@ class DeploymentListItem extends BaseListItem
 
     protected function getReplicaHealth(): string
     {
-        if ($this->item->ready_replicas !== $this->item->replicas &&
+        if ($this->item->ready_replicas !== $this->item->actual_replicas &&
             $this->item->unavailable_replicas !== 0) {
             return DeploymentHealth::UNHEALTHY;
-        } else if ($this->item->ready_replicas === $this->item->replicas &&
+        } else if ($this->item->ready_replicas === $this->item->actual_replicas &&
             $this->item->unavailable_replicas === 0) {
             return DeploymentHealth::HEALTHY;
-        } else if ($this->item->ready_replicas === 0 && $this->item->replicas !== 0) {
+        } else if ($this->item->ready_replicas === 0 && $this->item->actual_replicas !== 0) {
             return DeploymentHealth::CRITICAL;
         } else {
             return DeploymentHealth::UNKNOWN;

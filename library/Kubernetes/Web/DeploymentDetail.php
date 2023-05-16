@@ -30,7 +30,7 @@ class DeploymentDetail extends BaseHtmlElement
             new Text(sprintf('Namespace/Name: %s/%s', $this->item->namespace, $this->item->name))));
 
         $this->add(new HtmlElement('li', new Attributes(['class' => 'deployment-detail-item']),
-            new Text(sprintf('Replicas: %d/%d', $this->item->ready_replicas, $this->item->replicas))));
+            new Text(sprintf('Replicas: %d/%d', $this->item->ready_replicas, $this->item->actual_replicas))));
 
         $this->add(new HtmlElement('li', new Attributes(['class' => 'deployment-detail-item']),
             new Text(sprintf('Unavailable Replicas: %d', $this->item->unavailable_replicas))));
