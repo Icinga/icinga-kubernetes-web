@@ -39,9 +39,6 @@ class DaemonSetDetail  extends BaseHtmlElement
             new Text(sprintf('Ready: %d', $this->daemonSet->number_ready))));
 
         $this->add(new HtmlElement('li', new Attributes(['class' => 'daemon-set-detail-item']),
-            new Text(sprintf('Collisions: %s', $this->daemonSet->collision_count))));
-
-        $this->add(new HtmlElement('li', new Attributes(['class' => 'daemon-set-detail-item']),
             new Text('Created: '), new TimeAgo($this->daemonSet->created->getTimestamp())));
     }
 

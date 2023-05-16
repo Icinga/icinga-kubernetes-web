@@ -2,6 +2,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -16,27 +17,47 @@ class DaemonSet extends Model
 
     public function getKeyName()
     {
-        return 'uid';
+        return 'id';
     }
 
     public function getColumns()
     {
         return [
+            'id',
             'namespace',
             'name',
-            'uid',
+            'uid ',
+            'resource_version',
+            'update_strategy',
             'min_ready_seconds',
+            'desired_number_scheduled',
             'current_number_scheduled',
             'number_misscheduled',
-            'desired_number_scheduled',
             'number_ready',
-            'collision_count',
+            'update_number_scheduled',
+            'number_available',
+            'number_unavailable',
             'created'
+
         ];
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['namespace', 'created desc'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
+
+        $behaviors->add(new Binary([
+            'id'
+        ]));
         $behaviors->add(new MillisecondTimestamp([
             'created'
         ]));
@@ -44,5 +65,6 @@ class DaemonSet extends Model
 
     public function createRelations(Relations $relations)
     {
+        // TODO: Add relations
     }
 }
