@@ -20,6 +20,14 @@ $section->add(
 );
 
 $section->add(
+    N_('Nodes'),
+    [
+        'description'   => $this->translate('Nodes'),
+        'url'           => 'kubernetes/nodes'
+    ]
+);
+
+$section->add(
     N_('Deployments'),
     [
         'description'   => $this->translate('Deployments'),
