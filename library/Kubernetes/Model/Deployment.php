@@ -65,6 +65,6 @@ class Deployment extends Model
 
     public function createRelations(Relations $relations)
     {
-        // TODO: Add relations
+        $relations->hasMany('conditions', DeploymentCondition::class);
     }
 }
