@@ -41,8 +41,13 @@ class ConditionTable extends Table
                     $column === 'last_probe'
                     || $column === 'last_transition'
                     || $column === 'last_update'
-                ) {
-                    $content = new TimeAgo($condition->$column->getTimestamp());
+                    || $column === 'last_heartbeat'
+		) {
+		    if ($condition->$column instanceof \DateTime) {
+			    $content = new TimeAgo($condition->$column->getTimestamp());
+		     } else {
+                    $content = Text::create('-');
+		     }
                 } else {
                     $content = Text::create($condition->$column);
                 }

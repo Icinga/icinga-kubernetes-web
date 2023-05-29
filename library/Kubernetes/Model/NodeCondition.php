@@ -5,55 +5,44 @@
 namespace Icinga\Module\Kubernetes\Model;
 
 use ipl\Orm\Behavior\Binary;
-use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
-class Node extends Model
+class NodeCondition extends Model
 {
     public function getTableName()
     {
-        return 'node';
+        return 'node_condition';
     }
 
     public function getKeyName()
     {
-        return ['id'];
+        return ['node_id', 'type'];
     }
 
     public function getColumns()
     {
         return [
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'pod_cidr',
-            'num_ips',
-            'unschedulable',
-            'ready',
-            'cpu_capacity',
-            'cpu_allocatable',
-            'memory_capacity',
-            'memory_allocatable',
-            'pod_capacity',
-            'created'
+            'status',
+            'last_heartbeat',
+            'last_transition',
+            'message',
+            'reason'
         ];
     }
 
     public function getColumnDefinitions()
     {
         return [
-            'name'  => t('Name'),
-            'value' => t('Value')
+            'type'            => t('Type'),
+            'status'          => t('Status'),
+            'last_heartbeat'      => t('Last Heartbeat'),
+            'last_transition' => t('Last Transition'),
+            'message'         => t('Message'),
+            'reason'          => t('Reason')
         ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['created desc'];
     }
 //
 //    public function getSearchColumns()
@@ -61,34 +50,29 @@ class Node extends Model
 //        return ['severity'];
 //    }
 //
-//    public function getDefaultSort()
-//    {
-//        return ['last_transition desc'];
-//    }
+    public function getDefaultSort()
+    {
+        return ['last_transition desc'];
+    }
 
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
-            'id'
+            'node_id'
         ]));
-
-        $behaviors->add(new BoolCast([
-            'ready'
-        ]));
-
         $behaviors->add(new MillisecondTimestamp([
-            'created'
+            'last_heartbeat',
+            'last_transition'
         ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations->hasMany('condition', NodeCondition::class);
-
-        $relations
-            ->hasMany('pod', Pod::class)
-            ->setCandidateKey('name')
-            ->setForeignKey('node_name');
+        $relations->belongsTo('node', Node::class);
+//
+//        $relations
+//            ->belongsToMany('event', Event::class)
+//            ->through('incident_event');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');

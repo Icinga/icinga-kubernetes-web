@@ -7,14 +7,18 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Node;
+use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\Stdlib\Str;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
+use ipl\Web\Widget\VerticalKeyValue;
 
 class NodeListItem extends BaseListItem
 {
@@ -23,21 +27,19 @@ class NodeListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $typeVisual = $this->createTypeVisual();
-        if ($typeVisual !== null) {
-            $visual->addHtml($typeVisual);
-        }
+        $visual->addHtml($this->createTypeVisual());
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $content = Html::sprintf(
-            t('%s', '<pod> is <pod_phase>'),
+            t('%s is %s', '<node> is <ready>'),
             new Link(
                 $this->item->name,
                 Links::node($this->item->name),
                 ['class' => 'subject']
             ),
+            new HtmlElement('span', null, new Text($this->item->ready ? t('ready') : t('not ready')))
         );
 
         $title->addHtml($content);
@@ -46,29 +48,26 @@ class NodeListItem extends BaseListItem
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->add($this->createTitle());
-        $container = new HtmlElement('div', new Attributes(['style' => 'display: inline-flex; align-items: center;']));
-        if ($this->item->cpu_capacity > 0) {
-            $container->addHtml(new Usage($this->item->cpu_capacity, $this->item->cpu_allocatable));
-        }
-        if ($this->item->memory_capacity > 0) {
-            $container->addHtml(new Usage($this->item->memory_capacity, $this->item->memory_allocatable));
-        }
-        $container->addHtml(new TimeAgo($this->item->created->getTimestamp()));
-        $header->add($container);
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->add($this->createHeader());
+        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
+        $main->addHtml($keyValue);
+        $keyValue->add(new VerticalKeyValue('CIDR', $this->item->pod_cidr));
+        $keyValue->add(new VerticalKeyValue('Pod Capacity', $this->item->pod_capacity));
+        $keyValue->add(new VerticalKeyValue('IPs Available', $this->item->num_ips));
+        $keyValue->add(new VerticalKeyValue('CPU Capacity', sprintf('%d cores', $this->item->cpu_allocatable / 1000)));
+        $keyValue->add(new VerticalKeyValue('Memory Capacity', Format::bytes($this->item->memory_allocatable / 1000)));
     }
 
     protected function createTypeVisual(): ?ValidHtml
     {
-        switch ($this->item->ready) {
-            case 'Warning':
-                return new StateBall('warning', StateBall::SIZE_MEDIUM);
-            default:
-                return null;
+        if (! $this->item->ready) {
+            return new StateBall('critical', StateBall::SIZE_MEDIUM);
         }
+
+        return new StateBall('ok', StateBall::SIZE_MEDIUM);
     }
 }

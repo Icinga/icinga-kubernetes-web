@@ -11,59 +11,77 @@ $section = $this->menuSection(
     ]
 );
 
-$section->add(
-    N_('Pods'),
+$i = 0;
+
+/*$section->add(
+    N_('Dashboard'),
     [
-        'description'   => $this->translate('Pods'),
-        'url'           => 'kubernetes/pods'
+        'description' => $this->translate('Dashboard'),
+        'url'         => 'kubernetes/dashboard',
+        'priority'    => $i++
     ]
-);
+);*/
 
 $section->add(
     N_('Nodes'),
     [
-        'description'   => $this->translate('Nodes'),
-        'url'           => 'kubernetes/nodes'
+        'description' => $this->translate('Nodes'),
+        'url'         => 'kubernetes/nodes',
+        'priority'    => $i++
     ]
 );
 
 $section->add(
     N_('Deployments'),
     [
-        'description'   => $this->translate('Deployments'),
-        'url'           => 'kubernetes/deployments'
-    ]
-);
-
-$section->add(
-    N_('Stateful Sets'),
-    [
-        'description'   => $this->translate('Stateful Sets'),
-        'url'           => 'kubernetes/statefulsets'
+        'description' => $this->translate('Deployments'),
+        'url'         => 'kubernetes/deployments',
+        'priority'    => $i++
     ]
 );
 
 $section->add(
     N_('ReplicaSets'),
     [
-        'description'   => $this->translate('ReplicaSets'),
-        'url'           => 'kubernetes/replicasets'
+        'description' => $this->translate('ReplicaSets'),
+        'url'         => 'kubernetes/replicasets',
+        'priority'    => $i++
     ]
 );
 
 $section->add(
     N_('Daemon Sets'),
     [
-        'description'   => $this->translate('Daemon Sets'),
-        'url'           => 'kubernetes/daemonsets'
+        'description' => $this->translate('Daemon Sets'),
+        'url'         => 'kubernetes/daemonsets',
+        'priority'    => $i++
+    ]
+);
+
+$section->add(
+    N_('Stateful Sets'),
+    [
+        'description' => $this->translate('Stateful Sets'),
+        'url'         => 'kubernetes/statefulsets',
+        'priority'    => $i++
     ]
 );
 
 $section->add(
     N_('Events'),
     [
-        'description'   => $this->translate('Events'),
-        'url'           => 'kubernetes/events'
+        'description' => $this->translate('Events'),
+        'url'         => 'kubernetes/events',
+        'priority'    => $i++
+    ]
+);
+
+$section->add(
+    N_('Pods'),
+    [
+        'description' => $this->translate('Pods'),
+        'url'         => 'kubernetes/pods',
+        'priority'    => $i++
     ]
 );
 

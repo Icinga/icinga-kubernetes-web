@@ -122,7 +122,7 @@ class PodListItem extends BaseListItem
 
                     break;
                 default:
-                    throw new LogicException();
+                    $state = 'unknown';
             }
             $containerRestarts += $container->restart_count;
             $containers->addHtml(new StateBall($state, StateBall::SIZE_MEDIUM));

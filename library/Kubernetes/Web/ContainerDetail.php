@@ -63,7 +63,9 @@ class ContainerDetail extends BaseHtmlElement
             case Container::STATE_TERMINATED:
             case Container::STATE_WAITING:
                 $state->add(new HorizontalKeyValue('Reason', $stateDetails->reason));
-                $state->add(new HorizontalKeyValue('Message', $stateDetails->message));
+                if (isset($stateDetails->message)) {
+                    $state->add(new HorizontalKeyValue('Message', $stateDetails->message));
+                }
 
                 break;
             default:
