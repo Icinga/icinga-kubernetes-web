@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Node;
-use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\NodeList;
@@ -18,7 +17,8 @@ class NodesController extends Controller
 {
     use SearchControls;
 
-    public function indexAction(): void {
+    public function indexAction(): void
+    {
         $this->addTitleTab($this->translate('Nodes'));
 
         $nodes = Node::on(Database::connection());
@@ -68,14 +68,14 @@ class NodesController extends Controller
     public function completeAction(): void
     {
         $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(Pod::class);
+        $suggestions->setModel(Node::class);
         $suggestions->forRequest($this->getServerRequest());
         $this->getDocument()->add($suggestions);
     }
 
     public function searchEditorAction(): void
     {
-        $editor = $this->createSearchEditor(Pod::on(Database::connection()), [
+        $editor = $this->createSearchEditor(Node::on(Database::connection()), [
             LimitControl::DEFAULT_LIMIT_PARAM,
             SortControl::DEFAULT_SORT_PARAM,
         ]);
