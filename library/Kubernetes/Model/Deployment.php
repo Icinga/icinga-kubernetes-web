@@ -58,6 +58,10 @@ class Deployment extends Model
             ->belongsToMany('pods', Pod::class)
             ->through('pod_owner');
 
+        $relations
+            ->belongsToMany('replica_sets', ReplicaSet::class)
+            ->through('replica_set_owner');
+
         $relations->hasMany('condition', DeploymentCondition::class);
     }
 }
