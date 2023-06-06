@@ -6,11 +6,13 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\DeploymentCondition;
+use Icinga\Module\Kubernetes\Model\Label;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Stdlib\Str;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\TimeAgo;
 
 class DeploymentDetail extends BaseHtmlElement
@@ -46,7 +48,10 @@ class DeploymentDetail extends BaseHtmlElement
             t('Created')             => new TimeAgo($this->deployment->created->getTimestamp())
         ]));
 
-        $this->addHtml(new ConditionTable($this->deployment, (new DeploymentCondition())->getColumnDefinitions()));
+        $this->addHtml(
+            new Labels($this->deployment->label),
+            new ConditionTable($this->deployment, (new DeploymentCondition())->getColumnDefinitions())
+        );
 
         $this->addHtml(new HtmlElement(
             'section',

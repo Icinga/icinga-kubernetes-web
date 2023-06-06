@@ -44,19 +44,11 @@ class PodDetail extends BaseHtmlElement
         $details->addHtml(new HorizontalKeyValue(t('QoS Class'), ucfirst(Str::camel($this->pod->qos))));
         $details->addHtml(new HorizontalKeyValue(t('Restart Policy'), ucfirst(Str::camel($this->pod->restart_policy))));
         $details->addHtml(new HorizontalKeyValue(t('Created'), $this->pod->created->format('Y-m-d H:i:s')));
-        $labels = new HtmlElement(
-            'section',
-            new Attributes(['class' => 'labels']),
-            new HtmlElement('h2', null, new Text(t('Labels')))
-        );
-        /** @var Label $label */
-        foreach ($this->pod->label as $label) {
-            $labels->addHtml(new HorizontalKeyValue($label->name, $label->value));
-        }
+
         $this->addHtml(
             $details,
+            new Labels($this->pod->label),
             new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),
-            $labels,
             new HtmlElement('h2', null, new Text('Containers')),
             new ContainerList($this->pod->container),
             new HtmlElement('h2', null, new Text('Events')),

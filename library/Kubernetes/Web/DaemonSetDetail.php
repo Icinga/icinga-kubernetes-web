@@ -5,6 +5,7 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Model\Label;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\ReplicaSetCondition;
 use ipl\Html\Attributes;
@@ -13,6 +14,7 @@ use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\TimeAgo;
 
 class DaemonSetDetail extends BaseHtmlElement
@@ -49,7 +51,10 @@ class DaemonSetDetail extends BaseHtmlElement
             t('Created')                  => new TimeAgo($this->daemonSet->created->getTimestamp())
         ]));
 
-        $this->addHtml(new ConditionTable($this->daemonSet, (new ReplicaSetCondition())->getColumnDefinitions()));
+        $this->addHtml(
+            new Labels($this->daemonSet->label),
+            new ConditionTable($this->daemonSet, (new ReplicaSetCondition())->getColumnDefinitions())
+        );
 
         $this->addHtml(new HtmlElement(
             'section',

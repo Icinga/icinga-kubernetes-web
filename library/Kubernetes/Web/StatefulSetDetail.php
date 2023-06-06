@@ -2,6 +2,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Model\Label;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Model\StatefulSetCondition;
 use ipl\Html\Attributes;
@@ -9,6 +10,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Stdlib\Str;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\TimeAgo;
 
 class StatefulSetDetail extends BaseHtmlElement
@@ -42,7 +44,10 @@ class StatefulSetDetail extends BaseHtmlElement
             t('Created')               => new TimeAgo($this->statefulSet->created->getTimestamp())
         ]));
 
-        $this->addHtml(new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions()));
+        $this->addHtml(
+            new Labels($this->statefulSet->label),
+            new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions())
+        );
 
         $this->addHtml(new HtmlElement(
             'section',

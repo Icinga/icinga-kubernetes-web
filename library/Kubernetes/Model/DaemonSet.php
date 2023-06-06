@@ -57,6 +57,10 @@ class DaemonSet extends Model
             ->belongsToMany('pods', Pod::class)
             ->through('pod_owner');
 
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('daemon_set_label');
+
         $relations->hasMany('condition', DaemonSetCondition::class);
     }
 }

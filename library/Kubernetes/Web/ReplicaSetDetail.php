@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Model\Label;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\replicaSetCondition;
 use ipl\Html\Attributes;
@@ -13,6 +14,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Stdlib\Filter;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\TimeAgo;
 
 class ReplicaSetDetail extends BaseHtmlElement
@@ -46,7 +48,10 @@ class ReplicaSetDetail extends BaseHtmlElement
             t('Created')                => new TimeAgo($this->replicaSet->created->getTimestamp())
         ]));
 
-        $this->addHtml(new ConditionTable($this->replicaSet, (new ReplicaSetCondition())->getColumnDefinitions()));
+        $this->addHtml(
+            new Labels($this->replicaSet->label),
+            new ConditionTable($this->replicaSet, (new ReplicaSetCondition())->getColumnDefinitions())
+        );
 
         $this->addHtml(new HtmlElement(
             'section',

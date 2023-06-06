@@ -65,6 +65,10 @@ class ReplicaSet extends Model
             ->setCandidateKey('id')
             ->setForeignKey('replica_set_id');
 
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('replica_set_label');
+
         $relations->hasMany('condition', ReplicaSetCondition::class);
     }
 }

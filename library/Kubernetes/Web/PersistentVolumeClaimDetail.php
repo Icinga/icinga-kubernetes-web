@@ -44,18 +44,9 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
             t('Storage Class') => ucfirst(Str::camel($this->pvc->storage_class)),
         ]));
 
-        $labels = new HtmlElement(
-            'section',
-            new Attributes(['class' => 'labels']),
-            new HtmlElement('h2', null, new Text(t('Labels')))
-        );
-        /** @var Label $label */
-        foreach ($this->pvc->label as $label) {
-            $labels->addHtml(new HorizontalKeyValue($label->name, $label->value));
-        }
         $this->addHtml(
+            new Labels($this->pvc->label),
             new ConditionTable($this->pvc, (new PersistentVolumeClaimCondition())->getColumnDefinitions()),
-            $labels,
         );
 
         $this->addHtml(new HtmlElement(

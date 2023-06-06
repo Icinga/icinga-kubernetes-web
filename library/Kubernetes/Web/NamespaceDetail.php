@@ -26,12 +26,15 @@ class NamespaceDetail extends BaseHtmlElement
 
     protected function assemble()
     {
-        $this->addHtml(new Details([
-            t('Name')                 => $this->namespace->name,
-            t('UID')                  => $this->namespace->uid,
-            t('Resource Version')     => $this->namespace->resource_version,
-            t('Phase')                => $this->namespace->phase,
-            t('Created')              => $this->namespace->created->format('Y-m-d H:i:s')
-        ]));
+        $this->addHtml(
+            new Details([
+                t('Name')                 => $this->namespace->name,
+                t('UID')                  => $this->namespace->uid,
+                t('Resource Version')     => $this->namespace->resource_version,
+                t('Phase')                => $this->namespace->phase,
+                t('Created')              => $this->namespace->created->format('Y-m-d H:i:s')
+            ]),
+            new Labels($this->namespace->label)
+        );
     }
 }
