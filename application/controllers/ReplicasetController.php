@@ -8,7 +8,7 @@ use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\ReplicaSetDetail;
 use ipl\Stdlib\Filter;
 
-class ReplicaSetController extends Controller
+class ReplicasetController extends Controller
 {
     public function indexAction(): void
     {

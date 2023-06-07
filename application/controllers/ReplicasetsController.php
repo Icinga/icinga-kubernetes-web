@@ -3,32 +3,32 @@
 namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
-use Icinga\Module\Kubernetes\Model\DaemonSet;
+use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
 use Icinga\Module\Kubernetes\Web\Controller;
-use Icinga\Module\Kubernetes\Web\DaemonSetList;
+use Icinga\Module\Kubernetes\Web\ReplicaSetList;
 use ipl\Web\Compat\SearchControls;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
 
-class DaemonSetsController extends Controller
+class ReplicasetsController extends Controller
 {
     use SearchControls;
 
     public function indexAction(): void
     {
-        $this->addTitleTab(t('Daemon Sets'));
+        $this->addTitleTab(t('Replica Sets'));
 
-        $daemonSet = DaemonSet::on(Database::connection());
+        $replicaSet = ReplicaSet::on(Database::connection());
 
         $limitControl = $this->createLimitControl();
         $sortControl = $this->createSortControl(
-            $daemonSet,
-            ['daemon_set.created' => t('Created')]
+            $replicaSet,
+            ['replica_set.created' => t('Created')]
         );
 
-        $paginationControl = $this->createPaginationControl($daemonSet);
-        $searchBar = $this->createSearchBar($daemonSet, [
+        $paginationControl = $this->createPaginationControl($replicaSet);
+        $searchBar = $this->createSearchBar($replicaSet, [
             $limitControl->getLimitParam(),
             $sortControl->getSortParam(),
         ]);
@@ -46,14 +46,14 @@ class DaemonSetsController extends Controller
             $filter = $searchBar->getFilter();
         }
 
-        $daemonSet->filter($filter);
+        $replicaSet->filter($filter);
 
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
         $this->addControl($limitControl);
         $this->addControl($searchBar);
 
-        $this->addContent(new DaemonSetList($daemonSet));
+        $this->addContent(new ReplicaSetList($replicaSet));
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();
@@ -63,14 +63,14 @@ class DaemonSetsController extends Controller
     public function completeAction(): void
     {
         $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(DaemonSet::class);
+        $suggestions->setModel(ReplicaSet::class);
         $suggestions->forRequest($this->getServerRequest());
         $this->getDocument()->add($suggestions);
     }
 
     public function searchEditorAction(): void
     {
-        $editor = $this->createSearchEditor(DaemonSet::on(Database::connection()), [
+        $editor = $this->createSearchEditor(ReplicaSet::on(Database::connection()), [
             LimitControl::DEFAULT_LIMIT_PARAM,
             SortControl::DEFAULT_SORT_PARAM,
         ]);
