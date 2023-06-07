@@ -42,7 +42,7 @@ class DeploymentDetail extends BaseHtmlElement
             t('Updated Replicas')    => $this->deployment->updated_replicas,
             t('Ready Replicas')      => $this->deployment->ready_replicas,
             t('Available Replicas')  => $this->deployment->available_replicas,
-            t('Unvailable Replicas') => $this->deployment->unavailable_replicas,
+            t('Unavailable Replicas') => $this->deployment->unavailable_replicas,
             t('Created')             => new TimeAgo($this->deployment->created->getTimestamp())
         ]));
 
