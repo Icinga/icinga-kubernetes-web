@@ -65,6 +65,10 @@ class Label extends Model
         $relations
             ->belongsToMany('pod', Pod::class)
             ->through('pod_label');
+
+        $relations
+            ->belongsToMany('pvc', PersistentVolumeClaim::class)
+            ->through('pvc_label');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');

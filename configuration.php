@@ -93,6 +93,15 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Persistent Volume Claims'),
+    [
+        'description' => $this->translate('Persistent Volume Claims'),
+        'url'         => 'kubernetes/persistentvolumeclaims',
+        'priority'    => $i++
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [

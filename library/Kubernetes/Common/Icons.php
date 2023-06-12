@@ -18,6 +18,12 @@ abstract class Icons
 
     public const POD_FAILED = 'circle-triangle';
 
+    public const PVC_PENDING = 'spinner';
+
+    public const PVC_BOUND = 'link';
+
+    public const PVC_LOST = 'file-circle-exclamation';
+
     public const DEPLOYMENT_HEALTHY = 'circle-check';
 
     public const DEPLOYMENT_UNHEALTHY = 'exclamation-triangle';
