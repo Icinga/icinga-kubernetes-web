@@ -24,13 +24,10 @@ class PersistentvolumesController extends Controller
         $persistentVolumes = PersistentVolume::on(Database::connection());
 
         $limitControl = $this->createLimitControl();
-        $sortControl = $this->createSortControl(
-            $persistentVolumes,
-            [
-                'persistent_volume.name'    => $this->translate('Name'),
-                'persistent_volume.created' => $this->translate('Created')
-            ]
-        );
+        $sortControl = $this->createSortControl($persistentVolumes, [
+            'persistent_volume.name'    => $this->translate('Name'),
+            'persistent_volume.created' => $this->translate('Created')
+        ]);
 
         $paginationControl = $this->createPaginationControl($persistentVolumes);
         $searchBar = $this->createSearchBar($persistentVolumes, [

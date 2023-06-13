@@ -22,6 +22,8 @@ class PersistentVolume extends Model
 
     public const PHASE_FAILED = 'failed';
 
+    public const DEFAULT_VOLUME_MODE = 'filesystem';
+
     public function getTableName()
     {
         return 'persistent_volume';
@@ -51,8 +53,8 @@ class PersistentVolume extends Model
     public function getColumnDefinitions()
     {
         return [
-            'name' => t('Name'),
-            'phase' => t('Phase'),
+            'name'    => t('Name'),
+            'phase'   => t('Phase'),
             'created' => t('Created At')
         ];
     }
@@ -69,16 +71,8 @@ class PersistentVolume extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'created'
-            ])
-        );
+        $behaviors->add(new Binary(['id']));
+        $behaviors->add(new MillisecondTimestamp(['created']));
     }
 
     public function createRelations(Relations $relations)

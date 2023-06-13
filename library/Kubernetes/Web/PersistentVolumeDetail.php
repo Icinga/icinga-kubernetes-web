@@ -11,6 +11,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\Stdlib\Str;
 
 class PersistentVolumeDetail extends BaseHtmlElement
 {
@@ -30,13 +31,21 @@ class PersistentVolumeDetail extends BaseHtmlElement
 
     protected function assemble()
     {
+        $volumeMode = $this->persistentVolume->volume_mode ?? PersistentVolume::DEFAULT_VOLUME_MODE;
         $this->addHtml(new Details([
-            t('Name') => $this->persistentVolume->name,
-            t('Created') => $this->persistentVolume->created->format('Y-m-d H:i:s'),
-            t('Capacity') => Format::bytes($this->persistentVolume->capacity / 1000),
-            t('Access Modes') => implode(', ', AccessModes::asNames($this->persistentVolume->access_modes)),
-            t('Volume Mode') => $this->persistentVolume->volume_mode,
-            t('Storage Class') => $this->persistentVolume->storage_class,
+            t('Name')          => $this->persistentVolume->name,
+            t('Created')       => $this->persistentVolume->created->format('Y-m-d H:i:s'),
+            t('Capacity')      => Format::bytes($this->persistentVolume->capacity / 1000),
+            t('Access Modes')  => implode(', ', AccessModes::asNames($this->persistentVolume->access_modes)),
+            t('Volume Mode')   => ucfirst(Str::camel($volumeMode)),
+            t('Storage Class') => ucfirst(Str::camel($this->persistentVolume->storage_class)),
         ]));
+
+        $this->addHtml(new HtmlElement(
+            'section',
+            new Attributes(['class' => 'persistent-volume-claims']),
+            new HtmlElement('h2', null, new Text(t('Claims'))),
+            new PersistentVolumeClaimList($this->persistentVolume->pvc)
+        ));
     }
 }

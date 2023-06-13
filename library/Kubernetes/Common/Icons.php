@@ -34,7 +34,6 @@ abstract class Icons
 
     public const PV_FAILED = 'file-circle-exclamation';
 
-
     public const DEPLOYMENT_HEALTHY = 'circle-check';
 
     public const DEPLOYMENT_UNHEALTHY = 'exclamation-triangle';
