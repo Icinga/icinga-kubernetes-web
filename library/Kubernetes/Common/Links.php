@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Node;
+use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
@@ -66,5 +67,10 @@ abstract class Links
     public static function pvc(PersistentVolumeClaim $persistentVolumeClaim): Url
     {
         return Url::fromPath('kubernetes/persistentvolumeclaim', ['id' => bin2hex($persistentVolumeClaim->id)]);
+    }
+
+    public static function persistentVolume(PersistentVolume $persistentVolume): Url
+    {
+        return Url::fromPath('kubernetes/persistentvolume', ['id' => bin2hex($persistentVolume->id)]);
     }
 }
