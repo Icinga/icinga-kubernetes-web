@@ -32,7 +32,7 @@ class EventListItem extends BaseListItem
     {
         $title->addHtml(new Link(
             Html::tag('span', ['class' => 'event-text'], $this->item->reason),
-            Links::event($this->item->namespace, $this->item->name),
+            Links::event($this->item),
             ['class' => 'subject']
         ));
     }

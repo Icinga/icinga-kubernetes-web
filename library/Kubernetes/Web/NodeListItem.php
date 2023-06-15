@@ -36,7 +36,7 @@ class NodeListItem extends BaseListItem
             t('%s is %s', '<node> is <ready>'),
             new Link(
                 $this->item->name,
-                Links::node($this->item->name),
+                Links::node($this->item),
                 ['class' => 'subject']
             ),
             new HtmlElement('span', null, new Text($this->item->ready ? t('ready') : t('not ready')))

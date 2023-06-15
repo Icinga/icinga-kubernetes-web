@@ -35,7 +35,7 @@ class ReplicaSetListItem extends BaseListItem
             t('%s is %s', '<replica_set> is <health>'),
             new Link(
                 $this->item->name,
-                Links::replicaSet($this->item->namespace, $this->item->name),
+                Links::replicaSet($this->item),
                 ['class' => 'subject']
             ),
             Html::tag('span', ['class' => 'replica-text'], $this->getHealth())

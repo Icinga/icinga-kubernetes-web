@@ -35,7 +35,7 @@ class StatefulSetListItem extends BaseListItem
             t('%s is %s', '<stateful_set> is <health>'),
             new Link(
                 $this->item->name,
-                Links::statefulSet($this->item->namespace, $this->item->name),
+                Links::statefulSet($this->item),
                 ['class' => 'subject']
             ),
             Html::tag('span', ['class' => 'statefulset-text'], $this->getState())
