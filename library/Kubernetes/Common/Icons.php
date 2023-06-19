@@ -6,6 +6,10 @@ namespace Icinga\Module\Kubernetes\Common;
 
 abstract class Icons
 {
+    public const NAMESPACE_ACTIVE = 'circle-check';
+
+    public const NAMESPACE_TERMINATING = 'circle-triangle';
+
     public const POD_PENDING = 'spinner';
 
     public const POD_RUNNING = 'circle-check';

@@ -32,6 +32,14 @@ $section->add(
 );
 
 $section->add(
+    N_('Namespaces'),
+    [
+        'description'   => $this->translate('Namespaces'),
+        'url'           => 'kubernetes/namespaces'
+    ]
+);
+
+$section->add(
     N_('Deployments'),
     [
         'description' => $this->translate('Deployments'),

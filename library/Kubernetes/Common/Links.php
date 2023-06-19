@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
+use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use ipl\Web\Url;
 
 abstract class Links
@@ -21,6 +22,11 @@ abstract class Links
     public static function pod(string $namespace, string $name): Url
     {
         return Url::fromPath('kubernetes/pod', ['namespace' => $namespace, 'name' => $name]);
+    }
+
+    public static function namespace(NamespaceModel $namespace): Url
+    {
+        return Url::fromPath('kubernetes/namespace', ['id' => $namespace->id]);
     }
 
     public static function deployment(string $namespace, string $name): Url
