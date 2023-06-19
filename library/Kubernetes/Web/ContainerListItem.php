@@ -44,7 +44,7 @@ class ContainerListItem extends BaseListItem
             t('%s is %s', '<container> is <container_state>'),
             new Link(
                 $this->item->name,
-                Links::container($this->item->name),
+                Links::container($this->item),
                 ['class' => 'subject']
             ),
             new HtmlElement('span', new Attributes(['class' => 'state-text']), new Text($this->item->state))

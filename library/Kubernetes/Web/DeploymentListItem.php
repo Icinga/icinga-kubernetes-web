@@ -37,7 +37,7 @@ class DeploymentListItem extends BaseListItem
             t('%s is %s', '<deployment> is <health>'),
             new Link(
                 $this->item->name,
-                Links::deployment($this->item->namespace, $this->item->name),
+                Links::deployment($this->item),
                 ['class' => 'subject']
             ),
             Html::tag('span', ['class' => 'replica-text'], $this->getHealth())

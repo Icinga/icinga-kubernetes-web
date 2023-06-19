@@ -42,7 +42,7 @@ class PodListItem extends BaseListItem
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        $content = Html::sprintf(
+       /* $content = Html::sprintf(
             t('%s/%s on %s is %s', '<namespace>/<pod> on <node> is <pod_phase>'),
             new Text($this->item->namespace),
             new Link(
@@ -56,13 +56,13 @@ class PodListItem extends BaseListItem
                 ['class' => 'subject']
             ),
             new HtmlElement('span', new Attributes(['class' => 'phase-text']), new Text($this->item->phase))
-        );
+        );*/
 
         $content = Html::sprintf(
             t('%s is %s', '<pod> is <pod_phase>'),
             new Link(
                 $this->item->name,
-                Links::pod($this->item->namespace, $this->item->name),
+                Links::pod($this->item),
                 ['class' => 'subject']
             ),
             new HtmlElement('span', new Attributes(['class' => 'phase-text']), new Text($this->item->phase))

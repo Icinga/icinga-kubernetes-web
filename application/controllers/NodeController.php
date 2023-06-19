@@ -15,7 +15,8 @@ class NodeController extends CompatController
     public function indexAction(): void
     {
         //$namespace = $this->params->getRequired('namespace');
-        $name = $this->params->getRequired('name');
+        $id = $this->params->getRequired('id');
+        $name = $this->params->get('name');
 
         //$this->addTitleTab("Node $namespace/$name");
         $this->addTitleTab("Node $name");
@@ -23,7 +24,7 @@ class NodeController extends CompatController
         $query = Node::on(Database::connection())
             ->filter(Filter::all(
                 //Filter::equal('node.namespace', $namespace),
-                Filter::equal('node.name', $name)
+                Filter::equal('node.id', $id)
             ));
 
         /** @var Node $node */

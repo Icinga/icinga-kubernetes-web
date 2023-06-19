@@ -16,11 +16,11 @@ class ContainerController extends Controller
     {
         $this->addTitleTab($this->translate('Container'));
 
-        $name = $this->params->getRequired('name');
+        $id = $this->params->getRequired('id');
 
         $query = Container::on(Database::connection())
             ->filter(Filter::all(
-                Filter::equal('container.name', $name)
+                Filter::equal('container.id', $id)
             ));
 
         /** @var Container $container */

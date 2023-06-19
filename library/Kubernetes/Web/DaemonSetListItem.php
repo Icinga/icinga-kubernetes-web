@@ -35,7 +35,7 @@ class DaemonSetListItem extends BaseListItem
             t('%s is %s', '<daemon_set> is <health>'),
             new Link(
                 $this->item->name,
-                Links::daemonSet($this->item->namespace, $this->item->name),
+                Links::daemonSet($this->item),
                 ['class' => 'subject']
             ),
             Html::tag('span', ['class' => 'statefulset-text'], $this->getHealth())

@@ -12,13 +12,14 @@ class ReplicasetController extends Controller
 {
     public function indexAction(): void
     {
-        $namespace = $this->params->getRequired('namespace');
-        $name = $this->params->getRequired('name');
+        $namespace = $this->params->get('namespace');
+        $name = $this->params->get('name');
+        $id = $this->params->getRequired('id');
+
         $this->addTitleTab("Replica Set $namespace/$name");
 
         $replicaSet = ReplicaSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $namespace))
-            ->filter(Filter::equal('name', $name))
+            ->filter(Filter::equal('id', $id))
             ->first();
 
         $this->addContent(new ReplicaSetDetail($replicaSet));
