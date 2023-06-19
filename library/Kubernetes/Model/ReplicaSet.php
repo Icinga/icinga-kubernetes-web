@@ -57,6 +57,14 @@ class ReplicaSet extends Model
             ->belongsToMany('pods', Pod::class)
             ->through('pod_owner');
 
+        $relations
+            ->belongsToMany('deployment', Deployment::class)
+            ->through('replica_set_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('replica_set_id');
+
         $relations->hasMany('condition', ReplicaSetCondition::class);
     }
 }

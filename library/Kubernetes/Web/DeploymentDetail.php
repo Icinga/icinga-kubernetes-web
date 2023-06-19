@@ -50,9 +50,9 @@ class DeploymentDetail extends BaseHtmlElement
 
         $this->addHtml(new HtmlElement(
             'section',
-            new Attributes(['class' => 'resource-pods']),
-            new HtmlElement('h2', null, new Text(t('Pods'))),
-            new PodList($this->deployment->pods->with(['node']))
+            new Attributes(['class' => 'resource-replica-sets']),
+            new HtmlElement('h2', null, new Text(t('Replica Sets'))),
+            new ReplicaSetList($this->deployment->replica_sets)
         ));
     }
 }
