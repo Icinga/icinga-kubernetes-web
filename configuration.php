@@ -41,9 +41,9 @@ $section->add(
 );
 
 $section->add(
-    N_('ReplicaSets'),
+    N_('Replica Sets'),
     [
-        'description' => $this->translate('ReplicaSets'),
+        'description' => $this->translate('Replica Sets'),
         'url'         => 'kubernetes/replicasets',
         'priority'    => $i++
     ]
