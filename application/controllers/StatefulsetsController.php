@@ -11,7 +11,7 @@ use ipl\Web\Compat\SearchControls;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
 
-class StatefulSetsController extends Controller
+class StatefulsetsController extends Controller
 {
     use SearchControls;
 
