@@ -53,9 +53,9 @@ class PersistentVolumeClaim extends Model
     {
         return [
             'namespace' => t('Namespace'),
-            'name' => t('Name'),
-            'phase' => t('Phase'),
-            'created' => t('Created At')
+            'name'      => t('Name'),
+            'phase'     => t('Phase'),
+            'created'   => t('Created At')
         ];
     }
 
