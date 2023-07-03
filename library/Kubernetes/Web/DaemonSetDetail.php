@@ -2,19 +2,15 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Donut;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
-use Icinga\Module\Kubernetes\Model\Event;
-use Icinga\Module\Kubernetes\Model\Label;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\ReplicaSetCondition;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
-use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
-use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\TimeAgo;
 
 class DaemonSetDetail extends BaseHtmlElement
@@ -55,6 +51,26 @@ class DaemonSetDetail extends BaseHtmlElement
             new Labels($this->daemonSet->label),
             new ConditionTable($this->daemonSet, (new ReplicaSetCondition())->getColumnDefinitions())
         );
+        $data = [
+            $this->daemonSet->number_available,
+            $this->daemonSet->number_ready - $this->daemonSet->number_available,
+            $this->daemonSet->desired_number_scheduled - $this->daemonSet->number_ready,
+            $this->daemonSet->number_unavailable
+        ];
+        $labels = [
+            t('Available'),
+            t('Ready but not yet available'),
+            t('Not yet ready'),
+            t('Not yet scheduled or failing')
+        ];
+        $donut = (new Donut())
+            ->setData($data)
+            ->setLabelCallback(function ($index) use ($labels) {
+                return new HtmlElement('span', null, new Text($labels[$index]));
+            });
+        $this->addHtml($donut);
+
+        $this->addHtml(new ConditionTable($this->daemonSet, (new ReplicaSetCondition())->getColumnDefinitions()));
 
         $this->addHtml(new HtmlElement(
             'section',
