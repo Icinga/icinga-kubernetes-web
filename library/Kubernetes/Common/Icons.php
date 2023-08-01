@@ -24,6 +24,16 @@ abstract class Icons
 
     public const PVC_LOST = 'file-circle-exclamation';
 
+    public const PV_PENDING = 'spinner';
+
+    public const PV_AVAILABLE = 'file-circle-check';
+
+    public const PV_BOUND = 'link';
+
+    public const PV_RELEASED = 'link-slash';
+
+    public const PV_FAILED = 'file-circle-exclamation';
+
     public const DEPLOYMENT_HEALTHY = 'circle-check';
 
     public const DEPLOYMENT_UNHEALTHY = 'exclamation-triangle';

@@ -102,6 +102,15 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Persistent Volumes'),
+    [
+        'description' => $this->translate('Persistent Volumes'),
+        'url'         => 'kubernetes/persistentvolumes',
+        'priority'    => $i++
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [

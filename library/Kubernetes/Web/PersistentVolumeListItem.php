@@ -7,7 +7,7 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
+use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\TBD\AccessModes;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
@@ -22,10 +22,10 @@ use ipl\Web\Widget\TimeAgo;
 use ipl\Web\Widget\VerticalKeyValue;
 use LogicException;
 
-class PersistentVolumeClaimListItem extends BaseListItem
+class PersistentVolumeListItem extends BaseListItem
 {
-    /** @var $item PersistentVolumeClaim The associated list item */
-    /** @var $list PersistentVolumeClaimList The list where the item is part of */
+    /** @var $item PersistentVolume The associated list item */
+    /** @var $list PersistentVolumeList The list where the item is part of */
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
@@ -36,10 +36,10 @@ class PersistentVolumeClaimListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $content = Html::sprintf(
-            t('%s is %s', '<pvc> is <pvc_phase>'),
+            t('%s is %s', '<persistent_volume> is <persistent_volume_phase>'),
             new Link(
                 $this->item->name,
-                Links::pvc($this->item),
+                Links::persistentVolume($this->item),
                 ['class' => 'subject']
             ),
             new HtmlElement('span', new Attributes(['class' => 'phase-text']), new Text($this->item->phase))
@@ -59,24 +59,26 @@ class PersistentVolumeClaimListItem extends BaseListItem
         $main->add($this->createHeader());
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         $keyValue->add(new VerticalKeyValue('Storage Class Name', ucfirst(Str::camel($this->item->storage_class))));
-        $volumeMode = $this->item->volume_mode ?? PersistentVolumeClaim::DEFAULT_VOLUME_MODE;
+        $volumeMode = $this->item->volume_mode ?? PersistentVolume::DEFAULT_VOLUME_MODE;
         $keyValue->add(new VerticalKeyValue('Volume Mode', ucfirst(Str::camel($volumeMode))));
-        $keyValue->add(New VerticalKeyValue('Capacity', Format::bytes($this->item->actual_capacity)));
-        $keyValue->add(new VerticalKeyValue('Access Modes', implode(', ', AccessModes::asNames($this->item->actual_access_modes))));
-        $keyValue->add(new VerticalKeyValue('Namespace', $this->item->namespace));
-
+        $keyValue->add(New VerticalKeyValue('Capacity', Format::bytes($this->item->capacity)));
+        $keyValue->add(new VerticalKeyValue('Access Mode', implode(', ', AccessModes::asNames((int) $this->item->access_modes))));
         $main->add($keyValue);
     }
 
     protected function getPhaseIcon(): string
     {
         switch ($this->item->phase) {
-            case PersistentVolumeClaim::PHASE_PENDING:
-                return Icons::PVC_PENDING;
-            case PersistentVolumeClaim::PHASE_BOUND:
-                return Icons::PVC_BOUND;
-            case PersistentVolumeClaim::PHASE_LOST:
-                return Icons::PVC_LOST;
+            case PersistentVolume::PHASE_PENDING:
+                return Icons::PV_PENDING;
+            case PersistentVolume::PHASE_AVAILABLE:
+                return Icons::PV_AVAILABLE;
+            case PersistentVolume::PHASE_BOUND:
+                return Icons::PV_BOUND;
+            case PersistentVolume::PHASE_RELEASED:
+                return Icons::PV_RELEASED;
+            case PersistentVolume::PHASE_FAILED:
+                return Icons::PV_FAILED;
             default:
                 throw new LogicException();
         }

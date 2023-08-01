@@ -18,6 +18,8 @@ class PersistentVolumeClaim extends Model
 
     public const PHASE_LOST = 'failed';
 
+    public const DEFAULT_VOLUME_MODE = 'filesystem';
+
     public function getTableName()
     {
         return 'pvc';
@@ -91,5 +93,13 @@ class PersistentVolumeClaim extends Model
 
         $relations
             ->belongsTo('pod', Pod::class);
+
+        $relations
+            ->belongsToMany('persistent_volume', PersistentVolume::class)
+            ->through('persistent_volume_claim_ref')
+            ->setTargetCandidateKey('id')
+            ->setTargetForeignKey('persistent_volume_id')
+            ->setCandidateKey('name')
+            ->setForeignKey('name');
     }
 }
