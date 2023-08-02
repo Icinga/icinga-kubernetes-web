@@ -61,7 +61,7 @@ class PersistentVolumeClaimListItem extends BaseListItem
         $keyValue->add(new VerticalKeyValue('Storage Class Name', ucfirst(Str::camel($this->item->storage_class))));
         $volumeMode = $this->item->volume_mode ?? PersistentVolumeClaim::DEFAULT_VOLUME_MODE;
         $keyValue->add(new VerticalKeyValue('Volume Mode', ucfirst(Str::camel($volumeMode))));
-        $keyValue->add(New VerticalKeyValue('Capacity', Format::bytes($this->item->actual_capacity)));
+        $keyValue->add(New VerticalKeyValue('Capacity', Format::bytes($this->item->actual_capacity / 1000)));
         $keyValue->add(new VerticalKeyValue('Access Modes', implode(', ', AccessModes::asNames($this->item->actual_access_modes))));
         $keyValue->add(new VerticalKeyValue('Namespace', $this->item->namespace));
 

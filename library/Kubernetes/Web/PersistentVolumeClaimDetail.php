@@ -38,7 +38,7 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
         $this->addHtml(new Details([
             t('Name')          => $this->pvc->name,
             t('Created')       => $this->pvc->created->format('Y-m-d H:i:s'),
-            t('Capacity')      => Format::bytes($this->pvc->actual_capacity),
+            t('Capacity')      => Format::bytes($this->pvc->actual_capacity / 1000),
             t('Access Modes')  => implode(', ', AccessModes::asNames($this->pvc->actual_access_modes)),
             t('Volume Mode')   => ucfirst(Str::camel($volumeMode)),
             t('Storage Class') => ucfirst(Str::camel($this->pvc->storage_class)),
