@@ -67,5 +67,8 @@ class NamespaceModel extends Model
 
     public function createRelations(Relations $relations)
     {
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('namespace_label');
     }
 }

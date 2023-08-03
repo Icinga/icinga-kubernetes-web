@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Model\Label;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\NodeCondition;
 use Icinga\Module\Kubernetes\Model\ReplicaSetCondition;
@@ -49,7 +50,10 @@ class NodeDetail extends BaseHtmlElement
             t('Created')              => $this->node->created->format('Y-m-d H:i:s')
         ]));
 
-        $this->addHtml(new ConditionTable($this->node, (new NodeCondition())->getColumnDefinitions()));
+        $this->addHtml(
+            new Labels($this->node->label),
+            new ConditionTable($this->node, (new NodeCondition())->getColumnDefinitions())
+        );
 
         $this->addHtml(new HtmlElement(
             'section',

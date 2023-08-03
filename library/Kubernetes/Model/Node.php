@@ -89,6 +89,11 @@ class Node extends Model
             ->hasMany('pod', Pod::class)
             ->setCandidateKey('name')
             ->setForeignKey('node_name');
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('node_label');
+
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');

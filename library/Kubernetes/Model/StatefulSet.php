@@ -63,6 +63,10 @@ class StatefulSet extends Model
             ->belongsToMany('pods', Pod::class)
             ->through('pod_owner');
 
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('stateful_set_label');
+
         $relations->hasMany('condition', StatefulSetCondition::class);
     }
 }
