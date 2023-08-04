@@ -13,6 +13,7 @@ use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
+use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use ipl\Web\Url;
@@ -72,5 +73,10 @@ abstract class Links
     public static function persistentVolume(PersistentVolume $persistentVolume): Url
     {
         return Url::fromPath('kubernetes/persistentvolume', ['id' => bin2hex($persistentVolume->id)]);
+    }
+
+    public static function secret(Secret $secret): Url
+    {
+        return Url::fromPath('kubernetes/secret', ['id' => bin2hex($secret->id)]);
     }
 }

@@ -5,7 +5,6 @@
 namespace Icinga\Module\Kubernetes\Model;
 
 use ipl\Orm\Behavior\Binary;
-use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
@@ -33,8 +32,8 @@ class Label extends Model
     public function getColumnDefinitions()
     {
         return [
-            'name'            => t('Name'),
-            'value'          => t('Value')
+            'name'  => t('Name'),
+            'value' => t('Value')
         ];
     }
 
@@ -93,6 +92,11 @@ class Label extends Model
         $relations
             ->belongsToMany('node', Node::class)
             ->through('node_label');
+
+        $relations
+            ->belongsToMany('secret', Secret::class)
+            ->through('secret_label');
+
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');
