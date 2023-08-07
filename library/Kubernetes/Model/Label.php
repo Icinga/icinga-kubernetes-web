@@ -97,6 +97,9 @@ class Label extends Model
             ->belongsToMany('secret', Secret::class)
             ->through('secret_label');
 
+        $relations
+            ->belongsToMany('config_map', ConfigMap::class)
+            ->through('config_map_label');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');

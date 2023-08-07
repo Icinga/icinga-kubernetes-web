@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
+use Icinga\Module\Kubernetes\Model\ConfigMap;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
@@ -78,5 +79,10 @@ abstract class Links
     public static function secret(Secret $secret): Url
     {
         return Url::fromPath('kubernetes/secret', ['id' => bin2hex($secret->id)]);
+    }
+
+    public static function configMap(ConfigMap $configMap): Url
+    {
+        return Url::fromPath('kubernetes/configmap', ['id' => bin2hex($configMap->id)]);
     }
 }

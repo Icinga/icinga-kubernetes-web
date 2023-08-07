@@ -120,6 +120,15 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Config Maps'),
+    [
+        'description' => $this->translate('Config Maps'),
+        'url'         => 'kubernetes/configmaps',
+        'priority'    => $i++
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [
