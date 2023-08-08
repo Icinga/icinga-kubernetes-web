@@ -433,3 +433,52 @@ body {
 #grid li:nth-child(6n+4) {
   margin-left: 0.5%;
 }
+
+@donut-segment-color-0: #44bb77;
+@donut-segment-color-1: #77aaff;
+@donut-segment-color-2: #aa44ff;
+@donut-segment-color-3: #ff5566;
+
+.donut {
+  align-self: flex-start;
+  padding: 1em;
+
+
+  .donut-graph {
+    .segment-0 {
+      stroke: @donut-segment-color-0;
+    }
+
+    .segment-1 {
+      stroke: @donut-segment-color-1;
+    }
+
+    .segment-2 {
+      stroke: @donut-segment-color-2;
+    }
+
+    .segment-3 {
+      stroke: @donut-segment-color-3;
+    }
+  }
+
+  .badge {
+    height: 1.75em;
+
+    &.badge-0 {
+      background: @donut-segment-color-0;
+    }
+
+    &.badge-1 {
+      background: @donut-segment-color-1;
+    }
+
+    &.badge-2 {
+      background: @donut-segment-color-2;
+    }
+
+    &.badge-3 {
+      background: @donut-segment-color-3;
+    }
+  }
+}
