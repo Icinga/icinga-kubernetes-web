@@ -136,6 +136,14 @@ class Pod extends Model
             ->setTargetForeignKey('name')
             ->setCandidateKey('id')
             ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsToMany('job', Job::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');
