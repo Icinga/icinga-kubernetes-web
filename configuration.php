@@ -134,6 +134,14 @@ $section->add(
     [
         'description' => $this->translate('Jobs'),
         'url'         => 'kubernetes/jobs',
+    ]
+);
+
+$section->add(
+    N_('Cron Jobs'),
+    [
+        'description' => $this->translate('Cron Jobs'),
+        'url'         => 'kubernetes/cronjobs',
         'priority'    => $i++
     ]
 );
