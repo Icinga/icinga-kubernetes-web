@@ -16,7 +16,7 @@ abstract class Icons
 
     public const POD_SUCCEEDED = 'hourglass-end';
 
-    public const POD_FAILED = 'circle-triangle';
+    public const POD_FAILED = 'circle-exclamation';
 
     public const PVC_PENDING = 'spinner';
 
