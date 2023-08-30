@@ -13,6 +13,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Html\HtmlString;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
 use ipl\Web\Widget\HorizontalKeyValue;
@@ -20,7 +21,6 @@ use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 use ipl\Web\Widget\VerticalKeyValue;
-use LogicException;
 
 class ContainerListItem extends BaseListItem
 {
@@ -103,7 +103,7 @@ class ContainerListItem extends BaseListItem
             case Container::STATE_TERMINATED:
                 return Icons::POD_SUCCEEDED;
             default:
-                throw new LogicException();
+                return Icons::UNHEALTHY;
         }
     }
 
@@ -122,7 +122,7 @@ class ContainerListItem extends BaseListItem
                     new VerticalKeyValue('Reason', $stateDetails->reason)
                 );
             default:
-                throw new LogicException();
+                return new HtmlString('Unknown');
         }
     }
 }
