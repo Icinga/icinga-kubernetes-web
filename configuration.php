@@ -34,8 +34,8 @@ $section->add(
 $section->add(
     N_('Namespaces'),
     [
-        'description'   => $this->translate('Namespaces'),
-        'url'           => 'kubernetes/namespaces'
+        'description' => $this->translate('Namespaces'),
+        'url'         => 'kubernetes/namespaces'
     ]
 );
 
@@ -142,6 +142,14 @@ $section->add(
     [
         'description' => $this->translate('Cron Jobs'),
         'url'         => 'kubernetes/cronjobs',
+    ]
+);
+
+$section->add(
+    N_('Services'),
+    [
+        'description' => $this->translate('Services'),
+        'url'         => 'kubernetes/services',
         'priority'    => $i++
     ]
 );

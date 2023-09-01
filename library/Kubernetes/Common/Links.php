@@ -19,6 +19,7 @@ use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Model\CronJob;
+use Icinga\Module\Kubernetes\Model\Service;
 use ipl\Web\Url;
 
 abstract class Links
@@ -96,5 +97,10 @@ abstract class Links
     public static function cronJob(CronJob $cronjob)
     {
         return Url::fromPath('kubernetes/cronjob', ['id' => bin2hex($cronjob->id)]);
+    }
+
+    public static function service(Service $service): Url
+    {
+        return Url::fromPath('kubernetes/service', ['id' => bin2hex($service->id)]);
     }
 }
