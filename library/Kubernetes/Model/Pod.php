@@ -71,7 +71,7 @@ class Pod extends Model
 
     public function getDefaultSort()
     {
-        return ['namespace', 'created desc'];
+        return ['created desc'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
