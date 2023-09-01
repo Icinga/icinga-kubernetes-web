@@ -51,6 +51,11 @@ class ReplicaSet extends Model
         ]));
     }
 
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
     public function createRelations(Relations $relations)
     {
         $relations
