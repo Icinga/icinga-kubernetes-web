@@ -112,6 +112,10 @@ class Label extends Model
         $relations
             ->belongsToMany('service', Service::class)
             ->through('service_label');
+
+        $relations
+            ->belongsToMany('endpoint_slice', EndpointSlice::class)
+            ->through('endpoint_slice_label');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');

@@ -5,6 +5,8 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Model\Endpoint;
+use Icinga\Module\Kubernetes\Model\EndpointSlice;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\Service;
 use ipl\Html\Attributes;
@@ -32,6 +34,14 @@ class ServiceDetail extends BaseHtmlElement
 
     protected function assemble()
     {
+        $endpointSlices = EndpointSlice::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('endpoint_slice.label.name', "kubernetes.io/service-name"),
+                    Filter::equal('endpoint_slice.label.value', $this->service->name)
+                )
+            )->first();
+
         $this->addHtml(
             new Details([
                 t('Name')                              => $this->service->name,
@@ -53,6 +63,8 @@ class ServiceDetail extends BaseHtmlElement
                 t('Created')                           => $this->service->created->format('Y-m-d H:i:s')
             ]),
             new Labels($this->service->label),
+            new InternalEndpointList($this->service->service_port),
+            new EndpointTable($endpointSlices->endpoint, (new Endpoint())->getColumnDefinitions())
         );
 
         $emptySelector = false;
