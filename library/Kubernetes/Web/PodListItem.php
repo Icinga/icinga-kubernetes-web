@@ -4,12 +4,16 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Icingadb\Util\PluginOutput;
+use Icinga\Module\Icingadb\Widget\PluginOutputContainer;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\Usage;
+use Icinga\Module\Kubernetes\Widget\HorizontalIconValue;
+use Icinga\Module\Kubernetes\Widget\ItemCountIndicator;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -60,11 +64,21 @@ class PodListItem extends BaseListItem
 
         $content = Html::sprintf(
             t('%s is %s', '<pod> is <pod_phase>'),
-            new Link(
-                $this->item->name,
-                Links::pod($this->item),
-                ['class' => 'subject']
-            ),
+            [
+                HtmlElement::create(
+                    'span',
+                    new Attributes(['class' => 'badge']),
+                    [
+                        new Icon('folder-open'),
+                        new Text($this->item->namespace)
+                    ]
+                ),
+                new Link(
+                    $this->item->name,
+                    Links::pod($this->item),
+                    ['class' => 'subject']
+                )
+            ],
             new HtmlElement('span', new Attributes(['class' => 'phase-text']), new Text($this->item->phase))
         );
 
@@ -101,43 +115,42 @@ class PodListItem extends BaseListItem
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->add($this->createHeader());
-        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->add(new VerticalKeyValue('IP', $this->item->ip));
-        $keyValue->add(new VerticalKeyValue('QoS', ucfirst(Str::camel($this->item->qos))));
+
+        $main->add($this->createCaption());
+
+        $main->add($this->createFooter());
+    }
+
+    protected function assembleCaption(BaseHtmlElement $caption)
+    {
+        $caption->add(
+            new PluginOutputContainer(
+                new PluginOutput('Maecenas faucibus mollis interdum. Maecenas sed diam eget risus varius blandit sit amet non magna. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.')
+            )
+        );
+    }
+
+    protected function assembleFooter(BaseHtmlElement $footer): void
+    {
+        // IP
+        $footer->add(new HorizontalKeyValue('IP', empty($this->item->ip) ? 'none' : $this->item->ip));
+
+        // QoS
+        $footer->add(new HorizontalKeyValue('QoS', ucfirst(Str::camel($this->item->qos))));
+
         $containerRestarts = 0;
-        $containers = new HtmlElement('span');
-        /** @var Container $container */
-        foreach ($this->item->container as $container) {
-            switch ($container->state) {
-                case Container::STATE_RUNNING:
-                    $state = 'ok';
 
-                    break;
-                case Container::STATE_TERMINATED:
-                    $state = 'unknown';
+        // Containers
+        $footer->add(new HorizontalKeyValue(new Icon('boxes-stacked'), new ItemCountIndicator($this->item->container)));
 
-                    break;
-                case Container::STATE_WAITING:
-                    $state = 'warning';
+        // Restarts
+        $footer->add(new HorizontalKeyValue(new Icon('arrows-rotate'), $containerRestarts));
 
-                    break;
-                default:
-                    $state = 'unknown';
-            }
-            $containerRestarts += $container->restart_count;
-            $containers->addHtml(new StateBall($state, StateBall::SIZE_MEDIUM));
-        }
-        $keyValue->add(new VerticalKeyValue('Containers', $containers));
-        $keyValue->add(new VerticalKeyValue('Restarts', $containerRestarts));
         // TODO(el): Volumes
-        $keyValue->add(new VerticalKeyValue('Volumes', new StateBall('ok', StateBall::SIZE_MEDIUM)));
-        $keyValue->add(new HtmlElement(
-            'div',
-            null,
-            new HorizontalKeyValue('Namespace', $this->item->namespace),
-            new HorizontalKeyValue('Node', $this->item->node_name)
-        ));
-        $main->add($keyValue);
+        $footer->add(new HorizontalKeyValue(new Icon('hard-drive'), new ItemCountIndicator($this->item->container, 'outline')));
+
+        // Nodes
+        $footer->add(new HorizontalKeyValue(new Icon('share-nodes'), $this->item->node_name));
     }
 
     protected function getPhaseIcon(): string
