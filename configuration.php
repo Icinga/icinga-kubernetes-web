@@ -119,3 +119,7 @@ $this->provideConfigTab(
         'url'   => 'config/database'
     ]
 );
+
+$cssDirectory = $this->getCssDir();
+
+$this->provideCssFile('list/pod-list.less');
