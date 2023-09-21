@@ -1,0 +1,158 @@
+// overwrite module.less
+.item-list .list-item {
+  .caption {
+    height: auto !important;
+    .line-clamp("reset");
+
+    .plugin-output {
+      .text-ellipsis();
+    }
+  }
+
+  footer {
+    padding-top: 0;
+  }
+}
+
+// List Items
+.item-list {
+  .list-item {
+    .phase-text,
+    .statefulset-text,
+    .replica-text {
+      color: @text-color;
+      text-transform: uppercase;
+    }
+
+    .title .badge {
+      background-color: @gray-lighter;
+      color: @text-color-light;
+      vertical-align: baseline;
+      margin-right: 0;
+      padding: 0 .25em;
+      line-height: 1.5em / 12 * 11; // 1.5em / @font-size-small
+      max-width: 8em;
+      .text-ellipsis();
+
+      .icon {
+        vertical-align: baseline;
+      }
+    }
+
+    .main .horizontal-key-value {
+      .key {
+        width: auto;
+        margin-right: .2em;
+      }
+
+      .value {
+        .text-ellipsis();
+      }
+    }
+
+    .horizontal-key-value {
+      &.pods-value {
+        align-items: center;
+        min-width: 1em;
+
+        .value {
+          min-width: 1em;
+        }
+      }
+
+      .icon {
+        opacity: .9;
+      }
+    }
+
+    footer > * {
+      font-size: 1em;
+      overflow: hidden;
+    }
+  }
+}
+
+.item-list {
+  &.pod-list,
+  &.daemon-set-list,
+  &.statefulset-list,
+  &.replica-set-list,
+  &.deployment-list {
+    .list-item footer {
+      justify-content: flex-start;
+
+      > *:not(:last-child) {
+        margin-right: 1em;
+      }
+
+
+      > *.push-right {
+        margin-right: auto;
+      }
+    }
+  }
+}
+
+// double class hack `.item-list` to overwrite style
+.item-list.item-list .list-item .visual {
+  justify-content: flex-start;
+}
+
+// Container List
+.item-count-indicator {
+  height: 14/12em;
+  --state-color: @gray;
+
+  display: flex;
+  padding-left: 0;
+
+  li {
+    width: 7px;
+    height: 7px;
+
+    list-style-type: none;
+    margin-right: 1px;
+
+    &.critical {
+      --state-color: @state-critical
+    }
+
+    &.warning {
+      --state-color: @state-warning;
+    }
+
+    &.unknown {
+      --state-color: @state-unknown;
+    }
+
+    &.ok {
+      --state-color: @state-ok;
+    }
+  }
+
+  &.solid li {
+    background-color: var(--state-color);
+  }
+
+  &.outline li {
+    border: 1px solid var(--state-color);
+  }
+
+  &.hexagon li {
+    border-radius: 50%;
+    background: var(--state-color);
+    margin-left: -4px;
+
+    &:nth-child(2n) {
+      margin-top: 7px;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+
+  &.narrow > li {
+    width: 3px;
+  }
+}
