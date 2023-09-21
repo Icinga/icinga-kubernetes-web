@@ -132,22 +132,33 @@ class PodListItem extends BaseListItem
 
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
+        $containerRestarts = 0;
+
+        // Containers
+        $totalContainers = count($this->item->container);
+        $problemContainers = 3;
+        $kvContainers = new HorizontalKeyValue(new Icon('boxes-stacked'), new ItemCountIndicator($this->item->container));
+        $kvContainers->addAttributes(['title' => 'Containers: ' . $totalContainers . '(' . $problemContainers . ')']);
+        $footer->add($kvContainers);
+
+        // Restarts
+        $numContainerRestarts = 0;
+        $kvRestarts = new HorizontalKeyValue(new Icon('arrows-rotate'), $containerRestarts);
+        $kvRestarts->addAttributes(['title' => 'Container Restarts' . $numContainerRestarts]);
+        $footer->add($kvRestarts);
+
+        // TODO(el): Volumes
+        $totalVolumes = count($this->item->container);
+        $problemVolumes = 3;
+        $kvVolumes = new HorizontalKeyValue(new Icon('hard-drive'), new ItemCountIndicator($this->item->container, 'outline'));
+        $kvVolumes->addAttributes(['title' => 'Volumes: ' . $totalVolumes . '(' . $problemVolumes . ')']);
+        $footer->add($kvVolumes);
+
         // IP
         $footer->add(new HorizontalKeyValue('IP', empty($this->item->ip) ? 'none' : $this->item->ip));
 
         // QoS
         $footer->add(new HorizontalKeyValue('QoS', ucfirst(Str::camel($this->item->qos))));
-
-        $containerRestarts = 0;
-
-        // Containers
-        $footer->add(new HorizontalKeyValue(new Icon('boxes-stacked'), new ItemCountIndicator($this->item->container)));
-
-        // Restarts
-        $footer->add(new HorizontalKeyValue(new Icon('arrows-rotate'), $containerRestarts));
-
-        // TODO(el): Volumes
-        $footer->add(new HorizontalKeyValue(new Icon('hard-drive'), new ItemCountIndicator($this->item->container, 'outline')));
 
         // Nodes
         $footer->add(new HorizontalKeyValue(new Icon('share-nodes'), $this->item->node_name));
