@@ -9,9 +9,7 @@ use Icinga\Module\Icingadb\Widget\PluginOutputContainer;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Pod;
-use Icinga\Module\Kubernetes\Web\Usage;
 use Icinga\Module\Kubernetes\Widget\HorizontalIconValue;
 use Icinga\Module\Kubernetes\Widget\ItemCountIndicator;
 use ipl\Html\Attributes;
@@ -23,9 +21,7 @@ use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
-use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
-use ipl\Web\Widget\VerticalKeyValue;
 use LogicException;
 
 class PodListItem extends BaseListItem
@@ -144,7 +140,7 @@ class PodListItem extends BaseListItem
         // Restarts
         $numContainerRestarts = 0;
         $kvRestarts = new HorizontalKeyValue(new Icon('arrows-rotate'), $containerRestarts);
-        $kvRestarts->addAttributes(['title' => 'Container Restarts' . $numContainerRestarts]);
+        $kvRestarts->addAttributes(['title' => 'Container Restarts: ' . $numContainerRestarts]);
         $footer->add($kvRestarts);
 
         // TODO(el): Volumes
