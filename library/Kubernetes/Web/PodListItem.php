@@ -29,6 +29,12 @@ class PodListItem extends BaseListItem
     /** @var $item Pod The associated list item */
     /** @var $list PodList The list where the item is part of */
 
+    const QOS_ICONS = [
+        'best_effort' => 'award',
+        'burstable' => 'wand-magic-sparkles',
+        'guaranteed' => 'helmet-safety'
+    ];
+
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
         $content = new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]);
@@ -63,7 +69,7 @@ class PodListItem extends BaseListItem
             [
                 HtmlElement::create(
                     'span',
-                    new Attributes(['class' => 'badge']),
+                    new Attributes(['class' => 'namespace-badge']),
                     [
                         new Icon('folder-open'),
                         new Text($this->item->namespace)
@@ -133,28 +139,38 @@ class PodListItem extends BaseListItem
         // Containers
         $totalContainers = count($this->item->container);
         $problemContainers = 3;
-        $kvContainers = new HorizontalKeyValue(new Icon('boxes-stacked'), new ItemCountIndicator($this->item->container));
-        $kvContainers->addAttributes(['title' => 'Containers: ' . $totalContainers . '(' . $problemContainers . ')']);
-        $footer->add($kvContainers);
+        $footer->add((new HorizontalKeyValue(
+                new Icon('boxes-stacked'),
+                new ItemCountIndicator($this->item->container, 'hexagon'))
+            )->addAttributes(
+                [
+                    'title' => 'Containers: ' . $totalContainers . '(' . $problemContainers . ')',
+                ]
+            )
+        );
 
         // Restarts
         $numContainerRestarts = 0;
-        $kvRestarts = new HorizontalKeyValue(new Icon('arrows-rotate'), $containerRestarts);
-        $kvRestarts->addAttributes(['title' => 'Container Restarts: ' . $numContainerRestarts]);
-        $footer->add($kvRestarts);
+        $footer->add((new HorizontalKeyValue(
+            new Icon('arrows-rotate'), $containerRestarts)
+        )->addAttributes(['title' => 'Container Restarts: ' . $numContainerRestarts]));
 
         // TODO(el): Volumes
         $totalVolumes = count($this->item->container);
         $problemVolumes = 3;
-        $kvVolumes = new HorizontalKeyValue(new Icon('hard-drive'), new ItemCountIndicator($this->item->container, 'outline'));
-        $kvVolumes->addAttributes(['title' => 'Volumes: ' . $totalVolumes . '(' . $problemVolumes . ')']);
-        $footer->add($kvVolumes);
+        $footer->add((new HorizontalKeyValue(
+                new Icon('hard-drive'),
+                new ItemCountIndicator($this->item->container, 'outline'))
+            )->addAttributes(['title' => 'Volumes: ' . $totalVolumes . '(' . $problemVolumes . ')']));
+
+        // QoS
+        $footer->add((new Icon(self::QOS_ICONS[strtolower($this->item->qos)]))->addAttributes([
+            'title' => 'Quality of service: ' . ucwords(str_replace('_', ' ', ($this->item->qos))),
+            'class' => 'push-right'
+        ]));
 
         // IP
         $footer->add(new HorizontalKeyValue('IP', empty($this->item->ip) ? 'none' : $this->item->ip));
-
-        // QoS
-        $footer->add(new HorizontalKeyValue('QoS', ucfirst(Str::camel($this->item->qos))));
 
         // Nodes
         $footer->add(new HorizontalKeyValue(new Icon('share-nodes'), $this->item->node_name));
