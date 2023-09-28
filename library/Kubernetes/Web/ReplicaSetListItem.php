@@ -3,20 +3,19 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Common\States;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
+use Icinga\Module\Kubernetes\Widget\ItemCountIndicator;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
-use ipl\Stdlib\Str;
+use ipl\Html\Text;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
-use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
-use ipl\Web\Widget\VerticalKeyValue;
 
 class ReplicaSetListItem extends BaseListItem
 {
@@ -33,11 +32,21 @@ class ReplicaSetListItem extends BaseListItem
     {
         $content = Html::sprintf(
             t('%s is %s', '<replica_set> is <health>'),
-            new Link(
-                $this->item->name,
-                Links::replicaSet($this->item),
-                ['class' => 'subject']
-            ),
+            [
+                HtmlElement::create(
+                    'span',
+                    new Attributes(['class' => 'badge']),
+                    [
+                        new Icon('folder-open'),
+                        new Text($this->item->namespace)
+                    ]
+                ),
+                new Link(
+                    $this->item->name,
+                    Links::replicaSet($this->item),
+                    ['class' => 'subject']
+                )
+            ],
             Html::tag('span', ['class' => 'replica-text'], $this->getHealth())
         );
 
@@ -54,30 +63,38 @@ class ReplicaSetListItem extends BaseListItem
     {
         $main->add($this->createHeader());
 
-        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $main->addHtml($keyValue);
+        $main->add($this->createCaption());
 
+        $main->addHtml($this->createFooter());
+    }
+
+    protected function assembleFooter(BaseHtmlElement $footer): void
+    {
         $desired = $this->item->desired_replicas;
         $unknown = 0;
         $available = $this->item->available_replicas;
         $pending = 0;
         $critical = $desired - $available;
-        $pods = new HtmlElement('div', new Attributes(['class' => 'pod-balls']));
+        $pods = new ItemCountIndicator(null,  'hexagon');
         for ($i = 0; $i < $critical; $i++) {
-            $pods->addHtml(new StateBall('critical', StateBall::SIZE_MEDIUM));
+            $pods->addItem('critical');
         }
         for ($i = 0; $i < $pending; $i++) {
-            $pods->addHtml(new StateBall('pending', StateBall::SIZE_MEDIUM));
+            $pods->addItem('pending');
         }
         for ($i = 0; $i < $unknown; $i++) {
-            $pods->addHtml(new StateBall('unknown', StateBall::SIZE_MEDIUM));
+            $pods->addItem('unknown');
         }
         for ($i = 0; $i < $available; $i++) {
-            $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
+            $pods->addItem('ok');
         }
-        $keyValue->add(new VerticalKeyValue('Pods', $pods));
-        $keyValue->add(new VerticalKeyValue('Min Ready Seconds', $this->item->min_ready_seconds));
-        $keyValue->add(new VerticalKeyValue('Namespace', $this->item->namespace));
+        $footer->add((new HorizontalKeyValue(new Icon('box'), $pods))->addAttributes(
+            ['class'  => 'pods-value']
+        ));
+        $footer->add(
+            (new HorizontalKeyValue(new Icon('stopwatch'), $this->item->min_ready_seconds))
+            ->addAttributes(['title' => 'Min Ready Seconds: ' . $this->item->min_ready_seconds])
+        );
     }
 
     protected function getHealth(): string
