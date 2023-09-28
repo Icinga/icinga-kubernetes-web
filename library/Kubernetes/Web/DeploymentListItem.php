@@ -3,25 +3,31 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\DeploymentHealth;
-use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Common\States;
 use Icinga\Module\Kubernetes\Model\Deployment;
-use Icinga\Module\Kubernetes\Model\StatefulSet;
+use Icinga\Module\Kubernetes\Widget\ItemCountIndicator;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
-use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
-use ipl\Web\Widget\VerticalKeyValue;
 
 class DeploymentListItem extends BaseListItem
 {
+    use Translation;
+
+    const STRATEGY_ICONS = [
+        'rollingupdate' => 'repeat',
+        'recreate' => 'recycle'
+    ];
+
     /** @var $item Deployment The associated list item */
     /** @var $list DeploymentList The list where the item is part of */
 
@@ -35,11 +41,21 @@ class DeploymentListItem extends BaseListItem
     {
         $content = Html::sprintf(
             t('%s is %s', '<deployment> is <health>'),
-            new Link(
-                $this->item->name,
-                Links::deployment($this->item),
-                ['class' => 'subject']
-            ),
+            [
+                HtmlElement::create(
+                    'span',
+                    new Attributes(['class' => 'badge']),
+                    [
+                        new Icon('folder-open'),
+                        new Text($this->item->namespace)
+                    ]
+                ),
+                new Link(
+                    $this->item->name,
+                    Links::deployment($this->item),
+                    ['class' => 'subject']
+                )
+            ],
             Html::tag('span', ['class' => 'replica-text'], $this->getHealth())
         );
 
@@ -56,32 +72,54 @@ class DeploymentListItem extends BaseListItem
     {
         $main->add($this->createHeader());
 
-        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $main->addHtml($keyValue);
+        $main->add($this->createCaption());
 
+        $main->add($this->createFooter());
+    }
+
+    protected function assembleFooter(BaseHtmlElement $footer): void
+    {
         $desired = $this->item->desired_replicas;
         $unknown = 0;
         $available = $this->item->available_replicas;
         $pending = 0;
         $critical = $this->item->unavailable_replicas;
-        $pods = new HtmlElement('div', new Attributes(['class' => 'pod-balls']));
+        $pods = new ItemCountIndicator(null,  'hexagon');
+        $podCount = 0;
         for ($i = 0; $i < $critical; $i++) {
-            $pods->addHtml(new \ipl\Web\Widget\StateBall('critical', StateBall::SIZE_MEDIUM));
+            $pods->addItem('critical');
+            $podCount++;
         }
         for ($i = 0; $i < $pending; $i++) {
-            $pods->addHtml(new StateBall('pending', StateBall::SIZE_MEDIUM));
+            $pods->addItem('pending');
+            $podCount++;
         }
         for ($i = 0; $i < $unknown; $i++) {
-            $pods->addHtml(new StateBall('unknown', StateBall::SIZE_MEDIUM));
+            $pods->addItem('unknown');
+            $podCount++;
         }
         for ($i = 0; $i < $available; $i++) {
-            $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
+            $pods->addItem('ok');
+            $podCount++;
         }
-        $keyValue->add(new VerticalKeyValue('Pods', $pods));
-        $keyValue->add(new VerticalKeyValue('Strategy', ucfirst(Str::camel($this->item->strategy))));
-        $keyValue->add(new VerticalKeyValue('Min Ready Seconds', $this->item->min_ready_seconds));
-        $keyValue->add(new VerticalKeyValue('Progress Deadline Seconds', $this->item->min_ready_seconds));
-        $keyValue->add(new VerticalKeyValue('Namespace', $this->item->namespace));
+        $footer->add((new HorizontalKeyValue(new Icon('box'), $pods))->addAttributes([
+            'title' => $this->translatePlural('Pod', 'Pods', $podCount),
+            'class' => 'pods-value'
+        ]));
+        $footer->add((
+        new Icon(self::STRATEGY_ICONS[strtolower(Str::camel($this->item->strategy))])
+        )->addAttributes([
+                'title' => 'Update Strategy: ' . ucwords(str_replace('_', ' ', ($this->item->strategy)))
+            ]));
+        $footer->add(
+            (new HorizontalKeyValue(new Icon('stopwatch'), $this->item->min_ready_seconds))
+                ->addAttributes(['title' => 'Min Ready Seconds: ' . $this->item->min_ready_seconds])
+        );
+
+        $footer->add(
+            (new HorizontalKeyValue(new Icon('skull-crossbones'), $this->item->min_ready_seconds))
+                ->addAttributes(['title' => 'Progress Deadline Seconds: ' . $this->item->min_ready_seconds])
+        );
     }
 
     protected function getHealth(): string
