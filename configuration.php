@@ -123,3 +123,4 @@ $this->provideConfigTab(
 $cssDirectory = $this->getCssDir();
 
 $this->provideCssFile('list/pod-list.less');
+$this->provideCssFile('condition-table.less');
