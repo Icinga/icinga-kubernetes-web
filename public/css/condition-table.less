@@ -1,0 +1,86 @@
+.condition-table {
+  .columns {
+    display: flex;
+    margin: 0 auto;
+  }
+
+  .column {
+    width: 0;
+    flex: 1 1 auto;
+    max-width: 12em;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 1em;
+
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 1em;
+      left: 0;
+      right: 0;
+      height: .25em;
+      background: @gray-lighter;
+    }
+
+    &:first-child:before {
+      left: 50%;
+    }
+
+    &:last-child:before {
+      right: 50%;
+    }
+
+    .icon {
+      position: relative;
+      font-size: 2em;
+      background: @body-bg-color;
+      width: auto;
+      border-radius: 50%;
+      border: solid 2px @body-bg-color;
+      text-align: center;
+      z-index: 10;
+      color: @gray-lighter;
+
+      &:before {
+        margin-right: 0;
+      }
+    }
+
+    &.false {
+      overflow: hidden;
+
+      &:after {
+        content: "";
+        display: block;
+        transform: rotate(45deg);
+        background: @gray-lighter;
+        width: 1em;
+        height: 1em;
+        position: absolute;
+        bottom: -.5em;
+      }
+
+      .icon {
+        color: @state-critical;
+      }
+    }
+
+    &.true .icon {
+      color: @state-ok;
+    }
+
+    time {
+      color: @text-color-light;
+    }
+  }
+
+  .message {
+    max-width: 50em;
+    background: @gray-lighter;
+    border-radius: .25em;
+    padding: .5em;
+  }
+}
