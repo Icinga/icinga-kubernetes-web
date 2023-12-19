@@ -129,6 +129,15 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Jobs'),
+    [
+        'description' => $this->translate('Jobs'),
+        'url'         => 'kubernetes/jobs',
+        'priority'    => $i++
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [

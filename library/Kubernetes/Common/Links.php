@@ -17,6 +17,7 @@ use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
+use Icinga\Module\Kubernetes\Model\Job;
 use ipl\Web\Url;
 
 abstract class Links
@@ -84,5 +85,10 @@ abstract class Links
     public static function configMap(ConfigMap $configMap): Url
     {
         return Url::fromPath('kubernetes/configmap', ['id' => bin2hex($configMap->id)]);
+    }
+
+    public static function job(Job $job): Url
+    {
+        return Url::fromPath('kubernetes/job', ['id' => bin2hex($job->id)]);
     }
 }

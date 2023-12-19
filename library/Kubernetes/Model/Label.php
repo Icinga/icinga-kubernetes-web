@@ -100,6 +100,10 @@ class Label extends Model
         $relations
             ->belongsToMany('config_map', ConfigMap::class)
             ->through('config_map_label');
+
+        $relations
+            ->belongsToMany('job', Job::class)
+            ->through('job_label');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');
