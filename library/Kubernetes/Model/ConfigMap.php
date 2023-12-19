@@ -5,15 +5,16 @@
 namespace Icinga\Module\Kubernetes\Model;
 
 use ipl\Orm\Behavior\Binary;
+use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
-class Data extends Model
+class ConfigMap extends Model
 {
     public function getTableName()
     {
-        return 'data';
+        return 'config_map';
     }
 
     public function getKeyName()
@@ -24,41 +25,34 @@ class Data extends Model
     public function getColumns()
     {
         return [
+            'id',
+            'namespace',
             'name',
-            'value'
+            'uid',
+            'resource_version',
+            'immutable',
+            'created'
         ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'name'  => t('Name'),
-            'value' => t('Value')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['name'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
         $relations
-            ->belongsToMany('secret', Secret::class)
-            ->through('secret_data');
+            ->belongsToMany('label', Label::class)
+            ->through('config_map_label');
 
         $relations
-            ->belongsToMany('config_map', ConfigMap::class)
-            ->through('config_map_data');
+            ->belongsToMany('data', Data::class)
+            ->through('secret_data');
     }
 }

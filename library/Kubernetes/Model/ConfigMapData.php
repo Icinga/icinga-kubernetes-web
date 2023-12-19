@@ -9,16 +9,16 @@ use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
-class Data extends Model
+class ConfigMapData extends Model
 {
     public function getTableName()
     {
-        return 'data';
+        return 'config_map_data';
     }
 
     public function getKeyName()
     {
-        return ['id'];
+        return ['config_map_id', 'data_id'];
     }
 
     public function getColumns()
@@ -37,28 +37,16 @@ class Data extends Model
         ];
     }
 
-    public function getDefaultSort()
-    {
-        return ['name'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
         $relations
-            ->belongsToMany('secret', Secret::class)
-            ->through('secret_data');
-
-        $relations
-            ->belongsToMany('config_map', ConfigMap::class)
-            ->through('config_map_data');
+            ->belongsTo('config_map', ConfigMap::class);
     }
 }
