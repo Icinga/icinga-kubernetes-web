@@ -104,6 +104,10 @@ class Label extends Model
         $relations
             ->belongsToMany('job', Job::class)
             ->through('job_label');
+
+        $relations
+            ->belongsToMany('cron_job', CronJob::class)
+            ->through('cron_job_label');
 //
 //        $relations->belongsToMany('contact', Contact::class)
 //            ->through('incident_contact');

@@ -18,6 +18,7 @@ use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\Job;
+use Icinga\Module\Kubernetes\Model\CronJob;
 use ipl\Web\Url;
 
 abstract class Links
@@ -90,5 +91,10 @@ abstract class Links
     public static function job(Job $job): Url
     {
         return Url::fromPath('kubernetes/job', ['id' => bin2hex($job->id)]);
+    }
+
+    public static function cronJob(CronJob $cronjob)
+    {
+        return Url::fromPath('kubernetes/cronjob', ['id' => bin2hex($cronjob->id)]);
     }
 }
