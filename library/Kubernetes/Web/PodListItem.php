@@ -9,7 +9,6 @@ use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Pod;
-use Icinga\Module\Kubernetes\Web\Usage;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -75,11 +74,13 @@ class PodListItem extends BaseListItem
     {
         $header->add($this->createTitle());
         $container = new HtmlElement('div', new Attributes(['style' => 'display: inline-flex; align-items: center;']));
-        if ($this->item->cpu_requests > 0) {
-            $container->addHtml(new Usage($this->item->cpu_requests, $this->item->node->cpu_allocatable));
-        }
-        if ($this->item->memory_requests > 0) {
-            $container->addHtml(new Usage($this->item->memory_requests, $this->item->node->memory_allocatable));
+        if ($this->item->node->id !== null) {
+            if ($this->item->cpu_requests > 0) {
+                $container->addHtml(new Usage($this->item->cpu_requests, $this->item->node->cpu_allocatable));
+            }
+            if ($this->item->memory_requests > 0) {
+                $container->addHtml(new Usage($this->item->memory_requests, $this->item->node->memory_allocatable));
+            }
         }
         $container->addHtml(new TimeAgo($this->item->created->getTimestamp()));
         $header->add($container);

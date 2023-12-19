@@ -103,7 +103,8 @@ class Pod extends Model
         $relations
             ->belongsTo('node', Node::class)
             ->setCandidateKey('node_name')
-            ->setForeignKey('name');
+            ->setForeignKey('name')
+            ->setJoinType('LEFT');
 
         $relations
             ->belongsToMany('daemon_set', DaemonSet::class)
