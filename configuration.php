@@ -150,6 +150,14 @@ $section->add(
     [
         'description' => $this->translate('Services'),
         'url'         => 'kubernetes/services',
+    ]
+);
+
+$section->add(
+    N_('Ingresses'),
+    [
+        'description' => $this->translate('Ingresses'),
+        'url'         => 'kubernetes/ingresses',
         'priority'    => $i++
     ]
 );

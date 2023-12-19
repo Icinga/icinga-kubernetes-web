@@ -20,6 +20,7 @@ use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\Service;
+use Icinga\Module\Kubernetes\Model\Ingress;
 use ipl\Web\Url;
 
 abstract class Links
@@ -102,5 +103,10 @@ abstract class Links
     public static function service(Service $service): Url
     {
         return Url::fromPath('kubernetes/service', ['id' => bin2hex($service->id)]);
+    }
+
+    public static function ingress(Ingress $ingress): Url
+    {
+        return Url::fromPath('kubernetes/ingress', ['id' => bin2hex($ingress->id)]);
     }
 }
