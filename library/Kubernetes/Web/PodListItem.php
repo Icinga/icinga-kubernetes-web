@@ -31,12 +31,7 @@ class PodListItem extends BaseListItem
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
         $content = new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]);
-//
-//        if ($this->item->severity === 'ok' || $this->item->severity === 'err') {
-//            $content->setStyle('fa-regular');
-//        }
-
-        $visual->addHtml($content);
+        $visual->addHtml(new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]));
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void

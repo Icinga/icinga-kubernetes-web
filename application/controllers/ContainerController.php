@@ -19,6 +19,7 @@ class ContainerController extends Controller
         $id = $this->params->getRequired('id');
 
         $query = Container::on(Database::connection())
+            ->with('log')
             ->filter(Filter::all(
                 Filter::equal('container.id', $id)
             ));

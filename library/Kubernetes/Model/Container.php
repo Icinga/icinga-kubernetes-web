@@ -42,8 +42,7 @@ class Container extends Model
             'state_details',
             'ready',
             'started',
-            'restart_count',
-            'logs'
+            'restart_count'
         ];
     }
 
@@ -87,6 +86,8 @@ class Container extends Model
         $relations->belongsTo('pod', Pod::class);
 
         $relations->hasMany('mount', ContainerMount::class);
+
+        $relations->hasOne('log', ContainerLog::class);
 //
 //        $relations
 //            ->belongsToMany('event', Event::class)

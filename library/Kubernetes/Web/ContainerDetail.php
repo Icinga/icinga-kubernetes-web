@@ -90,7 +90,7 @@ class ContainerDetail extends BaseHtmlElement
                 'section',
                 new Attributes(['class' => 'container-logs']),
                 new HtmlElement('h2', null, new Text(t('Logs'))),
-                new HtmlElement('p', null, new Text($this->container->logs))
+                new HtmlElement('p', null, new Text($this->container->log->logs))
             )
         );
     }

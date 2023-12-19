@@ -20,11 +20,11 @@
   color: @state-pending;
 }
 
-.phase-running, .phase-succeeded, .state-running, .health-healthy {
+.phase-running, .phase-succeeded, .state-running, .health-healthy, .phase-active, .node-ready {
   color: @state-ok;
 }
 
-.phase-failed, .state-terminated, .health-unhealthy {
+.phase-failed, .state-terminated, .health-unhealthy, .node-not-ready {
   color: @state-critical;
 }
 
@@ -367,7 +367,7 @@ width: 14em;
 
 .list-item .key-value {
   > .vertical-key-value, > .horizontal-key-value {
-    width: 10em;
+    width: 12em;
   }
 }
 

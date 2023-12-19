@@ -103,4 +103,8 @@ abstract class Icons
     public const NOTIFIED = 'paper-plane';
 
     public const SUBSCRIBE = 'sync-alt';
+
+    public const NODE_READY = 'circle-check';
+
+    public const NODE_NOT_READY = 'circle-exclamation';
 }
