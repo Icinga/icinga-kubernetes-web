@@ -6,7 +6,9 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use DateTime;
 use Icinga\Module\Kubernetes\Model\Container;
-use Icinga\Module\Kubernetes\Model\Pod;
+use Icinga\Module\Kubernetes\Model\ContainerMount;
+use Icinga\Module\Kubernetes\Model\PodPvc;
+use Icinga\Module\Kubernetes\Model\PodVolume;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -15,12 +17,11 @@ use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\TimeAgo;
-use ipl\Web\Widget\VerticalKeyValue;
 use LogicException;
 
 class ContainerDetail extends BaseHtmlElement
 {
-    /** @var Pod */
+    /** @var Container */
     protected $container;
 
     protected $defaultAttributes = [
@@ -36,13 +37,15 @@ class ContainerDetail extends BaseHtmlElement
 
     protected function assemble()
     {
-        $this->addHtml(new Details([
-            t('Name')          => $this->container->name,
-            t('Image')         => $this->container->image,
-            t('Started')       => new Icon($this->container->started ? 'check' : 'xmark'),
-            t('Ready')         => new Icon($this->container->ready ? 'check' : 'xmark'),
-            t('Restart Count') => $this->container->restart_count
-        ]));
+        $this->addHtml(
+            new Details([
+                t('Name')          => $this->container->name,
+                t('Image')         => $this->container->image,
+                t('Started')       => new Icon($this->container->started ? 'check' : 'xmark'),
+                t('Ready')         => new Icon($this->container->ready ? 'check' : 'xmark'),
+                t('Restart Count') => $this->container->restart_count
+            ])
+        );
 
         $state = new HtmlElement(
             'section',
@@ -54,10 +57,12 @@ class ContainerDetail extends BaseHtmlElement
         $stateDetails = json_decode($this->container->state_details);
         switch ($this->container->state) {
             case Container::STATE_RUNNING:
-                $state->add(new HorizontalKeyValue(
-                    'Started At',
-                    new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp())
-                ));
+                $state->add(
+                    new HorizontalKeyValue(
+                        'Started At',
+                        new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp())
+                    )
+                );
 
                 break;
             case Container::STATE_TERMINATED:
@@ -72,11 +77,21 @@ class ContainerDetail extends BaseHtmlElement
                 throw new LogicException();
         }
 
-        $this->addHtml(new HtmlElement(
-            'section',
-            new Attributes(['class' => 'container-logs']),
-            new HtmlElement('h2', null, new Text(t('Logs'))),
-            new HtmlElement('p', null, new Text($this->container->logs))
-        ));
+        $this->addHtml(
+            new ContainerMountTable(
+                $this->container,
+                (new ContainerMount())->getColumnDefinitions(),
+                (new PodVolume())->getColumnDefinitions()
+            )
+        );
+
+        $this->addHtml(
+            new HtmlElement(
+                'section',
+                new Attributes(['class' => 'container-logs']),
+                new HtmlElement('h2', null, new Text(t('Logs'))),
+                new HtmlElement('p', null, new Text($this->container->logs))
+            )
+        );
     }
 }

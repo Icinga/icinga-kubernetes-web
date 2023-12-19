@@ -90,6 +90,12 @@ class Pod extends Model
 
         $relations->hasMany('condition', PodCondition::class);
 
+        $relations->hasMany('container_mount', ContainerMount::class);
+
+        $relations->hasMany('pod_volume', PodVolume::class);
+
+        $relations->hasMany('pod_pvc', PodPvc::class);
+
         $relations
             ->belongsToMany('label', Label::class)
             ->through('pod_label');

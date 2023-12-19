@@ -85,6 +85,8 @@ class Container extends Model
     public function createRelations(Relations $relations)
     {
         $relations->belongsTo('pod', Pod::class);
+
+        $relations->hasMany('mount', ContainerMount::class);
 //
 //        $relations
 //            ->belongsToMany('event', Event::class)
