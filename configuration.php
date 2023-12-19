@@ -111,6 +111,15 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Secrets'),
+    [
+        'description' => $this->translate('Secrets'),
+        'url'         => 'kubernetes/secrets',
+        'priority'    => $i++
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [
