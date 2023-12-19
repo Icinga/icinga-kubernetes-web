@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,14 +13,40 @@ use ipl\Orm\Relations;
 
 class ConfigMap extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'config_map';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return ['id'];
+        $relations
+            ->belongsToMany('data', Data::class)
+            ->through('config_map_data');
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('config_map_label');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'        => $this->translate('Namespace'),
+            'name'             => $this->translate('Name'),
+            'uid'              => $this->translate('UID'),
+            'resource_version' => $this->translate('Resource Version'),
+            'immutable'        => $this->translate('Immutable'),
+            'created'          => $this->translate('Created At')
+        ];
     }
 
     public function getColumns()
@@ -35,24 +62,23 @@ class ConfigMap extends Model
         ];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getDefaultSort()
     {
-        $behaviors->add(new Binary([
-            'id'
-        ]));
-        $behaviors->add(new MillisecondTimestamp([
-            'created'
-        ]));
+        return ['created desc'];
     }
 
-    public function createRelations(Relations $relations)
+    public function getKeyName()
     {
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('config_map_label');
+        return ['id'];
+    }
 
-        $relations
-            ->belongsToMany('data', Data::class)
-            ->through('secret_data');
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'config_map';
     }
 }

@@ -1,7 +1,10 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -10,14 +13,54 @@ use ipl\Orm\Relations;
 
 class DaemonSet extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'daemon_set';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations->hasMany('condition', DaemonSetCondition::class);
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('daemon_set_label');
+
+        $relations
+            ->belongsToMany('pod', Pod::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'                => $this->translate('Namespace'),
+            'name'                     => $this->translate('Name'),
+            'uid'                      => $this->translate('UID'),
+            'resource_version'         => $this->translate('Resource Version'),
+            'update_strategy'          => $this->translate('Update Strategy'),
+            'min_ready_seconds'        => $this->translate('Min Ready Seconds'),
+            'desired_number_scheduled' => $this->translate('Desired Number Scheduled'),
+            'current_number_scheduled' => $this->translate('Current Number Scheduled'),
+            'number_misscheduled'      => $this->translate('Number Misscheduled'),
+            'number_ready'             => $this->translate('Number Ready'),
+            'update_number_scheduled'  => $this->translate('Update Number Scheduled'),
+            'number_available'         => $this->translate('Number Available'),
+            'number_unavailable'       => $this->translate('Number Unavailable'),
+            'created'                  => $this->translate('Created At')
+        ];
     }
 
     public function getColumns()
@@ -45,27 +88,18 @@ class DaemonSet extends Model
         return ['created desc'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getKeyName()
     {
-        $behaviors->add(new Binary([
-            'id'
-        ]));
-
-        $behaviors->add(new MillisecondTimestamp([
-            'created'
-        ]));
+        return 'id';
     }
 
-    public function createRelations(Relations $relations)
+    public function getSearchColumns()
     {
-        $relations
-            ->belongsToMany('pods', Pod::class)
-            ->through('pod_owner');
+        return ['name'];
+    }
 
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('daemon_set_label');
-
-        $relations->hasMany('condition', DaemonSetCondition::class);
+    public function getTableName()
+    {
+        return 'daemon_set';
     }
 }

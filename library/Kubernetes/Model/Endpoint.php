@@ -4,21 +4,49 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
+use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
 class Endpoint extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'endpoint';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new BoolCast([
+            'ready',
+            'serving',
+            'terminating'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations->belongsTo('endpoint_slice', EndpointSlice::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'node_name'    => $this->translate('Node Name'),
+            'host_name'    => $this->translate('Host Name'),
+            'port_name'    => $this->translate('Port Name'),
+            'ready'        => $this->translate('Ready'),
+            'serving'      => $this->translate('Serving'),
+            'terminating'  => $this->translate('Terminating'),
+            'address'      => $this->translate('Address'),
+            'port'         => $this->translate('Port'),
+            'protocol'     => $this->translate('Protocol'),
+            'app_protocol' => $this->translate('App Protocol')
+        ];
     }
 
     public function getColumns()
@@ -37,34 +65,13 @@ class Endpoint extends Model
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getKeyName()
     {
-        return [
-            'host_name'    => t('Host Name'),
-            'node_name'    => t('Node Name'),
-            'ready'        => t('Ready'),
-            'serving'      => t('Serving'),
-            'terminating'  => t('Terminating'),
-            'address'      => t('Address'),
-            'protocol'     => t('Protocol'),
-            'port'         => t('Port'),
-            'port_name'    => t('Port Name'),
-            'app_protocol' => t('App Protocol')
-        ];
+        return 'id';
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getTableName()
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations
-            ->belongsTo('endpoint_slice', EndpointSlice::class);
+        return 'endpoint';
     }
 }

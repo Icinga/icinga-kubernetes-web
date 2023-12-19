@@ -5,85 +5,34 @@
 namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
-use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Model\Service;
-use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
-use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ListController;
 use Icinga\Module\Kubernetes\Web\ServiceList;
-use ipl\Web\Compat\SearchControls;
-use ipl\Web\Control\LimitControl;
-use ipl\Web\Control\SortControl;
+use ipl\Orm\Query;
 
-class ServicesController extends Controller
+class ServicesController extends ListController
 {
-    use SearchControls;
-
-    public function indexAction(): void
+    protected function getContentClass(): string
     {
-        $this->addTitleTab($this->translate('Service'));
-
-        $service = Service::on(Database::connection());
-
-        $limitControl = $this->createLimitControl();
-        $sortControl = $this->createSortControl($service, [
-            'service.name'    => $this->translate('Name'),
-            'service.created' => $this->translate('Created')
-        ]);
-
-        $paginationControl = $this->createPaginationControl($service);
-        $searchBar = $this->createSearchBar($service, [
-            $limitControl->getLimitParam(),
-            $sortControl->getSortParam(),
-        ]);
-
-        if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
-            if ($searchBar->hasBeenSubmitted()) {
-                $filter = $this->getFilter();
-            } else {
-                $this->addControl($searchBar);
-                $this->sendMultipartUpdate();
-
-                return;
-            }
-        } else {
-            $filter = $searchBar->getFilter();
-        }
-
-        $service->filter($filter);
-
-        $this->addControl($paginationControl);
-        $this->addControl($sortControl);
-        $this->addControl($limitControl);
-        $this->addControl($searchBar);
-
-        $this->addContent(new ServiceList($service));
-
-        if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
-            $this->sendMultipartUpdate();
-        }
+        return ServiceList::class;
     }
 
-    public function completeAction(): void
+    protected function getQuery(): Query
     {
-        $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(PersistentVolume::class);
-        $suggestions->forRequest($this->getServerRequest());
-        $this->getDocument()->add($suggestions);
+        return Service::on(Database::connection());
     }
 
-    public function searchEditorAction(): void
+    protected function getSortColumns(): array
     {
-        $editor = $this->createSearchEditor(Service::on(Database::connection()), [
-            LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM,
-        ]);
-
-        $this->getDocument()->add($editor);
-        $this->setTitle(t('Adjust Filter'));
+        return [
+            'service.created desc' => $this->translate('Created'),
+            'service.name'         => $this->translate('Name'),
+            'service.namespace'    => $this->translate('Namespace')
+        ];
     }
 
-    protected function getPageSize($default)
+    protected function getTitle(): string
     {
-        return parent::getPageSize($default ?? 50);
+        return $this->translate('Services');
     }
 }

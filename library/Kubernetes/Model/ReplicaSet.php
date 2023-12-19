@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,33 +13,7 @@ use ipl\Orm\Relations;
 
 class ReplicaSet extends Model
 {
-    public function getTableName()
-    {
-        return 'replica_set';
-    }
-
-    public function getKeyName()
-    {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'id',
-            'namespace',
-            'name',
-            'uid',
-            'desired_replicas',
-            'min_ready_seconds',
-            'resource_version',
-            'actual_replicas',
-            'fully_labeled_replicas',
-            'ready_replicas',
-            'available_replicas',
-            'created'
-        ];
-    }
+    use Translation;
 
     public function createBehaviors(Behaviors $behaviors)
     {
@@ -51,16 +26,21 @@ class ReplicaSet extends Model
         ]));
     }
 
-    public function getDefaultSort()
-    {
-        return ['created desc'];
-    }
-
     public function createRelations(Relations $relations)
     {
+        $relations->hasMany('condition', ReplicaSetCondition::class);
+
         $relations
-            ->belongsToMany('pods', Pod::class)
-            ->through('pod_owner');
+            ->belongsToMany('label', Label::class)
+            ->through('replica_set_label');
+
+        $relations
+            ->belongsToMany('pod', Pod::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
 
         $relations
             ->belongsToMany('deployment', Deployment::class)
@@ -69,11 +49,59 @@ class ReplicaSet extends Model
             ->setTargetForeignKey('name')
             ->setCandidateKey('id')
             ->setForeignKey('replica_set_id');
+    }
 
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('replica_set_label');
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'              => $this->translate('Namespace'),
+            'name'                   => $this->translate('Name'),
+            'uid'                    => $this->translate('UID'),
+            'resource_version'       => $this->translate('Resource Version'),
+            'min_ready_seconds'      => $this->translate('Min Ready Seconds'),
+            'desired_replicas'       => $this->translate('Desired Replicas'),
+            'actual_replicas'        => $this->translate('Actual Replicas'),
+            'fully_labeled_replicas' => $this->translate('Fully Labeled Replicas'),
+            'ready_replicas'         => $this->translate('Ready Replicas'),
+            'available_replicas'     => $this->translate('Available Replicas'),
+            'created'                => $this->translate('Created At')
+        ];
+    }
 
-        $relations->hasMany('condition', ReplicaSetCondition::class);
+    public function getColumns()
+    {
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'min_ready_seconds',
+            'desired_replicas',
+            'actual_replicas',
+            'fully_labeled_replicas',
+            'ready_replicas',
+            'available_replicas',
+            'created'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'replica_set';
     }
 }

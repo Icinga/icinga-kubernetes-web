@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,48 +13,14 @@ use ipl\Orm\Relations;
 
 class ReplicaSetCondition extends Model
 {
-    public function getTableName()
-    {
-        return 'replica_set_condition';
-    }
-
-    public function getKeyName()
-    {
-        return ['replica_set_id', 'type'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'type',
-            'status',
-            'last_transition',
-            'message',
-            'reason'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'type'            => t('Type'),
-            'status'          => t('Status'),
-            'last_transition' => t('Last Transition'),
-            'message'         => t('Message'),
-            'reason'          => t('Reason')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['last_transition desc'];
-    }
+    use Translation;
 
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
             'replica_set_id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'last_transition'
         ]));
@@ -62,5 +29,41 @@ class ReplicaSetCondition extends Model
     public function createRelations(Relations $relations)
     {
         $relations->belongsTo('replica_set', ReplicaSet::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'type'            => $this->translate('Type'),
+            'status'          => $this->translate('Status'),
+            'last_transition' => $this->translate('Last Transition'),
+            'message'         => $this->translate('Message'),
+            'reason'          => $this->translate('Reason')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'status',
+            'last_transition',
+            'message',
+            'reason'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['last_transition desc'];
+    }
+
+    public function getKeyName()
+    {
+        return ['replica_set_id', 'type'];
+    }
+
+    public function getTableName()
+    {
+        return 'replica_set_condition';
     }
 }

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,26 +13,58 @@ use ipl\Orm\Relations;
 
 class PersistentVolume extends Model
 {
-    public const PHASE_PENDING = 'pending';
+    use Translation;
+
+    public const DEFAULT_VOLUME_MODE = 'filesystem';
 
     public const PHASE_AVAILABLE = 'available';
 
     public const PHASE_BOUND = 'bound';
 
-    public const PHASE_RELEASED = 'released';
-
     public const PHASE_FAILED = 'failed';
 
-    public const DEFAULT_VOLUME_MODE = 'filesystem';
+    public const PHASE_PENDING = 'pending';
 
-    public function getTableName()
+    public const PHASE_RELEASED = 'released';
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'persistent_volume';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations
+            ->belongsToMany('pvc', PersistentVolumeClaim::class)
+            ->through('persistent_volume_claim_ref')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('persistent_volume_id');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'          => $this->translate('Namespace'),
+            'name'               => $this->translate('Name'),
+            'uid'                => $this->translate('UID'),
+            'resource_version'   => $this->translate('Resource Version'),
+            'capacity'           => $this->translate('Capacity'),
+            'phase'              => $this->translate('Phase'),
+            'access_modes'       => $this->translate('Access Modes'),
+            'volume_mode'        => $this->translate('Volume Mode'),
+            'volume_source_type' => $this->translate('Volume Source Type'),
+            'storage_class'      => $this->translate('Storage Class'),
+            'reclaim_policy'     => $this->translate('Reclaim Policy'),
+            'created'            => $this->translate('Created At')
+        ];
     }
 
     public function getColumns()
@@ -45,23 +78,11 @@ class PersistentVolume extends Model
             'phase',
             'access_modes',
             'volume_mode',
+            'volume_source_type',
             'storage_class',
+            'reclaim_policy',
             'created'
         ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'name'    => t('Name'),
-            'phase'   => t('Phase'),
-            'created' => t('Created At')
-        ];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
     }
 
     public function getDefaultSort()
@@ -69,20 +90,23 @@ class PersistentVolume extends Model
         return ['created desc'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getKeyName()
     {
-        $behaviors->add(new Binary(['id']));
-        $behaviors->add(new MillisecondTimestamp(['created']));
+        return 'id';
     }
 
-    public function createRelations(Relations $relations)
+    public function getSearchColumns()
     {
-       $relations
-           ->belongsToMany('pvc', PersistentVolumeClaim::class)
-           ->through('persistent_volume_claim_ref')
-           ->setTargetCandidateKey('name')
-           ->setTargetForeignKey('name')
-           ->setCandidateKey('id')
-           ->setForeignKey('persistent_volume_id');
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'persistent_volume';
+    }
+
+    public function getVolumeMode(): string
+    {
+        return $this->volume_mode ?? static::DEFAULT_VOLUME_MODE;
     }
 }

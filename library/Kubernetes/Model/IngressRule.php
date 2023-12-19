@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,14 +12,32 @@ use ipl\Orm\Relations;
 
 class IngressRule extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'ingress_rule';
+        $behaviors->add(new Binary([
+            'id',
+            'ingress_id'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations->belongsTo('ingress', Ingress::class);
+
+        $relations->hasMany('backend_service', IngressBackendService::class);
+
+        $relations->hasMany('backend_resource', IngressBackendResource::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'host'      => $this->translate('Host'),
+            'path'      => $this->translate('Path'),
+            'path_type' => $this->translate('Path Type')
+        ];
     }
 
     public function getColumns()
@@ -27,36 +46,17 @@ class IngressRule extends Model
             'ingress_id',
             'host',
             'path',
-            'path_type',
+            'path_type'
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getKeyName()
     {
-        return [
-            'host'         => t('Host'),
-            'path'         => t('Path'),
-            'path_type'    => t('Path Type'),
-        ];
+        return 'id';
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getTableName()
     {
-        $behaviors->add(
-            new Binary([
-                'id',
-                'ingress_id'
-            ])
-        );
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations
-            ->belongsTo('ingress', Ingress::class);
-        $relations
-            ->hasMany('backend_service', IngressBackendService::class);
-        $relations
-            ->hasMany('backend_resource', IngressBackendResource::class);
+        return 'ingress_rule';
     }
 }

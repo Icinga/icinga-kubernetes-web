@@ -1,5 +1,7 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
@@ -12,21 +14,17 @@ class ReplicasetController extends Controller
 {
     public function indexAction(): void
     {
-        $namespace = $this->params->get('namespace');
-        $name = $this->params->get('name');
-        $id = $this->params->getRequired('id');
+        $this->addTitleTab($this->translate('Replica Set'));
 
-        $this->addTitleTab("Replica Set $namespace/$name");
-
+        /** @var ReplicaSet $replicaSet */
         $replicaSet = ReplicaSet::on(Database::connection())
-            ->filter(Filter::equal('id', $id))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
 
-        $this->addContent(new ReplicaSetDetail($replicaSet));
-    }
+        if ($replicaSet === null) {
+            $this->httpNotFound($this->translate('Replica Set not found'));
+        }
 
-    protected function getPageSize($default)
-    {
-        return parent::getPageSize($default ?? 50);
+        $this->addContent(new ReplicaSetDetail($replicaSet));
     }
 }

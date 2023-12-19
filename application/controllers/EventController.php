@@ -1,5 +1,7 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
@@ -12,15 +14,16 @@ class EventController extends Controller
 {
     public function indexAction(): void
     {
-        $namespace = $this->params->get('namespace');
-        $name = $this->params->get('name');
-        $id = $this->params->getRequired('id');
+        $this->addTitleTab($this->translate('Event'));
 
-        $this->addTitleTab("Event $namespace/$name");
-
+        /** @var Event $event */
         $event = Event::on(Database::connection())
-            ->filter(Filter::equal('id', $id))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
+
+        if ($event === null) {
+            $this->httpNotFound($this->translate('Event not found'));
+        }
 
         $this->addContent(new EventDetail($event));
     }

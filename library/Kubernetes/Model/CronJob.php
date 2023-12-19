@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,14 +13,47 @@ use ipl\Orm\Relations;
 
 class CronJob extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'cron_job';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'last_schedule_time',
+            'last_successful_time',
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('cron_job_label');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'                     => $this->translate('Namespace'),
+            'name'                          => $this->translate('Name'),
+            'uid'                           => $this->translate('UID'),
+            'resource_version'              => $this->translate('Resource Version'),
+            'schedule'                      => $this->translate('Schedule'),
+            'timezone'                      => $this->translate('Timezone'),
+            'starting_deadline_seconds'     => $this->translate('Starting Deadline Seconds'),
+            'concurrency_policy'            => $this->translate('Concurrency Policy'),
+            'suspend'                       => $this->translate('Suspend'),
+            'successful_jobs_history_limit' => $this->translate('Successful Jobs History Limit'),
+            'failed_jobs_history_limit'     => $this->translate('Failed Jobs History Limit'),
+            'active'                        => $this->translate('Active'),
+            'last_schedule_time'            => $this->translate('Last Schedule Time'),
+            'last_successful_time'          => $this->translate('Last Successful Time'),
+            'created'                       => $this->translate('Created At')
+        ];
     }
 
     public function getColumns()
@@ -43,13 +77,14 @@ class CronJob extends Model
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getDefaultSort()
     {
-        return [
-            'namespace' => t('Namespace'),
-            'name'      => t('Name'),
-            'created'   => t('Created At')
-        ];
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
     }
 
     public function getSearchColumns()
@@ -57,31 +92,8 @@ class CronJob extends Model
         return ['name'];
     }
 
-    public function getDefaultSort()
+    public function getTableName()
     {
-        return ['namespace', 'created desc'];
-    }
-
-    public function createBehaviors(Behaviors $behaviors)
-    {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'last_schedule_time',
-                'last_successful_time',
-                'created'
-            ])
-        );
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('cron_job_label');
+        return 'cron_job';
     }
 }

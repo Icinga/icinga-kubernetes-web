@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,20 +13,39 @@ use ipl\Orm\Relations;
 
 class ServiceCondition extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'service_condition';
+        $behaviors->add(new Binary([
+            'service_id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'last_transition'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'service_id';
+        $relations->belongsTo('service', Service::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'type'                => $this->translate('Type'),
+            'status'              => $this->translate('Status'),
+            'observed_generation' => $this->translate('Observed Generation'),
+            'last_transition'     => $this->translate('Last Transition'),
+            'reason'              => $this->translate('Reason'),
+            'message'             => $this->translate('Message')
+        ];
     }
 
     public function getColumns()
     {
         return [
-            'type',
             'status',
             'observed_generation',
             'last_transition',
@@ -34,40 +54,18 @@ class ServiceCondition extends Model
         ];
     }
 
-    public function getColumnDefinitions()
-    {
-        return [
-            'type'                => t('Type'),
-            'status'              => t('Status'),
-            'observed_generation' => t('Observed Generation'),
-            'last_transition'     => t('Last Transition'),
-            'reason'              => t('Reason'),
-            'message'             => t('Message')
-        ];
-    }
-
     public function getDefaultSort()
     {
-        return 'last_transition desc';
+        return ['last_transition desc'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getKeyName()
     {
-        $behaviors->add(
-            new Binary([
-                'service_id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'last_transition'
-            ])
-        );
+        return ['service_id', 'type'];
     }
 
-    public function createRelations(Relations $relations)
+    public function getTableName()
     {
-        $relations
-            ->belongsTo('service', Service::class);
+        return 'service_condition';
     }
 }

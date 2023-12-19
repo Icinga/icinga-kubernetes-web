@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,20 +12,35 @@ use ipl\Orm\Relations;
 
 class ServicePort extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'service_port';
+        $behaviors->add(new Binary([
+            'service_id'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'service_id';
+        $relations->belongsTo('service', Service::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'name'         => $this->translate('Name'),
+            'port'         => $this->translate('Port'),
+            'target_port'  => $this->translate('Target Port'),
+            'protocol'     => $this->translate('Protocol'),
+            'app_protocol' => $this->translate('App Protocol'),
+            'node_port'    => $this->translate('Node Port')
+        ];
     }
 
     public function getColumns()
     {
         return [
-            'name',
             'protocol',
             'app_protocol',
             'port',
@@ -33,30 +49,13 @@ class ServicePort extends Model
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getKeyName()
     {
-        return [
-            'name'         => t('Name'),
-            'protocol'     => t('Protocol'),
-            'app_protocol' => t('App Protocol'),
-            'port'         => t('Port'),
-            'target_port'  => t('Target Port'),
-            'node_port'    => t('Node Port')
-        ];
+        return ['service_id', 'name'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getTableName()
     {
-        $behaviors->add(
-            new Binary([
-                'service_id'
-            ])
-        );
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations
-            ->belongsTo('service', Service::class);
+        return 'service_port';
     }
 }

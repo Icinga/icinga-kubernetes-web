@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,47 +13,11 @@ use ipl\Orm\Relations;
 
 class NamespaceModel extends Model
 {
+    use Translation;
+
     public const PHASE_ACTIVE = 'active';
 
     public const PHASE_TERMINATING = 'terminating';
-
-    public function getTableName()
-    {
-        return 'namespace';
-    }
-
-    public function getKeyName()
-    {
-        return ['id'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'id',
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'phase',
-            'created'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'namespace' => t('Namespace'),
-            'name'      => t('Name'),
-            'phase'     => t('Phase'),
-            'created'   => t('Created At')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['created desc'];
-    }
 
     public function createBehaviors(Behaviors $behaviors)
     {
@@ -70,5 +35,49 @@ class NamespaceModel extends Model
         $relations
             ->belongsToMany('label', Label::class)
             ->through('namespace_label');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'        => $this->translate('Namespace'),
+            'name'             => $this->translate('Name'),
+            'uid'              => $this->translate('UID'),
+            'resource_version' => $this->translate('Resource Version'),
+            'phase'            => $this->translate('Phase'),
+            'created'          => $this->translate('Created At')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'phase',
+            'created'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return ['id'];
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'namespace';
     }
 }

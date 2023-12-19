@@ -14,19 +14,17 @@ class ConfigmapController extends Controller
 {
     public function indexAction(): void
     {
-        $id = $this->params->getRequired('id');
+        $this->addTitleTab('Config Map');
 
+        /** @var ConfigMap $configMap */
         $configMap = ConfigMap::on(Database::connection())
-            ->filter(Filter::equal('id', $id))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
 
-        $this->addTitleTab("Config Map");
+        if ($configMap === null) {
+            $this->httpNotFound($this->translate('Config Map not found'));
+        }
 
         $this->addContent(new ConfigMapDetail($configMap));
-    }
-
-    protected function getPageSize($default)
-    {
-        return parent::getPageSize($default ?? 50);
     }
 }

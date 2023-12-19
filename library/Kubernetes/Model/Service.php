@@ -4,7 +4,9 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
+use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -12,14 +14,62 @@ use ipl\Orm\Relations;
 
 class Service extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'service';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new BoolCast([
+            'publish_not_ready_addresses',
+            'allocate_load_balancer_node_ports'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations->hasMany('condition', ServiceCondition::class);
+
+        $relations->hasMany('port', ServicePort::class);
+
+        $relations
+            ->belongsToMany('selector', Selector::class)
+            ->through('service_selector');
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('service_label');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'                         => $this->translate('Namespace'),
+            'name'                              => $this->translate('Name'),
+            'uid'                               => $this->translate('UID'),
+            'resource_version'                  => $this->translate('Resource Version'),
+            'type'                              => $this->translate('Type'),
+            'cluster_ip'                        => $this->translate('Cluster IP'),
+            'cluster_ips'                       => $this->translate('Cluster IPs'),
+            'external_ips'                      => $this->translate('External IPs'),
+            'session_affinity'                  => $this->translate('Session Affinity'),
+            'external_name'                     => $this->translate('External Name'),
+            'external_traffic_policy'           => $this->translate('External Traffic Policy'),
+            'health_check_node_port'            => $this->translate('Health Check Node Port'),
+            'publish_not_ready_addresses'       => $this->translate('Publish Not Ready Addresses'),
+            'ip_families'                       => $this->translate('IP Families'),
+            'ip_family_policy'                  => $this->translate('IP Family Policy'),
+            'allocate_load_balancer_node_ports' => $this->translate('Allocated Load Balancer Node Ports'),
+            'load_balancer_class'               => $this->translate('Load Balancer Class'),
+            'internal_traffic_policy'           => $this->translate('Internal Traffic Policy'),
+            'created'                           => $this->translate('Created At')
+        ];
     }
 
     public function getColumns()
@@ -47,15 +97,14 @@ class Service extends Model
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getDefaultSort()
     {
-        return [
-            'namespace'  => t('Namespace'),
-            'name'       => t('Name'),
-            'type'       => t('Type'),
-            'cluster_ip' => t('Cluster IP'),
-            'created'    => t('Created At')
-        ];
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
     }
 
     public function getSearchColumns()
@@ -63,39 +112,8 @@ class Service extends Model
         return ['name'];
     }
 
-    public function getDefaultSort()
+    public function getTableName()
     {
-        return 'created desc';
-    }
-
-    public function createBehaviors(Behaviors $behaviors)
-    {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'created'
-            ])
-        );
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('service_label');
-
-        $relations
-            ->belongsToMany('selector', Selector::class)
-            ->through('service_selector');
-
-        $relations
-            ->hasMany('service_port', ServicePort::class);
-
-        $relations
-            ->hasMany('service_condition', ServiceCondition::class);
+        return 'service';
     }
 }

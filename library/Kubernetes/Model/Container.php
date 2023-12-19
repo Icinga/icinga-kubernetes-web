@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
@@ -13,19 +14,56 @@ use ipl\Orm\Relations;
 
 class Container extends Model
 {
-    public const STATE_WAITING = 'waiting';
+    use Translation;
+
     public const STATE_RUNNING = 'running';
 
     public const STATE_TERMINATED = 'terminated';
 
-    public function getTableName()
+    public const STATE_WAITING = 'waiting';
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'container';
+        $behaviors->add(new Binary([
+            'id',
+            'pod_id'
+        ]));
+
+        $behaviors->add(new BoolCast([
+            'ready',
+            'started'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations->hasMany('mount', ContainerMount::class);
+
+        $relations
+            ->hasOne('log', ContainerLog::class)
+            ->setJoinType('LEFT');
+
+        $relations->belongsTo('pod', Pod::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'name'            => $this->translate('Name'),
+            'image'           => $this->translate('Image'),
+            'cpu_limits'      => $this->translate('CPU Limits'),
+            'cpu_requests'    => $this->translate('CPU Requests'),
+            'memory_limits'   => $this->translate('Memory Limits'),
+            'memory_requests' => $this->translate('Memory Requests'),
+            'state'           => $this->translate('State'),
+            'ready'           => $this->translate('Ready'),
+            'started'         => $this->translate('Started At'),
+            'restart_count'   => $this->translate('Restart Count')
+        ];
     }
 
     public function getColumns()
@@ -42,60 +80,22 @@ class Container extends Model
             'state_details',
             'ready',
             'started',
-            'restart_count',
-            'logs'
+            'restart_count'
         ];
     }
 
-//    public function getColumnDefinitions()
-//    {
-//        return [
-//            'object_id'     => t('Object Id'),
-//            'started_at'    => t('Started At'),
-//            'recovered_at'  => t('Recovered At'),
-//            'severity'      => t('Severity')
-//        ];
-//    }
-//
-//    public function getSearchColumns()
-//    {
-//        return ['severity'];
-//    }
-//
-//    public function getDefaultSort()
-//    {
-//        return ['incident.started_at desc'];
-//    }
-
-    public function createBehaviors(Behaviors $behaviors)
+    public function getDefaultSort()
     {
-        $behaviors->add(new Binary([
-            'id',
-            'pod_id'
-        ]));
-        $behaviors->add(new BoolCast([
-            'ready',
-            'started'
-        ]));
-        $behaviors->add(new MillisecondTimestamp([
-            'created'
-        ]));
+        return ['name'];
     }
 
-    public function createRelations(Relations $relations)
+    public function getKeyName()
     {
-        $relations->belongsTo('pod', Pod::class);
+        return 'id';
+    }
 
-        $relations->hasMany('mount', ContainerMount::class);
-//
-//        $relations
-//            ->belongsToMany('event', Event::class)
-//            ->through('incident_event');
-//
-//        $relations->belongsToMany('contact', Contact::class)
-//            ->through('incident_contact');
-//
-//        $relations->hasMany('incident_contact', IncidentContact::class);
-//        $relations->hasMany('incident_history', IncidentHistory::class);
+    public function getTableName()
+    {
+        return 'container';
     }
 }

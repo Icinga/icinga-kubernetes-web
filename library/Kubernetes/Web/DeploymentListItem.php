@@ -1,18 +1,17 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\DeploymentHealth;
-use Icinga\Module\Kubernetes\Common\Icons;
+use Icinga\Module\Kubernetes\Common\Health;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Common\States;
-use Icinga\Module\Kubernetes\Model\Deployment;
-use Icinga\Module\Kubernetes\Model\StatefulSet;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -22,77 +21,72 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class DeploymentListItem extends BaseListItem
 {
-    /** @var $item Deployment The associated list item */
-    /** @var $list DeploymentList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(States::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $content = Html::sprintf(
-            t('%s is %s', '<deployment> is <health>'),
-            new Link(
-                $this->item->name,
-                Links::deployment($this->item),
-                ['class' => 'subject']
-            ),
-            Html::tag('span', ['class' => 'replica-text'], $this->getHealth())
-        );
-
-        $title->addHtml($content);
-    }
+    use Translation;
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->add($this->createTitle());
-        $header->add(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->add($this->createHeader());
+        $main->addHtml($this->createHeader());
 
-        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $main->addHtml($keyValue);
-
-        $desired = $this->item->desired_replicas;
-        $unknown = 0;
-        $available = $this->item->available_replicas;
-        $pending = 0;
-        $critical = $this->item->unavailable_replicas;
         $pods = new HtmlElement('div', new Attributes(['class' => 'pod-balls']));
-        for ($i = 0; $i < $critical; $i++) {
-            $pods->addHtml(new \ipl\Web\Widget\StateBall('critical', StateBall::SIZE_MEDIUM));
+        for ($i = 0; $i < $this->item->unavailable_replicas; $i++) {
+            $pods->addHtml(new StateBall('critical', StateBall::SIZE_MEDIUM));
         }
+        $pending = $this->item->desired_replicas - $this->item->unavailable_replicas - $this->item->available_replicas;
         for ($i = 0; $i < $pending; $i++) {
             $pods->addHtml(new StateBall('pending', StateBall::SIZE_MEDIUM));
         }
-        for ($i = 0; $i < $unknown; $i++) {
-            $pods->addHtml(new StateBall('unknown', StateBall::SIZE_MEDIUM));
-        }
-        for ($i = 0; $i < $available; $i++) {
+        for ($i = 0; $i < $this->item->available_replicas; $i++) {
             $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
         }
-        $keyValue->add(new VerticalKeyValue('Pods', $pods));
-        $keyValue->add(new VerticalKeyValue('Strategy', ucfirst(Str::camel($this->item->strategy))));
-        $keyValue->add(new VerticalKeyValue('Min Ready Seconds', $this->item->min_ready_seconds));
-        $keyValue->add(new VerticalKeyValue('Progress Deadline Seconds', $this->item->min_ready_seconds));
-        $keyValue->add(new VerticalKeyValue('Namespace', $this->item->namespace));
+        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Pods'), $pods));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Strategy'),
+            ucfirst(Str::camel($this->item->strategy))
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Min Ready Seconds'),
+            $this->item->min_ready_seconds
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Progress Deadline Seconds'),
+            $this->item->min_ready_seconds
+        ));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
+        $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(Html::sprintf(
+            $this->translate('%s is %s', '<deployment> is <health>'),
+            new Link($this->item->name, Links::deployment($this->item), ['class' => 'subject']),
+            Html::tag('span', null, $this->getHealth())
+        ));
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $health = $this->getHealth();
+        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
     }
 
     protected function getHealth(): string
     {
         switch (true) {
             case $this->item->unavailable_replicas > 0:
-                return States::UNHEALTHY;
+                return Health::UNHEALTHY;
             case $this->item->available_replicas < $this->item->desired_replicas:
-                return States::DEGRADED;
+                return Health::DEGRADED;
             default:
-                return States::HEALTHY;
+                return Health::HEALTHY;
         }
     }
 }

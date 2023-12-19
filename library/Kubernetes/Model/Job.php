@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,14 +13,57 @@ use ipl\Orm\Relations;
 
 class Job extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'job';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations->hasMany('condition', JobCondition::class);
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('job_label');
+
+        $relations
+            ->belongsToMany('pod', Pod::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'                  => $this->translate('Namespace'),
+            'name'                       => $this->translate('Name'),
+            'uid'                        => $this->translate('UID'),
+            'resource_version'           => $this->translate('Resource Version'),
+            'parallelism'                => $this->translate('Parallelism'),
+            'completions'                => $this->translate('Completions'),
+            'active_deadline_seconds'    => $this->translate('Active Deadline Seconds'),
+            'backoff_limit'              => $this->translate('Backoff Limit'),
+            'ttl_seconds_after_finished' => $this->translate('TTL Seconds After Finished'),
+            'completion_mode'            => $this->translate('Completion Mode'),
+            'suspend'                    => $this->translate('Suspend'),
+            'start_time'                 => $this->translate('Start Time'),
+            'completion_time'            => $this->translate('Completion Time'),
+            'active'                     => $this->translate('Active'),
+            'succeeded'                  => $this->translate('Succeeded'),
+            'failed'                     => $this->translate('Failed'),
+            'created'                    => $this->translate('Created At')
+        ];
     }
 
     public function getColumns()
@@ -45,13 +89,14 @@ class Job extends Model
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getDefaultSort()
     {
-        return [
-            'namespace' => t('Namespace'),
-            'name'      => t('Name'),
-            'created'   => t('Created At')
-        ];
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
     }
 
     public function getSearchColumns()
@@ -59,35 +104,8 @@ class Job extends Model
         return ['name'];
     }
 
-    public function getDefaultSort()
+    public function getTableName()
     {
-        return ['namespace', 'created desc'];
-    }
-
-    public function createBehaviors(Behaviors $behaviors)
-    {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'created'
-            ])
-        );
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations->hasMany('condition',  JobCondition::class);
-
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('job_label');
-
-        $relations
-            ->belongsToMany('pods', Pod::class)
-            ->through('pod_owner');
+        return 'job';
     }
 }

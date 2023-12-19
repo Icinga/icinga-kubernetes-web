@@ -11,7 +11,6 @@ use Icinga\Module\Kubernetes\Model\PodPvc;
 use Icinga\Module\Kubernetes\Model\PodVolume;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
-use ipl\Html\HtmlString;
 use ipl\Html\Table;
 use ipl\Html\Text;
 use ipl\Stdlib\Filter;
@@ -19,11 +18,11 @@ use ipl\Web\Widget\Link;
 
 class ContainerMountTable extends Table
 {
-    protected $defaultAttributes = [
-        'class' => 'container-mount-table common-table collapsible'
-    ];
-
     protected $container;
+
+    protected $defaultAttributes = [
+        'class' => 'common-table collapsible'
+    ];
 
     protected $mountColumnDefinitions;
 

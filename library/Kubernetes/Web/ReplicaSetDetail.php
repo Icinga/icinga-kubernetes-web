@@ -5,72 +5,60 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
-use Icinga\Module\Kubernetes\Model\Label;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\replicaSetCondition;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
-use ipl\Web\Widget\HorizontalKeyValue;
-use ipl\Web\Widget\TimeAgo;
 
 class ReplicaSetDetail extends BaseHtmlElement
 {
-    protected $defaultAttributes = [
-        'class' => 'replica-set-detail'
-    ];
-
-    protected $tag = 'div';
+    use Translation;
 
     /** @var ReplicaSet */
     protected $replicaSet;
 
-    public function __construct($replicaSet)
+    protected $tag = 'div';
+
+    public function __construct(ReplicaSet $replicaSet)
     {
         $this->replicaSet = $replicaSet;
     }
 
     protected function assemble()
     {
-        $this->addHtml(new Details([
-            t('Name')                   => $this->replicaSet->name,
-            t('Namespace')              => $this->replicaSet->namespace,
-            t('UID')                    => $this->replicaSet->uid,
-            t('Min Ready Seconds')      => $this->replicaSet->min_ready_seconds,
-            t('Desired Replicas')       => $this->replicaSet->desired_replicas,
-            t('Actual Replicas')        => $this->replicaSet->actual_replicas,
-            t('Fully Labeled Replicas') => $this->replicaSet->fully_labeled_replicas,
-            t('Ready Replicas')         => $this->replicaSet->ready_replicas,
-            t('Available Replicas')     => $this->replicaSet->available_replicas,
-            t('Created')                => new TimeAgo($this->replicaSet->created->getTimestamp())
-        ]));
-
         $this->addHtml(
+            new Details(new ResourceDetails($this->replicaSet, [
+                $this->translate('Min Ready Seconds')      => $this->replicaSet->min_ready_seconds,
+                $this->translate('Desired Replicas')       => $this->replicaSet->desired_replicas,
+                $this->translate('Actual Replicas')        => $this->replicaSet->actual_replicas,
+                $this->translate('Fully Labeled Replicas') => $this->replicaSet->fully_labeled_replicas,
+                $this->translate('Ready Replicas')         => $this->replicaSet->ready_replicas,
+                $this->translate('Available Replicas')     => $this->replicaSet->available_replicas
+            ])),
             new Labels($this->replicaSet->label),
-            new ConditionTable($this->replicaSet, (new ReplicaSetCondition())->getColumnDefinitions())
+            new ConditionTable($this->replicaSet, (new ReplicaSetCondition())->getColumnDefinitions()),
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text($this->translate('Pods'))),
+                new PodList($this->replicaSet->pod->with(['node']))
+            ),
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text($this->translate('Events'))),
+                new EventList(Event::on(Database::connection())
+                    ->filter(Filter::all(
+                        Filter::equal('reference_kind', 'ReplicaSet'),
+                        Filter::equal('reference_namespace', $this->replicaSet->namespace),
+                        Filter::equal('reference_name', $this->replicaSet->name)
+                    )))
+            )
         );
-
-        $this->addHtml(new HtmlElement(
-            'section',
-            new Attributes(['class' => 'resource-pods']),
-            new HtmlElement('h2', null, new Text(t('Pods'))),
-            new PodList($this->replicaSet->pods->with(['node']))
-        ));
-
-        $this->addHtml(new HtmlElement(
-            'section',
-            new Attributes(['class' => 'resource-events']),
-            new HtmlElement('h2', null, new Text(t('Events'))),
-            new EventList(Event::on(Database::connection())
-                ->filter(Filter::all(
-                    Filter::equal('reference_kind', 'ReplicaSet'),
-                    Filter::equal('reference_namespace', $this->replicaSet->namespace),
-                    Filter::equal('reference_name', $this->replicaSet->name)
-                )))
-        ));
     }
-
 }

@@ -8,8 +8,6 @@ use Icinga\Module\Kubernetes\Common\BaseItemList;
 
 class EventList extends BaseItemList
 {
-    protected $defaultAttributes = ['class' => 'event-list'];
-
     protected function getItemClass(): string
     {
         return EventListItem::class;

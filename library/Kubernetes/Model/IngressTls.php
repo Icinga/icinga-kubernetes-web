@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,14 +12,26 @@ use ipl\Orm\Relations;
 
 class IngressTls extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'ingress_tls';
+        $behaviors->add(new Binary([
+            'ingress_id'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'ingress_id';
+        $relations->belongsTo('ingress', Ingress::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'tls_host'   => $this->translate('TLS Host'),
+            'tls_secret' => $this->translate('TLS Secret')
+        ];
     }
 
     public function getColumns()
@@ -29,25 +42,13 @@ class IngressTls extends Model
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getKeyName()
     {
-        return [
-            'tls_secret' => t('TLS Secret'),
-        ];
+        return 'ingress_id';
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getTableName()
     {
-        $behaviors->add(
-            new Binary([
-                'ingress_id'
-            ])
-        );
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations
-            ->belongsTo('ingress', Ingress::class);
+        return 'ingress_tls';
     }
 }

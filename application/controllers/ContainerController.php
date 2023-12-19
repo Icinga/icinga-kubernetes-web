@@ -16,24 +16,15 @@ class ContainerController extends Controller
     {
         $this->addTitleTab($this->translate('Container'));
 
-        $id = $this->params->getRequired('id');
-
-        $query = Container::on(Database::connection())
-            ->filter(Filter::all(
-                Filter::equal('container.id', $id)
-            ));
-
         /** @var Container $container */
-        $container = $query->first();
+        $container = Container::on(Database::connection())
+            ->with('log')
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->first();
+
         if ($container === null) {
             $this->httpNotFound($this->translate('Container not found'));
         }
-
-//        $this->addControl(
-//            (new PodList($query))
-//                ->setNoSubjectLink()
-//        );
-//        $this->controls->addAttributes(['class' => 'pod-detail']);
 
         $this->addContent(new ContainerDetail($container));
     }

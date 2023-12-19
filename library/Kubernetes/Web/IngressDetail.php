@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Model\IngressBackendResource;
 use Icinga\Module\Kubernetes\Model\IngressBackendService;
@@ -20,10 +21,6 @@ class IngressDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = [
-        'class' => 'ingress-detail',
-    ];
-
     public function __construct(Ingress $ingress)
     {
         $this->ingress = $ingress;
@@ -31,36 +28,36 @@ class IngressDetail extends BaseHtmlElement
 
     protected function assemble()
     {
-        $this->addHtml(
-            new Details([
-                t('Name')      => $this->ingress->name,
-                t('Namespace') => $this->ingress->namespace,
-                t('Created')   => $this->ingress->created->format('Y-m-d H:i:s')
-            ]),
-        );
+        $this->addHtml(new Details(new ResourceDetails($this->ingress)));
 
-        $services = IngressBackendService::on(Database::connection())
+        $backendServices = IngressBackendService::on(Database::connection())
             ->filter(Filter::all(
-                    Filter::equal('ingress_id', $this->ingress->id)
-                ));
-        if ($services->first() !== null) {
+                Filter::equal('ingress_id', $this->ingress->id)
+            ));
+        if ($backendServices->count()) {
             $this->addHtml(
                 new IngressRuleTable(
-                    $this->ingress, 'backend_service', (new IngressRule())->getColumnDefinitions(),
-                    (new IngressBackendService())->getColumnDefinitions(), (new IngressTls())->getColumnDefinitions()
+                    $this->ingress,
+                    'backend_service',
+                    (new IngressRule())->getColumnDefinitions(),
+                    (new IngressBackendService())->getColumnDefinitions(),
+                    (new IngressTls())->getColumnDefinitions()
                 )
             );
         }
 
-        $resources = IngressBackendResource::on(Database::connection())
+        $backendResources = IngressBackendResource::on(Database::connection())
             ->filter(Filter::all(
-                    Filter::equal('ingress_id', $this->ingress->id)
-                ));
-        if ($resources->first() !== null) {
+                Filter::equal('ingress_id', $this->ingress->id)
+            ));
+        if ($backendResources->count()) {
             $this->addHtml(
                 new IngressRuleTable(
-                    $this->ingress, 'backend_resource', (new IngressRule())->getColumnDefinitions(),
-                    (new IngressBackendResource())->getColumnDefinitions(), (new IngressTls())->getColumnDefinitions()
+                    $this->ingress,
+                    'backend_resource',
+                    (new IngressRule())->getColumnDefinitions(),
+                    (new IngressBackendResource())->getColumnDefinitions(),
+                    (new IngressTls())->getColumnDefinitions()
                 )
             );
         }

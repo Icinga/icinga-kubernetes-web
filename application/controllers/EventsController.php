@@ -1,86 +1,34 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
-use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
-use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\EventList;
-use ipl\Web\Compat\SearchControls;
-use ipl\Web\Control\LimitControl;
-use ipl\Web\Control\SortControl;
+use Icinga\Module\Kubernetes\Web\ListController;
+use ipl\Orm\Query;
 
-class EventsController extends Controller
+class EventsController extends ListController
 {
-    use SearchControls;
-
-    public function indexAction(): void
+    protected function getContentClass(): string
     {
-        $this->addTitleTab(t('Events'));
-
-        $event = Event::on(Database::connection());
-
-        $limitControl = $this->createLimitControl();
-        $sortControl = $this->createSortControl(
-            $event,
-            ['event.created' => t('Created')]
-        );
-
-        $paginationControl = $this->createPaginationControl($event);
-        $searchBar = $this->createSearchBar($event, [
-            $limitControl->getLimitParam(),
-            $sortControl->getSortParam(),
-        ]);
-
-        if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
-            if ($searchBar->hasBeenSubmitted()) {
-                $filter = $this->getFilter();
-            } else {
-                $this->addControl($searchBar);
-                $this->sendMultipartUpdate();
-
-                return;
-            }
-        } else {
-            $filter = $searchBar->getFilter();
-        }
-
-        $event->filter($filter);
-
-        $this->addControl($paginationControl);
-        $this->addControl($sortControl);
-        $this->addControl($limitControl);
-        $this->addControl($searchBar);
-
-        $this->addContent(new EventList($event));
-
-        if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
-            $this->sendMultipartUpdate();
-        }
+        return EventList::class;
     }
 
-    public function completeAction(): void
+    protected function getQuery(): Query
     {
-        $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(Event::class);
-        $suggestions->forRequest($this->getServerRequest());
-        $this->getDocument()->add($suggestions);
+        return Event::on(Database::connection());
     }
 
-    public function searchEditorAction(): void
+    protected function getSortColumns(): array
     {
-        $editor = $this->createSearchEditor(Event::on(Database::connection()), [
-            LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM,
-        ]);
-
-        $this->getDocument()->add($editor);
-        $this->setTitle(t('Adjust Filter'));
+        return ['event.created desc' => $this->translate('Created')];
     }
 
-    protected function getPageSize($default)
+    protected function getTitle(): string
     {
-        return parent::getPageSize($default ?? 50);
+        return $this->translate('Events');
     }
 }

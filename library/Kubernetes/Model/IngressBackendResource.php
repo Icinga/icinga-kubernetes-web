@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,14 +12,31 @@ use ipl\Orm\Relations;
 
 class IngressBackendResource extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'ingress_backend_resource';
+        $behaviors->add(new Binary([
+            'ingress_id',
+            'resource_id',
+            'ingress_rule_id'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return ['ingress_id', 'resource_id'];
+        $relations->belongsTo('ingress', Ingress::class);
+
+        $relations->belongsTo('ingress_rule', IngressRule::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'api_group' => $this->translate('API Group'),
+            'kind'      => $this->translate('Kind'),
+            'name'      => $this->translate('Name')
+        ];
     }
 
     public function getColumns()
@@ -27,36 +45,17 @@ class IngressBackendResource extends Model
             'ingress_rule_id',
             'api_group',
             'kind',
-            'name',
+            'name'
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getKeyName()
     {
-        return [
-            'api_group' => t('API Group'),
-            'kind'      => t('Kind'),
-            'name'      => t('Name')
-        ];
+        return ['ingress_id', 'resource_id'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getTableName()
     {
-        $behaviors->add(
-            new Binary([
-                'ingress_id',
-                'resource_id',
-                'ingress_rule_id'
-            ])
-        );
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations
-            ->belongsTo('ingress', Ingress::class);
-
-        $relations
-            ->belongsTo('ingress_rule', IngressRule::class);
+        return 'ingress_backend_resource';
     }
 }

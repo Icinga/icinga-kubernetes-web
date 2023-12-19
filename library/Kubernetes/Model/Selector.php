@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,14 +12,28 @@ use ipl\Orm\Relations;
 
 class Selector extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'selector';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return ['id'];
+        $relations
+            ->belongsToMany('service', Service::class)
+            ->through('service_selector');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'name'  => $this->translate('Name'),
+            'value' => $this->translate('Value')
+        ];
     }
 
     public function getColumns()
@@ -29,32 +44,18 @@ class Selector extends Model
         ];
     }
 
-    public function getColumnDefinitions()
-    {
-        return [
-            'name'  => t('Name'),
-            'value' => t('Value')
-        ];
-    }
-
     public function getDefaultSort()
     {
         return ['name'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getKeyName()
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
+        return ['id'];
     }
 
-    public function createRelations(Relations $relations)
+    public function getTableName()
     {
-        $relations
-            ->belongsToMany('service', Service::class)
-            ->through('service_selector');
+        return 'selector';
     }
 }

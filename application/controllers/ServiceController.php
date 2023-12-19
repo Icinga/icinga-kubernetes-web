@@ -14,18 +14,16 @@ class ServiceController extends Controller
 {
     public function indexAction(): void
     {
-        $id = $this->params->getRequired('id');
-
-        $query = Service::on(Database::connection())
-            ->filter(Filter::equal('service.id', $id));
+        $this->addTitleTab($this->translate('Service'));
 
         /** @var Service $service */
-        $service = $query->first();
+        $service = Service::on(Database::connection())
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->first();
+
         if ($service === null) {
             $this->httpNotFound($this->translate('Service not found'));
         }
-
-        $this->addTitleTab("Service $service->name");
 
         $this->addContent(new ServiceDetail($service));
     }

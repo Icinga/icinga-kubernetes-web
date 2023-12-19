@@ -4,19 +4,23 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use DateTimeInterface;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\Table;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\TimeAgo;
 
 class ConditionTable extends Table
 {
+    use Translation;
+
+    protected $columnDefinitions;
+
     protected $defaultAttributes = [
         'class' => 'condition-table collapsible'
     ];
-
-    protected $columnDefinitions;
 
     protected $resource;
 
@@ -28,13 +32,18 @@ class ConditionTable extends Table
 
     public function assemble()
     {
+        $conditions = $this->resource->condition->execute();
+        if (! $conditions->valid()) {
+            return;
+        }
+
         $header = new HtmlElement('tr');
         foreach ($this->columnDefinitions as $label) {
             $header->addHtml(new HtmlElement('th', null, Text::create($label)));
         }
         $this->getHeader()->addHtml($header);
 
-        foreach ($this->resource->condition as $condition) {
+        foreach ($conditions as $condition) {
             $row = new HtmlElement('tr');
             foreach ($this->columnDefinitions as $column => $_) {
                 if (
@@ -42,12 +51,12 @@ class ConditionTable extends Table
                     || $column === 'last_transition'
                     || $column === 'last_update'
                     || $column === 'last_heartbeat'
-		) {
-		    if ($condition->$column instanceof \DateTime) {
-			    $content = new TimeAgo($condition->$column->getTimestamp());
-		     } else {
-                    $content = Text::create('-');
-		     }
+                ) {
+                    if ($condition->$column instanceof DateTimeInterface) {
+                        $content = new TimeAgo($condition->$column->getTimestamp());
+                    } else {
+                        $content = Text::create('-');
+                    }
                 } else {
                     $content = Text::create($condition->$column);
                 }
@@ -59,7 +68,7 @@ class ConditionTable extends Table
         $this->addWrapper(new HtmlElement(
             'section',
             new Attributes(['class' => 'conditions']),
-            new HtmlElement('h2', null, new Text(t('Conditions')))
+            new HtmlElement('h2', null, new Text($this->translate('Conditions')))
         ));
     }
 }

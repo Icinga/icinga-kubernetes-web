@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,14 +13,35 @@ use ipl\Orm\Relations;
 
 class PersistentVolumeClaimCondition extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'pvc_condition';
+        $behaviors->add(new Binary([
+            'pvc_id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'last_probe',
+            'last_transition'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return ['pvc_id', 'type'];
+        $relations->belongsTo('pvc', PersistentVolumeClaim::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'type'            => $this->translate('Type'),
+            'status'          => $this->translate('Status'),
+            'last_probe'      => $this->translate('Last Probe'),
+            'last_transition' => $this->translate('Last Transition'),
+            'message'         => $this->translate('Message'),
+            'reason'          => $this->translate('Reason')
+        ];
     }
 
     public function getColumns()
@@ -33,41 +55,18 @@ class PersistentVolumeClaimCondition extends Model
         ];
     }
 
-    public function getColumnDefinitions()
-    {
-        return [
-            'type'            => t('Type'),
-            'status'          => t('Status'),
-            'last_probe'      => t('Last Probe'),
-            'last_transition' => t('Last Transition'),
-            'message'         => t('Message'),
-            'reason'          => t('Reason')
-        ];
-    }
-
     public function getDefaultSort()
     {
         return ['last_transition desc'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getKeyName()
     {
-        $behaviors->add(
-            new Binary([
-                'pvc_id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'last_probe',
-                'last_transition'
-            ])
-        );
+        return ['pvc_id', 'type'];
     }
 
-    public function createRelations(Relations $relations)
+    public function getTableName()
     {
-        $relations
-            ->belongsTo('pvc', PersistentVolumeClaim::class);
+        return 'pvc_condition';
     }
 }

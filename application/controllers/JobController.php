@@ -14,15 +14,16 @@ class JobController extends CompatController
 {
     public function indexAction(): void
     {
-        $namespace = $this->params->get('namespace');
-        $name = $this->params->get('name');
-        $id = $this->params->getRequired('id');
+        $this->addTitleTab($this->translate('Job'));
 
-        $this->addTitleTab("Job $namespace/$name");
-
+        /** @var Job $job */
         $job = Job::on(Database::connection())
-            ->filter(Filter::equal('id', $id))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
+
+        if ($job === null) {
+            $this->httpNotFound($this->translate('Job not found'));
+        }
 
         $this->addContent(new JobDetail($job));
     }

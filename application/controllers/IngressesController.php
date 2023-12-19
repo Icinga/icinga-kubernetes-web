@@ -6,84 +6,33 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Ingress;
-use Icinga\Module\Kubernetes\Model\PersistentVolume;
-use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
-use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\IngressList;
-use ipl\Web\Compat\SearchControls;
-use ipl\Web\Control\LimitControl;
-use ipl\Web\Control\SortControl;
+use Icinga\Module\Kubernetes\Web\ListController;
+use ipl\Orm\Query;
 
-class IngressesController extends Controller
+class IngressesController extends ListController
 {
-    use SearchControls;
-
-    public function indexAction(): void
+    protected function getContentClass(): string
     {
-        $this->addTitleTab($this->translate('Ingress'));
-
-        $ingress = Ingress::on(Database::connection());
-
-        $limitControl = $this->createLimitControl();
-        $sortControl = $this->createSortControl($ingress, [
-            'ingress.name'    => $this->translate('Name'),
-            'ingress.created' => $this->translate('Created')
-        ]);
-
-        $paginationControl = $this->createPaginationControl($ingress);
-        $searchBar = $this->createSearchBar($ingress, [
-            $limitControl->getLimitParam(),
-            $sortControl->getSortParam(),
-        ]);
-
-        if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
-            if ($searchBar->hasBeenSubmitted()) {
-                $filter = $this->getFilter();
-            } else {
-                $this->addControl($searchBar);
-                $this->sendMultipartUpdate();
-
-                return;
-            }
-        } else {
-            $filter = $searchBar->getFilter();
-        }
-
-        $ingress->filter($filter);
-
-        $this->addControl($paginationControl);
-        $this->addControl($sortControl);
-        $this->addControl($limitControl);
-        $this->addControl($searchBar);
-
-        $this->addContent(new IngressList($ingress));
-
-        if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
-            $this->sendMultipartUpdate();
-        }
+        return IngressList::class;
     }
 
-    public function completeAction(): void
+    protected function getQuery(): Query
     {
-        $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(PersistentVolume::class);
-        $suggestions->forRequest($this->getServerRequest());
-        $this->getDocument()->add($suggestions);
+        return Ingress::on(Database::connection());
     }
 
-    public function searchEditorAction(): void
+    protected function getSortColumns(): array
     {
-        $editor = $this->createSearchEditor(Ingress::on(Database::connection()), [
-            LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM,
-        ]);
-
-        $this->getDocument()->add($editor);
-        $this->setTitle(t('Adjust Filter'));
+        return [
+            'ingress.created desc' => $this->translate('Created'),
+            'ingress.name'         => $this->translate('Name'),
+            'ingress.namespace'    => $this->translate('Namespace')
+        ];
     }
 
-    protected function getPageSize($default)
+    protected function getTitle(): string
     {
-        return parent::getPageSize($default ?? 50);
+        return $this->translate('Ingresses');
     }
 }

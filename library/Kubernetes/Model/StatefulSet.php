@@ -1,7 +1,10 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -10,20 +13,56 @@ use ipl\Orm\Relations;
 
 class StatefulSet extends Model
 {
-    public const STATE_DEGRADED = 'degraded';
+    use Translation;
 
-    public const STATE_HEALTHY = 'healthy';
-
-    public const STATE_UNHEALTHY = 'unhealthy';
-
-    public function getTableName()
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'stateful_set';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations->hasMany('condition', StatefulSetCondition::class);
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('stateful_set_label');
+
+        $relations
+            ->belongsToMany('pod', Pod::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'             => $this->translate('Namespace'),
+            'name'                  => $this->translate('Name'),
+            'uid'                   => $this->translate('UID'),
+            'resource_version'      => $this->translate('Resource Version'),
+            'service_name'          => $this->translate('Service Name'),
+            'pod_management_policy' => $this->translate('Pod Management Policy'),
+            'update_strategy'       => $this->translate('Update Strategy'),
+            'min_ready_seconds'     => $this->translate('Min Ready Seconds'),
+            'ordinals'              => $this->translate('Ordinals'),
+            'desired_replicas'      => $this->translate('Desired Replicas'),
+            'actual_replicas'       => $this->translate('Actual Replicas'),
+            'ready_replicas'        => $this->translate('Ready Replicas'),
+            'current_replicas'      => $this->translate('Current Replicas'),
+            'updated_replicas'      => $this->translate('Updated Replicas'),
+            'available_replicas'    => $this->translate('Available Replicas'),
+            'created'               => $this->translate('Created At')
+        ];
     }
 
     public function getColumns()
@@ -32,18 +71,19 @@ class StatefulSet extends Model
             'namespace',
             'name',
             'uid',
-            'desired_replicas',
+            'resource_version',
             'service_name',
             'pod_management_policy',
             'update_strategy',
             'min_ready_seconds',
             'ordinals',
+            'desired_replicas',
             'actual_replicas',
             'ready_replicas',
             'current_replicas',
             'updated_replicas',
             'available_replicas',
-            'created',
+            'created'
         ];
     }
 
@@ -52,26 +92,18 @@ class StatefulSet extends Model
         return ['created desc'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getKeyName()
     {
-        $behaviors->add(new Binary([
-            'id'
-        ]));
-        $behaviors->add(new MillisecondTimestamp([
-            'created'
-        ]));
+        return 'id';
     }
 
-    public function createRelations(Relations $relations)
+    public function getSearchColumns()
     {
-        $relations
-            ->belongsToMany('pods', Pod::class)
-            ->through('pod_owner');
+        return ['name'];
+    }
 
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('stateful_set_label');
-
-        $relations->hasMany('condition', StatefulSetCondition::class);
+    public function getTableName()
+    {
+        return 'stateful_set';
     }
 }

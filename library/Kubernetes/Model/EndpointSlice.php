@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,14 +13,38 @@ use ipl\Orm\Relations;
 
 class EndpointSlice extends Model
 {
-    public function getTableName()
+    use Translation;
+
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'endpoint_slice';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations->hasMany('endpoint', Endpoint::class);
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('endpoint_slice_label');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'        => $this->translate('Namespace'),
+            'name'             => $this->translate('Name'),
+            'uid'              => $this->translate('UID'),
+            'resource_version' => $this->translate('Resource Version'),
+            'address_type'     => $this->translate('Address Type'),
+            'created'          => $this->translate('Created At')
+        ];
     }
 
     public function getColumns()
@@ -34,47 +59,13 @@ class EndpointSlice extends Model
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getKeyName()
     {
-        return [
-            'namespace'    => t('Namespace'),
-            'name'         => t('Name'),
-            'address_type' => t('Address Type'),
-            'created'      => t('Created At')
-        ];
+        return 'id';
     }
 
-    public function getSearchColumns()
+    public function getTableName()
     {
-        return ['name'];
-    }
-
-    public function getDefaultSort()
-    {
-        return 'created desc';
-    }
-
-    public function createBehaviors(Behaviors $behaviors)
-    {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'created'
-            ])
-        );
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations
-            ->hasMany('endpoint', Endpoint::class);
-
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('endpoint_slice_label');
+        return 'endpoint_slice';
     }
 }

@@ -1,86 +1,38 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
-use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
-use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DaemonSetList;
-use ipl\Web\Compat\SearchControls;
-use ipl\Web\Control\LimitControl;
-use ipl\Web\Control\SortControl;
+use Icinga\Module\Kubernetes\Web\ListController;
+use ipl\Orm\Query;
 
-class DaemonsetsController extends Controller
+class DaemonsetsController extends ListController
 {
-    use SearchControls;
-
-    public function indexAction(): void
+    protected function getContentClass(): string
     {
-        $this->addTitleTab(t('Daemon Sets'));
-
-        $daemonSet = DaemonSet::on(Database::connection());
-
-        $limitControl = $this->createLimitControl();
-        $sortControl = $this->createSortControl(
-            $daemonSet,
-            ['daemon_set.created' => t('Created')]
-        );
-
-        $paginationControl = $this->createPaginationControl($daemonSet);
-        $searchBar = $this->createSearchBar($daemonSet, [
-            $limitControl->getLimitParam(),
-            $sortControl->getSortParam(),
-        ]);
-
-        if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
-            if ($searchBar->hasBeenSubmitted()) {
-                $filter = $this->getFilter();
-            } else {
-                $this->addControl($searchBar);
-                $this->sendMultipartUpdate();
-
-                return;
-            }
-        } else {
-            $filter = $searchBar->getFilter();
-        }
-
-        $daemonSet->filter($filter);
-
-        $this->addControl($paginationControl);
-        $this->addControl($sortControl);
-        $this->addControl($limitControl);
-        $this->addControl($searchBar);
-
-        $this->addContent(new DaemonSetList($daemonSet));
-
-        if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
-            $this->sendMultipartUpdate();
-        }
+        return DaemonSetList::class;
     }
 
-    public function completeAction(): void
+    protected function getQuery(): Query
     {
-        $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(DaemonSet::class);
-        $suggestions->forRequest($this->getServerRequest());
-        $this->getDocument()->add($suggestions);
+        return DaemonSet::on(Database::connection());
     }
 
-    public function searchEditorAction(): void
+    protected function getSortColumns(): array
     {
-        $editor = $this->createSearchEditor(DaemonSet::on(Database::connection()), [
-            LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM,
-        ]);
-
-        $this->getDocument()->add($editor);
-        $this->setTitle(t('Adjust Filter'));
+        return [
+            'daemon_set.created desc' => $this->translate('Created'),
+            'daemon_set.name'         => $this->translate('Name'),
+            'daemon_set.namespace'    => $this->translate('Namespace')
+        ];
     }
 
-    protected function getPageSize($default)
+    protected function getTitle(): string
     {
-        return parent::getPageSize($default ?? 50);
+        return $this->translate('Daemon Sets');
     }
 }

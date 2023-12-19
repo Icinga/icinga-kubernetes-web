@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,32 +12,7 @@ use ipl\Orm\Relations;
 
 class PodVolume extends Model
 {
-    public function getTableName()
-    {
-        return 'pod_volume';
-    }
-
-    public function getKeyName()
-    {
-        return ['pod_id', 'volume_name'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'volume_name',
-            'type',
-            'source',
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'type'   => t('Type'),
-            'source' => t('Source'),
-        ];
-    }
+    use Translation;
 
     public function createBehaviors(Behaviors $behaviors)
     {
@@ -48,5 +24,32 @@ class PodVolume extends Model
     public function createRelations(Relations $relations)
     {
         $relations->belongsTo('pod', Pod::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'volume_name' => $this->translate('Volume Name'),
+            'type'        => $this->translate('Type'),
+            'source'      => $this->translate('Source')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'type',
+            'source'
+        ];
+    }
+
+    public function getKeyName()
+    {
+        return ['pod_id', 'volume_name'];
+    }
+
+    public function getTableName()
+    {
+        return 'pod_volume';
     }
 }

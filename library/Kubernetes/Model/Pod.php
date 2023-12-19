@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,21 +13,117 @@ use ipl\Orm\Relations;
 
 class Pod extends Model
 {
+    use Translation;
+
+    public const PHASE_FAILED = 'failed';
+
     public const PHASE_PENDING = 'pending';
+
     public const PHASE_RUNNING = 'running';
 
     public const PHASE_SUCCEEDED = 'succeeded';
 
-    public const PHASE_FAILED = 'failed';
-
-    public function getTableName()
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'pod';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
+        $relations->hasMany('condition', PodCondition::class);
+
+        $relations->hasMany('pod_volume', PodVolume::class);
+
+        $relations
+            ->belongsToMany('pvc', PersistentVolumeClaim::class)
+            ->through(PodPvc::class)
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('claim_name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('pod_label');
+
+        $relations->hasMany('container', Container::class);
+
+        $relations->hasMany('container_mount', ContainerMount::class);
+
+        $relations
+            ->belongsToMany('deployment', Deployment::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsToMany('replica_set', ReplicaSet::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsToMany('daemon_set', DaemonSet::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsToMany('stateful_set', StatefulSet::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsToMany('job', Job::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsTo('node', Node::class)
+            ->setCandidateKey('node_name')
+            ->setForeignKey('name')
+            ->setJoinType('LEFT');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'           => $this->translate('Namespace'),
+            'name'                => $this->translate('Name'),
+            'uid'                 => $this->translate('UID'),
+            'resource_version'    => $this->translate('Resource Version'),
+            'node_name'           => $this->translate('Node Name'),
+            'nominated_node_name' => $this->translate('Nominated Node Name'),
+            'ip'                  => $this->translate('IP'),
+            'phase'               => $this->translate('Phase'),
+            'restart_policy'      => $this->translate('Restart Policy'),
+            'cpu_limits'          => $this->translate('CPU Limits'),
+            'cpu_requests'        => $this->translate('CPU Requests'),
+            'memory_limits'       => $this->translate('Memory Limits'),
+            'memory_requests'     => $this->translate('Memory Requests'),
+            'reason'              => $this->translate('Phase Reason'),
+            'message'             => $this->translate('Phase Message'),
+            'qos'                 => $this->translate('Quality of Service'),
+            'created'             => $this->translate('Created At')
+        ];
     }
 
     public function getColumns()
@@ -52,16 +149,14 @@ class Pod extends Model
         ];
     }
 
-    public function getColumnDefinitions()
+    public function getDefaultSort()
     {
-        return [
-            'namespace' => t('Namespace'),
-            'name'      => t('Name'),
-            'ip'        => t('IP'),
-            'phase'     => t('Phase'),
-            'qos'       => t('Quality of Service'),
-            'created'   => t('Created At')
-        ];
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
     }
 
     public function getSearchColumns()
@@ -69,87 +164,8 @@ class Pod extends Model
         return ['name'];
     }
 
-    public function getDefaultSort()
+    public function getTableName()
     {
-        return ['created desc'];
-    }
-
-    public function createBehaviors(Behaviors $behaviors)
-    {
-        $behaviors->add(new Binary([
-            'id'
-        ]));
-        $behaviors->add(new MillisecondTimestamp([
-            'created'
-        ]));
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations->hasMany('container', Container::class);
-
-        $relations->hasMany('condition', PodCondition::class);
-
-        $relations->hasMany('container_mount', ContainerMount::class);
-
-        $relations->hasMany('pod_volume', PodVolume::class);
-
-        $relations->hasMany('pod_pvc', PodPvc::class);
-
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('pod_label');
-
-        $relations
-            ->belongsTo('node', Node::class)
-            ->setCandidateKey('node_name')
-            ->setForeignKey('name')
-            ->setJoinType('LEFT');
-
-        $relations
-            ->belongsToMany('daemon_set', DaemonSet::class)
-            ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
-
-        $relations
-            ->belongsToMany('stateful_set', StatefulSet::class)
-            ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
-
-        $relations
-            ->belongsToMany('replica_set', ReplicaSet::class)
-            ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
-
-        $relations
-            ->belongsToMany('deployment', Deployment::class)
-            ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
-
-        $relations
-            ->belongsToMany('job', Job::class)
-            ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
-//
-//        $relations->belongsToMany('contact', Contact::class)
-//            ->through('incident_contact');
-//
-//        $relations->hasMany('incident_contact', IncidentContact::class);
-//        $relations->hasMany('incident_history', IncidentHistory::class);
+        return 'pod';
     }
 }

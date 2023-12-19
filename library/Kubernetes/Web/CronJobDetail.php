@@ -4,17 +4,17 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use ipl\Html\BaseHtmlElement;
+use ipl\I18n\Translation;
 
 class CronJobDetail extends BaseHtmlElement
 {
+    use Translation;
+
     /** @var CronJob */
     protected $cronJob;
-
-    protected $defaultAttributes = [
-        'class' => 'cron-job-detail',
-    ];
 
     protected $tag = 'div';
 
@@ -34,22 +34,19 @@ class CronJobDetail extends BaseHtmlElement
             $lastScheduleTime = $this->cronJob->last_schedule_time->format('Y-m-d H:i:s');
         }
         $this->addHtml(
-            new Details([
-                t('Name')                          => $this->cronJob->name,
-                t('Namespace')                     => $this->cronJob->namespace,
-                t('Schedule')                      => $this->cronJob->schedule,
-                t('Timezone')                      => $this->cronJob->timezone,
-                t('Active')                        => $this->cronJob->active,
-                t('Starting Deadline Seconds')     => $this->cronJob->starting_deadline_seconds,
-                t('Concurrency  Policy')           => $this->cronJob->concurrency_policy,
-                t('Suspend')                       => $this->cronJob->suspend,
-                t('Successful Jobs History Limit') => $this->cronJob->successful_jobs_history_limit,
-                t('Failed Jobs History Limit')     => $this->cronJob->failed_jobs_history_limit,
-                t('Last Schedule Time')            => $lastScheduleTime,
-                t('Last Successful Time')          => $lastSuccessfulTime,
-                t('Created')                       => $this->cronJob->created->format('Y-m-d H:i:s')
-            ]),
-            new Labels($this->cronJob->label),
+            new Details(new ResourceDetails($this->cronJob, [
+                $this->translate('Schedule')                      => $this->cronJob->schedule,
+                $this->translate('Timezone')                      => $this->cronJob->timezone,
+                $this->translate('Active')                        => $this->cronJob->active,
+                $this->translate('Starting Deadline Seconds')     => $this->cronJob->starting_deadline_seconds,
+                $this->translate('Concurrency  Policy')           => $this->cronJob->concurrency_policy,
+                $this->translate('Suspend')                       => $this->cronJob->suspend,
+                $this->translate('Successful Jobs History Limit') => $this->cronJob->successful_jobs_history_limit,
+                $this->translate('Failed Jobs History Limit')     => $this->cronJob->failed_jobs_history_limit,
+                $this->translate('Last Schedule Time')            => $lastScheduleTime,
+                $this->translate('Last Successful Time')          => $lastSuccessfulTime
+            ])),
+            new Labels($this->cronJob->label)
         );
     }
 }

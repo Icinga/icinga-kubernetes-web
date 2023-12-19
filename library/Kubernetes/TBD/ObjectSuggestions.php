@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\TBD;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use ipl\I18n\Translation;
 use ipl\Orm\Exception\InvalidColumnException;
 use ipl\Orm\Model;
 use ipl\Orm\Relation;
@@ -14,47 +15,16 @@ use ipl\Stdlib\Filter;
 use ipl\Stdlib\Seq;
 use ipl\Web\Control\SearchBar\SearchException;
 use ipl\Web\Control\SearchBar\Suggestions;
+use LogicException;
 use PDO;
 use Traversable;
 
 class ObjectSuggestions extends Suggestions
 {
+    use Translation;
+
     /** @var Model */
     protected $model;
-
-    /**
-     * Set the model to show suggestions for
-     *
-     * @param string|Model $model
-     *
-     * @return $this
-     */
-    public function setModel($model): self
-    {
-        if (is_string($model)) {
-            $model = new $model();
-        }
-
-        $this->model = $model;
-
-        return $this;
-    }
-
-    /**
-     * Get the model to show suggestions for
-     *
-     * @return Model
-     */
-    public function getModel(): Model
-    {
-        if ($this->model === null) {
-            throw new \LogicException(
-                'You are accessing an unset property. Please make sure to set it beforehand.'
-            );
-        }
-
-        return $this->model;
-    }
 
     protected function createQuickSearchFilter($searchTerm)
     {
@@ -69,6 +39,17 @@ class ObjectSuggestions extends Suggestions
         }
 
         return $quickFilter;
+    }
+
+    protected function fetchColumnSuggestions($searchTerm)
+    {
+        $model = $this->getModel();
+        $query = $model::on(Database::connection());
+
+        // Ordinary columns first
+        foreach (self::collectFilterColumns($model, $query->getResolver()) as $columnName => $columnMeta) {
+            yield $columnName => $columnMeta;
+        }
     }
 
     protected function fetchValueSuggestions($column, $searchTerm, Filter\Chain $searchFilter)
@@ -117,18 +98,7 @@ class ObjectSuggestions extends Suggestions
             return (new ObjectSuggestionsCursor($query->getDb(), $query->assembleSelect()->distinct()))
                 ->setFetchMode(PDO::FETCH_COLUMN);
         } catch (InvalidColumnException $e) {
-            throw new SearchException(sprintf(t('"%s" is not a valid column'), $e->getColumn()));
-        }
-    }
-
-    protected function fetchColumnSuggestions($searchTerm)
-    {
-        $model = $this->getModel();
-        $query = $model::on(Database::connection());
-
-        // Ordinary columns first
-        foreach (self::collectFilterColumns($model, $query->getResolver()) as $columnName => $columnMeta) {
-            yield $columnName => $columnMeta;
+            throw new SearchException(sprintf($this->translate('"%s" is not a valid column'), $e->getColumn()));
         }
     }
 
@@ -142,6 +112,34 @@ class ObjectSuggestions extends Suggestions
         }
 
         return parent::matchSuggestion($path, $label, $searchTerm);
+    }
+
+    protected function shouldShowRelationFor(string $column): bool
+    {
+        $tableName = $this->getModel()->getTableName();
+        $columnPath = explode('.', $column);
+
+        if (count($columnPath) > 2) {
+            return true;
+        }
+
+        return $columnPath[0] !== $tableName;
+    }
+
+    /**
+     * Get the model to show suggestions for
+     *
+     * @return Model
+     */
+    public function getModel(): Model
+    {
+        if ($this->model === null) {
+            throw new LogicException(
+                'You are accessing an unset property. Please make sure to set it beforehand.'
+            );
+        }
+
+        return $this->model;
     }
 
     /**
@@ -182,7 +180,7 @@ class ObjectSuggestions extends Suggestions
             $isHasOne = $relation instanceof HasOne;
             if (empty($path)) {
                 $relationPath = [$name];
-                if ($isHasOne && empty($path)) {
+                if ($isHasOne) {
                     array_unshift($relationPath, $subject->getTableName());
                 }
 
@@ -191,5 +189,23 @@ class ObjectSuggestions extends Suggestions
                 self::collectRelations($resolver, $relation->getTarget(), $models, $relationPath);
             }
         }
+    }
+
+    /**
+     * Set the model to show suggestions for
+     *
+     * @param string|Model $model
+     *
+     * @return $this
+     */
+    public function setModel($model): self
+    {
+        if (is_string($model)) {
+            $model = new $model();
+        }
+
+        $this->model = $model;
+
+        return $this;
     }
 }

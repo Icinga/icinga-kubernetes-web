@@ -14,21 +14,13 @@ class NodeController extends CompatController
 {
     public function indexAction(): void
     {
-        //$namespace = $this->params->getRequired('namespace');
-        $id = $this->params->getRequired('id');
-        $name = $this->params->get('name');
-
-        //$this->addTitleTab("Node $namespace/$name");
-        $this->addTitleTab("Node $name");
-
-        $query = Node::on(Database::connection())
-            ->filter(Filter::all(
-                //Filter::equal('node.namespace', $namespace),
-                Filter::equal('node.id', $id)
-            ));
+        $this->addTitleTab($this->translate('Node'));
 
         /** @var Node $node */
-        $node = $query->first();
+        $node = Node::on(Database::connection())
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->first();
+
         if ($node === null) {
             $this->httpNotFound($this->translate('Node not found'));
         }
