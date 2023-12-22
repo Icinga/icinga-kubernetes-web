@@ -1,5 +1,7 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Model;
 
 use ipl\Orm\Behavior\Binary;
@@ -41,9 +43,35 @@ class Deployment extends Model
         ];
     }
 
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'                 => t('Namespace'),
+            'name'                      => t('Name'),
+            'uid'                       => t('UID'),
+            'resource_version'          => t('Resource Version'),
+            'desired_replicas'          => t('Desired Replicas'),
+            'strategy'                  => t('Strategy'),
+            'min_ready_seconds'         => t('Min Ready Seconds'),
+            'progress_deadline_seconds' => t('Progress Deadline Seconds'),
+            'paused'                    => t('Paused'),
+            'actual_replicas'           => t('Actual Replicas'),
+            'updated_replicas'          => t('Updated Replicas'),
+            'ready_replicas'            => t('Ready Replicas'),
+            'available_replicas'        => t('Available Replicas'),
+            'unavailable_replicas'      => t('Unavailable Replicas'),
+            'created'                   => t('Created At')
+        ];
+    }
+
     public function getDefaultSort()
     {
         return ['created desc'];
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
@@ -59,18 +87,26 @@ class Deployment extends Model
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsToMany('pods', Pod::class)
-            ->through('pod_owner');
+        $relations->hasMany('condition', DeploymentCondition::class);
 
         $relations
-            ->belongsToMany('replica_sets', ReplicaSet::class)
-            ->through('replica_set_owner');
+            ->belongsToMany('replica_set', ReplicaSet::class)
+            ->through('replica_set_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('replica_set_id');
+
+        $relations
+            ->belongsToMany('pod', Pod::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
 
         $relations
             ->belongsToMany('label', Label::class)
             ->through('deployment_label');
-
-        $relations->hasMany('condition', DeploymentCondition::class);
     }
 }

@@ -4,11 +4,11 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use ipl\Web\Compat\CompatController;
 use ipl\Stdlib\Filter;
+use ipl\Web\Compat\CompatController;
 use ipl\Web\Filter\QueryString;
 
-class Controller extends CompatController
+abstract class Controller extends CompatController
 {
     /**
      * Get the filter created from query string parameters

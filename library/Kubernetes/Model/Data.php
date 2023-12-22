@@ -44,21 +44,19 @@ class Data extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
         $relations
-            ->belongsToMany('secret', Secret::class)
-            ->through('secret_data');
-
-        $relations
             ->belongsToMany('config_map', ConfigMap::class)
             ->through('config_map_data');
+
+        $relations
+            ->belongsToMany('secret', Secret::class)
+            ->through('secret_data');
     }
 }

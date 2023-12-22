@@ -18,13 +18,12 @@ class ServicePort extends Model
 
     public function getKeyName()
     {
-        return 'service_id';
+        return ['service_id', 'name'];
     }
 
     public function getColumns()
     {
         return [
-            'name',
             'protocol',
             'app_protocol',
             'port',
@@ -47,16 +46,13 @@ class ServicePort extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'service_id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'service_id'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsTo('service', Service::class);
+        $relations->belongsTo('service', Service::class);
     }
 }

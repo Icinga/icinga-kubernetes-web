@@ -24,7 +24,6 @@ class ContainerMount extends Model
     public function getColumns()
     {
         return [
-            'volume_name',
             'pod_id',
             'path',
             'sub_path',
@@ -35,10 +34,10 @@ class ContainerMount extends Model
     public function getColumnDefinitions()
     {
         return [
-            'volume_name' => t('Name'),
-            'read_only'   => t('Read Only'),
+            'volume_name' => t('Volume Name'),
             'path'        => t('Mount Path'),
-            'sub_path'    => t('Sub Path')
+            'sub_path'    => t('Sub Path'),
+            'read_only'   => t('Read Only')
         ];
     }
 
@@ -57,8 +56,8 @@ class ContainerMount extends Model
 
     public function createRelations(Relations $relations)
     {
-        $relations->belongsTo('pod', Pod::class);
-
         $relations->belongsTo('container', Container::class);
+
+        $relations->belongsTo('pod', Pod::class);
     }
 }

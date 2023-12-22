@@ -44,11 +44,9 @@ class Selector extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
     }
 
     public function createRelations(Relations $relations)

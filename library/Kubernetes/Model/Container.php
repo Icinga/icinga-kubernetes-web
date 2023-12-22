@@ -14,6 +14,7 @@ use ipl\Orm\Relations;
 class Container extends Model
 {
     public const STATE_WAITING = 'waiting';
+
     public const STATE_RUNNING = 'running';
 
     public const STATE_TERMINATED = 'terminated';
@@ -46,25 +47,26 @@ class Container extends Model
         ];
     }
 
-//    public function getColumnDefinitions()
-//    {
-//        return [
-//            'object_id'     => t('Object Id'),
-//            'started_at'    => t('Started At'),
-//            'recovered_at'  => t('Recovered At'),
-//            'severity'      => t('Severity')
-//        ];
-//    }
-//
-//    public function getSearchColumns()
-//    {
-//        return ['severity'];
-//    }
-//
-//    public function getDefaultSort()
-//    {
-//        return ['incident.started_at desc'];
-//    }
+    public function getColumnDefinitions()
+    {
+        return [
+            'name'            => t('Name'),
+            'image'           => t('Image'),
+            'cpu_limits'      => t('CPU Limits'),
+            'cpu_requests'    => t('CPU Requests'),
+            'memory_limits'   => t('Memory Limits'),
+            'memory_requests' => t('Memory Requests'),
+            'state'           => t('State'),
+            'ready'           => t('Ready'),
+            'started'         => t('Started At'),
+            'restart_count'   => t('Restart Count')
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['name'];
+    }
 
     public function createBehaviors(Behaviors $behaviors)
     {
@@ -72,10 +74,12 @@ class Container extends Model
             'id',
             'pod_id'
         ]));
+
         $behaviors->add(new BoolCast([
             'ready',
             'started'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'created'
         ]));
@@ -83,20 +87,12 @@ class Container extends Model
 
     public function createRelations(Relations $relations)
     {
-        $relations->belongsTo('pod', Pod::class);
-
         $relations->hasMany('mount', ContainerMount::class);
 
-        $relations->hasOne('log', ContainerLog::class);
-//
-//        $relations
-//            ->belongsToMany('event', Event::class)
-//            ->through('incident_event');
-//
-//        $relations->belongsToMany('contact', Contact::class)
-//            ->through('incident_contact');
-//
-//        $relations->hasMany('incident_contact', IncidentContact::class);
-//        $relations->hasMany('incident_history', IncidentHistory::class);
+        $relations
+            ->hasOne('log', ContainerLog::class)
+            ->setJoinType('LEFT');
+
+        $relations->belongsTo('pod', Pod::class);
     }
 }

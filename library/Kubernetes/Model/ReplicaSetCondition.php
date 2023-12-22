@@ -25,7 +25,6 @@ class ReplicaSetCondition extends Model
     public function getColumns()
     {
         return [
-            'type',
             'status',
             'last_transition',
             'message',
@@ -54,6 +53,7 @@ class ReplicaSetCondition extends Model
         $behaviors->add(new Binary([
             'replica_set_id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'last_transition'
         ]));

@@ -4,29 +4,36 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\Table;
 use ipl\Html\Text;
 
 class EndpointTable extends Table
 {
-    protected $defaultAttributes = [
-        'class' => 'endpoint-table common-table collapsible'
-    ];
-
     protected $columnDefinitions;
 
     protected $resource;
 
+    protected $defaultAttributes = [
+        'class' => 'common-table collapsible'
+    ];
+
     public function __construct($resource, array $columnDefinitions)
     {
-        $this->columnDefinitions = $columnDefinitions;
         $this->resource = $resource;
+        $this->columnDefinitions = $columnDefinitions;
     }
 
     public function assemble()
     {
+        $this->addWrapper(
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text(t('Endpoints')))
+            )
+        );
+
         $header = new HtmlElement('tr');
         foreach ($this->columnDefinitions as $label) {
             $header->addHtml(new HtmlElement('th', null, Text::create($label)));
@@ -41,13 +48,5 @@ class EndpointTable extends Table
             }
             $this->addHtml($row);
         }
-
-        $this->addWrapper(
-            new HtmlElement(
-                'section',
-                new Attributes(['class' => 'endpoints']),
-                new HtmlElement('h2', null, new Text(t('Endpoints')))
-            )
-        );
     }
 }

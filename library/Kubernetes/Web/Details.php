@@ -11,11 +11,11 @@ use ipl\Web\Widget\HorizontalKeyValue;
 
 class Details extends BaseHtmlElement
 {
+    protected $details;
+
     protected $tag = 'section';
 
-    protected $defaultAttributes = ['class' => 'resource-details'];
-
-    protected $details;
+    protected $defaultAttributes = ['class' => 'details'];
 
     public function __construct(iterable $details)
     {

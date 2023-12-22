@@ -6,88 +6,33 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
-use Icinga\Module\Kubernetes\Model\Pod;
-use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
-use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ListController;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeClaimList;
-use Icinga\Module\Kubernetes\Web\PodList;
-use ipl\Web\Compat\SearchControls;
-use ipl\Web\Control\LimitControl;
-use ipl\Web\Control\SortControl;
+use ipl\Orm\Query;
 
-class PersistentvolumeclaimsController extends Controller
+class PersistentvolumeclaimsController extends ListController
 {
-    use SearchControls;
-
-    public function indexAction(): void
+    protected function getContentClass(): string
     {
-        $this->addTitleTab($this->translate('Persistent Volume Claims'));
-
-        $pvcs = PersistentVolumeClaim::on(Database::connection());
-
-        $limitControl = $this->createLimitControl();
-        $sortControl = $this->createSortControl(
-            $pvcs,
-            [
-                'pvc.name'    => $this->translate('Name'),
-                'pvc.created' => $this->translate('Created')
-            ]
-        );
-
-        $paginationControl = $this->createPaginationControl($pvcs);
-        $searchBar = $this->createSearchBar($pvcs, [
-            $limitControl->getLimitParam(),
-            $sortControl->getSortParam(),
-        ]);
-
-        if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
-            if ($searchBar->hasBeenSubmitted()) {
-                $filter = $this->getFilter();
-            } else {
-                $this->addControl($searchBar);
-                $this->sendMultipartUpdate();
-
-                return;
-            }
-        } else {
-            $filter = $searchBar->getFilter();
-        }
-
-        $pvcs->filter($filter);
-
-        $this->addControl($paginationControl);
-        $this->addControl($sortControl);
-        $this->addControl($limitControl);
-        $this->addControl($searchBar);
-
-        $this->addContent(new PersistentVolumeClaimList($pvcs));
-
-        if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
-            $this->sendMultipartUpdate();
-        }
+        return PersistentVolumeClaimList::class;
     }
 
-    public function completeAction(): void
+    protected function getQuery(): Query
     {
-        $suggestions = new ObjectSuggestions();
-        $suggestions->setModel(PersistentVolumeClaim::class);
-        $suggestions->forRequest($this->getServerRequest());
-        $this->getDocument()->add($suggestions);
+        return PersistentVolumeClaim::on(Database::connection());
     }
 
-    public function searchEditorAction(): void
+    protected function getSortColumns(): array
     {
-        $editor = $this->createSearchEditor(PersistentVolumeClaim::on(Database::connection()), [
-            LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM,
-        ]);
-
-        $this->getDocument()->add($editor);
-        $this->setTitle(t('Adjust Filter'));
+        return [
+            'pvc.created desc' => $this->translate('Created'),
+            'pvc.name'         => $this->translate('Name'),
+            'pvc.namespace'    => $this->translate('Namespace')
+        ];
     }
 
-    protected function getPageSize($default)
+    protected function getTitle(): string
     {
-        return parent::getPageSize($default ?? 50);
+        return $this->translate('Persistent Volume Claims');
     }
 }

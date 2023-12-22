@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use ipl\Html\BaseHtmlElement;
 
@@ -11,10 +12,6 @@ class CronJobDetail extends BaseHtmlElement
 {
     /** @var CronJob */
     protected $cronJob;
-
-    protected $defaultAttributes = [
-        'class' => 'cron-job-detail',
-    ];
 
     protected $tag = 'div';
 
@@ -34,9 +31,7 @@ class CronJobDetail extends BaseHtmlElement
             $lastScheduleTime = $this->cronJob->last_schedule_time->format('Y-m-d H:i:s');
         }
         $this->addHtml(
-            new Details([
-                t('Name')                          => $this->cronJob->name,
-                t('Namespace')                     => $this->cronJob->namespace,
+            new Details(new ResourceDetails($this->cronJob, [
                 t('Schedule')                      => $this->cronJob->schedule,
                 t('Timezone')                      => $this->cronJob->timezone,
                 t('Active')                        => $this->cronJob->active,
@@ -47,9 +42,8 @@ class CronJobDetail extends BaseHtmlElement
                 t('Failed Jobs History Limit')     => $this->cronJob->failed_jobs_history_limit,
                 t('Last Schedule Time')            => $lastScheduleTime,
                 t('Last Successful Time')          => $lastSuccessfulTime,
-                t('Created')                       => $this->cronJob->created->format('Y-m-d H:i:s')
-            ]),
-            new Labels($this->cronJob->label),
+            ])),
+            new Labels($this->cronJob->label)
         );
     }
 }

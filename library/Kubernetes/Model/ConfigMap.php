@@ -35,11 +35,34 @@ class ConfigMap extends Model
         ];
     }
 
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'        => t('Namespace'),
+            'name'             => t('Name'),
+            'uid'              => t('UID'),
+            'resource_version' => t('Resource Version'),
+            'immutable'        => t('Immutable'),
+            'created'          => t('Created At')
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
             'id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'created'
         ]));
@@ -48,11 +71,11 @@ class ConfigMap extends Model
     public function createRelations(Relations $relations)
     {
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('config_map_label');
+            ->belongsToMany('data', Data::class)
+            ->through('config_map_data');
 
         $relations
-            ->belongsToMany('data', Data::class)
-            ->through('secret_data');
+            ->belongsToMany('label', Label::class)
+            ->through('config_map_label');
     }
 }

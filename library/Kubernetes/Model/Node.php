@@ -46,8 +46,20 @@ class Node extends Model
     public function getColumnDefinitions()
     {
         return [
-            'name'  => t('Name'),
-            'value' => t('Value')
+            'namespace'          => t('Namespace'),
+            'name'               => t('Name'),
+            'uid'                => t('UID'),
+            'resource_version'   => t('Resource Version'),
+            'pod_cidr'           => t('Pod CIDR'),
+            'num_ips'            => t('Num IPs'),
+            'unschedulable'      => t('Unschedulable'),
+            'ready'              => t('Ready'),
+            'cpu_capacity'       => t('CPU Capacity'),
+            'cpu_allocatable'    => t('CPU Allocatable'),
+            'memory_capacity'    => t('Memory Capacity'),
+            'memory_allocatable' => t('Memory Allocatable'),
+            'pod_capacity'       => t('Pod Capacity'),
+            'created'            => t('Created At')
         ];
     }
 
@@ -55,16 +67,11 @@ class Node extends Model
     {
         return ['created desc'];
     }
-//
-//    public function getSearchColumns()
-//    {
-//        return ['severity'];
-//    }
-//
-//    public function getDefaultSort()
-//    {
-//        return ['last_transition desc'];
-//    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
 
     public function createBehaviors(Behaviors $behaviors)
     {
@@ -86,19 +93,12 @@ class Node extends Model
         $relations->hasMany('condition', NodeCondition::class);
 
         $relations
-            ->hasMany('pod', Pod::class)
-            ->setCandidateKey('name')
-            ->setForeignKey('node_name');
-
-        $relations
             ->belongsToMany('label', Label::class)
             ->through('node_label');
 
-//
-//        $relations->belongsToMany('contact', Contact::class)
-//            ->through('incident_contact');
-//
-//        $relations->hasMany('incident_contact', IncidentContact::class);
-//        $relations->hasMany('incident_history', IncidentHistory::class);
+        $relations
+            ->hasMany('pod', Pod::class)
+            ->setCandidateKey('name')
+            ->setForeignKey('node_name');
     }
 }

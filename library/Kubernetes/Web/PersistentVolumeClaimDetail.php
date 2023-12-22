@@ -4,26 +4,20 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Model\Label;
+use Icinga\Module\Kubernetes\Common\AccessModes;
+use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaimCondition;
-use Icinga\Module\Kubernetes\TBD\AccessModes;
 use Icinga\Util\Format;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Stdlib\Str;
-use ipl\Web\Widget\HorizontalKeyValue;
 
 class PersistentVolumeClaimDetail extends BaseHtmlElement
 {
     /** @var PersistentVolumeClaim */
     protected $pvc;
-
-    protected $defaultAttributes = [
-        'class' => 'persistent-volume-claim-detail',
-    ];
 
     protected $tag = 'div';
 
@@ -34,26 +28,25 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
 
     protected function assemble()
     {
-        $volumeMode = $this->pvc->volume_mode ?? PersistentVolumeClaim::DEFAULT_VOLUME_MODE;
-        $this->addHtml(new Details([
-            t('Name')          => $this->pvc->name,
-            t('Created')       => $this->pvc->created->format('Y-m-d H:i:s'),
-            t('Capacity')      => Format::bytes($this->pvc->actual_capacity / 1000),
-            t('Access Modes')  => implode(', ', AccessModes::asNames($this->pvc->actual_access_modes)),
-            t('Volume Mode')   => ucfirst(Str::camel($volumeMode)),
-            t('Storage Class') => ucfirst(Str::camel($this->pvc->storage_class)),
-        ]));
-
         $this->addHtml(
+            new Details(new ResourceDetails($this->pvc, [
+                t('Phase')                => $this->pvc->phase,
+                t('Desired Access Modes') => implode(', ', AccessModes::asNames($this->pvc->desired_access_modes)),
+                t('Actual Access Modes')  => implode(', ', AccessModes::asNames($this->pvc->actual_access_modes)),
+                t('Minimum Capacity')     => Format::bytes($this->pvc->minimum_capacity / 1000),
+                t('Actual Capacity')      => Format::bytes($this->pvc->actual_capacity / 1000),
+                t('Volume Name')          => $this->pvc->volume_name,
+                t('Volume Mode')          => ucfirst(Str::camel($this->pvc->getVolumeMode())),
+                t('Storage Class')        => ucfirst(Str::camel($this->pvc->storage_class))
+            ])),
             new Labels($this->pvc->label),
             new ConditionTable($this->pvc, (new PersistentVolumeClaimCondition())->getColumnDefinitions()),
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text(t('Pods'))),
+                new PodList($this->pvc->pod)
+            )
         );
-
-        $this->addHtml(new HtmlElement(
-            'section',
-            new Attributes(['class' => 'persistent-volume-claims']),
-            new HtmlElement('h2', null, new Text(t('Claims'))),
-            new PersistentVolumeList($this->pvc->persistent_volume)
-        ));
     }
 }

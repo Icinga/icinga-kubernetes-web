@@ -14,18 +14,16 @@ class PersistentvolumeController extends CompatController
 {
     public function indexAction(): void
     {
-        $id = $this->params->getRequired('id');
-
-        $query = PersistentVolume::on(Database::connection())
-            ->filter(Filter::equal('persistent_volume.id', $id));
+        $this->addTitleTab($this->translate('Persistent Volume'));
 
         /** @var PersistentVolume $persistentVolume */
-        $persistentVolume = $query->first();
+        $persistentVolume = PersistentVolume::on(Database::connection())
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->first();
+
         if ($persistentVolume === null) {
             $this->httpNotFound($this->translate('Persistent Volume not found'));
         }
-
-        $this->addTitleTab("Persistent Volume $persistentVolume->name");
 
         $this->addContent(new PersistentVolumeDetail($persistentVolume));
     }

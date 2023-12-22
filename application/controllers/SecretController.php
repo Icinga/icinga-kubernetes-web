@@ -14,21 +14,17 @@ class SecretController extends Controller
 {
     public function indexAction(): void
     {
-        $namespace = $this->params->get('namespace');
-        $name = $this->params->get('name');
-        $id = $this->params->getRequired('id');
+        $this->addTitleTab($this->translate('Secret'));
 
-        $this->addTitleTab("Secret $namespace/$name");
-
+        /** @var Secret $secret */
         $secret = Secret::on(Database::connection())
-            ->filter(Filter::equal('id', $id))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
 
-        $this->addContent(new SecretDetail($secret));
-    }
+        if ($secret === null) {
+            $this->httpNotFound($this->translate('Secret not found'));
+        }
 
-    protected function getPageSize($default)
-    {
-        return parent::getPageSize($default ?? 50);
+        $this->addContent(new SecretDetail($secret));
     }
 }

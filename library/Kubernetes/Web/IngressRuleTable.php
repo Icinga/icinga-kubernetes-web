@@ -4,17 +4,12 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\Table;
 use ipl\Html\Text;
 
 class IngressRuleTable extends Table
 {
-    protected $defaultAttributes = [
-        'class' => 'ingress-rule-table common-table collapsible'
-    ];
-
     protected $ingress;
 
     protected $backend;
@@ -24,6 +19,10 @@ class IngressRuleTable extends Table
     protected $backendColumnDefinitions;
 
     protected $tlsColumnDefinitions;
+
+    protected $defaultAttributes = [
+        'class' => 'common-table collapsible'
+    ];
 
     public function __construct(
         $ingress,
@@ -41,6 +40,12 @@ class IngressRuleTable extends Table
 
     public function assemble()
     {
+        $this->addWrapper(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text(t('Rules')))
+        ));
+
         $header = new HtmlElement('tr');
         foreach ($this->ruleColumnDefinitions as $label) {
             $header->addHtml(new HtmlElement('th', null, Text::create($label)));
@@ -51,24 +56,15 @@ class IngressRuleTable extends Table
         foreach ($this->tlsColumnDefinitions as $label) {
             $header->addHtml(new HtmlElement('th', null, Text::create($label)));
         }
-
         $this->getHeader()->addHtml($header);
 
-        $this->addWrapper(
-            new HtmlElement(
-                'section',
-                new Attributes(['class' => 'ingress-rules']),
-                new HtmlElement('h2', null, new Text(t('Rules')))
-            )
-        );
         foreach ($this->ingress->ingress_rule as $rule) {
             $row = new HtmlElement('tr');
             foreach ($this->ruleColumnDefinitions as $column => $_) {
                 $content = Text::create($rule->$column);
                 $row->addHtml(new HtmlElement('td', null, $content));
             }
-            $backend = $this->backend;
-            foreach ($rule->$backend as $backend) {
+            foreach ($rule->$this->backend as $backend) {
                 foreach ($this->backendColumnDefinitions as $column => $_) {
                     $content = Text::create($backend->$column);
                     $row->addHtml(new HtmlElement('td', null, $content));

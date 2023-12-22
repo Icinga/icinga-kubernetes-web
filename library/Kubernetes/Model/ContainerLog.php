@@ -34,13 +34,8 @@ class ContainerLog extends Model
     {
         return [
             'last_update' => t('Last Update'),
-            'logs' => t('Logs')
+            'logs'        => t('Logs')
         ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['last_update desc'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
@@ -50,13 +45,15 @@ class ContainerLog extends Model
             'pod_id'
         ]));
 
-        $behaviors->add(new MillisecondTimestamp(['last_update']));
+        $behaviors->add(new MillisecondTimestamp([
+            'last_update'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations->belongsTo('pod', Pod::class);
-
         $relations->belongsTo('container', Container::class);
+
+        $relations->belongsTo('pod', Pod::class);
     }
 }

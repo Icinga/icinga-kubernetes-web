@@ -29,7 +29,6 @@ class NamespaceModel extends Model
     public function getColumns()
     {
         return [
-            'id',
             'namespace',
             'name',
             'uid',
@@ -42,16 +41,23 @@ class NamespaceModel extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace' => t('Namespace'),
-            'name'      => t('Name'),
-            'phase'     => t('Phase'),
-            'created'   => t('Created At')
+            'namespace'        => t('Namespace'),
+            'name'             => t('Name'),
+            'uid'              => t('UID'),
+            'resource_version' => t('Resource Version'),
+            'phase'            => t('Phase'),
+            'created'          => t('Created At')
         ];
     }
 
     public function getDefaultSort()
     {
         return ['created desc'];
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
     }
 
     public function createBehaviors(Behaviors $behaviors)

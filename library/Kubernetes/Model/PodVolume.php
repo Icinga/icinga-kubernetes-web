@@ -24,7 +24,6 @@ class PodVolume extends Model
     public function getColumns()
     {
         return [
-            'volume_name',
             'type',
             'source',
         ];
@@ -33,8 +32,9 @@ class PodVolume extends Model
     public function getColumnDefinitions()
     {
         return [
-            'type'   => t('Type'),
-            'source' => t('Source'),
+            'volume_name' => t('Volume Name'),
+            'type'        => t('Type'),
+            'source'      => t('Source'),
         ];
     }
 

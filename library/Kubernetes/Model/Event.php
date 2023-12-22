@@ -12,11 +12,6 @@ use ipl\Orm\Relations;
 
 class Event extends Model
 {
-    public const STATE_WAITING = 'waiting';
-    public const STATE_RUNNING = 'running';
-
-    public const STATE_TERMINATED = 'terminated';
-
     public function getTableName()
     {
         return 'event';
@@ -50,7 +45,6 @@ class Event extends Model
         ];
     }
 
-//
     public function getDefaultSort()
     {
         return ['last_seen desc'];

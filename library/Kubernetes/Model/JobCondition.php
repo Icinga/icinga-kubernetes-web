@@ -52,17 +52,14 @@ class JobCondition extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'job_id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'last_probe',
-                'last_transition'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'job_id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'last_probe',
+            'last_transition'
+        ]));
     }
 
     public function createRelations(Relations $relations)

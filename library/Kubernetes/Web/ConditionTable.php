@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use DateTimeInterface;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\Table;
@@ -28,13 +29,18 @@ class ConditionTable extends Table
 
     public function assemble()
     {
+        $conditions = $this->resource->condition->execute();
+        if (! $conditions->valid()) {
+            return;
+        }
+
         $header = new HtmlElement('tr');
         foreach ($this->columnDefinitions as $label) {
             $header->addHtml(new HtmlElement('th', null, Text::create($label)));
         }
         $this->getHeader()->addHtml($header);
 
-        foreach ($this->resource->condition as $condition) {
+        foreach ($conditions as $condition) {
             $row = new HtmlElement('tr');
             foreach ($this->columnDefinitions as $column => $_) {
                 if (
@@ -42,12 +48,12 @@ class ConditionTable extends Table
                     || $column === 'last_transition'
                     || $column === 'last_update'
                     || $column === 'last_heartbeat'
-		) {
-		    if ($condition->$column instanceof \DateTime) {
-			    $content = new TimeAgo($condition->$column->getTimestamp());
-		     } else {
-                    $content = Text::create('-');
-		     }
+                ) {
+                    if ($condition->$column instanceof DateTimeInterface) {
+                        $content = new TimeAgo($condition->$column->getTimestamp());
+                    } else {
+                        $content = Text::create('-');
+                    }
                 } else {
                     $content = Text::create($condition->$column);
                 }

@@ -24,8 +24,6 @@ class PodPvc extends Model
     public function getColumns()
     {
         return [
-            'volume_name',
-            'claim_name',
             'read_only'
         ];
     }
@@ -33,7 +31,9 @@ class PodPvc extends Model
     public function getColumnDefinitions()
     {
         return [
-            'claim_name' => t('Claim Name')
+            'volume_name' => t('Volume Name'),
+            'claim_name'  => t('Claim Name'),
+            'read_only'   => t('Readonly')
         ];
     }
 

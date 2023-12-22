@@ -25,7 +25,6 @@ class DaemonSetCondition extends Model
     public function getColumns()
     {
         return [
-            'type',
             'status',
             'last_transition',
             'message',
@@ -54,6 +53,7 @@ class DaemonSetCondition extends Model
         $behaviors->add(new Binary([
             'daemon_set_id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'last_transition'
         ]));

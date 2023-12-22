@@ -9,7 +9,6 @@ use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Secret;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\Html;
 use ipl\Html\HtmlElement;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
@@ -22,30 +21,22 @@ class SecretListItem extends BaseListItem
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        $content = Html::sprintf(
-            t('%s', '<secret>'),
-            new Link(
-                $this->item->name,
-                Links::secret($this->item),
-                ['class' => 'subject']
-            ),
-        );
-
-        $title->addHtml($content);
+        $title->addHtml(new Link($this->item->name, Links::secret($this->item), ['class' => 'subject']));
     }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->add($this->createTitle());
-        $header->add(new TimeAgo($this->item->created->getTimestamp()));
+        $header->addHtml($this->createTitle());
+        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->add($this->createHeader());
+        $main->addHtml($this->createHeader());
+
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->add(new VerticalKeyValue('Type', $this->item->type));
-        $keyValue->add(new VerticalKeyValue('Namespace', $this->item->namespace));
+        $keyValue->addHtml(new VerticalKeyValue(t('Type'), $this->item->type));
+        $keyValue->addHtml(new VerticalKeyValue(t('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
     }
 }

@@ -48,10 +48,29 @@ class Job extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace' => t('Namespace'),
-            'name'      => t('Name'),
-            'created'   => t('Created At')
+            'namespace'                  => t('Namespace'),
+            'name'                       => t('Name'),
+            'uid'                        => t('UID'),
+            'resource_version'           => t('Resource Version'),
+            'parallelism'                => t('Parallelism'),
+            'completions'                => t('Completions'),
+            'active_deadline_seconds'    => t('Active Deadline Seconds'),
+            'backoff_limit'              => t('Backoff Limit'),
+            'ttl_seconds_after_finished' => t('TTL Seconds After Finished'),
+            'completion_mode'            => t('Completion Mode'),
+            'suspend'                    => t('Suspend'),
+            'start_time'                 => t('Start Time'),
+            'completion_time'            => t('Completion Time'),
+            'active'                     => t('Active'),
+            'succeeded'                  => t('Succeeded'),
+            'failed'                     => t('Failed'),
+            'created'                    => t('Created At')
         ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
     }
 
     public function getSearchColumns()
@@ -59,35 +78,31 @@ class Job extends Model
         return ['name'];
     }
 
-    public function getDefaultSort()
-    {
-        return ['namespace', 'created desc'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'created'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations->hasMany('condition',  JobCondition::class);
+        $relations->hasMany('condition', JobCondition::class);
 
         $relations
             ->belongsToMany('label', Label::class)
             ->through('job_label');
 
         $relations
-            ->belongsToMany('pods', Pod::class)
-            ->through('pod_owner');
+            ->belongsToMany('pod', Pod::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
     }
 }

@@ -11,12 +11,11 @@ use ipl\Web\Widget\HorizontalKeyValue;
 
 class Labels extends BaseHtmlElement
 {
+    protected $labels;
+
     protected $tag = 'section';
 
     protected $defaultAttributes = ['class' => 'labels'];
-
-    /** @var iterable<Labels> */
-    protected $labels;
 
     public function __construct(iterable $labels)
     {

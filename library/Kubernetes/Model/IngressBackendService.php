@@ -35,27 +35,24 @@ class IngressBackendService extends Model
     {
         return [
             'service_name'        => t('Service Name'),
+            'service_port_name'   => t('Service Port Name'),
             'service_port_number' => t('Service Port Number')
         ];
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'ingress_id',
-                'service_id',
-                'ingress_rule_id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'ingress_id',
+            'service_id',
+            'ingress_rule_id'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsTo('ingress', Ingress::class);
+        $relations->belongsTo('ingress', Ingress::class);
 
-        $relations
-            ->belongsTo('ingress_rule', IngressRule::class);
+        $relations->belongsTo('ingress_rule', IngressRule::class);
     }
 }

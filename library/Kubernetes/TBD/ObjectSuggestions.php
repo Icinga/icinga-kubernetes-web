@@ -56,6 +56,18 @@ class ObjectSuggestions extends Suggestions
         return $this->model;
     }
 
+    protected function shouldShowRelationFor(string $column): bool
+    {
+        $tableName = $this->getModel()->getTableName();
+        $columnPath = explode('.', $column);
+
+        if (count($columnPath) > 2) {
+            return true;
+        }
+
+        return $columnPath[0] !== $tableName;
+    }
+
     protected function createQuickSearchFilter($searchTerm)
     {
         $model = $this->getModel();
@@ -182,7 +194,7 @@ class ObjectSuggestions extends Suggestions
             $isHasOne = $relation instanceof HasOne;
             if (empty($path)) {
                 $relationPath = [$name];
-                if ($isHasOne && empty($path)) {
+                if ($isHasOne) {
                     array_unshift($relationPath, $subject->getTableName());
                 }
 

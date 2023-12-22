@@ -14,18 +14,16 @@ class IngressController extends Controller
 {
     public function indexAction(): void
     {
-        $id = $this->params->getRequired('id');
-
-        $query = Ingress::on(Database::connection())
-            ->filter(Filter::equal('ingress.id', $id));
+        $this->addTitleTab($this->translate('Ingress'));
 
         /** @var Ingress $ingress */
-        $ingress = $query->first();
+        $ingress = Ingress::on(Database::connection())
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->first();
+
         if ($ingress === null) {
             $this->httpNotFound($this->translate('Ingress not found'));
         }
-
-        $this->addTitleTab("Ingress $ingress->name");
 
         $this->addContent(new IngressDetail($ingress));
     }

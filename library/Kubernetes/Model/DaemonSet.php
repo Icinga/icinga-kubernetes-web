@@ -1,5 +1,7 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Model;
 
 use ipl\Orm\Behavior\Binary;
@@ -40,9 +42,34 @@ class DaemonSet extends Model
         ];
     }
 
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'                => t('Namespace'),
+            'name'                     => t('Name'),
+            'uid'                      => t('UID'),
+            'resource_version'         => t('Resource Version'),
+            'update_strategy'          => t('Update Strategy'),
+            'min_ready_seconds'        => t('Min Ready Seconds'),
+            'desired_number_scheduled' => t('Desired Number Scheduled'),
+            'current_number_scheduled' => t('Current Number Scheduled'),
+            'number_misscheduled'      => t('Number Misscheduled'),
+            'number_ready'             => t('Number Ready'),
+            'update_number_scheduled'  => t('Update Number Scheduled'),
+            'number_available'         => t('Number Available'),
+            'number_unavailable'       => t('Number Unavailable'),
+            'created'                  => t('Created At')
+        ];
+    }
+
     public function getDefaultSort()
     {
         return ['created desc'];
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
@@ -58,14 +85,18 @@ class DaemonSet extends Model
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsToMany('pods', Pod::class)
-            ->through('pod_owner');
+        $relations->hasMany('condition', DaemonSetCondition::class);
 
         $relations
             ->belongsToMany('label', Label::class)
             ->through('daemon_set_label');
 
-        $relations->hasMany('condition', DaemonSetCondition::class);
+        $relations
+            ->belongsToMany('pod', Pod::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
     }
 }

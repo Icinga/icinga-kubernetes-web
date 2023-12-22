@@ -14,15 +14,16 @@ class CronjobController extends Controller
 {
     public function indexAction(): void
     {
-        $namespace = $this->params->get('namespace');
-        $name = $this->params->get('name');
-        $id = $this->params->getRequired('id');
+        $this->addTitleTab($this->translate('Cron Job'));
 
-        $this->addTitleTab("Cron Job $namespace/$name");
-
+        /** @var CronJob $cronJob */
         $cronJob = CronJob::on(Database::connection())
-            ->filter(Filter::equal('id', $id))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
+
+        if ($cronJob === null) {
+            $this->httpNotFound($this->translate('Cron Job not found'));
+        }
 
         $this->addContent(new CronJobDetail($cronJob));
     }

@@ -55,16 +55,13 @@ class Endpoint extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsTo('endpoint_slice', EndpointSlice::class);
+        $relations->belongsTo('endpoint_slice', EndpointSlice::class);
     }
 }

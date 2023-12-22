@@ -4,11 +4,11 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\AccessModes;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
-use Icinga\Module\Kubernetes\TBD\AccessModes;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -20,7 +20,6 @@ use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 use ipl\Web\Widget\VerticalKeyValue;
-use LogicException;
 
 class PersistentVolumeListItem extends BaseListItem
 {
@@ -29,41 +28,34 @@ class PersistentVolumeListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $content = new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]);
-        $visual->addHtml($content);
+        $visual->addHtml(new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]));
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        $content = Html::sprintf(
+        $title->addHtml(Html::sprintf(
             t('%s is %s', '<persistent_volume> is <persistent_volume_phase>'),
-            new Link(
-                $this->item->name,
-                Links::persistentVolume($this->item),
-                ['class' => 'subject']
-            ),
-            new HtmlElement('span', new Attributes(['class' => 'phase-text']), new Text($this->item->phase))
-        );
-
-        $title->addHtml($content);
+            new Link($this->item->name, Links::persistentVolume($this->item), ['class' => 'subject']),
+            new HtmlElement('span', null, new Text($this->item->phase))
+        ));
     }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->add($this->createTitle());
-        $header->add(new TimeAgo($this->item->created->getTimestamp()));
+        $header->addHtml($this->createTitle());
+        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->add($this->createHeader());
+        $main->addHtml($this->createHeader());
+
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->add(new VerticalKeyValue('Storage Class Name', ucfirst(Str::camel($this->item->storage_class))));
-        $volumeMode = $this->item->volume_mode ?? PersistentVolume::DEFAULT_VOLUME_MODE;
-        $keyValue->add(new VerticalKeyValue('Volume Mode', ucfirst(Str::camel($volumeMode))));
-        $keyValue->add(New VerticalKeyValue('Capacity', Format::bytes($this->item->capacity / 1000)));
-        $keyValue->add(new VerticalKeyValue('Access Mode', implode(', ', AccessModes::asNames((int) $this->item->access_modes))));
-        $main->add($keyValue);
+        $keyValue->addHtml(new VerticalKeyValue(t('Storage Class Name'), ucfirst(Str::camel($this->item->storage_class))));
+        $keyValue->addHtml(new VerticalKeyValue(t('Volume Mode'), ucfirst(Str::camel($this->item->getVolumeMode()))));
+        $keyValue->addHtml(new VerticalKeyValue(t('Capacity'), Format::bytes($this->item->capacity / 1000)));
+        $keyValue->addHtml(new VerticalKeyValue(t('Access Mode'), implode(', ', AccessModes::asNames((int) $this->item->access_modes))));
+        $main->addHtml($keyValue);
     }
 
     protected function getPhaseIcon(): string
@@ -80,7 +72,7 @@ class PersistentVolumeListItem extends BaseListItem
             case PersistentVolume::PHASE_FAILED:
                 return Icons::PV_FAILED;
             default:
-                throw new LogicException();
+                return Icons::BUG;
         }
     }
 }

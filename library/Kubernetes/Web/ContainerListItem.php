@@ -11,9 +11,9 @@ use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Container;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\FormattedString;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
-use ipl\Html\HtmlString;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
 use ipl\Web\Widget\HorizontalKeyValue;
@@ -29,67 +29,50 @@ class ContainerListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $content = new Icon($this->getStateIcon(), ['class' => ['state-' . $this->item->state]]);
-//
-//        if ($this->item->severity === 'ok' || $this->item->severity === 'err') {
-//            $content->setStyle('fa-regular');
-//        }
-
-        $visual->addHtml($content);
+        $visual->addHtml(new Icon(
+            $this->getStateIcon(),
+            [
+                'class' => [
+                    'container-state-' . $this->item->state,
+                    $this->item->ready ? 'container-ready' : 'container-not-ready'
+                ]
+            ]
+        ));
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        $content = Html::sprintf(
+        $title->addHtml(Html::sprintf(
             t('%s is %s', '<container> is <container_state>'),
-            new Link(
-                $this->item->name,
-                Links::container($this->item),
-                ['class' => 'subject']
-            ),
-            new HtmlElement('span', new Attributes(['class' => 'state-text']), new Text($this->item->state))
-        );
-
-        $title->addHtml($content);
+            new Link($this->item->name, Links::container($this->item), ['class' => 'subject']),
+            new HtmlElement('span', null, new Text($this->item->state))
+        ));
     }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->add($this->createTitle());
-        //$header->add(new TimeAgo($this->item->created->getTimestamp()));
-
-//        if ($this->item->recovered_at !== null) {
-//            $header->add(Html::tag(
-//                'span',
-//                ['class' => 'meta'],
-//                [
-//                    'closed ',
-//                    new TimeAgo($this->item->recovered_at->getTimestamp())
-//                ]
-//            ));
-//        } else {
-//            $header->add(new TimeSince($this->item->created->getTimestamp()));
-//        }
+        $header->addHtml($this->createTitle());
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml($this->createHeader());
+
         $stateDetails = json_decode($this->item->state_details);
         if (isset($stateDetails->message)) {
             $main->addHtml(new HtmlElement('p', null, new Text($stateDetails->message)));
         }
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->add(new HtmlElement(
+        $keyValue->addHtml(new HtmlElement(
             'div',
             null,
-            new HorizontalKeyValue('Started', new Icon($this->item->started ? 'check' : 'xmark')),
-            new HorizontalKeyValue('Ready', new Icon($this->item->started ? 'check' : 'xmark'))
+            new HorizontalKeyValue(t('Started'), new Icon($this->item->started ? 'check' : 'xmark')),
+            new HorizontalKeyValue(t('Ready'), new Icon($this->item->ready ? 'check' : 'xmark'))
         ));
-        $keyValue->add($this->createStateDetails());
-        $keyValue->addHtml(new VerticalKeyValue('Image', $this->item->image));
-        $keyValue->addHtml(new VerticalKeyValue('Restarts', $this->item->restart_count));
+        $keyValue->addHtml($this->createStateDetails());
+        $keyValue->addHtml(new VerticalKeyValue(t('Image'), $this->item->image));
+        $keyValue->addHtml(new VerticalKeyValue(t('Restarts'), $this->item->restart_count));
         $main->addHtml($keyValue);
     }
 
@@ -97,13 +80,13 @@ class ContainerListItem extends BaseListItem
     {
         switch ($this->item->state) {
             case Container::STATE_WAITING:
-                return Icons::POD_PENDING;
+                return Icons::CONTAINER_WAITING;
             case Container::STATE_RUNNING:
-                return Icons::POD_RUNNING;
+                return Icons::CONTAINER_RUNNING;
             case Container::STATE_TERMINATED:
-                return Icons::POD_SUCCEEDED;
+                return Icons::CONTAINER_TERMINATED;
             default:
-                return Icons::UNHEALTHY;
+                return Icons::BUG;
         }
     }
 
@@ -113,16 +96,19 @@ class ContainerListItem extends BaseListItem
 
         switch ($this->item->state) {
             case Container::STATE_RUNNING:
-                return new VerticalKeyValue('Started At', new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp()));
+                return new VerticalKeyValue(
+                    t('Started At'),
+                    new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp())
+                );
             case Container::STATE_TERMINATED:
             case Container::STATE_WAITING:
                 return new HtmlElement(
                     'div',
                     null,
-                    new VerticalKeyValue('Reason', $stateDetails->reason)
+                    new VerticalKeyValue(t('Reason'), $stateDetails->reason)
                 );
             default:
-                return new HtmlString('Unknown');
+                return new FormattedString('Unknown state %s', $this->item->state);
         }
     }
 }

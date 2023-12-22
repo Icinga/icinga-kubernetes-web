@@ -19,13 +19,12 @@ class ServiceCondition extends Model
 
     public function getKeyName()
     {
-        return 'service_id';
+        return ['service_id', 'type'];
     }
 
     public function getColumns()
     {
         return [
-            'type',
             'status',
             'observed_generation',
             'last_transition',
@@ -48,26 +47,22 @@ class ServiceCondition extends Model
 
     public function getDefaultSort()
     {
-        return 'last_transition desc';
+        return ['last_transition desc'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'service_id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'last_transition'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'service_id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'last_transition'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsTo('service', Service::class);
+        $relations->belongsTo('service', Service::class);
     }
 }

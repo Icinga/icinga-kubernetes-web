@@ -5,22 +5,22 @@
 namespace Icinga\Module\Kubernetes\Common;
 
 use Icinga\Module\Kubernetes\Model\ConfigMap;
-use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Model\Container;
+use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Model\Ingress;
+use Icinga\Module\Kubernetes\Model\Job;
+use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
+use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\Secret;
-use Icinga\Module\Kubernetes\Model\StatefulSet;
-use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
-use Icinga\Module\Kubernetes\Model\Job;
-use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\Service;
-use Icinga\Module\Kubernetes\Model\Ingress;
+use Icinga\Module\Kubernetes\Model\StatefulSet;
 use ipl\Web\Url;
 
 abstract class Links

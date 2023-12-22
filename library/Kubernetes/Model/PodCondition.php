@@ -44,12 +44,7 @@ class PodCondition extends Model
             'reason'          => t('Reason')
         ];
     }
-//
-//    public function getSearchColumns()
-//    {
-//        return ['severity'];
-//    }
-//
+
     public function getDefaultSort()
     {
         return ['last_transition desc'];
@@ -60,6 +55,7 @@ class PodCondition extends Model
         $behaviors->add(new Binary([
             'pod_id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'last_probe',
             'last_transition'
@@ -69,15 +65,5 @@ class PodCondition extends Model
     public function createRelations(Relations $relations)
     {
         $relations->belongsTo('pod', Pod::class);
-//
-//        $relations
-//            ->belongsToMany('event', Event::class)
-//            ->through('incident_event');
-//
-//        $relations->belongsToMany('contact', Contact::class)
-//            ->through('incident_contact');
-//
-//        $relations->hasMany('incident_contact', IncidentContact::class);
-//        $relations->hasMany('incident_history', IncidentHistory::class);
     }
 }

@@ -25,13 +25,12 @@ class ReplicaSet extends Model
     public function getColumns()
     {
         return [
-            'id',
             'namespace',
             'name',
             'uid',
-            'desired_replicas',
-            'min_ready_seconds',
             'resource_version',
+            'min_ready_seconds',
+            'desired_replicas',
             'actual_replicas',
             'fully_labeled_replicas',
             'ready_replicas',
@@ -51,16 +50,48 @@ class ReplicaSet extends Model
         ]));
     }
 
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'              => t('Namespace'),
+            'name'                   => t('Name'),
+            'uid'                    => t('UID'),
+            'resource_version'       => t('Resource Version'),
+            'min_ready_seconds'      => t('Min Ready Seconds'),
+            'desired_replicas'       => t('Desired Replicas'),
+            'actual_replicas'        => t('Actual Replicas'),
+            'fully_labeled_replicas' => t('Fully Labeled Replicas'),
+            'ready_replicas'         => t('Ready Replicas'),
+            'available_replicas'     => t('Available Replicas'),
+            'created'                => t('Created At')
+        ];
+    }
+
     public function getDefaultSort()
     {
         return ['created desc'];
     }
 
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
     public function createRelations(Relations $relations)
     {
+        $relations->hasMany('condition', ReplicaSetCondition::class);
+
         $relations
-            ->belongsToMany('pods', Pod::class)
-            ->through('pod_owner');
+            ->belongsToMany('label', Label::class)
+            ->through('replica_set_label');
+
+        $relations
+            ->belongsToMany('pod', Pod::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
 
         $relations
             ->belongsToMany('deployment', Deployment::class)
@@ -69,11 +100,5 @@ class ReplicaSet extends Model
             ->setTargetForeignKey('name')
             ->setCandidateKey('id')
             ->setForeignKey('replica_set_id');
-
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('replica_set_label');
-
-        $relations->hasMany('condition', ReplicaSetCondition::class);
     }
 }

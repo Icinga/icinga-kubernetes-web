@@ -25,7 +25,6 @@ class Secret extends Model
     public function getColumns()
     {
         return [
-            'id',
             'namespace',
             'name',
             'uid',
@@ -50,11 +49,11 @@ class Secret extends Model
     public function createRelations(Relations $relations)
     {
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('secret_label');
-
-        $relations
             ->belongsToMany('data', Data::class)
             ->through('secret_data');
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('secret_label');
     }
 }

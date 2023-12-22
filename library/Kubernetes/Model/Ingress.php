@@ -36,10 +36,17 @@ class Ingress extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace'  => t('Namespace'),
-            'name'       => t('Name'),
-            'created'    => t('Created At')
+            'namespace'        => t('Namespace'),
+            'name'             => t('Name'),
+            'uid'              => t('UID'),
+            'resource_version' => t('Resource Version'),
+            'created'          => t('Created At')
         ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
     }
 
     public function getSearchColumns()
@@ -47,37 +54,25 @@ class Ingress extends Model
         return ['name'];
     }
 
-    public function getDefaultSort()
-    {
-        return 'created desc';
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'created'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->hasMany('ingress_tls', IngressTls::class);
+        $relations->hasMany('backend_resource', IngressBackendResource::class);
 
-        $relations
-            ->hasMany('backend_service', IngressBackendService::class);
+        $relations->hasMany('backend_service', IngressBackendService::class);
 
-        $relations
-            ->hasMany('backend_resource', IngressBackendResource::class);
+        $relations->hasMany('ingress_rule', IngressRule::class);
 
-        $relations
-            ->hasMany('ingress_rule', IngressRule::class);
+        $relations->hasMany('ingress_tls', IngressTls::class);
     }
 }

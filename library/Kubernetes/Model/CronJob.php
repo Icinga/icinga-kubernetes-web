@@ -46,9 +46,21 @@ class CronJob extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace' => t('Namespace'),
-            'name'      => t('Name'),
-            'created'   => t('Created At')
+            'namespace'                     => t('Namespace'),
+            'name'                          => t('Name'),
+            'uid'                           => t('UID'),
+            'resource_version'              => t('Resource Version'),
+            'schedule'                      => t('Schedule'),
+            'timezone'                      => t('Timezone'),
+            'starting_deadline_seconds'     => t('Starting Deadline Seconds'),
+            'concurrency_policy'            => t('Concurrency Policy'),
+            'suspend'                       => t('Suspend'),
+            'successful_jobs_history_limit' => t('Successful Jobs History Limit'),
+            'failed_jobs_history_limit'     => t('Failed Jobs History Limit'),
+            'active'                        => t('Active'),
+            'last_schedule_time'            => t('Last Schedule Time'),
+            'last_successful_time'          => t('Last Successful Time'),
+            'created'                       => t('Created At')
         ];
     }
 
@@ -59,23 +71,20 @@ class CronJob extends Model
 
     public function getDefaultSort()
     {
-        return ['namespace', 'created desc'];
+        return ['created desc'];
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'last_schedule_time',
-                'last_successful_time',
-                'created'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'last_schedule_time',
+            'last_successful_time',
+            'created'
+        ]));
     }
 
     public function createRelations(Relations $relations)

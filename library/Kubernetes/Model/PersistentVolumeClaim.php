@@ -12,13 +12,18 @@ use ipl\Orm\Relations;
 
 class PersistentVolumeClaim extends Model
 {
-    public const PHASE_PENDING = 'pending';
-
     public const PHASE_BOUND = 'bound';
 
     public const PHASE_LOST = 'failed';
 
+    public const PHASE_PENDING = 'pending';
+
     public const DEFAULT_VOLUME_MODE = 'filesystem';
+
+    public function getVolumeMode(): string
+    {
+        return $this->volume_mode ?? static::DEFAULT_VOLUME_MODE;
+    }
 
     public function getTableName()
     {
@@ -52,16 +57,20 @@ class PersistentVolumeClaim extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace' => t('Namespace'),
-            'name'      => t('Name'),
-            'phase'     => t('Phase'),
-            'created'   => t('Created At')
+            'namespace'            => t('Namespace'),
+            'name'                 => t('Name'),
+            'uid'                  => t('UID'),
+            'resource_version'     => t('Resource Version'),
+            'desired_access_modes' => t('Desired Access Modes'),
+            'actual_access_modes'  => t('Actual Access Modes'),
+            'minimum_capacity'     => t('Minimum Capacity'),
+            'actual_capacity'      => t('Actual Capacity'),
+            'phase'                => t('Phase'),
+            'volume_name'          => t('Volume Name'),
+            'volume_mode'          => t('Volume Mode'),
+            'storage_class'        => t('Storage Class'),
+            'created'              => t('Created At')
         ];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
     }
 
     public function getDefaultSort()
@@ -69,30 +78,25 @@ class PersistentVolumeClaim extends Model
         return ['created desc'];
     }
 
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'created'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
         $relations->hasMany('condition', PersistentVolumeClaimCondition::class);
-
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('pvc_label');
-
-        $relations
-            ->belongsTo('pod', Pod::class);
 
         $relations
             ->belongsToMany('persistent_volume', PersistentVolume::class)
@@ -101,5 +105,17 @@ class PersistentVolumeClaim extends Model
             ->setTargetForeignKey('persistent_volume_id')
             ->setCandidateKey('name')
             ->setForeignKey('name');
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('pvc_label');
+
+        $relations
+            ->belongsToMany('pod', Pod::class)
+            ->through(PodPvc::class)
+            ->setTargetCandidateKey('id')
+            ->setTargetForeignKey('pod_id')
+            ->setCandidateKey('name')
+            ->setForeignKey('claim_name');
     }
 }

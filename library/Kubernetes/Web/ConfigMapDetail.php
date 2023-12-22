@@ -4,21 +4,15 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Common\EmptyState;
+use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\ConfigMap;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\HtmlElement;
-use ipl\Html\Text;
+use ipl\Web\Widget\Icon;
 
 class ConfigMapDetail extends BaseHtmlElement
 {
     /** @var ConfigMap */
     protected $configMap;
-
-    protected $defaultAttributes = [
-        'class' => 'config-map-detail',
-    ];
 
     protected $tag = 'div';
 
@@ -30,37 +24,14 @@ class ConfigMapDetail extends BaseHtmlElement
     protected function assemble()
     {
         $this->addHtml(
-            new Details([
-                t('Name')      => $this->configMap->name,
-                t('Namespace') => $this->configMap->namespace,
-                t('Created')   => $this->configMap->created->format('Y-m-d H:i:s')
-            ])
+            new Details(new ResourceDetails(
+                $this->configMap,
+                [
+                    t('Immutable') => new Icon($this->configMap->immutable ? 'check' : 'xmark')
+                ]
+            )),
+            new Labels($this->configMap->label),
+            new Data($this->configMap->data->execute())
         );
-
-        $this->addHtml(
-            new Labels($this->configMap->label)
-        );
-
-        $this->addHtml(new HtmlElement('h2', null, new Text('Data')));
-
-        $iterator = $this->configMap->data->getIterator();
-
-        if (! $iterator->valid()) {
-            $this->addHtml(new EmptyState(t('No data to display')));
-        } else {
-            foreach ($iterator as $data) {
-                $this->addHtml(
-                    new HtmlElement(
-                        'div',
-                        new Attributes([
-                            'class'               => 'collapsible',
-                            'data-visible-height' => 100
-                        ]),
-                        new HtmlElement('h4', null, new Text($data->name)),
-                        new HtmlElement('pre', null, new Text($data->value))
-                    )
-                );
-            }
-        }
     }
 }

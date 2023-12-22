@@ -34,29 +34,26 @@ class IngressRule extends Model
     public function getColumnDefinitions()
     {
         return [
-            'host'         => t('Host'),
-            'path'         => t('Path'),
-            'path_type'    => t('Path Type'),
+            'host'      => t('Host'),
+            'path'      => t('Path'),
+            'path_type' => t('Path Type'),
         ];
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id',
-                'ingress_id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id',
+            'ingress_id'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsTo('ingress', Ingress::class);
-        $relations
-            ->hasMany('backend_service', IngressBackendService::class);
-        $relations
-            ->hasMany('backend_resource', IngressBackendResource::class);
+        $relations->belongsTo('ingress', Ingress::class);
+
+        $relations->hasMany('backend_service', IngressBackendService::class);
+
+        $relations->hasMany('backend_resource', IngressBackendResource::class);
     }
 }

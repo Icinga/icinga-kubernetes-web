@@ -1,5 +1,7 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
@@ -12,21 +14,17 @@ class DeploymentController extends Controller
 {
     public function indexAction(): void
     {
-        $namespace = $this->params->get('namespace');
-        $name = $this->params->get('name');
-        $id = $this->params->getRequired('id');
+        $this->addTitleTab($this->translate('Deployment'));
 
-        $this->addTitleTab("Deployment $namespace/$name");
-
+        /** @var Deployment $deployment */
         $deployment = Deployment::on(Database::connection())
-            ->filter(Filter::equal('deployment.id', $id))
+            ->filter(Filter::equal('deployment.id', $this->params->getRequired('id')))
             ->first();
 
-        $this->addContent(new DeploymentDetail($deployment));
-    }
+        if ($deployment === null) {
+            $this->httpNotFound($this->translate('Deployment not found'));
+        }
 
-    protected function getPageSize($default)
-    {
-        return parent::getPageSize($default ?? 50);
+        $this->addContent(new DeploymentDetail($deployment));
     }
 }

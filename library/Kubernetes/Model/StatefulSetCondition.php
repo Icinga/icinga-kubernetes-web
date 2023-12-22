@@ -25,7 +25,6 @@ class StatefulSetCondition extends Model
     public function getColumns()
     {
         return [
-            'type',
             'status',
             'last_transition',
             'message',
@@ -54,6 +53,7 @@ class StatefulSetCondition extends Model
         $behaviors->add(new Binary([
             'stateful_set_id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'last_transition'
         ]));

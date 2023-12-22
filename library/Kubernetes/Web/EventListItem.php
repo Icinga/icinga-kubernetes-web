@@ -8,7 +8,6 @@ use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Event;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\Html;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
 use ipl\Web\Widget\Link;
@@ -30,17 +29,13 @@ class EventListItem extends BaseListItem
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        $title->addHtml(new Link(
-            Html::tag('span', ['class' => 'event-text'], $this->item->reason),
-            Links::event($this->item),
-            ['class' => 'subject']
-        ));
+        $title->addHtml(new Link($this->item->reason, Links::event($this->item), ['class' => 'subject']));
     }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->add($this->createTitle());
-        $header->add(new TimeAgo($this->item->last_seen->getTimestamp()));
+        $header->addHtml($this->createTitle());
+        $header->addHtml(new TimeAgo($this->item->last_seen->getTimestamp()));
     }
 
     protected function assembleCaption(BaseHtmlElement $caption)

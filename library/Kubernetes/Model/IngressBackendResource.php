@@ -42,21 +42,17 @@ class IngressBackendResource extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'ingress_id',
-                'resource_id',
-                'ingress_rule_id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'ingress_id',
+            'resource_id',
+            'ingress_rule_id'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsTo('ingress', Ingress::class);
+        $relations->belongsTo('ingress', Ingress::class);
 
-        $relations
-            ->belongsTo('ingress_rule', IngressRule::class);
+        $relations->belongsTo('ingress_rule', IngressRule::class);
     }
 }

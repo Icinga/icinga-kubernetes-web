@@ -38,18 +38,13 @@ class NodeCondition extends Model
         return [
             'type'            => t('Type'),
             'status'          => t('Status'),
-            'last_heartbeat'      => t('Last Heartbeat'),
+            'last_heartbeat'  => t('Last Heartbeat'),
             'last_transition' => t('Last Transition'),
             'message'         => t('Message'),
             'reason'          => t('Reason')
         ];
     }
-//
-//    public function getSearchColumns()
-//    {
-//        return ['severity'];
-//    }
-//
+
     public function getDefaultSort()
     {
         return ['last_transition desc'];
@@ -60,6 +55,7 @@ class NodeCondition extends Model
         $behaviors->add(new Binary([
             'node_id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'last_heartbeat',
             'last_transition'
@@ -69,15 +65,5 @@ class NodeCondition extends Model
     public function createRelations(Relations $relations)
     {
         $relations->belongsTo('node', Node::class);
-//
-//        $relations
-//            ->belongsToMany('event', Event::class)
-//            ->through('incident_event');
-//
-//        $relations->belongsToMany('contact', Contact::class)
-//            ->through('incident_contact');
-//
-//        $relations->hasMany('incident_contact', IncidentContact::class);
-//        $relations->hasMany('incident_history', IncidentHistory::class);
     }
 }

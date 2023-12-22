@@ -2,7 +2,7 @@
 
 /* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
 
-namespace Icinga\Module\Kubernetes\TBD;
+namespace Icinga\Module\Kubernetes\Common;
 
 class AccessModes
 {

@@ -32,22 +32,20 @@ class IngressTls extends Model
     public function getColumnDefinitions()
     {
         return [
-            'tls_secret' => t('TLS Secret'),
+            'tls_host'   => t('TLS Host'),
+            'tls_secret' => t('TLS Secret')
         ];
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'ingress_id'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'ingress_id'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsTo('ingress', Ingress::class);
+        $relations->belongsTo('ingress', Ingress::class);
     }
 }

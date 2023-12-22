@@ -1,5 +1,7 @@
 <?php
 
+/* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
@@ -12,21 +14,17 @@ class DaemonsetController extends Controller
 {
     public function indexAction(): void
     {
-        $namespace = $this->params->get('namespace');
-        $name = $this->params->get('name');
-        $id = $this->params->getRequired('id');
+        $this->addTitleTab($this->translate('Daemon Set'));
 
-        $this->addTitleTab("Daemon Set $namespace/$name");
-
+        /** @var DaemonSet $daemonSet */
         $daemonSet = DaemonSet::on(Database::connection())
-            ->filter(Filter::equal('id', $id))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
 
-        $this->addContent(new DaemonSetDetail($daemonSet));
-    }
+        if ($daemonSet === null) {
+            $this->httpNotFound($this->translate('Daemon Set not found'));
+        }
 
-    protected function getPageSize($default)
-    {
-        return parent::getPageSize($default ?? 50);
+        $this->addContent(new DaemonSetDetail($daemonSet));
     }
 }

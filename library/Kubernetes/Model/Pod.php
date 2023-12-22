@@ -12,12 +12,13 @@ use ipl\Orm\Relations;
 
 class Pod extends Model
 {
+    public const PHASE_FAILED = 'failed';
+
     public const PHASE_PENDING = 'pending';
+
     public const PHASE_RUNNING = 'running';
 
     public const PHASE_SUCCEEDED = 'succeeded';
-
-    public const PHASE_FAILED = 'failed';
 
     public function getTableName()
     {
@@ -55,18 +56,24 @@ class Pod extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace' => t('Namespace'),
-            'name'      => t('Name'),
-            'ip'        => t('IP'),
-            'phase'     => t('Phase'),
-            'qos'       => t('Quality of Service'),
-            'created'   => t('Created At')
+            'namespace'           => t('Namespace'),
+            'name'                => t('Name'),
+            'uid'                 => t('UID'),
+            'resource_version'    => t('Resource Version'),
+            'node_name'           => t('Node Name'),
+            'nominated_node_name' => t('Nominated Node Name'),
+            'ip'                  => t('IP'),
+            'phase'               => t('Phase'),
+            'restart_policy'      => t('Restart Policy'),
+            'cpu_limits'          => t('CPU Limits'),
+            'cpu_requests'        => t('CPU Requests'),
+            'memory_limits'       => t('Memory Limits'),
+            'memory_requests'     => t('Memory Requests'),
+            'reason'              => t('Phase Reason'),
+            'message'             => t('Phase Message'),
+            'qos'                 => t('Quality of Service'),
+            'created'             => t('Created At')
         ];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
     }
 
     public function getDefaultSort()
@@ -74,11 +81,17 @@ class Pod extends Model
         return ['created desc'];
     }
 
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
             'id'
         ]));
+
         $behaviors->add(new MillisecondTimestamp([
             'created'
         ]));
@@ -86,25 +99,41 @@ class Pod extends Model
 
     public function createRelations(Relations $relations)
     {
-        $relations->hasMany('container', Container::class);
-
         $relations->hasMany('condition', PodCondition::class);
-
-        $relations->hasMany('container_mount', ContainerMount::class);
 
         $relations->hasMany('pod_volume', PodVolume::class);
 
-        $relations->hasMany('pod_pvc', PodPvc::class);
+        $relations
+            ->belongsToMany('pvc', PersistentVolumeClaim::class)
+            ->through(PodPvc::class)
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('claim_name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
 
         $relations
             ->belongsToMany('label', Label::class)
             ->through('pod_label');
 
+        $relations->hasMany('container', Container::class);
+
+        $relations->hasMany('container_mount', ContainerMount::class);
+
         $relations
-            ->belongsTo('node', Node::class)
-            ->setCandidateKey('node_name')
-            ->setForeignKey('name')
-            ->setJoinType('LEFT');
+            ->belongsToMany('deployment', Deployment::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
+
+        $relations
+            ->belongsToMany('replica_set', ReplicaSet::class)
+            ->through('pod_owner')
+            ->setTargetCandidateKey('name')
+            ->setTargetForeignKey('name')
+            ->setCandidateKey('id')
+            ->setForeignKey('pod_id');
 
         $relations
             ->belongsToMany('daemon_set', DaemonSet::class)
@@ -123,33 +152,17 @@ class Pod extends Model
             ->setForeignKey('pod_id');
 
         $relations
-            ->belongsToMany('replica_set', ReplicaSet::class)
-            ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
-
-        $relations
-            ->belongsToMany('deployment', Deployment::class)
-            ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
-
-        $relations
             ->belongsToMany('job', Job::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')
             ->setCandidateKey('id')
             ->setForeignKey('pod_id');
-//
-//        $relations->belongsToMany('contact', Contact::class)
-//            ->through('incident_contact');
-//
-//        $relations->hasMany('incident_contact', IncidentContact::class);
-//        $relations->hasMany('incident_history', IncidentHistory::class);
+
+        $relations
+            ->belongsTo('node', Node::class)
+            ->setCandidateKey('node_name')
+            ->setForeignKey('name')
+            ->setJoinType('LEFT');
     }
 }

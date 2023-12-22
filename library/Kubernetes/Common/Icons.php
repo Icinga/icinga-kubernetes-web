@@ -6,6 +6,14 @@ namespace Icinga\Module\Kubernetes\Common;
 
 abstract class Icons
 {
+    public const CONTAINER_NOT_READY = 'circle-exclamation';
+
+    public const CONTAINER_WAITING = 'spinner';
+
+    public const CONTAINER_RUNNING = 'circle-check';
+
+    public const CONTAINER_TERMINATED = 'circle-exclamation';
+
     public const NAMESPACE_ACTIVE = 'circle-check';
 
     public const NAMESPACE_TERMINATING = 'circle-triangle';
@@ -107,4 +115,6 @@ abstract class Icons
     public const NODE_READY = 'circle-check';
 
     public const NODE_NOT_READY = 'circle-exclamation';
+
+    public const BUG = 'bug';
 }

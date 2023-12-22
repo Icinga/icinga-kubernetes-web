@@ -52,22 +52,18 @@ class PersistentVolumeClaimCondition extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'pvc_id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'last_probe',
-                'last_transition'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'pvc_id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'last_probe',
+            'last_transition'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->belongsTo('pvc', PersistentVolumeClaim::class);
+        $relations->belongsTo('pvc', PersistentVolumeClaim::class);
     }
 }

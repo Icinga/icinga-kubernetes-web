@@ -4,21 +4,18 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
-use LogicException;
-
-abstract class States
+abstract class Health
 {
-    public const HEALTHY = 'healthy';
-
     public const DEGRADED = 'degraded';
-
-    public const UNHEALTHY = 'unhealthy';
+    public const HEALTHY = 'healthy';
 
     public const UNDECIDABLE = 'undecidable';
 
-    public static function icon(string $state): string
+    public const UNHEALTHY = 'unhealthy';
+
+    public static function icon(string $health): string
     {
-        switch ($state) {
+        switch ($health) {
             case static::HEALTHY:
                 return Icons::HEALTHY;
             case static::DEGRADED:
@@ -28,7 +25,7 @@ abstract class States
             case static::UNDECIDABLE:
                 return Icons::UNDECIDABLE;
             default:
-                throw new LogicException();
+                return Icons::BUG;
         }
     }
 }

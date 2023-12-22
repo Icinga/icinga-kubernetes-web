@@ -37,41 +37,29 @@ class EndpointSlice extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace'    => t('Namespace'),
-            'name'         => t('Name'),
-            'address_type' => t('Address Type'),
-            'created'      => t('Created At')
+            'namespace'        => t('Namespace'),
+            'name'             => t('Name'),
+            'uid'              => t('UID'),
+            'resource_version' => t('Resource Version'),
+            'address_type'     => t('Address Type'),
+            'created'          => t('Created At')
         ];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
-    }
-
-    public function getDefaultSort()
-    {
-        return 'created desc';
     }
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(
-            new Binary([
-                'id'
-            ])
-        );
-        $behaviors->add(
-            new MillisecondTimestamp([
-                'created'
-            ])
-        );
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'created'
+        ]));
     }
 
     public function createRelations(Relations $relations)
     {
-        $relations
-            ->hasMany('endpoint', Endpoint::class);
+        $relations->hasMany('endpoint', Endpoint::class);
 
         $relations
             ->belongsToMany('label', Label::class)

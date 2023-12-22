@@ -14,20 +14,16 @@ class PersistentvolumeclaimController extends CompatController
 {
     public function indexAction(): void
     {
-        $id = $this->params->getRequired('id');
-
-        $query = PersistentVolumeClaim::on(Database::connection())
-            ->filter(Filter::all(
-                Filter::equal('pvc.id', $id),
-            ));
+        $this->addTitleTab($this->translate('Persistent Volume Claim'));
 
         /** @var PersistentVolumeClaim $pvc */
-        $pvc = $query->first();
+        $pvc = PersistentVolumeClaim::on(Database::connection())
+            ->filter(Filter::equal('pvc.id', $this->params->getRequired('id')))
+            ->first();
+
         if ($pvc === null) {
             $this->httpNotFound($this->translate('Persistent Volume Claim not found'));
         }
-
-        $this->addTitleTab("Persistent Volume Claim $pvc->namespace/$pvc->name");
 
         $this->addContent(new PersistentVolumeClaimDetail($pvc));
     }

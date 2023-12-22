@@ -8,7 +8,6 @@ use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
@@ -16,7 +15,6 @@ use ipl\Html\Text;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
-use LogicException;
 
 class NamespaceListItem extends BaseListItem
 {
@@ -25,34 +23,27 @@ class NamespaceListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $content = new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]);
-        $visual->addHtml($content);
+        $visual->addHtml(new Icon($this->getPhaseIcon(), ['class' => ['namespace-phase-' . $this->item->phase]]));
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        $content = Html::sprintf(
-            t('%s is %s', '<name> is <phase>'),
-            new Link(
-                $this->item->name,
-                Links::namespace($this->item),
-                ['class' => 'subject']
-            ),
-            new HtmlElement('span', new Attributes(['class' => 'phase-text']), new Text($this->item->phase))
-        );
-
-        $title->addHtml($content);
+        $title->addHtml(Html::sprintf(
+            t('%s is %s', '<namespace> is <namespace_phase>'),
+            new Link($this->item->name, Links::namespace($this->item), ['class' => 'subject']),
+            new HtmlElement('span', null, new Text($this->item->phase))
+        ));
     }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->add($this->createTitle());
+        $header->addHtml($this->createTitle());
         $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->add($this->createHeader());
+        $main->addHtml($this->createHeader());
     }
 
     protected function getPhaseIcon(): string
@@ -63,7 +54,7 @@ class NamespaceListItem extends BaseListItem
             case NamespaceModel::PHASE_TERMINATING:
                 return Icons::NAMESPACE_TERMINATING;
             default:
-                throw new LogicException();
+                return Icons::BUG;
         }
     }
 }
