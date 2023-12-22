@@ -70,12 +70,18 @@ class StatefulSetListItem extends BaseListItem
         for ($i = 0; $i < $available; $i++) {
             $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
         }
-        $keyValue->addHtml(new VerticalKeyValue('Pods', $pods));
-        $keyValue->addHtml(new VerticalKeyValue('Service Name', $this->item->service_name));
-        $keyValue->addHtml(new VerticalKeyValue('Management Policy', ucfirst(Str::camel($this->item->pod_management_policy))));
-        $keyValue->addHtml(new VerticalKeyValue('Update Strategy', ucfirst(Str::camel($this->item->update_strategy))));
-        $keyValue->addHtml(new VerticalKeyValue('Min Ready Seconds', $this->item->min_ready_seconds));
-        $keyValue->addHtml(new VerticalKeyValue('Namespace', $this->item->namespace));
+        $keyValue->addHtml(new VerticalKeyValue(t('Pods'), $pods));
+        $keyValue->addHtml(new VerticalKeyValue(t('Service Name'), $this->item->service_name));
+        $keyValue->addHtml(new VerticalKeyValue(
+            t('Management Policy'),
+            ucfirst(Str::camel($this->item->pod_management_policy))
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(
+            t('Update Strategy'),
+            ucfirst(Str::camel($this->item->update_strategy))
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(t('Min Ready Seconds'), $this->item->min_ready_seconds));
+        $keyValue->addHtml(new VerticalKeyValue(t('Namespace'), $this->item->namespace));
     }
 
     protected function getHealth(): string

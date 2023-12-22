@@ -53,8 +53,14 @@ class NodeListItem extends BaseListItem
         $keyValue->addHtml(new VerticalKeyValue(t('CIDR'), $this->item->pod_cidr));
         $keyValue->addHtml(new VerticalKeyValue(t('Pod Capacity'), $this->item->pod_capacity));
         $keyValue->addHtml(new VerticalKeyValue(t('IPs Available'), $this->item->num_ips));
-        $keyValue->addHtml(new VerticalKeyValue(t('CPU Capacity'), sprintf('%d cores', $this->item->cpu_allocatable / 1000)));
-        $keyValue->addHtml(new VerticalKeyValue(t('Memory Capacity'), Format::bytes($this->item->memory_allocatable / 1000)));
+        $keyValue->addHtml(new VerticalKeyValue(
+            t('CPU Capacity'),
+            sprintf('%d cores', $this->item->cpu_allocatable / 1000)
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(
+            t('Memory Capacity'),
+            Format::bytes($this->item->memory_allocatable / 1000)
+        ));
         $main->addHtml($keyValue);
     }
 

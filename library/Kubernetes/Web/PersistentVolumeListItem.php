@@ -51,10 +51,16 @@ class PersistentVolumeListItem extends BaseListItem
         $main->addHtml($this->createHeader());
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->addHtml(new VerticalKeyValue(t('Storage Class Name'), ucfirst(Str::camel($this->item->storage_class))));
+        $keyValue->addHtml(new VerticalKeyValue(
+            t('Storage Class Name'),
+            ucfirst(Str::camel($this->item->storage_class))
+        ));
         $keyValue->addHtml(new VerticalKeyValue(t('Volume Mode'), ucfirst(Str::camel($this->item->getVolumeMode()))));
         $keyValue->addHtml(new VerticalKeyValue(t('Capacity'), Format::bytes($this->item->capacity / 1000)));
-        $keyValue->addHtml(new VerticalKeyValue(t('Access Mode'), implode(', ', AccessModes::asNames((int) $this->item->access_modes))));
+        $keyValue->addHtml(new VerticalKeyValue(
+            t('Access Mode'),
+            implode(', ', AccessModes::asNames((int) $this->item->access_modes))
+        ));
         $main->addHtml($keyValue);
     }
 

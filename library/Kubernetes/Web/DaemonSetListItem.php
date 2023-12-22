@@ -58,7 +58,10 @@ class DaemonSetListItem extends BaseListItem
         }
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         $keyValue->addHtml(new VerticalKeyValue(t('Pods'), $pods));
-        $keyValue->addHtml(new VerticalKeyValue(t('Update Strategy'), ucfirst(Str::camel($this->item->update_strategy))));
+        $keyValue->addHtml(new VerticalKeyValue(
+            t('Update Strategy'),
+            ucfirst(Str::camel($this->item->update_strategy))
+        ));
         $keyValue->addHtml(new VerticalKeyValue(t('Min Ready Seconds'), $this->item->min_ready_seconds));
         $keyValue->addHtml(new VerticalKeyValue(t('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);

@@ -75,7 +75,9 @@ class ServiceDetail extends BaseHtmlElement
                         'section',
                         null,
                         new HtmlElement(
-                            'h3', null, FormattedString::create('%s: %s', $selector->name, $selector->value)
+                            'h3',
+                            null,
+                            FormattedString::create('%s: %s', $selector->name, $selector->value)
                         ),
                         new PodList(Pod::on(Database::connection())
                             ->with(['node'])

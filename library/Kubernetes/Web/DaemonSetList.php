@@ -6,7 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseItemList;
 
-class DaemonSetList  extends BaseItemList
+class DaemonSetList extends BaseItemList
 {
     protected function getItemClass(): string
     {
