@@ -56,7 +56,8 @@ abstract class ListController extends Controller
         $this->addControl($limitControl);
         $this->addControl($searchBar);
 
-        $this->addContent(new ($this->getContentClass())($q));
+        $contentClass = $this->getContentClass();
+        $this->addContent(new $contentClass($q));
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();
