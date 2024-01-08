@@ -64,7 +64,8 @@ class IngressRuleTable extends Table
                 $content = Text::create($rule->$column);
                 $row->addHtml(new HtmlElement('td', null, $content));
             }
-            foreach ($rule->$this->backend as $backend) {
+            $backend = $this->backend;
+            foreach ($rule->$backend as $backend) {
                 foreach ($this->backendColumnDefinitions as $column => $_) {
                     $content = Text::create($backend->$column);
                     $row->addHtml(new HtmlElement('td', null, $content));
