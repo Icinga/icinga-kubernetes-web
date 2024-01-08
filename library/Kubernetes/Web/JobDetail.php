@@ -47,7 +47,7 @@ class JobDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text(t('Pods'))),
-                new PodList($this->job->pods->with(['node']))
+                new PodList($this->job->pod->with(['node']))
             ),
             new HtmlElement(
                 'section',
