@@ -12,6 +12,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
@@ -19,6 +20,8 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class CronJobListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item CronJob The associated list item */
     /** @var $list CronJobList The list where the item is part of */
 
@@ -31,7 +34,7 @@ class CronJobListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<cron_job> is <health>'),
+            $this->translate('%s is %s', '<cron_job> is <health>'),
             new Link($this->item->name, Links::cronJob($this->item), ['class' => 'subject']),
             Html::tag('span', null, $this->getHealth())
         ));
@@ -39,8 +42,9 @@ class CronJobListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -53,11 +57,11 @@ class CronJobListItem extends BaseListItem
         }
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         $keyValue
-            ->addHtml(new VerticalKeyValue(t('Schedule'), $this->item->schedule))
-            ->addHtml(new VerticalKeyValue(t('Suspend'), $this->item->suspend))
-            ->addHtml(new VerticalKeyValue(t('Active'), $this->item->active))
-            ->addHtml(new VerticalKeyValue(t('Last Schedule'), $lastScheduleTime))
-            ->addHtml(new VerticalKeyValue(t('Namespace'), $this->item->namespace));
+            ->addHtml(new VerticalKeyValue($this->translate('Schedule'), $this->item->schedule))
+            ->addHtml(new VerticalKeyValue($this->translate('Suspend'), $this->item->suspend))
+            ->addHtml(new VerticalKeyValue($this->translate('Active'), $this->item->active))
+            ->addHtml(new VerticalKeyValue($this->translate('Last Schedule'), $lastScheduleTime))
+            ->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
     }
 

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class NodeCondition extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'node_condition';
@@ -36,12 +39,12 @@ class NodeCondition extends Model
     public function getColumnDefinitions()
     {
         return [
-            'type'            => t('Type'),
-            'status'          => t('Status'),
-            'last_heartbeat'  => t('Last Heartbeat'),
-            'last_transition' => t('Last Transition'),
-            'message'         => t('Message'),
-            'reason'          => t('Reason')
+            'type'            => $this->translate('Type'),
+            'status'          => $this->translate('Status'),
+            'last_heartbeat'  => $this->translate('Last Heartbeat'),
+            'last_transition' => $this->translate('Last Transition'),
+            'message'         => $this->translate('Message'),
+            'reason'          => $this->translate('Reason')
         ];
     }
 

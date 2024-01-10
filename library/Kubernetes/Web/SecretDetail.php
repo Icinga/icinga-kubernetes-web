@@ -7,9 +7,12 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Secret;
 use ipl\Html\BaseHtmlElement;
+use ipl\I18n\Translation;
 
 class SecretDetail extends BaseHtmlElement
 {
+    use Translation;
+
     /** @var Secret */
     protected $secret;
 
@@ -24,7 +27,7 @@ class SecretDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->secret, [
-                t('Type') => $this->secret->type,
+                $this->translate('Type') => $this->secret->type
             ])),
             new Labels($this->secret->label),
             new Data($this->secret->data->execute())

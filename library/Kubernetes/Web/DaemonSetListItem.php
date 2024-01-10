@@ -12,6 +12,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -21,6 +22,8 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class DaemonSetListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item DaemonSet The associated list item */
     /** @var $list DaemonSetList The list where the item is part of */
 
@@ -33,7 +36,7 @@ class DaemonSetListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<daemon_set> is <health>'),
+            $this->translate('%s is %s', '<daemon_set> is <health>'),
             new Link($this->item->name, Links::daemonSet($this->item), ['class' => 'subject']),
             Html::tag('span', null, $this->getHealth())
         ));
@@ -41,8 +44,9 @@ class DaemonSetListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -57,13 +61,16 @@ class DaemonSetListItem extends BaseListItem
             $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
         }
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->addHtml(new VerticalKeyValue(t('Pods'), $pods));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Pods'), $pods));
         $keyValue->addHtml(new VerticalKeyValue(
-            t('Update Strategy'),
+            $this->translate('Update Strategy'),
             ucfirst(Str::camel($this->item->update_strategy))
         ));
-        $keyValue->addHtml(new VerticalKeyValue(t('Min Ready Seconds'), $this->item->min_ready_seconds));
-        $keyValue->addHtml(new VerticalKeyValue(t('Namespace'), $this->item->namespace));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Min Ready Seconds'),
+            $this->item->min_ready_seconds
+        ));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
     }
 

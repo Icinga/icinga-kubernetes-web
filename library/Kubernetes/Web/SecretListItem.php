@@ -10,12 +10,15 @@ use Icinga\Module\Kubernetes\Model\Secret;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 use ipl\Web\Widget\VerticalKeyValue;
 
 class SecretListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item Secret The associated list item */
     /** @var $list SecretList The list where the item is part of */
 
@@ -26,8 +29,9 @@ class SecretListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -35,8 +39,8 @@ class SecretListItem extends BaseListItem
         $main->addHtml($this->createHeader());
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->addHtml(new VerticalKeyValue(t('Type'), $this->item->type));
-        $keyValue->addHtml(new VerticalKeyValue(t('Namespace'), $this->item->namespace));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Type'), $this->item->type));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
     }
 }

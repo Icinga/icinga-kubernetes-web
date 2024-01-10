@@ -12,6 +12,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
@@ -20,6 +21,8 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class ReplicaSetListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item ReplicaSet The associated list item */
     /** @var $list ReplicaSetList The list where the item is part of */
 
@@ -32,7 +35,7 @@ class ReplicaSetListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $content = Html::sprintf(
-            t('%s is %s', '<replica_set> is <health>'),
+            $this->translate('%s is %s', '<replica_set> is <health>'),
             new Link($this->item->name, Links::replicaSet($this->item), ['class' => 'subject']),
             Html::tag('span', null, $this->getHealth())
         );
@@ -42,8 +45,9 @@ class ReplicaSetListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void

@@ -4,15 +4,18 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Common\EmptyState;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
+use ipl\Web\Widget\EmptyState;
 use Iterator;
 
 class Data extends BaseHtmlElement
 {
+    use Translation;
+
     protected $tag = 'section';
 
     /** @var Iterator */
@@ -25,11 +28,11 @@ class Data extends BaseHtmlElement
 
     protected function assemble()
     {
-        $this->addHtml(new HtmlElement('h2', null, new Text(t('Data'))));
+        $this->addHtml(new HtmlElement('h2', null, new Text($this->translate('Data'))));
 
         if (! $this->data->valid()) {
             // TODO(el): Is this even possible?
-            $this->addHtml(new EmptyState(t('No data to display')));
+            $this->addHtml(new EmptyState($this->translate('No data to display.')));
 
             return;
         }

@@ -12,6 +12,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -21,6 +22,8 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class StatefulSetListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item StatefulSet The associated list item */
     /** @var $list StatefulSetList The list where the item is part of */
 
@@ -33,7 +36,7 @@ class StatefulSetListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<stateful_set> is <health>'),
+            $this->translate('%s is %s', '<stateful_set> is <health>'),
             new Link($this->item->name, Links::statefulSet($this->item), ['class' => 'subject']),
             Html::tag('span', null, $this->getHealth())
         ));
@@ -41,8 +44,9 @@ class StatefulSetListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -70,18 +74,21 @@ class StatefulSetListItem extends BaseListItem
         for ($i = 0; $i < $available; $i++) {
             $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
         }
-        $keyValue->addHtml(new VerticalKeyValue(t('Pods'), $pods));
-        $keyValue->addHtml(new VerticalKeyValue(t('Service Name'), $this->item->service_name));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Pods'), $pods));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Service Name'), $this->item->service_name));
         $keyValue->addHtml(new VerticalKeyValue(
-            t('Management Policy'),
+            $this->translate('Management Policy'),
             ucfirst(Str::camel($this->item->pod_management_policy))
         ));
         $keyValue->addHtml(new VerticalKeyValue(
-            t('Update Strategy'),
+            $this->translate('Update Strategy'),
             ucfirst(Str::camel($this->item->update_strategy))
         ));
-        $keyValue->addHtml(new VerticalKeyValue(t('Min Ready Seconds'), $this->item->min_ready_seconds));
-        $keyValue->addHtml(new VerticalKeyValue(t('Namespace'), $this->item->namespace));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Min Ready Seconds'),
+            $this->item->min_ready_seconds
+        ));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
     }
 
     protected function getHealth(): string

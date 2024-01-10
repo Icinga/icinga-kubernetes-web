@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,6 +12,8 @@ use ipl\Orm\Relations;
 
 class IngressBackendService extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'ingress_backend_service';
@@ -27,16 +30,16 @@ class IngressBackendService extends Model
             'ingress_rule_id',
             'service_name',
             'service_port_name',
-            'service_port_number',
+            'service_port_number'
         ];
     }
 
     public function getColumnDefinitions()
     {
         return [
-            'service_name'        => t('Service Name'),
-            'service_port_name'   => t('Service Port Name'),
-            'service_port_number' => t('Service Port Number')
+            'service_name'        => $this->translate('Service Name'),
+            'service_port_name'   => $this->translate('Service Port Name'),
+            'service_port_number' => $this->translate('Service Port Number')
         ];
     }
 

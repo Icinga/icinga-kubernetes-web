@@ -19,7 +19,7 @@ class ContainerController extends Controller
         /** @var Container $container */
         $container = Container::on(Database::connection())
             ->with('log')
-            ->filter(Filter::equal('container.id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
 
         if ($container === null) {

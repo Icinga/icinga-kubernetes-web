@@ -8,9 +8,12 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormattedString;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 
 class InternalEndpointList extends BaseHtmlElement
 {
+    use Translation;
+
     protected $endpoints;
 
     protected $tag = 'ul';
@@ -25,7 +28,7 @@ class InternalEndpointList extends BaseHtmlElement
         $this->addWrapper(new HtmlElement(
             'section',
             null,
-            new HtmlElement('h2', null, new Text(t('Internal Endpoints')))
+            new HtmlElement('h2', null, new Text($this->translate('Internal Endpoints')))
         ));
 
         foreach ($this->endpoints as $endpoint) {

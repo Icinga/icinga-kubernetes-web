@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,6 +12,8 @@ use ipl\Orm\Relations;
 
 class Data extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'data';
@@ -32,8 +35,8 @@ class Data extends Model
     public function getColumnDefinitions()
     {
         return [
-            'name'  => t('Name'),
-            'value' => t('Value')
+            'name'  => $this->translate('Name'),
+            'value' => $this->translate('Value')
         ];
     }
 

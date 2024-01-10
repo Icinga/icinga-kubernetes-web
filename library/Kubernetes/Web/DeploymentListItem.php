@@ -5,7 +5,6 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\DeploymentHealth;
 use Icinga\Module\Kubernetes\Common\Health;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Deployment;
@@ -13,6 +12,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -22,6 +22,8 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class DeploymentListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item Deployment The associated list item */
     /** @var $list DeploymentList The list where the item is part of */
 
@@ -34,7 +36,7 @@ class DeploymentListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<deployment> is <health>'),
+            $this->translate('%s is %s', '<deployment> is <health>'),
             new Link($this->item->name, Links::deployment($this->item), ['class' => 'subject']),
             Html::tag('span', null, $this->getHealth())
         ));
@@ -42,8 +44,9 @@ class DeploymentListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -62,11 +65,20 @@ class DeploymentListItem extends BaseListItem
             $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
         }
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->addHtml(new VerticalKeyValue(t('Pods'), $pods));
-        $keyValue->addHtml(new VerticalKeyValue(t('Strategy'), ucfirst(Str::camel($this->item->strategy))));
-        $keyValue->addHtml(new VerticalKeyValue(t('Min Ready Seconds'), $this->item->min_ready_seconds));
-        $keyValue->addHtml(new VerticalKeyValue(t('Progress Deadline Seconds'), $this->item->min_ready_seconds));
-        $keyValue->addHtml(new VerticalKeyValue(t('Namespace'), $this->item->namespace));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Pods'), $pods));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Strategy'),
+            ucfirst(Str::camel($this->item->strategy))
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Min Ready Seconds'),
+            $this->item->min_ready_seconds
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Progress Deadline Seconds'),
+            $this->item->min_ready_seconds
+        ));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
     }
 

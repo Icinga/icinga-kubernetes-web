@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,6 +12,8 @@ use ipl\Orm\Relations;
 
 class PodPvc extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'pod_pvc';
@@ -31,9 +34,9 @@ class PodPvc extends Model
     public function getColumnDefinitions()
     {
         return [
-            'volume_name' => t('Volume Name'),
-            'claim_name'  => t('Claim Name'),
-            'read_only'   => t('Readonly')
+            'volume_name' => $this->translate('Volume Name'),
+            'claim_name'  => $this->translate('Claim Name'),
+            'read_only'   => $this->translate('Readonly')
         ];
     }
 

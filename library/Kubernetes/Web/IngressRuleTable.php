@@ -7,16 +7,19 @@ namespace Icinga\Module\Kubernetes\Web;
 use ipl\Html\HtmlElement;
 use ipl\Html\Table;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 
 class IngressRuleTable extends Table
 {
-    protected $ingress;
+    use Translation;
 
     protected $backend;
 
-    protected $ruleColumnDefinitions;
-
     protected $backendColumnDefinitions;
+
+    protected $ingress;
+
+    protected $ruleColumnDefinitions;
 
     protected $tlsColumnDefinitions;
 
@@ -43,7 +46,7 @@ class IngressRuleTable extends Table
         $this->addWrapper(new HtmlElement(
             'section',
             null,
-            new HtmlElement('h2', null, new Text(t('Rules')))
+            new HtmlElement('h2', null, new Text($this->translate('Rules')))
         ));
 
         $header = new HtmlElement('tr');

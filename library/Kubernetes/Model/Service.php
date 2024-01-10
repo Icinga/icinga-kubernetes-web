@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class Service extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'service';
@@ -50,25 +53,25 @@ class Service extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace'                         => t('Namespace'),
-            'name'                              => t('Name'),
-            'uid'                               => t('UID'),
-            'resource_version'                  => t('Resource Version'),
-            'type'                              => t('Type'),
-            'cluster_ip'                        => t('Cluster IP'),
-            'cluster_ips'                       => t('Cluster IPs'),
-            'external_ips'                      => t('External IPs'),
-            'session_affinity'                  => t('Session Affinity'),
-            'external_name'                     => t('External Name'),
-            'external_traffic_policy'           => t('External Traffic Policy'),
-            'health_check_node_port'            => t('Health Check Node Port'),
-            'publish_not_ready_addresses'       => t('Publish Not Ready Addresses'),
-            'ip_families'                       => t('IP Families'),
-            'ip_family_policy'                  => t('IP Family Policy'),
-            'allocate_load_balancer_node_ports' => t('Allocated Load Balancer Node Ports'),
-            'load_balancer_class'               => t('Load Balancer Class'),
-            'internal_traffic_policy'           => t('Internal Traffic Policy'),
-            'created'                           => t('Created At')
+            'namespace'                         => $this->translate('Namespace'),
+            'name'                              => $this->translate('Name'),
+            'uid'                               => $this->translate('UID'),
+            'resource_version'                  => $this->translate('Resource Version'),
+            'type'                              => $this->translate('Type'),
+            'cluster_ip'                        => $this->translate('Cluster IP'),
+            'cluster_ips'                       => $this->translate('Cluster IPs'),
+            'external_ips'                      => $this->translate('External IPs'),
+            'session_affinity'                  => $this->translate('Session Affinity'),
+            'external_name'                     => $this->translate('External Name'),
+            'external_traffic_policy'           => $this->translate('External Traffic Policy'),
+            'health_check_node_port'            => $this->translate('Health Check Node Port'),
+            'publish_not_ready_addresses'       => $this->translate('Publish Not Ready Addresses'),
+            'ip_families'                       => $this->translate('IP Families'),
+            'ip_family_policy'                  => $this->translate('IP Family Policy'),
+            'allocate_load_balancer_node_ports' => $this->translate('Allocated Load Balancer Node Ports'),
+            'load_balancer_class'               => $this->translate('Load Balancer Class'),
+            'internal_traffic_policy'           => $this->translate('Internal Traffic Policy'),
+            'created'                           => $this->translate('Created At')
         ];
     }
 

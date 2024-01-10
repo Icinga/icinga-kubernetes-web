@@ -12,11 +12,14 @@ use Icinga\Module\Kubernetes\Model\PodCondition;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
 
 class PodDetail extends BaseHtmlElement
 {
+    use Translation;
+
     /** @var Pod */
     protected $pod;
 
@@ -31,11 +34,11 @@ class PodDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->pod, [
-                t('IP')             => $this->pod->ip,
-                t('Node')           => $this->pod->node_name,
-                t('QoS Class')      => ucfirst(Str::camel($this->pod->qos)),
-                t('Restart Policy') => ucfirst(Str::camel($this->pod->restart_policy)),
-                t('Phase')          => $this->pod->phase,
+                $this->translate('IP')             => $this->pod->ip,
+                $this->translate('Node')           => $this->pod->node_name,
+                $this->translate('QoS Class')      => ucfirst(Str::camel($this->pod->qos)),
+                $this->translate('Restart Policy') => ucfirst(Str::camel($this->pod->restart_policy)),
+                $this->translate('Phase')          => $this->pod->phase
             ])),
             new Labels($this->pod->label),
             new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class ContainerLog extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'container_log';
@@ -33,8 +36,8 @@ class ContainerLog extends Model
     public function getColumnDefinitions()
     {
         return [
-            'last_update' => t('Last Update'),
-            'logs'        => t('Logs')
+            'last_update' => $this->translate('Last Update'),
+            'logs'        => $this->translate('Logs')
         ];
     }
 

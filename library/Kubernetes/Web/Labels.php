@@ -7,10 +7,13 @@ namespace Icinga\Module\Kubernetes\Web;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 
 class Labels extends BaseHtmlElement
 {
+    use Translation;
+
     protected $labels;
 
     protected $tag = 'section';
@@ -24,7 +27,7 @@ class Labels extends BaseHtmlElement
 
     protected function assemble()
     {
-        $this->addHtml(new HtmlElement('h2', null, new Text(t('Labels'))));
+        $this->addHtml(new HtmlElement('h2', null, new Text($this->translate('Labels'))));
 
         foreach ($this->labels as $label) {
             $this->addHtml(new HorizontalKeyValue($label->name, $label->value));

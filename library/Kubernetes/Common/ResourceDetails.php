@@ -7,11 +7,14 @@ namespace Icinga\Module\Kubernetes\Common;
 use AppendIterator;
 use ArrayIterator;
 use Generator;
+use ipl\I18n\Translation;
 use IteratorAggregate;
 use Traversable;
 
 class ResourceDetails implements IteratorAggregate
 {
+    use Translation;
+
     protected $resource;
 
     /** @var ?iterable */
@@ -27,11 +30,11 @@ class ResourceDetails implements IteratorAggregate
     {
         $iterator = new AppendIterator();
         $iterator->append(new ArrayIterator([
-            t('Name')             => $this->resource->name,
-            t('Namespace')        => $this->resource->namespace,
-            t('UID')              => $this->resource->uid,
-            t('Resource Version') => $this->resource->resource_version,
-            t('Created')          => $this->resource->created->format('Y-m-d H:i:s')
+            $this->translate('Name')             => $this->resource->name,
+            $this->translate('Namespace')        => $this->resource->namespace,
+            $this->translate('UID')              => $this->resource->uid,
+            $this->translate('Resource Version') => $this->resource->resource_version,
+            $this->translate('Created')          => $this->resource->created->format('Y-m-d H:i:s')
         ]));
         if ($this->details !== null) {
             $iterator->append($this->yieldDetails());

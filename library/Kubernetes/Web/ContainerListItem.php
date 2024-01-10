@@ -16,6 +16,7 @@ use ipl\Html\Html;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -24,6 +25,8 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class ContainerListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item Container The associated list item */
     /** @var $list ContainerList The list where the item is part of */
 
@@ -43,7 +46,7 @@ class ContainerListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<container> is <container_state>'),
+            $this->translate('%s is %s', '<container> is <container_state>'),
             new Link($this->item->name, Links::container($this->item), ['class' => 'subject']),
             new HtmlElement('span', null, new Text($this->item->state))
         ));
@@ -67,13 +70,35 @@ class ContainerListItem extends BaseListItem
         $keyValue->addHtml(new HtmlElement(
             'div',
             null,
-            new HorizontalKeyValue(t('Started'), new Icon($this->item->started ? 'check' : 'xmark')),
-            new HorizontalKeyValue(t('Ready'), new Icon($this->item->ready ? 'check' : 'xmark'))
+            new HorizontalKeyValue($this->translate('Started'), new Icon($this->item->started ? 'check' : 'xmark')),
+            new HorizontalKeyValue($this->translate('Ready'), new Icon($this->item->ready ? 'check' : 'xmark'))
         ));
         $keyValue->addHtml($this->createStateDetails());
-        $keyValue->addHtml(new VerticalKeyValue(t('Image'), $this->item->image));
-        $keyValue->addHtml(new VerticalKeyValue(t('Restarts'), $this->item->restart_count));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Image'), $this->item->image));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Restarts'), $this->item->restart_count));
         $main->addHtml($keyValue);
+    }
+
+    protected function createStateDetails(): ValidHtml
+    {
+        $stateDetails = json_decode($this->item->state_details);
+
+        switch ($this->item->state) {
+            case Container::STATE_RUNNING:
+                return new VerticalKeyValue(
+                    $this->translate('Started At'),
+                    new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp())
+                );
+            case Container::STATE_TERMINATED:
+            case Container::STATE_WAITING:
+                return new HtmlElement(
+                    'div',
+                    null,
+                    new VerticalKeyValue($this->translate('Reason'), $stateDetails->reason)
+                );
+            default:
+                return new FormattedString('Unknown state %s', $this->item->state);
+        }
     }
 
     protected function getStateIcon(): string
@@ -87,28 +112,6 @@ class ContainerListItem extends BaseListItem
                 return Icons::CONTAINER_TERMINATED;
             default:
                 return Icons::BUG;
-        }
-    }
-
-    protected function createStateDetails(): ValidHtml
-    {
-        $stateDetails = json_decode($this->item->state_details);
-
-        switch ($this->item->state) {
-            case Container::STATE_RUNNING:
-                return new VerticalKeyValue(
-                    t('Started At'),
-                    new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp())
-                );
-            case Container::STATE_TERMINATED:
-            case Container::STATE_WAITING:
-                return new HtmlElement(
-                    'div',
-                    null,
-                    new VerticalKeyValue(t('Reason'), $stateDetails->reason)
-                );
-            default:
-                return new FormattedString('Unknown state %s', $this->item->state);
         }
     }
 }

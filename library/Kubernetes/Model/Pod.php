@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class Pod extends Model
 {
+    use Translation;
+
     public const PHASE_FAILED = 'failed';
 
     public const PHASE_PENDING = 'pending';
@@ -56,23 +59,23 @@ class Pod extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace'           => t('Namespace'),
-            'name'                => t('Name'),
-            'uid'                 => t('UID'),
-            'resource_version'    => t('Resource Version'),
-            'node_name'           => t('Node Name'),
-            'nominated_node_name' => t('Nominated Node Name'),
-            'ip'                  => t('IP'),
-            'phase'               => t('Phase'),
-            'restart_policy'      => t('Restart Policy'),
-            'cpu_limits'          => t('CPU Limits'),
-            'cpu_requests'        => t('CPU Requests'),
-            'memory_limits'       => t('Memory Limits'),
-            'memory_requests'     => t('Memory Requests'),
-            'reason'              => t('Phase Reason'),
-            'message'             => t('Phase Message'),
-            'qos'                 => t('Quality of Service'),
-            'created'             => t('Created At')
+            'namespace'           => $this->translate('Namespace'),
+            'name'                => $this->translate('Name'),
+            'uid'                 => $this->translate('UID'),
+            'resource_version'    => $this->translate('Resource Version'),
+            'node_name'           => $this->translate('Node Name'),
+            'nominated_node_name' => $this->translate('Nominated Node Name'),
+            'ip'                  => $this->translate('IP'),
+            'phase'               => $this->translate('Phase'),
+            'restart_policy'      => $this->translate('Restart Policy'),
+            'cpu_limits'          => $this->translate('CPU Limits'),
+            'cpu_requests'        => $this->translate('CPU Requests'),
+            'memory_limits'       => $this->translate('Memory Limits'),
+            'memory_requests'     => $this->translate('Memory Requests'),
+            'reason'              => $this->translate('Phase Reason'),
+            'message'             => $this->translate('Phase Message'),
+            'qos'                 => $this->translate('Quality of Service'),
+            'created'             => $this->translate('Created At')
         ];
     }
 

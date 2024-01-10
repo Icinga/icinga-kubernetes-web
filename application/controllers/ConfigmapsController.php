@@ -25,9 +25,9 @@ class ConfigmapsController extends ListController
     protected function getSortColumns(): array
     {
         return [
-            'config_map.created desc' => t('Created'),
-            'config_map.name'         => t('Name'),
-            'config_map.namespace'    => $this->translate('Namespace'),
+            'config_map.created desc' => $this->translate('Created'),
+            'config_map.name'         => $this->translate('Name'),
+            'config_map.namespace'    => $this->translate('Namespace')
         ];
     }
 

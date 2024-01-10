@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,6 +12,8 @@ use ipl\Orm\Relations;
 
 class ServicePort extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'service_port';
@@ -35,12 +38,12 @@ class ServicePort extends Model
     public function getColumnDefinitions()
     {
         return [
-            'name'         => t('Name'),
-            'protocol'     => t('Protocol'),
-            'app_protocol' => t('App Protocol'),
-            'port'         => t('Port'),
-            'target_port'  => t('Target Port'),
-            'node_port'    => t('Node Port')
+            'name'         => $this->translate('Name'),
+            'protocol'     => $this->translate('Protocol'),
+            'app_protocol' => $this->translate('App Protocol'),
+            'port'         => $this->translate('Port'),
+            'target_port'  => $this->translate('Target Port'),
+            'node_port'    => $this->translate('Node Port')
         ];
     }
 

@@ -6,9 +6,12 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use ipl\Html\BaseHtmlElement;
+use ipl\I18n\Translation;
 
 class NamespaceDetail extends BaseHtmlElement
 {
+    use Translation;
+
     /** @var NamespaceModel */
     protected $namespace;
 
@@ -23,11 +26,11 @@ class NamespaceDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details([
-                t('Name')             => $this->namespace->name,
-                t('UID')              => $this->namespace->uid,
-                t('Resource Version') => $this->namespace->resource_version,
-                t('Created')          => $this->namespace->created->format('Y-m-d H:i:s'),
-                t('Phase')            => $this->namespace->phase
+                $this->translate('Name')             => $this->namespace->name,
+                $this->translate('UID')              => $this->namespace->uid,
+                $this->translate('Resource Version') => $this->namespace->resource_version,
+                $this->translate('Created')          => $this->namespace->created->format('Y-m-d H:i:s'),
+                $this->translate('Phase')            => $this->namespace->phase
             ]),
             new Labels($this->namespace->label)
         );

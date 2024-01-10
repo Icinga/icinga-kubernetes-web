@@ -6,11 +6,14 @@ namespace Icinga\Module\Kubernetes\Common;
 
 use InvalidArgumentException;
 use ipl\Html\BaseHtmlElement;
+use ipl\I18n\Translation;
 use ipl\Stdlib\BaseFilter;
+use ipl\Web\Widget\EmptyState;
 
 abstract class BaseItemList extends BaseHtmlElement
 {
     use BaseFilter;
+    use Translation;
 
     protected $baseAttributes = [
         'class'                         => 'item-list',
@@ -68,7 +71,7 @@ abstract class BaseItemList extends BaseHtmlElement
 
         if ($this->isEmpty()) {
             $this->setTag('div');
-            $this->add(new EmptyState(t('No items found.')));
+            $this->add(new EmptyState($this->translate('No items to display.')));
         }
     }
 }

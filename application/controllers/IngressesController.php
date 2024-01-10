@@ -33,6 +33,6 @@ class IngressesController extends ListController
 
     protected function getTitle(): string
     {
-        return $this->translate('Ingress');
+        return $this->translate('Ingresses');
     }
 }

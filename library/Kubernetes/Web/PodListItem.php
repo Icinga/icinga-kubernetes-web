@@ -14,6 +14,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
@@ -25,6 +26,8 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class PodListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item Pod The associated list item */
     /** @var $list PodList The list where the item is part of */
 
@@ -48,7 +51,7 @@ class PodListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<pod> is <pod_phase>'),
+            $this->translate('%s is %s', '<pod> is <pod_phase>'),
             new Link($this->item->name, Links::pod($this->item), ['class' => 'subject']),
             new HtmlElement('span', null, new Text($this->item->phase))
         ));
@@ -56,8 +59,9 @@ class PodListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -65,8 +69,8 @@ class PodListItem extends BaseListItem
         $main->addHtml($this->createHeader());
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->addHtml(new VerticalKeyValue(t('IP'), $this->item->ip));
-        $keyValue->addHtml(new VerticalKeyValue(t('QoS'), ucfirst(Str::camel($this->item->qos))));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('IP'), $this->item->ip));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('QoS'), ucfirst(Str::camel($this->item->qos))));
         $containerRestarts = 0;
         $containers = new HtmlElement('span');
         /** @var Container $container */
@@ -90,13 +94,13 @@ class PodListItem extends BaseListItem
             $containerRestarts += $container->restart_count;
             $containers->addHtml(new StateBall($state, StateBall::SIZE_MEDIUM));
         }
-        $keyValue->addHtml(new VerticalKeyValue(t('Containers'), $containers));
-        $keyValue->addHtml(new VerticalKeyValue(t('Restarts'), $containerRestarts));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Containers'), $containers));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Restarts'), $containerRestarts));
         $keyValue->addHtml(new HtmlElement(
             'div',
             null,
-            new HorizontalKeyValue(t('Namespace'), $this->item->namespace),
-            new HorizontalKeyValue(t('Node'), $this->item->node_name)
+            new HorizontalKeyValue($this->translate('Namespace'), $this->item->namespace),
+            new HorizontalKeyValue($this->translate('Node'), $this->item->node_name)
         ));
         $main->addHtml($keyValue);
     }

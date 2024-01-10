@@ -14,12 +14,15 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\VerticalKeyValue;
 
 class NodeListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item Node The associated list item */
     /** @var $list NodeList The list where the item is part of */
 
@@ -34,9 +37,13 @@ class NodeListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<node> is <ready>'),
+            $this->translate('%s is %s', '<node> is <ready>'),
             new Link($this->item->name, Links::node($this->item), ['class' => 'subject']),
-            new HtmlElement('span', null, new Text($this->item->ready ? t('ready') : t('not ready')))
+            new HtmlElement(
+                'span',
+                null,
+                new Text($this->item->ready ? $this->translate('ready') : $this->translate('not ready'))
+            )
         ));
     }
 
@@ -50,15 +57,15 @@ class NodeListItem extends BaseListItem
         $main->addHtml($this->createHeader());
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->addHtml(new VerticalKeyValue(t('CIDR'), $this->item->pod_cidr));
-        $keyValue->addHtml(new VerticalKeyValue(t('Pod Capacity'), $this->item->pod_capacity));
-        $keyValue->addHtml(new VerticalKeyValue(t('IPs Available'), $this->item->num_ips));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('CIDR'), $this->item->pod_cidr));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Pod Capacity'), $this->item->pod_capacity));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('IPs Available'), $this->item->num_ips));
         $keyValue->addHtml(new VerticalKeyValue(
-            t('CPU Capacity'),
+            $this->translate('CPU Capacity'),
             sprintf('%d cores', $this->item->cpu_allocatable / 1000)
         ));
         $keyValue->addHtml(new VerticalKeyValue(
-            t('Memory Capacity'),
+            $this->translate('Memory Capacity'),
             Format::bytes($this->item->memory_allocatable / 1000)
         ));
         $main->addHtml($keyValue);

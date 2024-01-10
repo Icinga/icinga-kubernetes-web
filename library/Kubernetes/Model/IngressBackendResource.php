@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,6 +12,8 @@ use ipl\Orm\Relations;
 
 class IngressBackendResource extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'ingress_backend_resource';
@@ -27,16 +30,16 @@ class IngressBackendResource extends Model
             'ingress_rule_id',
             'api_group',
             'kind',
-            'name',
+            'name'
         ];
     }
 
     public function getColumnDefinitions()
     {
         return [
-            'api_group' => t('API Group'),
-            'kind'      => t('Kind'),
-            'name'      => t('Name')
+            'api_group' => $this->translate('API Group'),
+            'kind'      => $this->translate('Kind'),
+            'name'      => $this->translate('Name')
         ];
     }
 

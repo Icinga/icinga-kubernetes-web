@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class DaemonSet extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'daemon_set';
@@ -45,20 +48,20 @@ class DaemonSet extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace'                => t('Namespace'),
-            'name'                     => t('Name'),
-            'uid'                      => t('UID'),
-            'resource_version'         => t('Resource Version'),
-            'update_strategy'          => t('Update Strategy'),
-            'min_ready_seconds'        => t('Min Ready Seconds'),
-            'desired_number_scheduled' => t('Desired Number Scheduled'),
-            'current_number_scheduled' => t('Current Number Scheduled'),
-            'number_misscheduled'      => t('Number Misscheduled'),
-            'number_ready'             => t('Number Ready'),
-            'update_number_scheduled'  => t('Update Number Scheduled'),
-            'number_available'         => t('Number Available'),
-            'number_unavailable'       => t('Number Unavailable'),
-            'created'                  => t('Created At')
+            'namespace'                => $this->translate('Namespace'),
+            'name'                     => $this->translate('Name'),
+            'uid'                      => $this->translate('UID'),
+            'resource_version'         => $this->translate('Resource Version'),
+            'update_strategy'          => $this->translate('Update Strategy'),
+            'min_ready_seconds'        => $this->translate('Min Ready Seconds'),
+            'desired_number_scheduled' => $this->translate('Desired Number Scheduled'),
+            'current_number_scheduled' => $this->translate('Current Number Scheduled'),
+            'number_misscheduled'      => $this->translate('Number Misscheduled'),
+            'number_ready'             => $this->translate('Number Ready'),
+            'update_number_scheduled'  => $this->translate('Update Number Scheduled'),
+            'number_available'         => $this->translate('Number Available'),
+            'number_unavailable'       => $this->translate('Number Unavailable'),
+            'created'                  => $this->translate('Created At')
         ];
     }
 

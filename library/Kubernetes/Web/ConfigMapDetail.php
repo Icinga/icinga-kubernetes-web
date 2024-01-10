@@ -7,10 +7,13 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\ConfigMap;
 use ipl\Html\BaseHtmlElement;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\Icon;
 
 class ConfigMapDetail extends BaseHtmlElement
 {
+    use Translation;
+
     /** @var ConfigMap */
     protected $configMap;
 
@@ -27,7 +30,7 @@ class ConfigMapDetail extends BaseHtmlElement
             new Details(new ResourceDetails(
                 $this->configMap,
                 [
-                    t('Immutable') => new Icon($this->configMap->immutable ? 'check' : 'xmark')
+                    $this->translate('Immutable') => new Icon($this->configMap->immutable ? 'check' : 'xmark')
                 ]
             )),
             new Labels($this->configMap->label),

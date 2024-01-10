@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
@@ -13,6 +14,8 @@ use ipl\Orm\Relations;
 
 class Container extends Model
 {
+    use Translation;
+
     public const STATE_WAITING = 'waiting';
 
     public const STATE_RUNNING = 'running';
@@ -50,16 +53,16 @@ class Container extends Model
     public function getColumnDefinitions()
     {
         return [
-            'name'            => t('Name'),
-            'image'           => t('Image'),
-            'cpu_limits'      => t('CPU Limits'),
-            'cpu_requests'    => t('CPU Requests'),
-            'memory_limits'   => t('Memory Limits'),
-            'memory_requests' => t('Memory Requests'),
-            'state'           => t('State'),
-            'ready'           => t('Ready'),
-            'started'         => t('Started At'),
-            'restart_count'   => t('Restart Count')
+            'name'            => $this->translate('Name'),
+            'image'           => $this->translate('Image'),
+            'cpu_limits'      => $this->translate('CPU Limits'),
+            'cpu_requests'    => $this->translate('CPU Requests'),
+            'memory_limits'   => $this->translate('Memory Limits'),
+            'memory_requests' => $this->translate('Memory Requests'),
+            'state'           => $this->translate('State'),
+            'ready'           => $this->translate('Ready'),
+            'started'         => $this->translate('Started At'),
+            'restart_count'   => $this->translate('Restart Count')
         ];
     }
 

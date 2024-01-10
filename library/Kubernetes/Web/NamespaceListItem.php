@@ -12,12 +12,15 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 
 class NamespaceListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item NamespaceModel The associated list item */
     /** @var $list NamespaceList The list where the item is part of */
 
@@ -29,7 +32,7 @@ class NamespaceListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<namespace> is <namespace_phase>'),
+            $this->translate('%s is %s', '<namespace> is <namespace_phase>'),
             new Link($this->item->name, Links::namespace($this->item), ['class' => 'subject']),
             new HtmlElement('span', null, new Text($this->item->phase))
         ));
@@ -37,8 +40,9 @@ class NamespaceListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void

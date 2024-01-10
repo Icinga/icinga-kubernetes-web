@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class Deployment extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'deployment';
@@ -39,28 +42,28 @@ class Deployment extends Model
             'ready_replicas',
             'available_replicas',
             'unavailable_replicas',
-            'created',
+            'created'
         ];
     }
 
     public function getColumnDefinitions()
     {
         return [
-            'namespace'                 => t('Namespace'),
-            'name'                      => t('Name'),
-            'uid'                       => t('UID'),
-            'resource_version'          => t('Resource Version'),
-            'desired_replicas'          => t('Desired Replicas'),
-            'strategy'                  => t('Strategy'),
-            'min_ready_seconds'         => t('Min Ready Seconds'),
-            'progress_deadline_seconds' => t('Progress Deadline Seconds'),
-            'paused'                    => t('Paused'),
-            'actual_replicas'           => t('Actual Replicas'),
-            'updated_replicas'          => t('Updated Replicas'),
-            'ready_replicas'            => t('Ready Replicas'),
-            'available_replicas'        => t('Available Replicas'),
-            'unavailable_replicas'      => t('Unavailable Replicas'),
-            'created'                   => t('Created At')
+            'namespace'                 => $this->translate('Namespace'),
+            'name'                      => $this->translate('Name'),
+            'uid'                       => $this->translate('UID'),
+            'resource_version'          => $this->translate('Resource Version'),
+            'desired_replicas'          => $this->translate('Desired Replicas'),
+            'strategy'                  => $this->translate('Strategy'),
+            'min_ready_seconds'         => $this->translate('Min Ready Seconds'),
+            'progress_deadline_seconds' => $this->translate('Progress Deadline Seconds'),
+            'paused'                    => $this->translate('Paused'),
+            'actual_replicas'           => $this->translate('Actual Replicas'),
+            'updated_replicas'          => $this->translate('Updated Replicas'),
+            'ready_replicas'            => $this->translate('Ready Replicas'),
+            'available_replicas'        => $this->translate('Available Replicas'),
+            'unavailable_replicas'      => $this->translate('Unavailable Replicas'),
+            'created'                   => $this->translate('Created At')
         ];
     }
 

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class CronJob extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'cron_job';
@@ -46,21 +49,21 @@ class CronJob extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace'                     => t('Namespace'),
-            'name'                          => t('Name'),
-            'uid'                           => t('UID'),
-            'resource_version'              => t('Resource Version'),
-            'schedule'                      => t('Schedule'),
-            'timezone'                      => t('Timezone'),
-            'starting_deadline_seconds'     => t('Starting Deadline Seconds'),
-            'concurrency_policy'            => t('Concurrency Policy'),
-            'suspend'                       => t('Suspend'),
-            'successful_jobs_history_limit' => t('Successful Jobs History Limit'),
-            'failed_jobs_history_limit'     => t('Failed Jobs History Limit'),
-            'active'                        => t('Active'),
-            'last_schedule_time'            => t('Last Schedule Time'),
-            'last_successful_time'          => t('Last Successful Time'),
-            'created'                       => t('Created At')
+            'namespace'                     => $this->translate('Namespace'),
+            'name'                          => $this->translate('Name'),
+            'uid'                           => $this->translate('UID'),
+            'resource_version'              => $this->translate('Resource Version'),
+            'schedule'                      => $this->translate('Schedule'),
+            'timezone'                      => $this->translate('Timezone'),
+            'starting_deadline_seconds'     => $this->translate('Starting Deadline Seconds'),
+            'concurrency_policy'            => $this->translate('Concurrency Policy'),
+            'suspend'                       => $this->translate('Suspend'),
+            'successful_jobs_history_limit' => $this->translate('Successful Jobs History Limit'),
+            'failed_jobs_history_limit'     => $this->translate('Failed Jobs History Limit'),
+            'active'                        => $this->translate('Active'),
+            'last_schedule_time'            => $this->translate('Last Schedule Time'),
+            'last_successful_time'          => $this->translate('Last Successful Time'),
+            'created'                       => $this->translate('Created At')
         ];
     }
 

@@ -7,6 +7,7 @@ namespace Icinga\Module\Kubernetes\Common;
 abstract class Health
 {
     public const DEGRADED = 'degraded';
+
     public const HEALTHY = 'healthy';
 
     public const UNDECIDABLE = 'undecidable';

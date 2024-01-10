@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class StatefulSet extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'stateful_set';
@@ -40,29 +43,29 @@ class StatefulSet extends Model
             'current_replicas',
             'updated_replicas',
             'available_replicas',
-            'created',
+            'created'
         ];
     }
 
     public function getColumnDefinitions()
     {
         return [
-            'namespace'             => t('Namespace'),
-            'name'                  => t('Name'),
-            'uid'                   => t('UID'),
-            'resource_version'      => t('Resource Version'),
-            'service_name'          => t('Service Name'),
-            'pod_management_policy' => t('Pod Management Policy'),
-            'update_strategy'       => t('Update Strategy'),
-            'min_ready_seconds'     => t('Min Ready Seconds'),
-            'ordinals'              => t('Ordinals'),
-            'desired_replicas'      => t('Desired Replicas'),
-            'actual_replicas'       => t('Actual Replicas'),
-            'ready_replicas'        => t('Ready Replicas'),
-            'current_replicas'      => t('Current Replicas'),
-            'updated_replicas'      => t('Updated Replicas'),
-            'available_replicas'    => t('Available Replicas'),
-            'created'               => t('Created At')
+            'namespace'             => $this->translate('Namespace'),
+            'name'                  => $this->translate('Name'),
+            'uid'                   => $this->translate('UID'),
+            'resource_version'      => $this->translate('Resource Version'),
+            'service_name'          => $this->translate('Service Name'),
+            'pod_management_policy' => $this->translate('Pod Management Policy'),
+            'update_strategy'       => $this->translate('Update Strategy'),
+            'min_ready_seconds'     => $this->translate('Min Ready Seconds'),
+            'ordinals'              => $this->translate('Ordinals'),
+            'desired_replicas'      => $this->translate('Desired Replicas'),
+            'actual_replicas'       => $this->translate('Actual Replicas'),
+            'ready_replicas'        => $this->translate('Ready Replicas'),
+            'current_replicas'      => $this->translate('Current Replicas'),
+            'updated_replicas'      => $this->translate('Updated Replicas'),
+            'available_replicas'    => $this->translate('Available Replicas'),
+            'created'               => $this->translate('Created At')
         ];
     }
 

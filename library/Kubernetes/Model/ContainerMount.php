@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,6 +12,8 @@ use ipl\Orm\Relations;
 
 class ContainerMount extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'container_mount';
@@ -34,10 +37,10 @@ class ContainerMount extends Model
     public function getColumnDefinitions()
     {
         return [
-            'volume_name' => t('Volume Name'),
-            'path'        => t('Mount Path'),
-            'sub_path'    => t('Sub Path'),
-            'read_only'   => t('Read Only')
+            'volume_name' => $this->translate('Volume Name'),
+            'path'        => $this->translate('Mount Path'),
+            'sub_path'    => $this->translate('Sub Path'),
+            'read_only'   => $this->translate('Read Only')
         ];
     }
 

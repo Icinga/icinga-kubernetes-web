@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,6 +12,8 @@ use ipl\Orm\Relations;
 
 class IngressTls extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'ingress_tls';
@@ -32,8 +35,8 @@ class IngressTls extends Model
     public function getColumnDefinitions()
     {
         return [
-            'tls_host'   => t('TLS Host'),
-            'tls_secret' => t('TLS Secret')
+            'tls_host'   => $this->translate('TLS Host'),
+            'tls_secret' => $this->translate('TLS Secret')
         ];
     }
 

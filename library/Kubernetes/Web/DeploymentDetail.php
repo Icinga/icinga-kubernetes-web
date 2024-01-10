@@ -10,18 +10,21 @@ use Icinga\Module\Kubernetes\Model\DeploymentCondition;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 
 class DeploymentDetail extends BaseHtmlElement
 {
+    use Translation;
+
+    /** @var Deployment */
+    protected $deployment;
+
     protected $defaultAttributes = [
-        'class' => 'deployment-detail',
+        'class' => 'deployment-detail'
     ];
 
     protected $tag = 'div';
-
-    /** @var Deployment */
-    private $deployment;
 
     public function __construct(Deployment $deployment)
     {
@@ -32,21 +35,21 @@ class DeploymentDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->deployment, [
-                t('Strategy')             => ucfirst(Str::camel($this->deployment->strategy)),
-                t('Min Ready Seconds')    => $this->deployment->min_ready_seconds,
-                t('Desired Replicas')     => $this->deployment->desired_replicas,
-                t('Actual Replicas')      => $this->deployment->actual_replicas,
-                t('Updated Replicas')     => $this->deployment->updated_replicas,
-                t('Ready Replicas')       => $this->deployment->ready_replicas,
-                t('Available Replicas')   => $this->deployment->available_replicas,
-                t('Unavailable Replicas') => $this->deployment->unavailable_replicas
+                $this->translate('Strategy')             => ucfirst(Str::camel($this->deployment->strategy)),
+                $this->translate('Min Ready Seconds')    => $this->deployment->min_ready_seconds,
+                $this->translate('Desired Replicas')     => $this->deployment->desired_replicas,
+                $this->translate('Actual Replicas')      => $this->deployment->actual_replicas,
+                $this->translate('Updated Replicas')     => $this->deployment->updated_replicas,
+                $this->translate('Ready Replicas')       => $this->deployment->ready_replicas,
+                $this->translate('Available Replicas')   => $this->deployment->available_replicas,
+                $this->translate('Unavailable Replicas') => $this->deployment->unavailable_replicas
             ])),
             new Labels($this->deployment->label),
             new ConditionTable($this->deployment, (new DeploymentCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',
                 null,
-                new HtmlElement('h2', null, new Text(t('Replica Sets'))),
+                new HtmlElement('h2', null, new Text($this->translate('Replica Sets'))),
                 new ReplicaSetList($this->deployment->replica_set)
             )
         );

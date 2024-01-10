@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
@@ -13,6 +14,8 @@ use ipl\Orm\Relations;
 
 class Node extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'node';
@@ -46,20 +49,20 @@ class Node extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace'          => t('Namespace'),
-            'name'               => t('Name'),
-            'uid'                => t('UID'),
-            'resource_version'   => t('Resource Version'),
-            'pod_cidr'           => t('Pod CIDR'),
-            'num_ips'            => t('Num IPs'),
-            'unschedulable'      => t('Unschedulable'),
-            'ready'              => t('Ready'),
-            'cpu_capacity'       => t('CPU Capacity'),
-            'cpu_allocatable'    => t('CPU Allocatable'),
-            'memory_capacity'    => t('Memory Capacity'),
-            'memory_allocatable' => t('Memory Allocatable'),
-            'pod_capacity'       => t('Pod Capacity'),
-            'created'            => t('Created At')
+            'namespace'          => $this->translate('Namespace'),
+            'name'               => $this->translate('Name'),
+            'uid'                => $this->translate('UID'),
+            'resource_version'   => $this->translate('Resource Version'),
+            'pod_cidr'           => $this->translate('Pod CIDR'),
+            'num_ips'            => $this->translate('Num IPs'),
+            'unschedulable'      => $this->translate('Unschedulable'),
+            'ready'              => $this->translate('Ready'),
+            'cpu_capacity'       => $this->translate('CPU Capacity'),
+            'cpu_allocatable'    => $this->translate('CPU Allocatable'),
+            'memory_capacity'    => $this->translate('Memory Capacity'),
+            'memory_allocatable' => $this->translate('Memory Allocatable'),
+            'pod_capacity'       => $this->translate('Pod Capacity'),
+            'created'            => $this->translate('Created At')
         ];
     }
 

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,6 +12,8 @@ use ipl\Orm\Relations;
 
 class Endpoint extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'endpoint';
@@ -40,16 +43,16 @@ class Endpoint extends Model
     public function getColumnDefinitions()
     {
         return [
-            'host_name'    => t('Host Name'),
-            'node_name'    => t('Node Name'),
-            'ready'        => t('Ready'),
-            'serving'      => t('Serving'),
-            'terminating'  => t('Terminating'),
-            'address'      => t('Address'),
-            'protocol'     => t('Protocol'),
-            'port'         => t('Port'),
-            'port_name'    => t('Port Name'),
-            'app_protocol' => t('App Protocol')
+            'host_name'    => $this->translate('Host Name'),
+            'node_name'    => $this->translate('Node Name'),
+            'ready'        => $this->translate('Ready'),
+            'serving'      => $this->translate('Serving'),
+            'terminating'  => $this->translate('Terminating'),
+            'address'      => $this->translate('Address'),
+            'protocol'     => $this->translate('Protocol'),
+            'port'         => $this->translate('Port'),
+            'port_name'    => $this->translate('Port Name'),
+            'app_protocol' => $this->translate('App Protocol')
         ];
     }
 

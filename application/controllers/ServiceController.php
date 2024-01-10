@@ -14,7 +14,7 @@ class ServiceController extends Controller
 {
     public function indexAction(): void
     {
-        $this->addTitleTab($this->translate('Secret'));
+        $this->addTitleTab($this->translate('Service'));
 
         /** @var Service $service */
         $service = Service::on(Database::connection())

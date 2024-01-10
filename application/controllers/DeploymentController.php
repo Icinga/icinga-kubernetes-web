@@ -18,7 +18,7 @@ class DeploymentController extends Controller
 
         /** @var Deployment $deployment */
         $deployment = Deployment::on(Database::connection())
-            ->filter(Filter::equal('deployment.id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
 
         if ($deployment === null) {

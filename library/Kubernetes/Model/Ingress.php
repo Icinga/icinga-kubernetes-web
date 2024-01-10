@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class Ingress extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'ingress';
@@ -36,11 +39,11 @@ class Ingress extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace'        => t('Namespace'),
-            'name'             => t('Name'),
-            'uid'              => t('UID'),
-            'resource_version' => t('Resource Version'),
-            'created'          => t('Created At')
+            'namespace'        => $this->translate('Namespace'),
+            'name'             => $this->translate('Name'),
+            'uid'              => $this->translate('UID'),
+            'resource_version' => $this->translate('Resource Version'),
+            'created'          => $this->translate('Created At')
         ];
     }
 

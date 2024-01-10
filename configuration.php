@@ -7,7 +7,7 @@
 $section = $this->menuSection(
     'Kubernetes',
     [
-        'icon' => 'globe',
+        'icon' => 'globe'
     ]
 );
 

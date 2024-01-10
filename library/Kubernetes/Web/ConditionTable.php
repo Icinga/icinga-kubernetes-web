@@ -9,17 +9,20 @@ use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\Table;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\TimeAgo;
 
 class ConditionTable extends Table
 {
-    protected $defaultAttributes = [
-        'class' => 'condition-table collapsible'
-    ];
+    use Translation;
 
     protected $columnDefinitions;
 
     protected $resource;
+
+    protected $defaultAttributes = [
+        'class' => 'condition-table collapsible'
+    ];
 
     public function __construct($resource, array $columnDefinitions)
     {
@@ -65,7 +68,7 @@ class ConditionTable extends Table
         $this->addWrapper(new HtmlElement(
             'section',
             new Attributes(['class' => 'conditions']),
-            new HtmlElement('h2', null, new Text(t('Conditions')))
+            new HtmlElement('h2', null, new Text($this->translate('Conditions')))
         ));
     }
 }

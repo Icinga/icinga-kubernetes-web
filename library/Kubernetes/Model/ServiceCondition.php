@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class ServiceCondition extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'service_condition';
@@ -36,12 +39,12 @@ class ServiceCondition extends Model
     public function getColumnDefinitions()
     {
         return [
-            'type'                => t('Type'),
-            'status'              => t('Status'),
-            'observed_generation' => t('Observed Generation'),
-            'last_transition'     => t('Last Transition'),
-            'reason'              => t('Reason'),
-            'message'             => t('Message')
+            'type'                => $this->translate('Type'),
+            'status'              => $this->translate('Status'),
+            'observed_generation' => $this->translate('Observed Generation'),
+            'last_transition'     => $this->translate('Last Transition'),
+            'reason'              => $this->translate('Reason'),
+            'message'             => $this->translate('Message')
         ];
     }
 

@@ -7,9 +7,12 @@ namespace Icinga\Module\Kubernetes\Web;
 use ipl\Html\HtmlElement;
 use ipl\Html\Table;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 
 class EndpointTable extends Table
 {
+    use Translation;
+
     protected $columnDefinitions;
 
     protected $resource;
@@ -30,7 +33,7 @@ class EndpointTable extends Table
             new HtmlElement(
                 'section',
                 null,
-                new HtmlElement('h2', null, new Text(t('Endpoints')))
+                new HtmlElement('h2', null, new Text($this->translate('Endpoints')))
             )
         );
 

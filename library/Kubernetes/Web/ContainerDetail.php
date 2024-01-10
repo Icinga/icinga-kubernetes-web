@@ -11,6 +11,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormattedString;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
@@ -18,6 +19,8 @@ use ipl\Web\Widget\TimeAgo;
 
 class ContainerDetail extends BaseHtmlElement
 {
+    use Translation;
+
     /** @var Container */
     protected $container;
 
@@ -31,25 +34,25 @@ class ContainerDetail extends BaseHtmlElement
     protected function assemble()
     {
         $this->addHtml(new Details([
-            t('Name')          => $this->container->name,
-            t('Image')         => $this->container->image,
-            t('Started')       => new Icon($this->container->started ? 'check' : 'xmark'),
-            t('Ready')         => new Icon($this->container->ready ? 'check' : 'xmark'),
-            t('Restart Count') => $this->container->restart_count
+            $this->translate('Name')          => $this->container->name,
+            $this->translate('Image')         => $this->container->image,
+            $this->translate('Started')       => new Icon($this->container->started ? 'check' : 'xmark'),
+            $this->translate('Ready')         => new Icon($this->container->ready ? 'check' : 'xmark'),
+            $this->translate('Restart Count') => $this->container->restart_count
         ]));
 
         $state = new HtmlElement(
             'section',
-            null,
-            new HtmlElement('h2', null, new Text(t('State'))),
-            new HorizontalKeyValue(t('State'), ucfirst(Str::camel($this->container->state)))
+            new Attributes(['class' => 'state']),
+            new HtmlElement('h2', null, new Text($this->translate('State'))),
+            new HorizontalKeyValue($this->translate('State'), ucfirst(Str::camel($this->container->state)))
         );
         $stateDetails = json_decode($this->container->state_details);
         switch ($this->container->state) {
             case Container::STATE_RUNNING:
                 $state->addHtml(
                     new HorizontalKeyValue(
-                        t('Started At'),
+                        $this->translate('Started At'),
                         new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp())
                     )
                 );
@@ -71,7 +74,7 @@ class ContainerDetail extends BaseHtmlElement
         $this->addHtml(new HtmlElement(
             'section',
             new Attributes(['class' => 'logs']),
-            new HtmlElement('h2', null, new Text(t('Logs'))),
+            new HtmlElement('h2', null, new Text($this->translate('Logs'))),
             new HtmlElement('p', null, new Text($this->container->log->logs))
         ));
     }

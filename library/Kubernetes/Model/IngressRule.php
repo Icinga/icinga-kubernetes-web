@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -11,6 +12,8 @@ use ipl\Orm\Relations;
 
 class IngressRule extends Model
 {
+    use Translation;
+
     public function getTableName()
     {
         return 'ingress_rule';
@@ -27,16 +30,16 @@ class IngressRule extends Model
             'ingress_id',
             'host',
             'path',
-            'path_type',
+            'path_type'
         ];
     }
 
     public function getColumnDefinitions()
     {
         return [
-            'host'      => t('Host'),
-            'path'      => t('Path'),
-            'path_type' => t('Path Type'),
+            'host'      => $this->translate('Host'),
+            'path'      => $this->translate('Path'),
+            'path_type' => $this->translate('Path Type')
         ];
     }
 

@@ -12,10 +12,13 @@ use Icinga\Module\Kubernetes\Model\replicaSetCondition;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 
 class ReplicaSetDetail extends BaseHtmlElement
 {
+    use Translation;
+
     /** @var ReplicaSet */
     protected $replicaSet;
 
@@ -30,25 +33,25 @@ class ReplicaSetDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->replicaSet, [
-                t('Min Ready Seconds')      => $this->replicaSet->min_ready_seconds,
-                t('Desired Replicas')       => $this->replicaSet->desired_replicas,
-                t('Actual Replicas')        => $this->replicaSet->actual_replicas,
-                t('Fully Labeled Replicas') => $this->replicaSet->fully_labeled_replicas,
-                t('Ready Replicas')         => $this->replicaSet->ready_replicas,
-                t('Available Replicas')     => $this->replicaSet->available_replicas,
+                $this->translate('Min Ready Seconds')      => $this->replicaSet->min_ready_seconds,
+                $this->translate('Desired Replicas')       => $this->replicaSet->desired_replicas,
+                $this->translate('Actual Replicas')        => $this->replicaSet->actual_replicas,
+                $this->translate('Fully Labeled Replicas') => $this->replicaSet->fully_labeled_replicas,
+                $this->translate('Ready Replicas')         => $this->replicaSet->ready_replicas,
+                $this->translate('Available Replicas')     => $this->replicaSet->available_replicas
             ])),
             new Labels($this->replicaSet->label),
             new ConditionTable($this->replicaSet, (new ReplicaSetCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',
                 null,
-                new HtmlElement('h2', null, new Text(t('Pods'))),
+                new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 new PodList($this->replicaSet->pod->with(['node']))
             ),
             new HtmlElement(
                 'section',
                 null,
-                new HtmlElement('h2', null, new Text(t('Events'))),
+                new HtmlElement('h2', null, new Text($this->translate('Events'))),
                 new EventList(Event::on(Database::connection())
                     ->filter(Filter::all(
                         Filter::equal('reference_kind', 'ReplicaSet'),

@@ -15,6 +15,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -23,6 +24,8 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class PersistentVolumeListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item PersistentVolume The associated list item */
     /** @var $list PersistentVolumeList The list where the item is part of */
 
@@ -34,7 +37,7 @@ class PersistentVolumeListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<persistent_volume> is <persistent_volume_phase>'),
+            $this->translate('%s is %s', '<persistent_volume> is <persistent_volume_phase>'),
             new Link($this->item->name, Links::persistentVolume($this->item), ['class' => 'subject']),
             new HtmlElement('span', null, new Text($this->item->phase))
         ));
@@ -42,8 +45,9 @@ class PersistentVolumeListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -52,13 +56,19 @@ class PersistentVolumeListItem extends BaseListItem
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         $keyValue->addHtml(new VerticalKeyValue(
-            t('Storage Class Name'),
+            $this->translate('Storage Class Name'),
             ucfirst(Str::camel($this->item->storage_class))
         ));
-        $keyValue->addHtml(new VerticalKeyValue(t('Volume Mode'), ucfirst(Str::camel($this->item->getVolumeMode()))));
-        $keyValue->addHtml(new VerticalKeyValue(t('Capacity'), Format::bytes($this->item->capacity / 1000)));
         $keyValue->addHtml(new VerticalKeyValue(
-            t('Access Mode'),
+            $this->translate('Volume Mode'),
+            ucfirst(Str::camel($this->item->getVolumeMode()))
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Capacity'),
+            Format::bytes($this->item->capacity / 1000)
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Access Mode'),
             implode(', ', AccessModes::asNames((int) $this->item->access_modes))
         ));
         $main->addHtml($keyValue);

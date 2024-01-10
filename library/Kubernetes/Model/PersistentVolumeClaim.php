@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -12,6 +13,8 @@ use ipl\Orm\Relations;
 
 class PersistentVolumeClaim extends Model
 {
+    use Translation;
+
     public const PHASE_BOUND = 'bound';
 
     public const PHASE_LOST = 'failed';
@@ -57,19 +60,19 @@ class PersistentVolumeClaim extends Model
     public function getColumnDefinitions()
     {
         return [
-            'namespace'            => t('Namespace'),
-            'name'                 => t('Name'),
-            'uid'                  => t('UID'),
-            'resource_version'     => t('Resource Version'),
-            'desired_access_modes' => t('Desired Access Modes'),
-            'actual_access_modes'  => t('Actual Access Modes'),
-            'minimum_capacity'     => t('Minimum Capacity'),
-            'actual_capacity'      => t('Actual Capacity'),
-            'phase'                => t('Phase'),
-            'volume_name'          => t('Volume Name'),
-            'volume_mode'          => t('Volume Mode'),
-            'storage_class'        => t('Storage Class'),
-            'created'              => t('Created At')
+            'namespace'            => $this->translate('Namespace'),
+            'name'                 => $this->translate('Name'),
+            'uid'                  => $this->translate('UID'),
+            'resource_version'     => $this->translate('Resource Version'),
+            'desired_access_modes' => $this->translate('Desired Access Modes'),
+            'actual_access_modes'  => $this->translate('Actual Access Modes'),
+            'minimum_capacity'     => $this->translate('Minimum Capacity'),
+            'actual_capacity'      => $this->translate('Actual Capacity'),
+            'phase'                => $this->translate('Phase'),
+            'volume_name'          => $this->translate('Volume Name'),
+            'volume_mode'          => $this->translate('Volume Mode'),
+            'storage_class'        => $this->translate('Storage Class'),
+            'created'              => $this->translate('Created At')
         ];
     }
 

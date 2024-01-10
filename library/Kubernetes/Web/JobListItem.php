@@ -12,6 +12,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
@@ -20,6 +21,8 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class JobListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item Job The associated list item */
     /** @var $list JobList The list where the item is part of */
 
@@ -32,7 +35,7 @@ class JobListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            t('%s is %s', '<job> is <health>'),
+            $this->translate('%s is %s', '<job> is <health>'),
             new Link($this->item->name, Links::job($this->item), ['class' => 'subject']),
             Html::tag('span', null, $this->getHealth())
         ));
@@ -40,8 +43,9 @@ class JobListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -69,7 +73,7 @@ class JobListItem extends BaseListItem
         $main->addHtml($keyValue);
     }
 
-    private function getHealth(): string
+    protected function getHealth(): string
     {
         foreach ($this->item->condition as $jobCondition) {
             if ($jobCondition->type === "complete" && $jobCondition->status === "true") {

@@ -34,8 +34,9 @@ class EventListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->last_seen->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->last_seen->getTimestamp()));
     }
 
     protected function assembleCaption(BaseHtmlElement $caption)

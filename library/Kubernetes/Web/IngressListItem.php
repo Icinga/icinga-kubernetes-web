@@ -10,12 +10,15 @@ use Icinga\Module\Kubernetes\Model\Ingress;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
+use ipl\I18n\Translation;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 use ipl\Web\Widget\VerticalKeyValue;
 
 class IngressListItem extends BaseListItem
 {
+    use Translation;
+
     /** @var $item Ingress The associated list item */
     /** @var $list IngressList The list where the item is part of */
 
@@ -26,8 +29,9 @@ class IngressListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -37,9 +41,9 @@ class IngressListItem extends BaseListItem
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         foreach ($this->item->ingress_rule as $rule) {
-            $keyValue->addHtml(new VerticalKeyValue(t('Host'), $rule->host ?: '-'));
+            $keyValue->addHtml(new VerticalKeyValue($this->translate('Host'), $rule->host ?: '-'));
         }
-        $keyValue->addHtml(new VerticalKeyValue(t('Namespace'), $this->item->namespace));
+        $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
     }
 }

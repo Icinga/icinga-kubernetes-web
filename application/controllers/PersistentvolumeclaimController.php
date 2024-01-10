@@ -18,7 +18,7 @@ class PersistentvolumeclaimController extends CompatController
 
         /** @var PersistentVolumeClaim $pvc */
         $pvc = PersistentVolumeClaim::on(Database::connection())
-            ->filter(Filter::equal('pvc.id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('id', $this->params->getRequired('id')))
             ->first();
 
         if ($pvc === null) {

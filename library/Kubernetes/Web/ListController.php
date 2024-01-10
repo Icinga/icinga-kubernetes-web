@@ -33,7 +33,7 @@ abstract class ListController extends Controller
         $paginationControl = $this->createPaginationControl($q);
         $searchBar = $this->createSearchBar($q, [
             $limitControl->getLimitParam(),
-            $sortControl->getSortParam(),
+            $sortControl->getSortParam()
         ]);
 
         if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
@@ -75,11 +75,11 @@ abstract class ListController extends Controller
 
     public function searchEditorAction(): void
     {
-        $this->setTitle(t('Adjust Filter'));
+        $this->setTitle($this->translate('Adjust Filter'));
 
         $this->getDocument()->addHtml($this->createSearchEditor($this->getQuery(), [
             LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM,
+            SortControl::DEFAULT_SORT_PARAM
         ]));
     }
 
