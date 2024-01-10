@@ -15,7 +15,6 @@ use ipl\Web\Widget\TimeAgo;
 
 class EventListItem extends BaseListItem
 {
-
     protected function assembleCaption(BaseHtmlElement $caption)
     {
         $caption->addHtml(new Text($this->item->note));

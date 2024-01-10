@@ -32,8 +32,12 @@ class StatefulSetDetail extends BaseHtmlElement
         $this->addHtml(
             new Details(new ResourceDetails($this->statefulSet, [
                 $this->translate('Service Name')          => $this->statefulSet->service_name,
-                $this->translate('Pod Management Policy') => ucfirst(Str::camel($this->statefulSet->pod_management_policy)),
-                $this->translate('Update Strategy')       => ucfirst(Str::camel($this->statefulSet->update_strategy)),
+                $this->translate('Pod Management Policy') => ucfirst(Str::camel(
+                    $this->statefulSet->pod_management_policy
+                )),
+                $this->translate('Update Strategy')       => ucfirst(Str::camel(
+                    $this->statefulSet->update_strategy
+                )),
                 $this->translate('Min Ready Seconds')     => $this->statefulSet->min_ready_seconds,
                 $this->translate('Desired Replicas')      => $this->statefulSet->desired_replicas,
                 $this->translate('Actual Replicas')       => $this->statefulSet->actual_replicas,

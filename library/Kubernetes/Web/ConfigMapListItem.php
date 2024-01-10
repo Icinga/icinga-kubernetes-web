@@ -15,7 +15,6 @@ use ipl\Web\Widget\VerticalKeyValue;
 
 class ConfigMapListItem extends BaseListItem
 {
-
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header
