@@ -17,12 +17,12 @@ class DeploymentDetail extends BaseHtmlElement
 {
     use Translation;
 
-    /** @var Deployment */
-    protected $deployment;
-
     protected $defaultAttributes = [
         'class' => 'deployment-detail'
     ];
+
+    /** @var Deployment */
+    protected $deployment;
 
     protected $tag = 'div';
 

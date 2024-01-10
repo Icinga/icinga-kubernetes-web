@@ -27,31 +27,6 @@ class ContainerListItem extends BaseListItem
 {
     use Translation;
 
-    /** @var $item Container The associated list item */
-    /** @var $list ContainerList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $visual->addHtml(new Icon(
-            $this->getStateIcon(),
-            [
-                'class' => [
-                    'container-state-' . $this->item->state,
-                    $this->item->ready ? 'container-ready' : 'container-not-ready'
-                ]
-            ]
-        ));
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<container> is <container_state>'),
-            new Link($this->item->name, Links::container($this->item), ['class' => 'subject']),
-            new HtmlElement('span', null, new Text($this->item->state))
-        ));
-    }
-
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml($this->createTitle());
@@ -77,6 +52,28 @@ class ContainerListItem extends BaseListItem
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Image'), $this->item->image));
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Restarts'), $this->item->restart_count));
         $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(Html::sprintf(
+            $this->translate('%s is %s', '<container> is <container_state>'),
+            new Link($this->item->name, Links::container($this->item), ['class' => 'subject']),
+            new HtmlElement('span', null, new Text($this->item->state))
+        ));
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $visual->addHtml(new Icon(
+            $this->getStateIcon(),
+            [
+                'class' => [
+                    'container-state-' . $this->item->state,
+                    $this->item->ready ? 'container-ready' : 'container-not-ready'
+                ]
+            ]
+        ));
     }
 
     protected function createStateDetails(): ValidHtml

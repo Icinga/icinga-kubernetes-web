@@ -15,48 +15,6 @@ class Ingress extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'ingress';
-    }
-
-    public function getKeyName()
-    {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'created'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'namespace'        => $this->translate('Namespace'),
-            'name'             => $this->translate('Name'),
-            'uid'              => $this->translate('UID'),
-            'resource_version' => $this->translate('Resource Version'),
-            'created'          => $this->translate('Created At')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['created desc'];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -77,5 +35,47 @@ class Ingress extends Model
         $relations->hasMany('ingress_rule', IngressRule::class);
 
         $relations->hasMany('ingress_tls', IngressTls::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'        => $this->translate('Namespace'),
+            'name'             => $this->translate('Name'),
+            'uid'              => $this->translate('UID'),
+            'resource_version' => $this->translate('Resource Version'),
+            'created'          => $this->translate('Created At')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'created'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'ingress';
     }
 }

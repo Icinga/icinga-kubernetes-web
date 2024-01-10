@@ -14,30 +14,16 @@ class Endpoint extends Model
 {
     use Translation;
 
-    public function getTableName()
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'endpoint';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'host_name',
-            'node_name',
-            'ready',
-            'serving',
-            'terminating',
-            'address',
-            'protocol',
-            'port',
-            'port_name',
-            'app_protocol'
-        ];
+        $relations->belongsTo('endpoint_slice', EndpointSlice::class);
     }
 
     public function getColumnDefinitions()
@@ -56,15 +42,29 @@ class Endpoint extends Model
         ];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getColumns()
     {
-        $behaviors->add(new Binary([
-            'id'
-        ]));
+        return [
+            'host_name',
+            'node_name',
+            'ready',
+            'serving',
+            'terminating',
+            'address',
+            'protocol',
+            'port',
+            'port_name',
+            'app_protocol'
+        ];
     }
 
-    public function createRelations(Relations $relations)
+    public function getKeyName()
     {
-        $relations->belongsTo('endpoint_slice', EndpointSlice::class);
+        return 'id';
+    }
+
+    public function getTableName()
+    {
+        return 'endpoint';
     }
 }

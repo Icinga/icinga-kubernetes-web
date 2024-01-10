@@ -16,10 +16,10 @@ class Data extends BaseHtmlElement
 {
     use Translation;
 
-    protected $tag = 'section';
-
     /** @var Iterator */
     protected $data;
+
+    protected $tag = 'section';
 
     public function __construct(Iterator $data)
     {

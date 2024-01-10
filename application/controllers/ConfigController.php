@@ -29,7 +29,7 @@ class ConfigController extends Controller
                 $config->setSection('database', $form->getValues());
                 $config->saveIni();
 
-                Notification::success(t('New configuration has successfully been stored'));
+                Notification::success($this->translate('New configuration has successfully been stored'));
             })->handleRequest($this->getServerRequest());
 
         $this->mergeTabs($this->Module()->getConfigTabs()->activate('database'));

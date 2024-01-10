@@ -14,37 +14,6 @@ class Label extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'label';
-    }
-
-    public function getKeyName()
-    {
-        return ['id'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'name',
-            'value'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'name'  => $this->translate('Name'),
-            'value' => $this->translate('Value')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['name'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -109,5 +78,36 @@ class Label extends Model
         $relations
             ->belongsToMany('stateful_set', StatefulSet::class)
             ->through('stateful_set_label');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'name'  => $this->translate('Name'),
+            'value' => $this->translate('Value')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'name',
+            'value'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['name'];
+    }
+
+    public function getKeyName()
+    {
+        return ['id'];
+    }
+
+    public function getTableName()
+    {
+        return 'label';
     }
 }

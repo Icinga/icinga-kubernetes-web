@@ -14,35 +14,6 @@ class IngressRule extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'ingress_rule';
-    }
-
-    public function getKeyName()
-    {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'ingress_id',
-            'host',
-            'path',
-            'path_type'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'host'      => $this->translate('Host'),
-            'path'      => $this->translate('Path'),
-            'path_type' => $this->translate('Path Type')
-        ];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -58,5 +29,34 @@ class IngressRule extends Model
         $relations->hasMany('backend_service', IngressBackendService::class);
 
         $relations->hasMany('backend_resource', IngressBackendResource::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'host'      => $this->translate('Host'),
+            'path'      => $this->translate('Path'),
+            'path_type' => $this->translate('Path Type')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'ingress_id',
+            'host',
+            'path',
+            'path_type'
+        ];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
+    }
+
+    public function getTableName()
+    {
+        return 'ingress_rule';
     }
 }

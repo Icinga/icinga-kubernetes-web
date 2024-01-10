@@ -14,25 +14,16 @@ class ServicePort extends Model
 {
     use Translation;
 
-    public function getTableName()
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'service_port';
+        $behaviors->add(new Binary([
+            'service_id'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return ['service_id', 'name'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'protocol',
-            'app_protocol',
-            'port',
-            'target_port',
-            'node_port'
-        ];
+        $relations->belongsTo('service', Service::class);
     }
 
     public function getColumnDefinitions()
@@ -47,15 +38,24 @@ class ServicePort extends Model
         ];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getColumns()
     {
-        $behaviors->add(new Binary([
-            'service_id'
-        ]));
+        return [
+            'protocol',
+            'app_protocol',
+            'port',
+            'target_port',
+            'node_port'
+        ];
     }
 
-    public function createRelations(Relations $relations)
+    public function getKeyName()
     {
-        $relations->belongsTo('service', Service::class);
+        return ['service_id', 'name'];
+    }
+
+    public function getTableName()
+    {
+        return 'service_port';
     }
 }

@@ -15,6 +15,8 @@ class PersistentVolume extends Model
 {
     use Translation;
 
+    public const DEFAULT_VOLUME_MODE = 'filesystem';
+
     public const PHASE_AVAILABLE = 'available';
 
     public const PHASE_BOUND = 'bound';
@@ -24,69 +26,6 @@ class PersistentVolume extends Model
     public const PHASE_PENDING = 'pending';
 
     public const PHASE_RELEASED = 'released';
-
-    public const DEFAULT_VOLUME_MODE = 'filesystem';
-
-    public function getVolumeMode(): string
-    {
-        return $this->volume_mode ?? static::DEFAULT_VOLUME_MODE;
-    }
-
-    public function getTableName()
-    {
-        return 'persistent_volume';
-    }
-
-    public function getKeyName()
-    {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'capacity',
-            'phase',
-            'access_modes',
-            'volume_mode',
-            'volume_source_type',
-            'storage_class',
-            'reclaim_policy',
-            'created'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'namespace'          => $this->translate('Namespace'),
-            'name'               => $this->translate('Name'),
-            'uid'                => $this->translate('UID'),
-            'resource_version'   => $this->translate('Resource Version'),
-            'capacity'           => $this->translate('Capacity'),
-            'phase'              => $this->translate('Phase'),
-            'access_modes'       => $this->translate('Access Modes'),
-            'volume_mode'        => $this->translate('Volume Mode'),
-            'volume_source_type' => $this->translate('Volume Source Type'),
-            'storage_class'      => $this->translate('Storage Class'),
-            'reclaim_policy'     => $this->translate('Reclaim Policy'),
-            'created'            => $this->translate('Created At')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['created desc'];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
-    }
 
     public function createBehaviors(Behaviors $behaviors)
     {
@@ -108,5 +47,66 @@ class PersistentVolume extends Model
             ->setTargetForeignKey('name')
             ->setCandidateKey('id')
             ->setForeignKey('persistent_volume_id');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'          => $this->translate('Namespace'),
+            'name'               => $this->translate('Name'),
+            'uid'                => $this->translate('UID'),
+            'resource_version'   => $this->translate('Resource Version'),
+            'capacity'           => $this->translate('Capacity'),
+            'phase'              => $this->translate('Phase'),
+            'access_modes'       => $this->translate('Access Modes'),
+            'volume_mode'        => $this->translate('Volume Mode'),
+            'volume_source_type' => $this->translate('Volume Source Type'),
+            'storage_class'      => $this->translate('Storage Class'),
+            'reclaim_policy'     => $this->translate('Reclaim Policy'),
+            'created'            => $this->translate('Created At')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'capacity',
+            'phase',
+            'access_modes',
+            'volume_mode',
+            'volume_source_type',
+            'storage_class',
+            'reclaim_policy',
+            'created'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'persistent_volume';
+    }
+
+    public function getVolumeMode(): string
+    {
+        return $this->volume_mode ?? static::DEFAULT_VOLUME_MODE;
     }
 }

@@ -12,29 +12,6 @@ use ipl\Orm\Relations;
 
 class Secret extends Model
 {
-    public function getTableName()
-    {
-        return 'secret';
-    }
-
-    public function getKeyName()
-    {
-        return ['id'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'type',
-            'immutable',
-            'created'
-        ];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -55,5 +32,28 @@ class Secret extends Model
         $relations
             ->belongsToMany('label', Label::class)
             ->through('secret_label');
+    }
+
+    public function getColumns()
+    {
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'type',
+            'immutable',
+            'created'
+        ];
+    }
+
+    public function getKeyName()
+    {
+        return ['id'];
+    }
+
+    public function getTableName()
+    {
+        return 'secret';
     }
 }

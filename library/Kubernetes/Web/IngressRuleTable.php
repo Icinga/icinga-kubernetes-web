@@ -17,15 +17,15 @@ class IngressRuleTable extends Table
 
     protected $backendColumnDefinitions;
 
+    protected $defaultAttributes = [
+        'class' => 'common-table collapsible'
+    ];
+
     protected $ingress;
 
     protected $ruleColumnDefinitions;
 
     protected $tlsColumnDefinitions;
-
-    protected $defaultAttributes = [
-        'class' => 'common-table collapsible'
-    ];
 
     public function __construct(
         $ingress,

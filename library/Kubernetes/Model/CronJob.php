@@ -15,35 +15,24 @@ class CronJob extends Model
 {
     use Translation;
 
-    public function getTableName()
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'cron_job';
-    }
+        $behaviors->add(new Binary([
+            'id'
+        ]));
 
-    public function getKeyName()
-    {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'schedule',
-            'timezone',
-            'starting_deadline_seconds',
-            'concurrency_policy',
-            'suspend',
-            'successful_jobs_history_limit',
-            'failed_jobs_history_limit',
-            'active',
+        $behaviors->add(new MillisecondTimestamp([
             'last_schedule_time',
             'last_successful_time',
             'created'
-        ];
+        ]));
+    }
+
+    public function createRelations(Relations $relations)
+    {
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('cron_job_label');
     }
 
     public function getColumnDefinitions()
@@ -67,9 +56,25 @@ class CronJob extends Model
         ];
     }
 
-    public function getSearchColumns()
+    public function getColumns()
     {
-        return ['name'];
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'schedule',
+            'timezone',
+            'starting_deadline_seconds',
+            'concurrency_policy',
+            'suspend',
+            'successful_jobs_history_limit',
+            'failed_jobs_history_limit',
+            'active',
+            'last_schedule_time',
+            'last_successful_time',
+            'created'
+        ];
     }
 
     public function getDefaultSort()
@@ -77,23 +82,18 @@ class CronJob extends Model
         return ['created desc'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getKeyName()
     {
-        $behaviors->add(new Binary([
-            'id'
-        ]));
-
-        $behaviors->add(new MillisecondTimestamp([
-            'last_schedule_time',
-            'last_successful_time',
-            'created'
-        ]));
+        return 'id';
     }
 
-    public function createRelations(Relations $relations)
+    public function getSearchColumns()
     {
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('cron_job_label');
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'cron_job';
     }
 }

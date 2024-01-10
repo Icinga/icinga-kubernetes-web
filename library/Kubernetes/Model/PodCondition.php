@@ -15,44 +15,6 @@ class PodCondition extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'pod_condition';
-    }
-
-    public function getKeyName()
-    {
-        return ['pod_id', 'type'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'status',
-            'last_probe',
-            'last_transition',
-            'message',
-            'reason'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'type'            => $this->translate('Type'),
-            'status'          => $this->translate('Status'),
-            'last_probe'      => $this->translate('Last Probe'),
-            'last_transition' => $this->translate('Last Transition'),
-            'message'         => $this->translate('Message'),
-            'reason'          => $this->translate('Reason')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['last_transition desc'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -68,5 +30,43 @@ class PodCondition extends Model
     public function createRelations(Relations $relations)
     {
         $relations->belongsTo('pod', Pod::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'type'            => $this->translate('Type'),
+            'status'          => $this->translate('Status'),
+            'last_probe'      => $this->translate('Last Probe'),
+            'last_transition' => $this->translate('Last Transition'),
+            'message'         => $this->translate('Message'),
+            'reason'          => $this->translate('Reason')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'status',
+            'last_probe',
+            'last_transition',
+            'message',
+            'reason'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['last_transition desc'];
+    }
+
+    public function getKeyName()
+    {
+        return ['pod_id', 'type'];
+    }
+
+    public function getTableName()
+    {
+        return 'pod_condition';
     }
 }

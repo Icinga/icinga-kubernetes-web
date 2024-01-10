@@ -15,51 +15,6 @@ class ConfigMap extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'config_map';
-    }
-
-    public function getKeyName()
-    {
-        return ['id'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'id',
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'immutable',
-            'created'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'namespace'        => $this->translate('Namespace'),
-            'name'             => $this->translate('Name'),
-            'uid'              => $this->translate('UID'),
-            'resource_version' => $this->translate('Resource Version'),
-            'immutable'        => $this->translate('Immutable'),
-            'created'          => $this->translate('Created At')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['created desc'];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -80,5 +35,50 @@ class ConfigMap extends Model
         $relations
             ->belongsToMany('label', Label::class)
             ->through('config_map_label');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'        => $this->translate('Namespace'),
+            'name'             => $this->translate('Name'),
+            'uid'              => $this->translate('UID'),
+            'resource_version' => $this->translate('Resource Version'),
+            'immutable'        => $this->translate('Immutable'),
+            'created'          => $this->translate('Created At')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'id',
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'immutable',
+            'created'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return ['id'];
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'config_map';
     }
 }

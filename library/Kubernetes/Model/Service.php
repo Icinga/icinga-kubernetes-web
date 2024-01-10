@@ -15,39 +15,30 @@ class Service extends Model
 {
     use Translation;
 
-    public function getTableName()
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'service';
-    }
+        $behaviors->add(new Binary([
+            'id'
+        ]));
 
-    public function getKeyName()
-    {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'type',
-            'cluster_ip',
-            'cluster_ips',
-            'external_ips',
-            'session_affinity',
-            'external_name',
-            'external_traffic_policy',
-            'health_check_node_port',
-            'publish_not_ready_addresses',
-            'ip_families',
-            'ip_family_policy',
-            'allocate_load_balancer_node_ports',
-            'load_balancer_class',
-            'internal_traffic_policy',
+        $behaviors->add(new MillisecondTimestamp([
             'created'
-        ];
+        ]));
+    }
+
+    public function createRelations(Relations $relations)
+    {
+        $relations->hasMany('service_condition', ServiceCondition::class);
+
+        $relations->hasMany('service_port', ServicePort::class);
+
+        $relations
+            ->belongsToMany('selector', Selector::class)
+            ->through('service_selector');
+
+        $relations
+            ->belongsToMany('label', Label::class)
+            ->through('service_label');
     }
 
     public function getColumnDefinitions()
@@ -75,9 +66,39 @@ class Service extends Model
         ];
     }
 
+    public function getColumns()
+    {
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'type',
+            'cluster_ip',
+            'cluster_ips',
+            'external_ips',
+            'session_affinity',
+            'external_name',
+            'external_traffic_policy',
+            'health_check_node_port',
+            'publish_not_ready_addresses',
+            'ip_families',
+            'ip_family_policy',
+            'allocate_load_balancer_node_ports',
+            'load_balancer_class',
+            'internal_traffic_policy',
+            'created'
+        ];
+    }
+
     public function getDefaultSort()
     {
         return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
     }
 
     public function getSearchColumns()
@@ -85,29 +106,8 @@ class Service extends Model
         return ['name'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getTableName()
     {
-        $behaviors->add(new Binary([
-            'id'
-        ]));
-
-        $behaviors->add(new MillisecondTimestamp([
-            'created'
-        ]));
-    }
-
-    public function createRelations(Relations $relations)
-    {
-        $relations->hasMany('service_condition', ServiceCondition::class);
-
-        $relations->hasMany('service_port', ServicePort::class);
-
-        $relations
-            ->belongsToMany('selector', Selector::class)
-            ->through('service_selector');
-
-        $relations
-            ->belongsToMany('label', Label::class)
-            ->through('service_label');
+        return 'service';
     }
 }

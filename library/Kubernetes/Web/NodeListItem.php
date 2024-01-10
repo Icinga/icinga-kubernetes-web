@@ -7,7 +7,6 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -22,30 +21,6 @@ use ipl\Web\Widget\VerticalKeyValue;
 class NodeListItem extends BaseListItem
 {
     use Translation;
-
-    /** @var $item Node The associated list item */
-    /** @var $list NodeList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $visual->addHtml(new Icon(
-            $this->getReadyIcon(),
-            ['class' => ['node-' . ($this->item->ready ? 'ready' : 'not-ready')]]
-        ));
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<node> is <ready>'),
-            new Link($this->item->name, Links::node($this->item), ['class' => 'subject']),
-            new HtmlElement(
-                'span',
-                null,
-                new Text($this->item->ready ? $this->translate('ready') : $this->translate('not ready'))
-            )
-        ));
-    }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -69,6 +44,27 @@ class NodeListItem extends BaseListItem
             Format::bytes($this->item->memory_allocatable / 1000)
         ));
         $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(Html::sprintf(
+            $this->translate('%s is %s', '<node> is <ready>'),
+            new Link($this->item->name, Links::node($this->item), ['class' => 'subject']),
+            new HtmlElement(
+                'span',
+                null,
+                new Text($this->item->ready ? $this->translate('ready') : $this->translate('not ready'))
+            )
+        ));
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $visual->addHtml(new Icon(
+            $this->getReadyIcon(),
+            ['class' => ['node-' . ($this->item->ready ? 'ready' : 'not-ready')]]
+        ));
     }
 
     protected function getReadyIcon(): string

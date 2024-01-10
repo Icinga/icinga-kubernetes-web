@@ -14,35 +14,6 @@ class IngressBackendResource extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'ingress_backend_resource';
-    }
-
-    public function getKeyName()
-    {
-        return ['ingress_id', 'resource_id'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'ingress_rule_id',
-            'api_group',
-            'kind',
-            'name'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'api_group' => $this->translate('API Group'),
-            'kind'      => $this->translate('Kind'),
-            'name'      => $this->translate('Name')
-        ];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -57,5 +28,34 @@ class IngressBackendResource extends Model
         $relations->belongsTo('ingress', Ingress::class);
 
         $relations->belongsTo('ingress_rule', IngressRule::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'api_group' => $this->translate('API Group'),
+            'kind'      => $this->translate('Kind'),
+            'name'      => $this->translate('Name')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'ingress_rule_id',
+            'api_group',
+            'kind',
+            'name'
+        ];
+    }
+
+    public function getKeyName()
+    {
+        return ['ingress_id', 'resource_id'];
+    }
+
+    public function getTableName()
+    {
+        return 'ingress_backend_resource';
     }
 }

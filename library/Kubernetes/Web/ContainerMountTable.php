@@ -18,11 +18,11 @@ use ipl\Web\Widget\Link;
 
 class ContainerMountTable extends Table
 {
+    protected $container;
+
     protected $defaultAttributes = [
         'class' => 'common-table collapsible'
     ];
-
-    protected $container;
 
     protected $mountColumnDefinitions;
 

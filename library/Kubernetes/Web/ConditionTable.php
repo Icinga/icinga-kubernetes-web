@@ -18,11 +18,11 @@ class ConditionTable extends Table
 
     protected $columnDefinitions;
 
-    protected $resource;
-
     protected $defaultAttributes = [
         'class' => 'condition-table collapsible'
     ];
+
+    protected $resource;
 
     public function __construct($resource, array $columnDefinitions)
     {

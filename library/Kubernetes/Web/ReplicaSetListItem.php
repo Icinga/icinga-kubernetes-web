@@ -7,7 +7,6 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Health;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -22,26 +21,6 @@ use ipl\Web\Widget\VerticalKeyValue;
 class ReplicaSetListItem extends BaseListItem
 {
     use Translation;
-
-    /** @var $item ReplicaSet The associated list item */
-    /** @var $list ReplicaSetList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $content = Html::sprintf(
-            $this->translate('%s is %s', '<replica_set> is <health>'),
-            new Link($this->item->name, Links::replicaSet($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
-        );
-
-        $title->addHtml($content);
-    }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -78,6 +57,23 @@ class ReplicaSetListItem extends BaseListItem
         $keyValue->addHtml(new VerticalKeyValue('Pods', $pods));
         $keyValue->addHtml(new VerticalKeyValue('Min Ready Seconds', $this->item->min_ready_seconds));
         $keyValue->addHtml(new VerticalKeyValue('Namespace', $this->item->namespace));
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $content = Html::sprintf(
+            $this->translate('%s is %s', '<replica_set> is <health>'),
+            new Link($this->item->name, Links::replicaSet($this->item), ['class' => 'subject']),
+            Html::tag('span', null, $this->getHealth())
+        );
+
+        $title->addHtml($content);
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $health = $this->getHealth();
+        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
     }
 
     protected function getHealth(): string

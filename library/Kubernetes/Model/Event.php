@@ -12,14 +12,21 @@ use ipl\Orm\Relations;
 
 class Event extends Model
 {
-    public function getTableName()
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'event';
+        $behaviors->add(new Binary([
+            'id'
+        ]));
+
+        $behaviors->add(new MillisecondTimestamp([
+            'first_seen',
+            'last_seen',
+            'created'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return 'id';
     }
 
     public function getColumns()
@@ -50,20 +57,13 @@ class Event extends Model
         return ['last_seen desc'];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getKeyName()
     {
-        $behaviors->add(new Binary([
-            'id'
-        ]));
-
-        $behaviors->add(new MillisecondTimestamp([
-            'first_seen',
-            'last_seen',
-            'created'
-        ]));
+        return 'id';
     }
 
-    public function createRelations(Relations $relations)
+    public function getTableName()
     {
+        return 'event';
     }
 }

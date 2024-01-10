@@ -7,7 +7,6 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Health;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\Job;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -22,24 +21,6 @@ use ipl\Web\Widget\VerticalKeyValue;
 class JobListItem extends BaseListItem
 {
     use Translation;
-
-    /** @var $item Job The associated list item */
-    /** @var $list JobList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<job> is <health>'),
-            new Link($this->item->name, Links::job($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
-        ));
-    }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -71,6 +52,21 @@ class JobListItem extends BaseListItem
         $keyValue->addHtml(new VerticalKeyValue('Failed', $this->item->failed));
         $keyValue->addHtml(new VerticalKeyValue('Namespace', $this->item->namespace));
         $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(Html::sprintf(
+            $this->translate('%s is %s', '<job> is <health>'),
+            new Link($this->item->name, Links::job($this->item), ['class' => 'subject']),
+            Html::tag('span', null, $this->getHealth())
+        ));
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $health = $this->getHealth();
+        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
     }
 
     protected function getHealth(): string

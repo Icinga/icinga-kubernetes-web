@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\Ingress;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -18,14 +17,6 @@ use ipl\Web\Widget\VerticalKeyValue;
 class IngressListItem extends BaseListItem
 {
     use Translation;
-
-    /** @var $item Ingress The associated list item */
-    /** @var $list IngressList The list where the item is part of */
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(new Link($this->item->name, Links::ingress($this->item), ['class' => 'subject']));
-    }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -45,5 +36,10 @@ class IngressListItem extends BaseListItem
         }
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(new Link($this->item->name, Links::ingress($this->item), ['class' => 'subject']));
     }
 }

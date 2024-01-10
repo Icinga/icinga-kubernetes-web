@@ -7,7 +7,6 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Health;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\DaemonSet;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -23,24 +22,6 @@ use ipl\Web\Widget\VerticalKeyValue;
 class DaemonSetListItem extends BaseListItem
 {
     use Translation;
-
-    /** @var $item DaemonSet The associated list item */
-    /** @var $list DaemonSetList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<daemon_set> is <health>'),
-            new Link($this->item->name, Links::daemonSet($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
-        ));
-    }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -72,6 +53,21 @@ class DaemonSetListItem extends BaseListItem
         ));
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(Html::sprintf(
+            $this->translate('%s is %s', '<daemon_set> is <health>'),
+            new Link($this->item->name, Links::daemonSet($this->item), ['class' => 'subject']),
+            Html::tag('span', null, $this->getHealth())
+        ));
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $health = $this->getHealth();
+        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
     }
 
     protected function getHealth(): string

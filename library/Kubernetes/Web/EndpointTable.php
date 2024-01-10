@@ -15,11 +15,11 @@ class EndpointTable extends Table
 
     protected $columnDefinitions;
 
-    protected $resource;
-
     protected $defaultAttributes = [
         'class' => 'common-table collapsible'
     ];
+
+    protected $resource;
 
     public function __construct($resource, array $columnDefinitions)
     {

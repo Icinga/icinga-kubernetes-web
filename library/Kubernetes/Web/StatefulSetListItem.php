@@ -7,7 +7,6 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Health;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\StatefulSet;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -23,24 +22,6 @@ use ipl\Web\Widget\VerticalKeyValue;
 class StatefulSetListItem extends BaseListItem
 {
     use Translation;
-
-    /** @var $item StatefulSet The associated list item */
-    /** @var $list StatefulSetList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<stateful_set> is <health>'),
-            new Link($this->item->name, Links::statefulSet($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
-        ));
-    }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -89,6 +70,21 @@ class StatefulSetListItem extends BaseListItem
             $this->item->min_ready_seconds
         ));
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(Html::sprintf(
+            $this->translate('%s is %s', '<stateful_set> is <health>'),
+            new Link($this->item->name, Links::statefulSet($this->item), ['class' => 'subject']),
+            Html::tag('span', null, $this->getHealth())
+        ));
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $health = $this->getHealth();
+        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
     }
 
     protected function getHealth(): string

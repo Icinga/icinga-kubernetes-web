@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\Secret;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -18,14 +17,6 @@ use ipl\Web\Widget\VerticalKeyValue;
 class SecretListItem extends BaseListItem
 {
     use Translation;
-
-    /** @var $item Secret The associated list item */
-    /** @var $list SecretList The list where the item is part of */
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(new Link($this->item->name, Links::secret($this->item), ['class' => 'subject']));
-    }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -42,5 +33,10 @@ class SecretListItem extends BaseListItem
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Type'), $this->item->type));
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(new Link($this->item->name, Links::secret($this->item), ['class' => 'subject']));
     }
 }

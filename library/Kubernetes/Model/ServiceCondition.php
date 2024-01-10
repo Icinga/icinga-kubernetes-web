@@ -15,44 +15,6 @@ class ServiceCondition extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'service_condition';
-    }
-
-    public function getKeyName()
-    {
-        return ['service_id', 'type'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'status',
-            'observed_generation',
-            'last_transition',
-            'reason',
-            'message'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'type'                => $this->translate('Type'),
-            'status'              => $this->translate('Status'),
-            'observed_generation' => $this->translate('Observed Generation'),
-            'last_transition'     => $this->translate('Last Transition'),
-            'reason'              => $this->translate('Reason'),
-            'message'             => $this->translate('Message')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['last_transition desc'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -67,5 +29,43 @@ class ServiceCondition extends Model
     public function createRelations(Relations $relations)
     {
         $relations->belongsTo('service', Service::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'type'                => $this->translate('Type'),
+            'status'              => $this->translate('Status'),
+            'observed_generation' => $this->translate('Observed Generation'),
+            'last_transition'     => $this->translate('Last Transition'),
+            'reason'              => $this->translate('Reason'),
+            'message'             => $this->translate('Message')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'status',
+            'observed_generation',
+            'last_transition',
+            'reason',
+            'message'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['last_transition desc'];
+    }
+
+    public function getKeyName()
+    {
+        return ['service_id', 'type'];
+    }
+
+    public function getTableName()
+    {
+        return 'service_condition';
     }
 }

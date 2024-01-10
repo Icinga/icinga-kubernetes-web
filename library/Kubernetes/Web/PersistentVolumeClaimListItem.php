@@ -26,26 +26,6 @@ class PersistentVolumeClaimListItem extends BaseListItem
 {
     use Translation;
 
-    /** @var $item PersistentVolumeClaim The associated list item */
-    /** @var $list PersistentVolumeClaimList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $content = new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]);
-        $visual->addHtml($content);
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $content = Html::sprintf(
-            $this->translate('%s is %s', '<pvc> is <pvc_phase>'),
-            new Link($this->item->name, Links::pvc($this->item), ['class' => 'subject']),
-            new HtmlElement('span', null, new Text($this->item->phase))
-        );
-
-        $title->addHtml($content);
-    }
-
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header
@@ -76,6 +56,23 @@ class PersistentVolumeClaimListItem extends BaseListItem
         ));
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $content = Html::sprintf(
+            $this->translate('%s is %s', '<pvc> is <pvc_phase>'),
+            new Link($this->item->name, Links::pvc($this->item), ['class' => 'subject']),
+            new HtmlElement('span', null, new Text($this->item->phase))
+        );
+
+        $title->addHtml($content);
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $content = new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]);
+        $visual->addHtml($content);
     }
 
     protected function getPhaseIcon(): string

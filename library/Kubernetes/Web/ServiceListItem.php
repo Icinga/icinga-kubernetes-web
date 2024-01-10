@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\Service;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -18,14 +17,6 @@ use ipl\Web\Widget\VerticalKeyValue;
 class ServiceListItem extends BaseListItem
 {
     use Translation;
-
-    /** @var $item Service The associated list item */
-    /** @var $list ServiceList The list where the item is part of */
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(new Link($this->item->name, Links::service($this->item), ['class' => 'subject']));
-    }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -43,5 +34,10 @@ class ServiceListItem extends BaseListItem
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Cluster IP'), $this->item->cluster_ip));
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
         $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(new Link($this->item->name, Links::service($this->item), ['class' => 'subject']));
     }
 }

@@ -14,21 +14,16 @@ class PodPvc extends Model
 {
     use Translation;
 
-    public function getTableName()
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'pod_pvc';
+        $behaviors->add(new Binary([
+            'pod_id'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return ['pod_id', 'volume_name', 'claim_name'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'read_only'
-        ];
+        $relations->belongsTo('pod', Pod::class);
     }
 
     public function getColumnDefinitions()
@@ -40,15 +35,20 @@ class PodPvc extends Model
         ];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getColumns()
     {
-        $behaviors->add(new Binary([
-            'pod_id'
-        ]));
+        return [
+            'read_only'
+        ];
     }
 
-    public function createRelations(Relations $relations)
+    public function getKeyName()
     {
-        $relations->belongsTo('pod', Pod::class);
+        return ['pod_id', 'volume_name', 'claim_name'];
+    }
+
+    public function getTableName()
+    {
+        return 'pod_pvc';
     }
 }

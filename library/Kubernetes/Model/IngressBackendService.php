@@ -14,35 +14,6 @@ class IngressBackendService extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'ingress_backend_service';
-    }
-
-    public function getKeyName()
-    {
-        return ['ingress_id', 'service_id'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'ingress_rule_id',
-            'service_name',
-            'service_port_name',
-            'service_port_number'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'service_name'        => $this->translate('Service Name'),
-            'service_port_name'   => $this->translate('Service Port Name'),
-            'service_port_number' => $this->translate('Service Port Number')
-        ];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -57,5 +28,34 @@ class IngressBackendService extends Model
         $relations->belongsTo('ingress', Ingress::class);
 
         $relations->belongsTo('ingress_rule', IngressRule::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'service_name'        => $this->translate('Service Name'),
+            'service_port_name'   => $this->translate('Service Port Name'),
+            'service_port_number' => $this->translate('Service Port Number')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'ingress_rule_id',
+            'service_name',
+            'service_port_name',
+            'service_port_number'
+        ];
+    }
+
+    public function getKeyName()
+    {
+        return ['ingress_id', 'service_id'];
+    }
+
+    public function getTableName()
+    {
+        return 'ingress_backend_service';
     }
 }

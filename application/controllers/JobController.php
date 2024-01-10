@@ -25,7 +25,6 @@ class JobController extends CompatController
             $this->httpNotFound($this->translate('Job not found'));
         }
 
-
         $this->addContent(new JobDetail($job));
     }
 }

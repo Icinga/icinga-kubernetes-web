@@ -14,41 +14,6 @@ class ContainerMount extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'container_mount';
-    }
-
-    public function getKeyName()
-    {
-        return ['container_id', 'volume_name'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'pod_id',
-            'path',
-            'sub_path',
-            'read_only'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'volume_name' => $this->translate('Volume Name'),
-            'path'        => $this->translate('Mount Path'),
-            'sub_path'    => $this->translate('Sub Path'),
-            'read_only'   => $this->translate('Read Only')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['volume_name desc'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -62,5 +27,40 @@ class ContainerMount extends Model
         $relations->belongsTo('container', Container::class);
 
         $relations->belongsTo('pod', Pod::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'volume_name' => $this->translate('Volume Name'),
+            'path'        => $this->translate('Mount Path'),
+            'sub_path'    => $this->translate('Sub Path'),
+            'read_only'   => $this->translate('Read Only')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'pod_id',
+            'path',
+            'sub_path',
+            'read_only'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['volume_name desc'];
+    }
+
+    public function getKeyName()
+    {
+        return ['container_id', 'volume_name'];
+    }
+
+    public function getTableName()
+    {
+        return 'container_mount';
     }
 }

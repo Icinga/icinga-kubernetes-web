@@ -15,33 +15,6 @@ class ReplicaSet extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'replica_set';
-    }
-
-    public function getKeyName()
-    {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'min_ready_seconds',
-            'desired_replicas',
-            'actual_replicas',
-            'fully_labeled_replicas',
-            'ready_replicas',
-            'available_replicas',
-            'created'
-        ];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -51,33 +24,6 @@ class ReplicaSet extends Model
         $behaviors->add(new MillisecondTimestamp([
             'created'
         ]));
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'namespace'              => $this->translate('Namespace'),
-            'name'                   => $this->translate('Name'),
-            'uid'                    => $this->translate('UID'),
-            'resource_version'       => $this->translate('Resource Version'),
-            'min_ready_seconds'      => $this->translate('Min Ready Seconds'),
-            'desired_replicas'       => $this->translate('Desired Replicas'),
-            'actual_replicas'        => $this->translate('Actual Replicas'),
-            'fully_labeled_replicas' => $this->translate('Fully Labeled Replicas'),
-            'ready_replicas'         => $this->translate('Ready Replicas'),
-            'available_replicas'     => $this->translate('Available Replicas'),
-            'created'                => $this->translate('Created At')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['created desc'];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
     }
 
     public function createRelations(Relations $relations)
@@ -103,5 +49,59 @@ class ReplicaSet extends Model
             ->setTargetForeignKey('name')
             ->setCandidateKey('id')
             ->setForeignKey('replica_set_id');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'              => $this->translate('Namespace'),
+            'name'                   => $this->translate('Name'),
+            'uid'                    => $this->translate('UID'),
+            'resource_version'       => $this->translate('Resource Version'),
+            'min_ready_seconds'      => $this->translate('Min Ready Seconds'),
+            'desired_replicas'       => $this->translate('Desired Replicas'),
+            'actual_replicas'        => $this->translate('Actual Replicas'),
+            'fully_labeled_replicas' => $this->translate('Fully Labeled Replicas'),
+            'ready_replicas'         => $this->translate('Ready Replicas'),
+            'available_replicas'     => $this->translate('Available Replicas'),
+            'created'                => $this->translate('Created At')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'min_ready_seconds',
+            'desired_replicas',
+            'actual_replicas',
+            'fully_labeled_replicas',
+            'ready_replicas',
+            'available_replicas',
+            'created'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'replica_set';
     }
 }

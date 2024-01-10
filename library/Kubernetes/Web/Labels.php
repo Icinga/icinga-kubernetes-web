@@ -14,11 +14,11 @@ class Labels extends BaseHtmlElement
 {
     use Translation;
 
+    protected $defaultAttributes = ['class' => 'labels'];
+
     protected $labels;
 
     protected $tag = 'section';
-
-    protected $defaultAttributes = ['class' => 'labels'];
 
     public function __construct(iterable $labels)
     {

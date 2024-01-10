@@ -6,11 +6,11 @@ namespace Icinga\Module\Kubernetes\Common;
 
 class AccessModes
 {
-    public const READ_WRITE_ONCE = 1 << 0;
-
     public const READ_ONLY_MANY = 1 << 1;
 
     public const READ_WRITE_MANY = 1 << 2;
+
+    public const READ_WRITE_ONCE = 1 << 0;
 
     public const READ_WRITE_ONCE_POD = 1 << 3;
 

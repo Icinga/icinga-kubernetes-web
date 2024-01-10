@@ -23,72 +23,6 @@ class Pod extends Model
 
     public const PHASE_SUCCEEDED = 'succeeded';
 
-    public function getTableName()
-    {
-        return 'pod';
-    }
-
-    public function getKeyName()
-    {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'node_name',
-            'nominated_node_name',
-            'ip',
-            'phase',
-            'restart_policy',
-            'cpu_limits',
-            'cpu_requests',
-            'memory_limits',
-            'memory_requests',
-            'reason',
-            'message',
-            'qos',
-            'created'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'namespace'           => $this->translate('Namespace'),
-            'name'                => $this->translate('Name'),
-            'uid'                 => $this->translate('UID'),
-            'resource_version'    => $this->translate('Resource Version'),
-            'node_name'           => $this->translate('Node Name'),
-            'nominated_node_name' => $this->translate('Nominated Node Name'),
-            'ip'                  => $this->translate('IP'),
-            'phase'               => $this->translate('Phase'),
-            'restart_policy'      => $this->translate('Restart Policy'),
-            'cpu_limits'          => $this->translate('CPU Limits'),
-            'cpu_requests'        => $this->translate('CPU Requests'),
-            'memory_limits'       => $this->translate('Memory Limits'),
-            'memory_requests'     => $this->translate('Memory Requests'),
-            'reason'              => $this->translate('Phase Reason'),
-            'message'             => $this->translate('Phase Message'),
-            'qos'                 => $this->translate('Quality of Service'),
-            'created'             => $this->translate('Created At')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['created desc'];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -167,5 +101,71 @@ class Pod extends Model
             ->setCandidateKey('node_name')
             ->setForeignKey('name')
             ->setJoinType('LEFT');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'           => $this->translate('Namespace'),
+            'name'                => $this->translate('Name'),
+            'uid'                 => $this->translate('UID'),
+            'resource_version'    => $this->translate('Resource Version'),
+            'node_name'           => $this->translate('Node Name'),
+            'nominated_node_name' => $this->translate('Nominated Node Name'),
+            'ip'                  => $this->translate('IP'),
+            'phase'               => $this->translate('Phase'),
+            'restart_policy'      => $this->translate('Restart Policy'),
+            'cpu_limits'          => $this->translate('CPU Limits'),
+            'cpu_requests'        => $this->translate('CPU Requests'),
+            'memory_limits'       => $this->translate('Memory Limits'),
+            'memory_requests'     => $this->translate('Memory Requests'),
+            'reason'              => $this->translate('Phase Reason'),
+            'message'             => $this->translate('Phase Message'),
+            'qos'                 => $this->translate('Quality of Service'),
+            'created'             => $this->translate('Created At')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'node_name',
+            'nominated_node_name',
+            'ip',
+            'phase',
+            'restart_policy',
+            'cpu_limits',
+            'cpu_requests',
+            'memory_limits',
+            'memory_requests',
+            'reason',
+            'message',
+            'qos',
+            'created'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'pod';
     }
 }

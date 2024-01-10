@@ -14,32 +14,6 @@ class IngressTls extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'ingress_tls';
-    }
-
-    public function getKeyName()
-    {
-        return 'ingress_id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'tls_host',
-            'tls_secret'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'tls_host'   => $this->translate('TLS Host'),
-            'tls_secret' => $this->translate('TLS Secret')
-        ];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -50,5 +24,31 @@ class IngressTls extends Model
     public function createRelations(Relations $relations)
     {
         $relations->belongsTo('ingress', Ingress::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'tls_host'   => $this->translate('TLS Host'),
+            'tls_secret' => $this->translate('TLS Secret')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'tls_host',
+            'tls_secret'
+        ];
+    }
+
+    public function getKeyName()
+    {
+        return 'ingress_id';
+    }
+
+    public function getTableName()
+    {
+        return 'ingress_tls';
     }
 }

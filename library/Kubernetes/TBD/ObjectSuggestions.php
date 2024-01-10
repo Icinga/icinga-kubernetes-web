@@ -26,52 +26,6 @@ class ObjectSuggestions extends Suggestions
     /** @var Model */
     protected $model;
 
-    /**
-     * Set the model to show suggestions for
-     *
-     * @param string|Model $model
-     *
-     * @return $this
-     */
-    public function setModel($model): self
-    {
-        if (is_string($model)) {
-            $model = new $model();
-        }
-
-        $this->model = $model;
-
-        return $this;
-    }
-
-    /**
-     * Get the model to show suggestions for
-     *
-     * @return Model
-     */
-    public function getModel(): Model
-    {
-        if ($this->model === null) {
-            throw new LogicException(
-                'You are accessing an unset property. Please make sure to set it beforehand.'
-            );
-        }
-
-        return $this->model;
-    }
-
-    protected function shouldShowRelationFor(string $column): bool
-    {
-        $tableName = $this->getModel()->getTableName();
-        $columnPath = explode('.', $column);
-
-        if (count($columnPath) > 2) {
-            return true;
-        }
-
-        return $columnPath[0] !== $tableName;
-    }
-
     protected function createQuickSearchFilter($searchTerm)
     {
         $model = $this->getModel();
@@ -85,6 +39,17 @@ class ObjectSuggestions extends Suggestions
         }
 
         return $quickFilter;
+    }
+
+    protected function fetchColumnSuggestions($searchTerm)
+    {
+        $model = $this->getModel();
+        $query = $model::on(Database::connection());
+
+        // Ordinary columns first
+        foreach (self::collectFilterColumns($model, $query->getResolver()) as $columnName => $columnMeta) {
+            yield $columnName => $columnMeta;
+        }
     }
 
     protected function fetchValueSuggestions($column, $searchTerm, Filter\Chain $searchFilter)
@@ -137,17 +102,6 @@ class ObjectSuggestions extends Suggestions
         }
     }
 
-    protected function fetchColumnSuggestions($searchTerm)
-    {
-        $model = $this->getModel();
-        $query = $model::on(Database::connection());
-
-        // Ordinary columns first
-        foreach (self::collectFilterColumns($model, $query->getResolver()) as $columnName => $columnMeta) {
-            yield $columnName => $columnMeta;
-        }
-    }
-
     protected function matchSuggestion($path, $label, $searchTerm)
     {
         if (preg_match('/[_.](id)$/', $path)) {
@@ -158,6 +112,34 @@ class ObjectSuggestions extends Suggestions
         }
 
         return parent::matchSuggestion($path, $label, $searchTerm);
+    }
+
+    protected function shouldShowRelationFor(string $column): bool
+    {
+        $tableName = $this->getModel()->getTableName();
+        $columnPath = explode('.', $column);
+
+        if (count($columnPath) > 2) {
+            return true;
+        }
+
+        return $columnPath[0] !== $tableName;
+    }
+
+    /**
+     * Get the model to show suggestions for
+     *
+     * @return Model
+     */
+    public function getModel(): Model
+    {
+        if ($this->model === null) {
+            throw new LogicException(
+                'You are accessing an unset property. Please make sure to set it beforehand.'
+            );
+        }
+
+        return $this->model;
     }
 
     /**
@@ -207,5 +189,23 @@ class ObjectSuggestions extends Suggestions
                 self::collectRelations($resolver, $relation->getTarget(), $models, $relationPath);
             }
         }
+    }
+
+    /**
+     * Set the model to show suggestions for
+     *
+     * @param string|Model $model
+     *
+     * @return $this
+     */
+    public function setModel($model): self
+    {
+        if (is_string($model)) {
+            $model = new $model();
+        }
+
+        $this->model = $model;
+
+        return $this;
     }
 }

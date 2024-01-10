@@ -14,22 +14,16 @@ class PodVolume extends Model
 {
     use Translation;
 
-    public function getTableName()
+    public function createBehaviors(Behaviors $behaviors)
     {
-        return 'pod_volume';
+        $behaviors->add(new Binary([
+            'pod_id'
+        ]));
     }
 
-    public function getKeyName()
+    public function createRelations(Relations $relations)
     {
-        return ['pod_id', 'volume_name'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'type',
-            'source'
-        ];
+        $relations->belongsTo('pod', Pod::class);
     }
 
     public function getColumnDefinitions()
@@ -41,15 +35,21 @@ class PodVolume extends Model
         ];
     }
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function getColumns()
     {
-        $behaviors->add(new Binary([
-            'pod_id'
-        ]));
+        return [
+            'type',
+            'source'
+        ];
     }
 
-    public function createRelations(Relations $relations)
+    public function getKeyName()
     {
-        $relations->belongsTo('pod', Pod::class);
+        return ['pod_id', 'volume_name'];
+    }
+
+    public function getTableName()
+    {
+        return 'pod_volume';
     }
 }

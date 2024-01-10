@@ -21,10 +21,10 @@ abstract class BaseItemList extends BaseHtmlElement
         'data-pdfexport-page-breaks-at' => '.list-item'
     ];
 
-    protected $tag = 'ul';
-
     /** @var iterable */
     protected $data;
+
+    protected $tag = 'ul';
 
     /**
      * Create a new item  list
@@ -56,8 +56,6 @@ abstract class BaseItemList extends BaseHtmlElement
     {
     }
 
-    abstract protected function getItemClass(): string;
-
     protected function assemble()
     {
         $itemClass = $this->getItemClass();
@@ -74,4 +72,6 @@ abstract class BaseItemList extends BaseHtmlElement
             $this->add(new EmptyState($this->translate('No items to display.')));
         }
     }
+
+    abstract protected function getItemClass(): string;
 }

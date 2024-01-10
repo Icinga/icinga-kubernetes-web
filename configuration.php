@@ -2,7 +2,9 @@
 
 /* Icinga Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
 
-/** @var \Icinga\Application\Modules\Module $this */
+/** @var Module $this */
+
+use Icinga\Application\Modules\Module;
 
 $section = $this->menuSection(
     'Kubernetes',

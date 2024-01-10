@@ -15,10 +15,10 @@ class ResourceDetails implements IteratorAggregate
 {
     use Translation;
 
-    protected $resource;
-
     /** @var ?iterable */
     protected $details;
+
+    protected $resource;
 
     public function __construct($resource, iterable $details = null)
     {

@@ -15,32 +15,6 @@ class ContainerLog extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'container_log';
-    }
-
-    public function getKeyName()
-    {
-        return ['container_id', 'pod_id'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'last_update',
-            'logs'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'last_update' => $this->translate('Last Update'),
-            'logs'        => $this->translate('Logs')
-        ];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -58,5 +32,31 @@ class ContainerLog extends Model
         $relations->belongsTo('container', Container::class);
 
         $relations->belongsTo('pod', Pod::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'last_update' => $this->translate('Last Update'),
+            'logs'        => $this->translate('Logs')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'last_update',
+            'logs'
+        ];
+    }
+
+    public function getKeyName()
+    {
+        return ['container_id', 'pod_id'];
+    }
+
+    public function getTableName()
+    {
+        return 'container_log';
     }
 }

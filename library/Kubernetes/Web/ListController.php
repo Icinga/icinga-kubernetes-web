@@ -14,13 +14,21 @@ abstract class ListController extends Controller
 {
     use SearchControls;
 
-    abstract protected function getContentClass(): string;
+    public function completeAction(): void
+    {
+        $this->getDocument()->addHtml(
+            (new ObjectSuggestions())
+                ->setModel($this->getModelClass())
+                ->forRequest($this->getServerRequest())
+        );
+    }
+
+    protected function getModelClass(): string
+    {
+        return get_class($this->getQuery()->getModel());
+    }
 
     abstract protected function getQuery(): Query;
-
-    abstract protected function getSortColumns(): array;
-
-    abstract protected function getTitle(): string;
 
     public function indexAction(): void
     {
@@ -64,14 +72,11 @@ abstract class ListController extends Controller
         }
     }
 
-    public function completeAction(): void
-    {
-        $this->getDocument()->addHtml(
-            (new ObjectSuggestions())
-                ->setModel($this->getModelClass())
-                ->forRequest($this->getServerRequest())
-        );
-    }
+    abstract protected function getTitle(): string;
+
+    abstract protected function getSortColumns(): array;
+
+    abstract protected function getContentClass(): string;
 
     public function searchEditorAction(): void
     {
@@ -81,10 +86,5 @@ abstract class ListController extends Controller
             LimitControl::DEFAULT_LIMIT_PARAM,
             SortControl::DEFAULT_SORT_PARAM
         ]));
-    }
-
-    protected function getModelClass(): string
-    {
-        return get_class($this->getQuery()->getModel());
     }
 }

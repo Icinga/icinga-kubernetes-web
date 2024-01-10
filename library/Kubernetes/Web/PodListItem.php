@@ -28,35 +28,6 @@ class PodListItem extends BaseListItem
 {
     use Translation;
 
-    /** @var $item Pod The associated list item */
-    /** @var $list PodList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $ready = $this->item->condition
-            ->filter(Filter::all(Filter::equal('type', 'Ready'), Filter::equal('status', 'True')))
-            ->first();
-
-        $visual->addHtml(new Icon(
-            $this->getPhaseIcon(),
-            [
-                'class' => [
-                    'pod-phase-' . $this->item->phase,
-                    $ready ? 'pod-ready' : 'pod-not-ready'
-                ]
-            ]
-        ));
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<pod> is <pod_phase>'),
-            new Link($this->item->name, Links::pod($this->item), ['class' => 'subject']),
-            new HtmlElement('span', null, new Text($this->item->phase))
-        ));
-    }
-
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header
@@ -103,6 +74,32 @@ class PodListItem extends BaseListItem
             new HorizontalKeyValue($this->translate('Node'), $this->item->node_name)
         ));
         $main->addHtml($keyValue);
+    }
+
+    protected function assembleTitle(BaseHtmlElement $title): void
+    {
+        $title->addHtml(Html::sprintf(
+            $this->translate('%s is %s', '<pod> is <pod_phase>'),
+            new Link($this->item->name, Links::pod($this->item), ['class' => 'subject']),
+            new HtmlElement('span', null, new Text($this->item->phase))
+        ));
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $ready = $this->item->condition
+            ->filter(Filter::all(Filter::equal('type', 'Ready'), Filter::equal('status', 'True')))
+            ->first();
+
+        $visual->addHtml(new Icon(
+            $this->getPhaseIcon(),
+            [
+                'class' => [
+                    'pod-phase-' . $this->item->phase,
+                    $ready ? 'pod-ready' : 'pod-not-ready'
+                ]
+            ]
+        ));
     }
 
     protected function getPhaseIcon(): string

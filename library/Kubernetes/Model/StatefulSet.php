@@ -15,70 +15,6 @@ class StatefulSet extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'stateful_set';
-    }
-
-    public function getKeyName()
-    {
-        return 'id';
-    }
-
-    public function getColumns()
-    {
-        return [
-            'namespace',
-            'name',
-            'uid',
-            'resource_version',
-            'service_name',
-            'pod_management_policy',
-            'update_strategy',
-            'min_ready_seconds',
-            'ordinals',
-            'desired_replicas',
-            'actual_replicas',
-            'ready_replicas',
-            'current_replicas',
-            'updated_replicas',
-            'available_replicas',
-            'created'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'namespace'             => $this->translate('Namespace'),
-            'name'                  => $this->translate('Name'),
-            'uid'                   => $this->translate('UID'),
-            'resource_version'      => $this->translate('Resource Version'),
-            'service_name'          => $this->translate('Service Name'),
-            'pod_management_policy' => $this->translate('Pod Management Policy'),
-            'update_strategy'       => $this->translate('Update Strategy'),
-            'min_ready_seconds'     => $this->translate('Min Ready Seconds'),
-            'ordinals'              => $this->translate('Ordinals'),
-            'desired_replicas'      => $this->translate('Desired Replicas'),
-            'actual_replicas'       => $this->translate('Actual Replicas'),
-            'ready_replicas'        => $this->translate('Ready Replicas'),
-            'current_replicas'      => $this->translate('Current Replicas'),
-            'updated_replicas'      => $this->translate('Updated Replicas'),
-            'available_replicas'    => $this->translate('Available Replicas'),
-            'created'               => $this->translate('Created At')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['created desc'];
-    }
-
-    public function getSearchColumns()
-    {
-        return ['name'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -105,5 +41,69 @@ class StatefulSet extends Model
             ->setTargetForeignKey('name')
             ->setCandidateKey('id')
             ->setForeignKey('pod_id');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'namespace'             => $this->translate('Namespace'),
+            'name'                  => $this->translate('Name'),
+            'uid'                   => $this->translate('UID'),
+            'resource_version'      => $this->translate('Resource Version'),
+            'service_name'          => $this->translate('Service Name'),
+            'pod_management_policy' => $this->translate('Pod Management Policy'),
+            'update_strategy'       => $this->translate('Update Strategy'),
+            'min_ready_seconds'     => $this->translate('Min Ready Seconds'),
+            'ordinals'              => $this->translate('Ordinals'),
+            'desired_replicas'      => $this->translate('Desired Replicas'),
+            'actual_replicas'       => $this->translate('Actual Replicas'),
+            'ready_replicas'        => $this->translate('Ready Replicas'),
+            'current_replicas'      => $this->translate('Current Replicas'),
+            'updated_replicas'      => $this->translate('Updated Replicas'),
+            'available_replicas'    => $this->translate('Available Replicas'),
+            'created'               => $this->translate('Created At')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'namespace',
+            'name',
+            'uid',
+            'resource_version',
+            'service_name',
+            'pod_management_policy',
+            'update_strategy',
+            'min_ready_seconds',
+            'ordinals',
+            'desired_replicas',
+            'actual_replicas',
+            'ready_replicas',
+            'current_replicas',
+            'updated_replicas',
+            'available_replicas',
+            'created'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['created desc'];
+    }
+
+    public function getKeyName()
+    {
+        return 'id';
+    }
+
+    public function getSearchColumns()
+    {
+        return ['name'];
+    }
+
+    public function getTableName()
+    {
+        return 'stateful_set';
     }
 }

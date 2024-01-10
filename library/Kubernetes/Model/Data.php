@@ -14,37 +14,6 @@ class Data extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'data';
-    }
-
-    public function getKeyName()
-    {
-        return ['id'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'name',
-            'value'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'name'  => $this->translate('Name'),
-            'value' => $this->translate('Value')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['name'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -61,5 +30,36 @@ class Data extends Model
         $relations
             ->belongsToMany('secret', Secret::class)
             ->through('secret_data');
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'name'  => $this->translate('Name'),
+            'value' => $this->translate('Value')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'name',
+            'value'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['name'];
+    }
+
+    public function getKeyName()
+    {
+        return ['id'];
+    }
+
+    public function getTableName()
+    {
+        return 'data';
     }
 }

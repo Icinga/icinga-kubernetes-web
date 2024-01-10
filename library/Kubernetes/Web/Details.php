@@ -14,11 +14,11 @@ class Details extends BaseHtmlElement
 {
     use Translation;
 
+    protected $defaultAttributes = ['class' => 'details'];
+
     protected $details;
 
     protected $tag = 'section';
-
-    protected $defaultAttributes = ['class' => 'details'];
 
     public function __construct(iterable $details)
     {

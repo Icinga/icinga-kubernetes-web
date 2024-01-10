@@ -21,12 +21,16 @@ class NamespaceListItem extends BaseListItem
 {
     use Translation;
 
-    /** @var $item NamespaceModel The associated list item */
-    /** @var $list NamespaceList The list where the item is part of */
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
+    protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $visual->addHtml(new Icon($this->getPhaseIcon(), ['class' => ['namespace-phase-' . $this->item->phase]]));
+        $header
+            ->addHtml($this->createTitle())
+            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+    }
+
+    protected function assembleMain(BaseHtmlElement $main): void
+    {
+        $main->addHtml($this->createHeader());
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
@@ -38,16 +42,9 @@ class NamespaceListItem extends BaseListItem
         ));
     }
 
-    protected function assembleHeader(BaseHtmlElement $header): void
+    protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $header
-            ->addHtml($this->createTitle())
-            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
-    }
-
-    protected function assembleMain(BaseHtmlElement $main): void
-    {
-        $main->addHtml($this->createHeader());
+        $visual->addHtml(new Icon($this->getPhaseIcon(), ['class' => ['namespace-phase-' . $this->item->phase]]));
     }
 
     protected function getPhaseIcon(): string

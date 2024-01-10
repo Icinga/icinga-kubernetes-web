@@ -15,42 +15,6 @@ class ReplicaSetCondition extends Model
 {
     use Translation;
 
-    public function getTableName()
-    {
-        return 'replica_set_condition';
-    }
-
-    public function getKeyName()
-    {
-        return ['replica_set_id', 'type'];
-    }
-
-    public function getColumns()
-    {
-        return [
-            'status',
-            'last_transition',
-            'message',
-            'reason'
-        ];
-    }
-
-    public function getColumnDefinitions()
-    {
-        return [
-            'type'            => $this->translate('Type'),
-            'status'          => $this->translate('Status'),
-            'last_transition' => $this->translate('Last Transition'),
-            'message'         => $this->translate('Message'),
-            'reason'          => $this->translate('Reason')
-        ];
-    }
-
-    public function getDefaultSort()
-    {
-        return ['last_transition desc'];
-    }
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Binary([
@@ -65,5 +29,41 @@ class ReplicaSetCondition extends Model
     public function createRelations(Relations $relations)
     {
         $relations->belongsTo('replica_set', ReplicaSet::class);
+    }
+
+    public function getColumnDefinitions()
+    {
+        return [
+            'type'            => $this->translate('Type'),
+            'status'          => $this->translate('Status'),
+            'last_transition' => $this->translate('Last Transition'),
+            'message'         => $this->translate('Message'),
+            'reason'          => $this->translate('Reason')
+        ];
+    }
+
+    public function getColumns()
+    {
+        return [
+            'status',
+            'last_transition',
+            'message',
+            'reason'
+        ];
+    }
+
+    public function getDefaultSort()
+    {
+        return ['last_transition desc'];
+    }
+
+    public function getKeyName()
+    {
+        return ['replica_set_id', 'type'];
+    }
+
+    public function getTableName()
+    {
+        return 'replica_set_condition';
     }
 }
