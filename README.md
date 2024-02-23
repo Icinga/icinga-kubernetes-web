@@ -7,7 +7,7 @@
 Icinga Kubernetes is a set of components for monitoring and visualizing Kubernetes resources,
 consisting of
 
-* the [Icinga Kubernetes daemon](https://icinga.com/docs/icinga-kubernetes),
+* the [Icinga Kubernetes daemon](https://github.com/Icinga/icinga-kubernetes),
   which uses the Kubernetes API to monitor the configuration and
   status changes of Kubernetes resources synchronizing every change in a database, and
 * Icinga Kubernetes Web, which connects to the database for visualizing Kubernetes resources and their state.
