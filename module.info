@@ -1,5 +1,5 @@
 Module: kubernetes
-Version: 0.0.0
+Version: 0.1.0
 Requires:
   Libraries: icinga-php-library (>=0.13.1), icinga-php-thirdparty (>=0.12.1)
 Description: Icinga for Kubernetes Web
