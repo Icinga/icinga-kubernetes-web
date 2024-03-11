@@ -1,18 +1,18 @@
-# Icinga Kubernetes Web
+# Icinga for Kubernetes Web
 
-Icinga Kubernetes is a set of components for monitoring and visualizing Kubernetes resources,
+Icinga for Kubernetes is a set of components for monitoring and visualizing Kubernetes resources,
 consisting of
 
-* the [Icinga Kubernetes daemon](https://icinga.com/docs/icinga-kubernetes),
+* the [Icinga for Kubernetes daemon](https://icinga.com/docs/icinga-kubernetes),
   which uses the Kubernetes API to monitor the configuration and
   status changes of Kubernetes resources synchronizing every change in a database, and
-* Icinga Kubernetes Web, which connects to the database for visualizing Kubernetes resources and their state.
+* Icinga for Kubernetes Web, which connects to the database for visualizing Kubernetes resources and their state.
 
-![Icinga Kubernetes Overview](res/icinga-kubernetes-overview.png)
+![Icinga for Kubernetes Overview](res/icinga-kubernetes-overview.png)
 
-Any of the Icinga Kubernetes components can run either inside or outside Kubernetes clusters,
+Any of the Icinga for Kubernetes components can run either inside or outside Kubernetes clusters,
 including the database.
-At the moment it is only possible to monitor one Kubernetes cluster per Icinga Kubernetes installation.
+At the moment it is only possible to monitor one Kubernetes cluster per Icinga for Kubernetes installation.
 
 ![Icinga Kubernetes Web Stateful Set](res/icinga-kubernetes-web-stateful-set.png)
 ![Icinga Kubernetes Web Service](res/icinga-kubernetes-web-service.png)
@@ -20,9 +20,9 @@ At the moment it is only possible to monitor one Kubernetes cluster per Icinga K
 
 ## Installation
 
-To install Icinga Kubernetes Web see [Installation](02-Installation.md).
+To install Icinga for Kubernetes Web see [Installation](02-Installation.md).
 
 ## License
 
-Icinga Kubernetes Web and the Icinga Kubernetes Web documentation are licensed under the terms of the
+Icinga for Kubernetes Web and the Icinga for Kubernetes Web documentation are licensed under the terms of the
 GNU General Public License Version 2.

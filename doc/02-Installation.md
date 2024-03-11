@@ -1,16 +1,16 @@
 <!-- {% if index %} -->
 
-# Installing Icinga Kubernetes Web
+# Installing Icinga for Kubernetes Web
 
-The recommended way to install Icinga Kubernetes Web is to use prebuilt packages for
+The recommended way to install Icinga for Kubernetes Web is to use prebuilt packages for
 all supported platforms from our official release repository.
 Please follow the steps listed for your target operating system,
-which guide you through setting up the repository and installing Icinga Kubernetes Web.
+which guide you through setting up the repository and installing Icinga for Kubernetes Web.
 
-![Icinga Kubernetes Web](res/icinga-kubernetes-web-installation.png)
+![Icinga for Kubernetes Web](res/icinga-kubernetes-web-installation.png)
 
-Before installing Icinga Kubernetes Web, make sure you have installed
-[Icinga Kubernetes](https://icinga.com/docs/icinga-kubernetes).
+Before installing Icinga for Kubernetes Web, make sure you have installed
+[Icinga for Kubernetes](https://icinga.com/docs/icinga-kubernetes).
 
 <!-- {% else %} -->
 <!-- {% if not icingaDocs %} -->
