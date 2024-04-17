@@ -49,6 +49,7 @@ class ConfigMap extends Model
             'uid'              => $this->translate('UID'),
             'resource_version' => $this->translate('Resource Version'),
             'immutable'        => $this->translate('Immutable'),
+            'yaml'             => $this->translate('YAML'),
             'created'          => $this->translate('Created At')
         ];
     }
@@ -62,6 +63,7 @@ class ConfigMap extends Model
             'uid',
             'resource_version',
             'immutable',
+            'yaml',
             'created'
         ];
     }

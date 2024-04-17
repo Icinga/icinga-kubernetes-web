@@ -48,6 +48,7 @@ class Event extends Model
             'first_seen',
             'last_seen',
             'count',
+            'yaml',
             'created'
         ];
     }

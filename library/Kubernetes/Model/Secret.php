@@ -47,6 +47,7 @@ class Secret extends Model
             'resource_version',
             'type',
             'immutable',
+            'yaml',
             'created'
         ];
     }

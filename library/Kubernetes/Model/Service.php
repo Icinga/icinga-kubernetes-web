@@ -72,6 +72,7 @@ class Service extends Model
             'allocate_load_balancer_node_ports' => $this->translate('Allocated Load Balancer Node Ports'),
             'load_balancer_class'               => $this->translate('Load Balancer Class'),
             'internal_traffic_policy'           => $this->translate('Internal Traffic Policy'),
+            'yaml'                              => $this->translate('YAML'),
             'created'                           => $this->translate('Created At')
         ];
     }
@@ -97,6 +98,7 @@ class Service extends Model
             'allocate_load_balancer_node_ports',
             'load_balancer_class',
             'internal_traffic_policy',
+            'yaml',
             'created'
         ];
     }

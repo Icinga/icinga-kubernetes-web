@@ -44,6 +44,7 @@ class Ingress extends Model
             'name'             => $this->translate('Name'),
             'uid'              => $this->translate('UID'),
             'resource_version' => $this->translate('Resource Version'),
+            'yaml'             => $this->translate('YAML'),
             'created'          => $this->translate('Created At')
         ];
     }
@@ -55,6 +56,7 @@ class Ingress extends Model
             'name',
             'uid',
             'resource_version',
+            'yaml',
             'created'
         ];
     }

@@ -67,6 +67,7 @@ class Job extends Model
             'active'                     => $this->translate('Active'),
             'succeeded'                  => $this->translate('Succeeded'),
             'failed'                     => $this->translate('Failed'),
+            'yaml'                       => $this->translate('YAML'),
             'created'                    => $this->translate('Created At')
         ];
     }
@@ -90,6 +91,7 @@ class Job extends Model
             'active',
             'succeeded',
             'failed',
+            'yaml',
             'created'
         ];
     }
