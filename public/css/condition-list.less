@@ -1,0 +1,61 @@
+.item-list.condition-list {
+  @visual-width: 1.25em;
+  @line-width: .25em;
+  @list-item-spacing: 1.5em;
+
+  .list-item {
+    &:not(:last-child) .visual:before {
+      content: "";
+      display: block;
+      border-left: @line-width solid @gray-light;
+      position: absolute;
+      top: ~"calc("@list-item-spacing/2 ~" + 18px)";
+      left: (@visual-width - @line-width) / 2;
+      height: ~"calc(100% - 18px)";
+    }
+
+    .main, .visual {
+      padding: @list-item-spacing / 2 0;
+    }
+
+    .main {
+      border-top: none;
+    }
+
+    .visual {
+      position: relative;
+      justify-content: flex-start;
+      width: @visual-width;
+
+      &.error {
+        color: @color-down;
+      }
+
+      &.success {
+        color: @color-up;
+      }
+
+      &.inactive {
+        color: @gray-light;
+
+        &:before {
+          border-left-style: dashed;
+        }
+      }
+
+      .icon:before {
+        margin-right: 0;
+      }
+    }
+
+    header {
+      padding-top: .25em;
+      align-items: baseline;
+    }
+
+    h3 {
+      margin: 0;
+      color: @text-color;
+    }
+  }
+}
