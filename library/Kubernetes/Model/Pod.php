@@ -15,14 +15,6 @@ class Pod extends Model
 {
     use Translation;
 
-    public const PHASE_FAILED = 'failed';
-
-    public const PHASE_PENDING = 'pending';
-
-    public const PHASE_RUNNING = 'running';
-
-    public const PHASE_SUCCEEDED = 'succeeded';
-
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Uuid([
@@ -118,6 +110,8 @@ class Pod extends Model
             'nominated_node_name' => $this->translate('Nominated Node Name'),
             'ip'                  => $this->translate('IP'),
             'phase'               => $this->translate('Phase'),
+            'icinga_state'        => $this->translate('Icinga State'),
+            'icinga_state_reason' => $this->translate('Icinga State Reason'),
             'restart_policy'      => $this->translate('Restart Policy'),
             'cpu_limits'          => $this->translate('CPU Limits'),
             'cpu_requests'        => $this->translate('CPU Requests'),
@@ -142,6 +136,8 @@ class Pod extends Model
             'nominated_node_name',
             'ip',
             'phase',
+            'icinga_state',
+            'icinga_state_reason',
             'restart_policy',
             'cpu_limits',
             'cpu_requests',

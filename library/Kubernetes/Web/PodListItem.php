@@ -5,7 +5,6 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Pod;
@@ -13,12 +12,11 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Html\HtmlString;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
-use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
@@ -38,6 +36,12 @@ class PodListItem extends BaseListItem
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml($this->createHeader());
+
+        $main->addHtml(new HtmlElement(
+            'div',
+            new Attributes(['class' => 'state-reason list']),
+            Text::create($this->item->icinga_state_reason)
+        ));
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         $keyValue->addHtml(new VerticalKeyValue($this->translate('IP'), $this->item->ip));
@@ -81,40 +85,12 @@ class PodListItem extends BaseListItem
         $title->addHtml(Html::sprintf(
             $this->translate('%s is %s', '<pod> is <pod_phase>'),
             new Link($this->item->name, Links::pod($this->item), ['class' => 'subject']),
-            new HtmlElement('span', null, new Text($this->item->phase))
+            Html::tag('span', null, $this->item->icinga_state)
         ));
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $ready = $this->item->condition
-            ->filter(Filter::all(Filter::equal('type', 'Ready'), Filter::equal('status', 'True')))
-            ->first();
-
-        $visual->addHtml(new Icon(
-            $this->getPhaseIcon(),
-            [
-                'class' => [
-                    'pod-phase-' . $this->item->phase,
-                    $ready ? 'pod-ready' : 'pod-not-ready'
-                ]
-            ]
-        ));
-    }
-
-    protected function getPhaseIcon(): string
-    {
-        switch ($this->item->phase) {
-            case Pod::PHASE_PENDING:
-                return Icons::POD_PENDING;
-            case Pod::PHASE_RUNNING:
-                return Icons::POD_RUNNING;
-            case Pod::PHASE_SUCCEEDED:
-                return Icons::POD_SUCCEEDED;
-            case Pod::PHASE_FAILED:
-                return Icons::POD_FAILED;
-            default:
-                return Icons::BUG;
-        }
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }
