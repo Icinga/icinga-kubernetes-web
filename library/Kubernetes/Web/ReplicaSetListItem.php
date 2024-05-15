@@ -7,10 +7,13 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Health;
 use Icinga\Module\Kubernetes\Common\Links;
+use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Html\HtmlString;
+use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -32,6 +35,12 @@ class ReplicaSetListItem extends BaseListItem
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml($this->createHeader());
+
+        $main->addHtml(new HtmlElement(
+            'div',
+            new Attributes(['class' => 'state-reason list']),
+            Text::create($this->item->icinga_state_reason)
+        ));
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         $main->addHtml($keyValue);
@@ -64,7 +73,7 @@ class ReplicaSetListItem extends BaseListItem
         $content = Html::sprintf(
             $this->translate('%s is %s', '<replica_set> is <health>'),
             new Link($this->item->name, Links::replicaSet($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
+            Html::tag('span', null, $this->item->icinga_state)
         );
 
         $title->addHtml($content);
@@ -72,23 +81,6 @@ class ReplicaSetListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function getHealth(): string
-    {
-        if ($this->item->desired_replicas < 1) {
-            return Health::UNDECIDABLE;
-        }
-
-        switch (true) {
-            case $this->item->available_replicas < 1:
-                return Health::UNHEALTHY;
-            case $this->item->available_replicas < $this->item->desired_replicas:
-                return Health::DEGRADED;
-            default:
-                return Health::HEALTHY;
-        }
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }
