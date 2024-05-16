@@ -34,6 +34,12 @@ class StatefulSetListItem extends BaseListItem
     {
         $main->addHtml($this->createHeader());
 
+        $main->addHtml(new HtmlElement(
+            'div',
+            new Attributes(['class' => 'state-reason list']),
+            Text::create($this->item->icinga_state_reason)
+        ));
+
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         $main->addHtml($keyValue);
 
@@ -77,25 +83,12 @@ class StatefulSetListItem extends BaseListItem
         $title->addHtml(Html::sprintf(
             $this->translate('%s is %s', '<stateful_set> is <health>'),
             new Link($this->item->name, Links::statefulSet($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
+            Html::tag('span', null, $this->item->icinga_state)
         ));
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function getHealth(): string
-    {
-        switch (true) {
-            case $this->item->available_replicas === 0:
-                return Health::UNHEALTHY;
-            case $this->item->available_replicas < $this->item->desired_replicas:
-                return Health::DEGRADED;
-            default:
-                return Health::HEALTHY;
-        }
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }

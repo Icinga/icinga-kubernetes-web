@@ -44,7 +44,15 @@ class StatefulSetDetail extends BaseHtmlElement
                 $this->translate('Current Replicas')      => $this->statefulSet->current_replicas,
                 $this->translate('Updated Replicas')      => $this->statefulSet->updated_replicas,
                 $this->translate('Ready Replicas')        => $this->statefulSet->ready_replicas,
-                $this->translate('Available Replicas')    => $this->statefulSet->available_replicas
+                $this->translate('Available Replicas')    => $this->statefulSet->available_replicas,
+                $this->translate('Icinga State')           => (new HtmlDocument())
+                    ->addHtml(new StateBall($this->statefulSet->icinga_state, StateBall::SIZE_MEDIUM))
+                    ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->statefulSet->icinga_state))),
+                $this->translate('Icinga State Reason')    => new HtmlElement(
+                    'div',
+                    new Attributes(['class' => 'state-reason detail']),
+                    Text::create($this->statefulSet->icinga_state_reason)
+                )
             ])),
             new Labels($this->statefulSet->label),
             new Annotations($this->statefulSet->annotation),
