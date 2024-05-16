@@ -167,3 +167,5 @@ $this->provideConfigTab(
         'url'   => 'config/database'
     ]
 );
+
+$this->provideCssFile('condition-list.less');
