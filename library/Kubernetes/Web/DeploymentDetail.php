@@ -7,11 +7,14 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\DeploymentCondition;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
+use ipl\Web\Widget\StateBall;
 
 class DeploymentDetail extends BaseHtmlElement
 {
@@ -42,7 +45,15 @@ class DeploymentDetail extends BaseHtmlElement
                 $this->translate('Updated Replicas')     => $this->deployment->updated_replicas,
                 $this->translate('Ready Replicas')       => $this->deployment->ready_replicas,
                 $this->translate('Available Replicas')   => $this->deployment->available_replicas,
-                $this->translate('Unavailable Replicas') => $this->deployment->unavailable_replicas
+                $this->translate('Unavailable Replicas') => $this->deployment->unavailable_replicas,
+                $this->translate('Icinga State')         => (new HtmlDocument())
+                    ->addHtml(new StateBall($this->deployment->icinga_state, StateBall::SIZE_MEDIUM))
+                    ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->deployment->icinga_state))),
+                $this->translate('Icinga State Reason')  => new HtmlElement(
+                    'div',
+                    new Attributes(['class' => 'state-reason detail']),
+                    Text::create($this->deployment->icinga_state_reason)
+                )
             ])),
             new Labels($this->deployment->label),
             new Annotations($this->deployment->annotation),

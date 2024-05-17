@@ -72,6 +72,8 @@ class Deployment extends Model
             'ready_replicas'            => $this->translate('Ready Replicas'),
             'available_replicas'        => $this->translate('Available Replicas'),
             'unavailable_replicas'      => $this->translate('Unavailable Replicas'),
+            'icinga_state'              => $this->translate('Icinga State'),
+            'icinga_state_reason'       => $this->translate('Icinga State Reason'),
             'created'                   => $this->translate('Created At')
         ];
     }
@@ -93,6 +95,8 @@ class Deployment extends Model
             'ready_replicas',
             'available_replicas',
             'unavailable_replicas',
+            'icinga_state',
+            'icinga_state_reason',
             'created'
         ];
     }
