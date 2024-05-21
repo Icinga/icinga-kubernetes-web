@@ -169,3 +169,4 @@ $this->provideConfigTab(
 );
 
 $this->provideCssFile('condition-list.less');
+$this->provideCssFile('labels.less');
