@@ -45,6 +45,7 @@ class DeploymentDetail extends BaseHtmlElement
                 $this->translate('Unavailable Replicas') => $this->deployment->unavailable_replicas
             ])),
             new Labels($this->deployment->label),
+            new Annotations($this->deployment->annotation),
             new ConditionTable($this->deployment, (new DeploymentCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',

@@ -41,6 +41,7 @@ class ReplicaSetDetail extends BaseHtmlElement
                 $this->translate('Available Replicas')     => $this->replicaSet->available_replicas
             ])),
             new Labels($this->replicaSet->label),
+            new Annotations($this->replicaSet->annotation),
             new ConditionTable($this->replicaSet, (new ReplicaSetCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',

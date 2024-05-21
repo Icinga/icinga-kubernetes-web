@@ -46,7 +46,8 @@ class CronJobDetail extends BaseHtmlElement
                 $this->translate('Last Schedule Time')            => $lastScheduleTime,
                 $this->translate('Last Successful Time')          => $lastSuccessfulTime
             ])),
-            new Labels($this->cronJob->label)
+            new Labels($this->cronJob->label),
+            new Annotations($this->cronJob->annotation)
         );
     }
 }

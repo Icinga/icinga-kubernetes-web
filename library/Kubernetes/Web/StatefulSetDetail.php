@@ -47,6 +47,7 @@ class StatefulSetDetail extends BaseHtmlElement
                 $this->translate('Available Replicas')    => $this->statefulSet->available_replicas
             ])),
             new Labels($this->statefulSet->label),
+            new Annotations($this->statefulSet->annotation),
             new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',

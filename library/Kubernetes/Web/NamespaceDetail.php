@@ -32,7 +32,8 @@ class NamespaceDetail extends BaseHtmlElement
                 $this->translate('Created')          => $this->namespace->created->format('Y-m-d H:i:s'),
                 $this->translate('Phase')            => $this->namespace->phase
             ]),
-            new Labels($this->namespace->label)
+            new Labels($this->namespace->label),
+            new Annotations($this->namespace->annotation)
         );
     }
 }

@@ -40,6 +40,10 @@ class Node extends Model
             ->through('node_label');
 
         $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('node_annotation');
+
+        $relations
             ->hasMany('pod', Pod::class)
             ->setCandidateKey('name')
             ->setForeignKey('node_name');

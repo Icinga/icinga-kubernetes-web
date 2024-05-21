@@ -49,6 +49,7 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
                 $this->translate('Storage Class')        => ucfirst(Str::camel($this->pvc->storage_class))
             ])),
             new Labels($this->pvc->label),
+            new Annotations($this->pvc->annotation),
             new ConditionTable($this->pvc, (new PersistentVolumeClaimCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',

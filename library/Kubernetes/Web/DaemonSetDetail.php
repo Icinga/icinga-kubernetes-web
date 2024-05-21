@@ -42,6 +42,7 @@ class DaemonSetDetail extends BaseHtmlElement
                 $this->translate('Number Unavailable')       => $this->daemonSet->number_unavailable
             ])),
             new Labels($this->daemonSet->label),
+            new Annotations($this->daemonSet->annotation),
             new ConditionTable($this->daemonSet, (new DaemonSetCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',

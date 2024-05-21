@@ -48,6 +48,7 @@ class NodeDetail extends BaseHtmlElement
                 $this->translate('Pod Capacity')       => $this->node->pod_capacity
             ]),
             new Labels($this->node->label),
+            new Annotations($this->node->annotation),
             new ConditionTable($this->node, (new NodeCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',
