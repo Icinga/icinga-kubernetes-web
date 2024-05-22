@@ -160,10 +160,10 @@ $section->add(
 );
 
 $section->add(
-    N_('Graphs'),
+    N_('Charts'),
     [
-        'description' => $this->translate('Graphs'),
-        'url'         => 'kubernetes/graphs',
+        'description' => $this->translate('Charts'),
+        'url'         => 'kubernetes/charts',
         'priority'    => $priority++
     ]
 );
