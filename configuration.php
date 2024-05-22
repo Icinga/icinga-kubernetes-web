@@ -159,6 +159,15 @@ $section->add(
     ]
 );
 
+$section->add(
+    N_('Graphs'),
+    [
+        'description' => $this->translate('Graphs'),
+        'url'         => 'kubernetes/graphs',
+        'priority'    => $priority++
+    ]
+);
+
 $this->provideConfigTab(
     'database',
     [
@@ -167,3 +176,5 @@ $this->provideConfigTab(
         'url'   => 'config/database'
     ]
 );
+
+$this->provideJsFile('vendor/chart.umd.js');
