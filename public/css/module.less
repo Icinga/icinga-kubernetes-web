@@ -16,6 +16,23 @@
   width: 60em;
 }
 
+.navigation-list {
+  list-style-type: none;
+
+  li {
+    padding: 0.5em 0;
+
+    a {
+      text-decoration: underline;
+      font-size: 2em;
+
+      &:hover {
+        text-decoration: underline dotted;
+      }
+    }
+  }
+}
+
 .container-state-running {
   &.container-ready {
     color: @state-ok;
