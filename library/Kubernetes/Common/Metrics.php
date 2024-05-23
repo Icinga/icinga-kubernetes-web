@@ -9,6 +9,18 @@ use DateTimeInterface;
 
 class Metrics
 {
+    public static string $ClusterCpuUsage = 'cpu.usage';
+
+    public static string $ClusterMemoryUsage = 'memory.usage';
+
+    public static string $PodStateRunning = 'running';
+
+    public static string $PodStatePending = 'pending';
+
+    public static string $PodStateFailed = 'failed';
+
+    public static string $PodStateSucceeded = 'succeeded';
+
     protected Connection $db;
 
     public function __construct(Connection $db)
@@ -16,43 +28,69 @@ class Metrics
         $this->db = $db;
     }
 
-    public function getClusterUsage(string $resource, int $period): array
+    public function getClusterUsage(DateTimeInterface $startDateTime, string ...$metricNames): array
     {
-        $dbData = $this->db->prepexec(
-            (new Select())
-                ->columns(['timestamp', 'value'])
-                ->from('prometheus_cluster_metric')
-                ->where(
-                    '`group` = ? AND timestamp > UNIX_TIMESTAMP() * 1000 - ?',
-                    "$resource.usage",
-                    $period
-                )
-        );
+        $out = [];
 
-        foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $ts = $row['timestamp'];
-            $data[$ts] = $row['value'];
+        foreach ($metricNames as $metricName) {
+            $data = [];
+            $dbData = $this->db->prepexec(
+                (new Select())
+                    ->columns(['timestamp', 'value'])
+                    ->from('prometheus_cluster_metric')
+                    ->where(
+                        '`group` = ? AND timestamp > ?',
+                        $metricName,
+                        $startDateTime->getTimestamp() * 1000
+                    )
+            );
+
+            foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $ts = $row['timestamp'];
+                $data[$ts] = $row['value'];
+            }
+
+            $this->fillGaps($data);
+            ksort($data);
+            $out[$metricName] = $data;
         }
 
-        $this->fillGaps($data);
-        ksort($data);
-
-        return $data;
+        return $out;
     }
 
-    public function getNumberOfPodsByState(string $state): int
+    public function getNumberOfPodsByState(string ...$states): array
     {
-        $dbData = $this->db->prepexec(
-            (new Select())
-                ->columns(['value'])
-                ->from('prometheus_cluster_metric')
-                ->where('`group` = ?', "pod.$state")
-                ->orderBy('timestamp DESC')
-                ->limit(1)
-        );
+        $out = [];
 
-        return $dbData->fetchAll(PDO::FETCH_ASSOC)[0]['value'];
+        foreach ($states as $state) {
+            $dbData = $this->db->prepexec(
+                (new Select())
+                    ->columns(['value'])
+                    ->from('prometheus_cluster_metric')
+                    ->where('`group` = ?', "pod.$state")
+                    ->orderBy('timestamp DESC')
+                    ->limit(1)
+            );
+
+            $out[$state] = $dbData->fetchAll(PDO::FETCH_ASSOC)[0]['value'];
+        }
+
+        return $out;
     }
+
+//    public function getNumberOfPodsByState(string $state): int
+//    {
+//        $dbData = $this->db->prepexec(
+//            (new Select())
+//                ->columns(['value'])
+//                ->from('prometheus_cluster_metric')
+//                ->where('`group` = ?', "pod.$state")
+//                ->orderBy('timestamp DESC')
+//                ->limit(1)
+//        );
+//
+//        return $dbData->fetchAll(PDO::FETCH_ASSOC)[0]['value'];
+//    }
 
     public function getClusterUsageCurrent(string $resource): float|null
     {
