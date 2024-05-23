@@ -5,35 +5,15 @@ namespace Icinga\Module\Kubernetes\Controllers;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DoughnutChartStates;
 use Icinga\Module\Kubernetes\Web\LineChartMinified;
-use Icinga\Module\Kubernetes\Web\MetricQuery;
 use Icinga\Module\Kubernetes\Web\NavigationList;
 use Icinga\Module\Kubernetes\Web\LineChart;
 use Icinga\Module\Kubernetes\Web\DoughnutChart;
 use Icinga\Module\Kubernetes\Web\DoughnutChartRequestLimit;
-use ipl\Html\BaseHtmlElement;
+use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Metrics;
 use ipl\Html\HtmlElement;
 use ipl\Html\Attributes;
 use ipl\Html\Text;
-
-
-//class Temp extends BaseHtmlElement
-//{
-//    protected $tag = 'div';
-//
-//    protected $defaultAttributes;
-//
-//    protected array $htmlElements;
-//
-//    public function addHtmlElement()
-//    {
-//
-//    }
-//
-//    protected function assemble()
-//    {
-//
-//    }
-//}
 
 class ChartsController extends Controller
 {
@@ -63,11 +43,11 @@ class ChartsController extends Controller
             )
         );
 
-        $metricQuery = new MetricQuery();
+        $metrics = new Metrics(Database::connection());
         $clusterMetrics = [];
 
-        $clusterMetrics['cpu'] = $metricQuery->getGlobalUsage('cpu', $this->LAST_12_HOURS);
-        $clusterMetrics['memory'] = $metricQuery->getGlobalUsage('memory', $this->LAST_12_HOURS);
+        $clusterMetrics['cpu'] = $metrics->getClusterUsage('cpu', $this->LAST_12_HOURS);
+        $clusterMetrics['memory'] = $metrics->getClusterUsage('memory', $this->LAST_12_HOURS);
 
         $this->addContent(
             new LineChart(
@@ -89,10 +69,10 @@ class ChartsController extends Controller
             )
         );
 
-        $numberOfRunningPods = $metricQuery->getNumberOfPodsByState('running');
-        $numberOfPendingPods = $metricQuery->getNumberOfPodsByState('pending');
-        $numberOfFailedPods = $metricQuery->getNumberOfPodsByState('failed');
-        $numberOfSucceededPods = $metricQuery->getNumberOfPodsByState('succeeded');
+        $numberOfRunningPods = $metrics->getNumberOfPodsByState('running');
+        $numberOfPendingPods = $metrics->getNumberOfPodsByState('pending');
+        $numberOfFailedPods = $metrics->getNumberOfPodsByState('failed');
+        $numberOfSucceededPods = $metrics->getNumberOfPodsByState('succeeded');
 
         $this->addContent(
             new DoughnutChart(
@@ -103,8 +83,8 @@ class ChartsController extends Controller
             )
         );
 
-        $clusterCpuUsage = $metricQuery->getClusterUsage('cpu');
-        $clusterMemoryUsage = $metricQuery->getClusterUsage('memory');
+        $clusterCpuUsage = $metrics->getClusterUsageCurrent('cpu');
+        $clusterMemoryUsage = $metrics->getClusterUsageCurrent('memory');
 
         $this->addContent(
             new DoughnutChartStates(
@@ -137,11 +117,11 @@ class ChartsController extends Controller
             )
         );
 
-        $metricQuery = new MetricQuery();
+        $metrics = new Metrics(Database::connection());
         $nodeMetrics = [];
 
-        $metricQuery->getNodeNetworkBytes($nodeMetrics, 'received', $this->LAST_1_HOUR);
-        $metricQuery->getNodeNetworkBytes($nodeMetrics, 'transmitted', $this->LAST_1_HOUR);
+        $metrics->getNodeNetworkBytes($nodeMetrics, 'received', $this->LAST_1_HOUR);
+        $metrics->getNodeNetworkBytes($nodeMetrics, 'transmitted', $this->LAST_1_HOUR);
 
         foreach ($nodeMetrics as $node) {
             $this->addContent(
@@ -168,20 +148,20 @@ class ChartsController extends Controller
             )
         );
 
-        $metricQuery = new MetricQuery();
+        $metrics = new Metrics(Database::connection());
         $podMetrics = [];
 
-        $metricQuery->getPodRequest($podMetrics, 'cpu');
-        $metricQuery->getPodRequest($podMetrics, 'memory');
+        $metrics->getPodRequest($podMetrics, 'cpu');
+        $metrics->getPodRequest($podMetrics, 'memory');
 
-        $metricQuery->getPodLimit($podMetrics, 'cpu');
-        $metricQuery->getPodLimit($podMetrics, 'memory');
+        $metrics->getPodLimit($podMetrics, 'cpu');
+        $metrics->getPodLimit($podMetrics, 'memory');
 
-        $metricQuery->getPodCpuCoreUsage($podMetrics);
-        $metricQuery->getPodMemoryByteUsage($podMetrics);
+        $metrics->getPodCpuCoreUsage($podMetrics);
+        $metrics->getPodMemoryByteUsage($podMetrics);
 
-        $metricQuery->getPodUsage($podMetrics, 'cpu', $this->LAST_1_HOUR);
-        $metricQuery->getPodUsage($podMetrics, 'memory', $this->LAST_1_HOUR);
+        $metrics->getPodUsage($podMetrics, 'cpu', $this->LAST_1_HOUR);
+        $metrics->getPodUsage($podMetrics, 'memory', $this->LAST_1_HOUR);
 
         echo '<pre>';
 //        print_r($podMetrics);
