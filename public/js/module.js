@@ -15,7 +15,7 @@
 
         onRendered(event, autorefresh, scripted, autosubmit) {
             let color = window.getComputedStyle(event.target).getPropertyValue('color');
-            console.log(color);
+
             let lineCharts = event.target.querySelectorAll('.line-chart');
             let lineChartMinifieds = event.target.querySelectorAll('.line-chart-minified');
             let doughnutCharts = event.target.querySelectorAll('.doughnut-chart');
