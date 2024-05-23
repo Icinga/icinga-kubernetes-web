@@ -12,6 +12,8 @@ use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
+use Icinga\Module\Kubernetes\Model\PodCondition;
+use Icinga\Web\Form\Decorator\ElementDoubler;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -114,6 +116,53 @@ class PodDetail extends BaseHtmlElement
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),
             new PodConditions($this->pod),
+
+            /* new Labels($this->pod->label), */
+
+            new HtmlElement('section', null,
+                new HtmlElement('h2', null, new Text('Environment')),
+                new HtmlElement('div', new Attributes(['class' => 'environment-widget']),
+                    new HtmlElement('span', new Attributes(['class' => 'label-namespace']),
+                        new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ns'])),
+                        new Text(' '),
+                        new Text('namespace')
+                    ),
+                    new HtmlElement('ul', null,
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb breadcrumb-right']),
+                            new StateBall('ok', StateBall::SIZE_MEDIUM),
+                            new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
+                            new Text(' '),
+                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
+                                new Text('ing-name-random')
+                            )
+                        ),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb breadcrumb-right']),
+                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
+                                new StateBall('ok', StateBall::SIZE_MEDIUM),
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-svc'])),
+                                new Text(' '),
+                                new Text('service-name-random')
+                            )
+                        ),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb']),
+                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
+                                new StateBall('ok', StateBall::SIZE_MEDIUM),
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
+                                new Text(' '),
+                                new Text('ing-name-random')
+                            )
+                        ),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb breadcrumb-left']),
+                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
+                                new StateBall('ok', StateBall::SIZE_MEDIUM),
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
+                                new Text(' '),
+                                new Text('rs-name-random')
+                            )
+                        )
+                    )
+                )
+            ),
             new HtmlElement(
                 'section',
                 null,
