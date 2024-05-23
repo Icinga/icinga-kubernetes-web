@@ -14,6 +14,8 @@ use Icinga\Module\Kubernetes\Common\Metrics;
 use ipl\Html\HtmlElement;
 use ipl\Html\Attributes;
 use ipl\Html\Text;
+use DateTime;
+use DateInterval;
 
 class ChartsController extends Controller
 {
@@ -46,14 +48,17 @@ class ChartsController extends Controller
         $metrics = new Metrics(Database::connection());
         $clusterMetrics = [];
 
-        $clusterMetrics['cpu'] = $metrics->getClusterUsage('cpu', $this->LAST_12_HOURS);
-        $clusterMetrics['memory'] = $metrics->getClusterUsage('memory', $this->LAST_12_HOURS);
+        $clusterMetrics = $metrics->getClusterUsage(
+            (new DateTime())->sub(new DateInterval('PT12H')),
+            Metrics::$ClusterCpuUsage,
+            Metrics::$ClusterMemoryUsage
+        );
 
         $this->addContent(
             new LineChart(
                 'chart-medium',
-                implode(', ', $clusterMetrics['cpu']),
-                implode(', ', array_keys($clusterMetrics['cpu'])),
+                implode(', ', $clusterMetrics[Metrics::$ClusterCpuUsage]),
+                implode(', ', array_keys($clusterMetrics[Metrics::$ClusterCpuUsage])),
                 'CPU Usage',
                 '#00a8ff'
             )
@@ -62,17 +67,24 @@ class ChartsController extends Controller
         $this->addContent(
             new LineChart(
                 'chart-medium',
-                implode(', ', $clusterMetrics['memory']),
-                implode(', ', array_keys($clusterMetrics['memory'])),
+                implode(', ', $clusterMetrics[Metrics::$ClusterMemoryUsage]),
+                implode(', ', array_keys($clusterMetrics[Metrics::$ClusterMemoryUsage])),
                 'Memory Usage',
                 '#8c7ae6'
             )
         );
 
-        $numberOfRunningPods = $metrics->getNumberOfPodsByState('running');
-        $numberOfPendingPods = $metrics->getNumberOfPodsByState('pending');
-        $numberOfFailedPods = $metrics->getNumberOfPodsByState('failed');
-        $numberOfSucceededPods = $metrics->getNumberOfPodsByState('succeeded');
+//        $numberOfRunningPods = $metrics->getNumberOfPodsByState('running');
+//        $numberOfPendingPods = $metrics->getNumberOfPodsByState('pending');
+//        $numberOfFailedPods = $metrics->getNumberOfPodsByState('failed');
+//        $numberOfSucceededPods = $metrics->getNumberOfPodsByState('succeeded');
+
+        $pods = $metrics->getNumberOfPodsByState(
+            Metrics::$PodStateRunning,
+            Metrics::$PodStatePending,
+            Metrics::$PodStateFailed,
+            Metrics::$PodStateSucceeded
+        );
 
         $this->addContent(
             new DoughnutChart(
@@ -80,32 +92,35 @@ class ChartsController extends Controller
                 implode(
                     ', ',
                     [
-                    $numberOfRunningPods,
-                    $numberOfPendingPods,
-                    $numberOfFailedPods,
-                        $numberOfSucceededPods
+                    $pods[Metrics::$PodStateRunning],
+                    $pods[Metrics::$PodStatePending],
+                    $pods[Metrics::$PodStateFailed],
+                    $pods[Metrics::$PodStateSucceeded]
                     ]
                 ),
                 implode(
                     ', ',
                     [
-                        $numberOfRunningPods . ' Running',
-                        $numberOfPendingPods . ' Pending',
-                        $numberOfFailedPods . ' Failed',
-                        $numberOfSucceededPods . ' Succeeded'
+                        $pods[Metrics::$PodStateRunning] . ' Running',
+                        $pods[Metrics::$PodStatePending] . ' Pending',
+                        $pods[Metrics::$PodStateFailed] . ' Failed',
+                        $pods[Metrics::$PodStateSucceeded] . ' Succeeded'
                     ]
                 ),
                 '#007bff, #ffc107, #dc3545, #28a745'
             )
         );
 
-        $clusterCpuUsage = $metrics->getClusterUsageCurrent('cpu');
-        $clusterMemoryUsage = $metrics->getClusterUsageCurrent('memory');
+        $current = $metrics->getClusterUsage(
+            (new DateTime())->sub(new DateInterval('PT1M')),
+            Metrics::$ClusterCpuUsage,
+            Metrics::$ClusterMemoryUsage
+        );
 
         $this->addContent(
             new DoughnutChartStates(
                 'chart-small',
-                $clusterCpuUsage,
+                $current[Metrics::$ClusterCpuUsage][array_key_last($current[Metrics::$ClusterCpuUsage])],
                 'CPU Usage',
                 '#28a745, #ffc107, #dc3545'
             )
@@ -114,7 +129,7 @@ class ChartsController extends Controller
         $this->addContent(
             new DoughnutChartStates(
                 'chart-small',
-                $clusterMemoryUsage,
+                $current[Metrics::$ClusterMemoryUsage][array_key_last($current[Metrics::$ClusterMemoryUsage])],
                 'Memory Usage',
                 '#28a745, #ffc107, #dc3545'
             )
