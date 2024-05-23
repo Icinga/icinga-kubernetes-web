@@ -7,13 +7,15 @@ use ipl\Html\HtmlElement;
 use ipl\Html\Attributes;
 use ipl\Html\Text;
 
-class NavigationList extends BaseHtmlElement {
+class NavigationList extends BaseHtmlElement
+{
     protected $tag = 'ul';
 
     protected $defaultAttributes = ['class' => 'navigation-list'];
     protected $listItems = [];
 
-    public function __construct(array $listItems) {
+    public function __construct(array $listItems)
+    {
         $this->listItems = $listItems;
     }
 

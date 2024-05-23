@@ -5,6 +5,7 @@ namespace Icinga\Module\Kubernetes\Common;
 use ipl\Sql\Select;
 use ipl\Sql\Connection;
 use PDO;
+use DateTimeInterface;
 
 class Metrics
 {
@@ -21,7 +22,11 @@ class Metrics
             (new Select())
                 ->columns(['timestamp', 'value'])
                 ->from('prometheus_cluster_metric')
-                ->where('`group` = ? AND timestamp > UNIX_TIMESTAMP() * 1000 - ?', "$resource.usage", $period)
+                ->where(
+                    '`group` = ? AND timestamp > UNIX_TIMESTAMP() * 1000 - ?',
+                    "$resource.usage",
+                    $period
+                )
         );
 
         foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
@@ -55,7 +60,11 @@ class Metrics
             (new Select())
                 ->columns(['value'])
                 ->from('prometheus_cluster_metric')
-                ->where('`group` = ? AND timestamp > UNIX_TIMESTAMP() * 1000 - ?', "$resource.usage", 2 * 60 * 1000)
+                ->where(
+                    '`group` = ? AND timestamp > UNIX_TIMESTAMP() * 1000 - ?',
+                    "$resource.usage",
+                    2 * 60 * 1000
+                )
                 ->orderBy('timestamp DESC')
                 ->limit(1)
         );
@@ -70,7 +79,11 @@ class Metrics
                 ->columns(['node.id', 'node.name', 'node_metric.timestamp', 'node_metric.value'])
                 ->from('prometheus_node_metric AS node_metric')
                 ->join('node', 'node_metric.node_id = node.id')
-                ->where('node_metric.group = ? AND node_metric.timestamp > UNIX_TIMESTAMP() * 1000 - ?', "network.$direction.bytes", $period)
+                ->where(
+                    'node_metric.group = ? AND node_metric.timestamp > UNIX_TIMESTAMP() * 1000 - ?',
+                    "network.$direction.bytes",
+                    $period
+                )
         );
 
         foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
@@ -96,12 +109,13 @@ class Metrics
                 ->join(
                     [
                         'latest_metrics' => (new Select())
-                        ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
-                        ->from('prometheus_pod_metric')
-                        ->where('`group` = ?', "$resource.request")
-                        ->groupBy('pod_id')
+                            ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
+                            ->from('prometheus_pod_metric')
+                            ->where('`group` = ?', "$resource.request")
+                            ->groupBy('pod_id')
                     ],
-                    'pod_metric.pod_id = latest_metrics.pod_id AND pod_metric.timestamp = latest_metrics.latest_timestamp'
+                    'pod_metric.pod_id = latest_metrics.pod_id'
+                    . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
                 )
                 ->where('pod_metric.group = ?', "$resource.request")
         );
@@ -123,12 +137,13 @@ class Metrics
                 ->join(
                     [
                         'latest_metrics' => (new Select())
-                        ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
-                        ->from('prometheus_pod_metric')
-                        ->where('`group` = ?', "$resource.limit")
-                        ->groupBy('pod_id')
+                            ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
+                            ->from('prometheus_pod_metric')
+                            ->where('`group` = ?', "$resource.limit")
+                            ->groupBy('pod_id')
                     ],
-                    'pod_metric.pod_id = latest_metrics.pod_id AND pod_metric.timestamp = latest_metrics.latest_timestamp'
+                    'pod_metric.pod_id = latest_metrics.pod_id'
+                    . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
                 )
                 ->where('pod_metric.group = ?', "$resource.limit")
         );
@@ -150,12 +165,13 @@ class Metrics
                 ->join(
                     [
                         'latest_metrics' => (new Select())
-                        ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
-                        ->from('prometheus_pod_metric')
-                        ->where('`group` = ?', 'cpu.usage.cores')
-                        ->groupBy('pod_id')
+                            ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
+                            ->from('prometheus_pod_metric')
+                            ->where('`group` = ?', 'cpu.usage.cores')
+                            ->groupBy('pod_id')
                     ],
-                    'pod_metric.pod_id = latest_metrics.pod_id AND pod_metric.timestamp = latest_metrics.latest_timestamp'
+                    'pod_metric.pod_id = latest_metrics.pod_id'
+                    . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
                 )
                 ->where('pod_metric.group = ?', 'cpu.usage.cores')
                 ->where('timestamp > UNIX_TIMESTAMP() * 1000 - ?', 2 * 60 * 1000)
@@ -178,12 +194,13 @@ class Metrics
                 ->join(
                     [
                         'latest_metrics' => (new Select())
-                        ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
-                        ->from('prometheus_pod_metric')
-                        ->where('`group` = ?', 'memory.usage.bytes')
-                        ->groupBy('pod_id')
+                            ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
+                            ->from('prometheus_pod_metric')
+                            ->where('`group` = ?', 'memory.usage.bytes')
+                            ->groupBy('pod_id')
                     ],
-                    'pod_metric.pod_id = latest_metrics.pod_id AND pod_metric.timestamp = latest_metrics.latest_timestamp'
+                    'pod_metric.pod_id = latest_metrics.pod_id'
+                    . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
                 )
                 ->where('pod_metric.group = ?', 'memory.usage.bytes')
                 ->where('timestamp > UNIX_TIMESTAMP() * 1000 - ?', 2 * 60 * 1000)
@@ -203,7 +220,11 @@ class Metrics
                 ->columns(['pod.id', 'pod.name', 'pod_metric.timestamp', 'pod_metric.value'])
                 ->from('prometheus_pod_metric AS pod_metric')
                 ->join('pod', 'pod_metric.pod_id = pod.id')
-                ->where('pod_metric.group = ? AND pod_metric.timestamp > UNIX_TIMESTAMP() * 1000 - ?', "$resource.usage", $period)
+                ->where(
+                    'pod_metric.group = ? AND pod_metric.timestamp > UNIX_TIMESTAMP() * 1000 - ?',
+                    "$resource.usage",
+                    $period
+                )
         );
 
         foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
