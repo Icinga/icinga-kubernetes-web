@@ -77,8 +77,24 @@ class ChartsController extends Controller
         $this->addContent(
             new DoughnutChart(
                 'chart-small',
-                implode(', ', [$numberOfRunningPods, $numberOfPendingPods, $numberOfFailedPods, $numberOfSucceededPods]),
-                implode(', ', [$numberOfRunningPods . ' Running', $numberOfPendingPods . ' Pending', $numberOfFailedPods . ' Failed', $numberOfSucceededPods . ' Succeeded']),
+                implode(
+                    ', ',
+                    [
+                    $numberOfRunningPods,
+                    $numberOfPendingPods,
+                    $numberOfFailedPods,
+                        $numberOfSucceededPods
+                    ]
+                ),
+                implode(
+                    ', ',
+                    [
+                        $numberOfRunningPods . ' Running',
+                        $numberOfPendingPods . ' Pending',
+                        $numberOfFailedPods . ' Failed',
+                        $numberOfSucceededPods . ' Succeeded'
+                    ]
+                ),
                 '#007bff, #ffc107, #dc3545, #28a745'
             )
         );
@@ -127,7 +143,9 @@ class ChartsController extends Controller
             $this->addContent(
                 new LineChart(
                     'chart-medium',
-                    implode(', ', $node['receivedBytes']) . '; ' . implode(', ', $node['transmittedBytes']),
+                    implode(', ', $node['receivedBytes'])
+                    . '; '
+                    . implode(', ', $node['transmittedBytes']),
                     implode(', ', array_keys($node['receivedBytes'])),
                     'Received Bytes; Transmitted Bytes',
                     '#593684; #a3367f'
@@ -249,8 +267,6 @@ class ChartsController extends Controller
 
         $table->addHtml($tbody);
         $this->addContent($table);
-
-
     }
 
     public function containerAction(): void
