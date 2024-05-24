@@ -9,17 +9,38 @@ use DateTimeInterface;
 
 class Metrics
 {
-    public static string $ClusterCpuUsage = 'cpu.usage';
+    public const CLUSTER_CPU_USAGE = 'cpu.usage';
 
-    public static string $ClusterMemoryUsage = 'memory.usage';
+    public const CLUSTER_MEMORY_USAGE = 'memory.usage';
 
-    public static string $PodStateRunning = 'running';
+    public const POD_STATE_RUNNING = 'running';
 
-    public static string $PodStatePending = 'pending';
+    public const POD_STATE_PENDING = 'pending';
 
-    public static string $PodStateFailed = 'failed';
+    public const POD_STATE_FAILED = 'failed';
 
-    public static string $PodStateSucceeded = 'succeeded';
+    public const POD_STATE_SUCCEEDED = 'succeeded';
+
+    public const NODE_NETWORK_RECEIVED_BYTES = 'network.received.bytes';
+
+    public const NODE_NETWORK_TRANSMITTED_BYTES = 'network.transmitted.bytes';
+
+    public const POD_CPU_REQUEST = 'cpu.request';
+
+    public const POD_MEMORY_REQUEST = 'memory.request';
+
+    public const POD_CPU_LIMIT = 'cpu.limit';
+
+    public const POD_MEMORY_LIMIT = 'memory.limit';
+
+    public const POD_CPU_USAGE_CORES = 'cpu.usage.cores';
+
+    public const POD_CPU_USAGE = 'cpu.usage';
+
+    public const POD_MEMORY_USAGE_BYTES = 'memory.usage.bytes';
+
+    public const POD_MEMORY_USAGE = 'memory.usage';
+
 
     protected Connection $db;
 
@@ -28,34 +49,33 @@ class Metrics
         $this->db = $db;
     }
 
-    public function getClusterUsage(DateTimeInterface $startDateTime, string ...$metricNames): array
+    public function getClusterMetrics(DateTimeInterface $startDateTime, string ...$metricCategories): array
     {
-        $out = [];
+        $data = [];
 
-        foreach ($metricNames as $metricName) {
-            $data = [];
-            $dbData = $this->db->prepexec(
+        foreach ($metricCategories as $category) {
+            $rs = $this->db->YieldAll(
                 (new Select())
                     ->columns(['timestamp', 'value'])
                     ->from('prometheus_cluster_metric')
                     ->where(
-                        '`group` = ? AND timestamp > ?',
-                        $metricName,
+                        'category = ? AND timestamp > ?',
+                        $category,
                         $startDateTime->getTimestamp() * 1000
-                    )
+                    ),
+                PDO::FETCH_ASSOC
             );
 
-            foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            foreach ($rs as $row) {
                 $ts = $row['timestamp'];
-                $data[$ts] = $row['value'];
+                $data[$category][$ts] = $row['value'];
             }
 
-            $this->fillGaps($data);
-            ksort($data);
-            $out[$metricName] = $data;
+            $this->fillGaps($data[$category]);
+            ksort($data[$category]);
         }
 
-        return $out;
+        return $data;
     }
 
     public function getNumberOfPodsByState(string ...$states): array
@@ -67,7 +87,7 @@ class Metrics
                 (new Select())
                     ->columns(['value'])
                     ->from('prometheus_cluster_metric')
-                    ->where('`group` = ?', "pod.$state")
+                    ->where('category = ?', "pod.$state")
                     ->orderBy('timestamp DESC')
                     ->limit(1)
             );
@@ -78,208 +98,111 @@ class Metrics
         return $out;
     }
 
-//    public function getNumberOfPodsByState(string $state): int
-//    {
-//        $dbData = $this->db->prepexec(
-//            (new Select())
-//                ->columns(['value'])
-//                ->from('prometheus_cluster_metric')
-//                ->where('`group` = ?', "pod.$state")
-//                ->orderBy('timestamp DESC')
-//                ->limit(1)
-//        );
-//
-//        return $dbData->fetchAll(PDO::FETCH_ASSOC)[0]['value'];
-//    }
-
-    public function getClusterUsageCurrent(string $resource): float|null
+    public function getNodeNetworkBytes(DateTimeInterface $startDataTime, string ...$metricCategories): array
     {
-        $dbData = $this->db->prepexec(
-            (new Select())
-                ->columns(['value'])
-                ->from('prometheus_cluster_metric')
-                ->where(
-                    '`group` = ? AND timestamp > UNIX_TIMESTAMP() * 1000 - ?',
-                    "$resource.usage",
-                    2 * 60 * 1000
-                )
-                ->orderBy('timestamp DESC')
-                ->limit(1)
-        );
+        $data = [];
 
-        return $dbData->fetchAll(PDO::FETCH_ASSOC)[0]['value'];
-    }
+        foreach ($metricCategories as $category) {
+            $rs = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['node.id', 'node.name', 'node_metric.timestamp', 'node_metric.value'])
+                    ->from('prometheus_node_metric AS node_metric')
+                    ->join('node', 'node_metric.node_id = node.id')
+                    ->where(
+                        'node_metric.category = ? AND node_metric.timestamp > ?',
+                        $category,
+                        $startDataTime->getTimestamp() * 1000
+                    ),
+                PDO::FETCH_ASSOC
+            );
 
-    public function getNodeNetworkBytes(array &$nodeMetrics, string $direction, int $period): void
-    {
-        $dbData = $this->db->prepexec(
-            (new Select())
-                ->columns(['node.id', 'node.name', 'node_metric.timestamp', 'node_metric.value'])
-                ->from('prometheus_node_metric AS node_metric')
-                ->join('node', 'node_metric.node_id = node.id')
-                ->where(
-                    'node_metric.group = ? AND node_metric.timestamp > UNIX_TIMESTAMP() * 1000 - ?',
-                    "network.$direction.bytes",
-                    $period
-                )
-        );
-
-        foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $id = $row['id'];
-            $ts = $row['timestamp'];
-            $nodeMetrics[$id]['name'] = $row['name'];
-            $nodeMetrics[$id][$direction . 'Bytes'][$ts] = $row['value'];
-        }
-
-        foreach ($nodeMetrics as &$nodeMetric) {
-            $this->fillGaps($nodeMetric[$direction . 'Bytes']);
-            ksort($nodeMetric[$direction . 'Bytes']);
-        }
-    }
-
-    public function getPodRequest(array &$podMetrics, string $resource): void
-    {
-        $dbData = $this->db->prepexec(
-            (new Select())
-                ->columns(['pod.id', 'pod.name', 'pod_metric.value'])
-                ->from('prometheus_pod_metric AS pod_metric')
-                ->join('pod', 'pod_metric.pod_id = pod.id')
-                ->join(
-                    [
-                        'latest_metrics' => (new Select())
-                            ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
-                            ->from('prometheus_pod_metric')
-                            ->where('`group` = ?', "$resource.request")
-                            ->groupBy('pod_id')
-                    ],
-                    'pod_metric.pod_id = latest_metrics.pod_id'
-                    . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
-                )
-                ->where('pod_metric.group = ?', "$resource.request")
-        );
-
-        foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $id = $row['id'];
-            $podMetrics[$id]['name'] = $row['name'];
-            $podMetrics[$id][$resource . 'Request'] = $row['value'];
-        }
-    }
-
-    public function getPodLimit(array &$podMetrics, string $resource): void
-    {
-        $dbData = $this->db->prepexec(
-            (new Select())
-                ->columns(['pod.id', 'pod.name', 'pod_metric.value'])
-                ->from('prometheus_pod_metric AS pod_metric')
-                ->join('pod', 'pod_metric.pod_id = pod.id')
-                ->join(
-                    [
-                        'latest_metrics' => (new Select())
-                            ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
-                            ->from('prometheus_pod_metric')
-                            ->where('`group` = ?', "$resource.limit")
-                            ->groupBy('pod_id')
-                    ],
-                    'pod_metric.pod_id = latest_metrics.pod_id'
-                    . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
-                )
-                ->where('pod_metric.group = ?', "$resource.limit")
-        );
-
-        foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $id = $row['id'];
-            $podMetrics[$id]['name'] = $row['name'];
-            $podMetrics[$id][$resource . 'Limit'] = $row['value'];
-        }
-    }
-
-    public function getPodCpuCoreUsage(array &$podMetrics): void
-    {
-        $dbData = $this->db->prepexec(
-            (new Select())
-                ->columns(['pod.id', 'pod.name', 'pod_metric.value'])
-                ->from('prometheus_pod_metric AS pod_metric')
-                ->join('pod', 'pod_metric.pod_id = pod.id')
-                ->join(
-                    [
-                        'latest_metrics' => (new Select())
-                            ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
-                            ->from('prometheus_pod_metric')
-                            ->where('`group` = ?', 'cpu.usage.cores')
-                            ->groupBy('pod_id')
-                    ],
-                    'pod_metric.pod_id = latest_metrics.pod_id'
-                    . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
-                )
-                ->where('pod_metric.group = ?', 'cpu.usage.cores')
-                ->where('timestamp > UNIX_TIMESTAMP() * 1000 - ?', 2 * 60 * 1000)
-        );
-
-        foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $id = $row['id'];
-            $podMetrics[$id]['name'] = $row['name'];
-            $podMetrics[$id]['cpuUsageCores'] = $row['value'];
-        }
-    }
-
-    public function getPodMemoryByteUsage(array &$podMetrics): void
-    {
-        $dbData = $this->db->prepexec(
-            (new Select())
-                ->columns(['pod.id', 'pod.name', 'pod_metric.value'])
-                ->from('prometheus_pod_metric AS pod_metric')
-                ->join('pod', 'pod_metric.pod_id = pod.id')
-                ->join(
-                    [
-                        'latest_metrics' => (new Select())
-                            ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
-                            ->from('prometheus_pod_metric')
-                            ->where('`group` = ?', 'memory.usage.bytes')
-                            ->groupBy('pod_id')
-                    ],
-                    'pod_metric.pod_id = latest_metrics.pod_id'
-                    . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
-                )
-                ->where('pod_metric.group = ?', 'memory.usage.bytes')
-                ->where('timestamp > UNIX_TIMESTAMP() * 1000 - ?', 2 * 60 * 1000)
-        );
-
-        foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $id = $row['id'];
-            $podMetrics[$id]['name'] = $row['name'];
-            $podMetrics[$id]['memoryUsageBytes'] = $row['value'];
-        }
-    }
-
-    public function getPodUsage(array &$podMetrics, string $resource, int $period): void
-    {
-        $dbData = $this->db->prepexec(
-            (new Select())
-                ->columns(['pod.id', 'pod.name', 'pod_metric.timestamp', 'pod_metric.value'])
-                ->from('prometheus_pod_metric AS pod_metric')
-                ->join('pod', 'pod_metric.pod_id = pod.id')
-                ->where(
-                    'pod_metric.group = ? AND pod_metric.timestamp > UNIX_TIMESTAMP() * 1000 - ?',
-                    "$resource.usage",
-                    $period
-                )
-        );
-
-        foreach ($dbData->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $id = $row['id'];
-            $ts = $row['timestamp'];
-
-            $podMetrics[$id]['name'] = $row['name'];
-            $podMetrics[$id][$resource][$ts] = $row['value'];
-        }
-
-        foreach ($podMetrics as &$podMetric) {
-            if (!isset($podMetric[$resource])) {
-                continue;
+            foreach ($rs as $row) {
+                $id = $row['id'];
+                $ts = $row['timestamp'];
+                $data[$id]['name'] = $row['name'];
+                $data[$id][$category][$ts] = $row['value'];
             }
-            $this->fillGaps($podMetric[$resource]);
-            ksort($podMetric[$resource]);
+
+            foreach ($data as &$pod) {
+                $this->fillGaps($pod[$category]);
+                ksort($pod[$category]);
+            }
         }
+
+        return $data;
+    }
+
+    public function getPodMetricsCurrent(string ...$metricCategories): array
+    {
+        $data = [];
+
+        foreach ($metricCategories as $category) {
+            $rs = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['pod.id', 'pod.name', 'pod_metric.value'])
+                    ->from('prometheus_pod_metric AS pod_metric')
+                    ->join('pod', 'pod_metric.pod_id = pod.id')
+                    ->join(
+                        [
+                            'latest_metrics' => (new Select())
+                                ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
+                                ->from('prometheus_pod_metric')
+                                ->where('category = ?', $category)
+                                ->groupBy('pod_id')
+                        ],
+                        'pod_metric.pod_id = latest_metrics.pod_id'
+                        . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
+                    )
+                    ->where('pod_metric.category = ?', $category),
+                PDO::FETCH_ASSOC
+            );
+
+            foreach ($rs as $row) {
+                $id = $row['id'];
+                $data[$id]['name'] = $row['name'];
+                $data[$id][$category] = $row['value'];
+            }
+        }
+
+        return $data;
+    }
+
+    public function getPodMetrics(DateTimeInterface $startDateTime, string ...$metricCategories): array
+    {
+        $data = [];
+
+        foreach ($metricCategories as $category) {
+            $rs = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['pod.id', 'pod.name', 'pod_metric.timestamp', 'pod_metric.value'])
+                    ->from('prometheus_pod_metric AS pod_metric')
+                    ->join('pod', 'pod_metric.pod_id = pod.id')
+                    ->where(
+                        'pod_metric.category = ? AND pod_metric.timestamp > ?',
+                        $category,
+                        $startDateTime->getTimestamp() * 1000
+                    ),
+                PDO::FETCH_ASSOC
+            );
+
+            foreach ($rs as $row) {
+                $id = $row['id'];
+                $ts = $row['timestamp'];
+
+                $data[$id]['name'] = $row['name'];
+                $data[$id][$category][$ts] = $row['value'];
+            }
+
+            foreach ($data as &$pod) {
+                if (!isset($pod[$category])) {
+                    continue;
+                }
+                $this->fillGaps($pod[$category]);
+                ksort($pod[$category]);
+            }
+        }
+
+        return $data;
     }
 
     protected function fillGaps(array &$data): void
@@ -292,5 +215,21 @@ class Metrics
                 $data[$ts] = 0;
             }
         }
+    }
+    public static function mergeMetrics(array ...$arrays): array
+    {
+        $merged = [];
+
+        array_walk($arrays, function ($array) use (&$merged) {
+            array_walk($array, function ($item, $key) use (&$merged) {
+                if (isset($merged[$key])) {
+                    $merged[$key] += $item;
+                } else {
+                    $merged[$key] = $item;
+                }
+            });
+        });
+
+        return $merged;
     }
 }
