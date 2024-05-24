@@ -6,7 +6,8 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\Node;
+use Icinga\Module\Kubernetes\Common\Metrics;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -49,6 +50,33 @@ class NodeListItem extends BaseListItem
             $this->translate('Memory Capacity'),
             Format::bytes($this->item->memory_allocatable / 1000)
         ));
+
+        $metrics = new Metrics(Database::connection());
+        $nodeMetrics = $metrics->getNodeMetricsCurrent(
+            $this->item->id,
+            Metrics::NODE_CPU_USAGE,
+            Metrics::NODE_MEMORY_USAGE
+        );
+
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('CPU Usage'),
+            new DoughnutChartStates(
+                'chart-mini',
+                $nodeMetrics[Metrics::NODE_CPU_USAGE],
+                'CPU Usage',
+                '#28a745, #ffc107, #dc3545'
+            )
+        ));
+        $keyValue->addHtml(new VerticalKeyValue(
+            $this->translate('Memory Usage'),
+            new DoughnutChartStates(
+                'chart-mini',
+                $nodeMetrics[Metrics::NODE_MEMORY_USAGE],
+                'Memory Usage',
+                '#28a745, #ffc107, #dc3545'
+            )
+        ));
+
         $main->addHtml($keyValue);
     }
 

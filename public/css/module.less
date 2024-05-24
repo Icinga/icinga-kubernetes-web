@@ -1,7 +1,7 @@
 /* Icinga for Kubernetes Web | (c) 2023 Icinga GmbH | AGPLv3 */
 
 .chart-mini {
-  width: 10em;
+  width: 8em;
 }
 
 .chart-small {
@@ -14,6 +14,11 @@
 
 .chart-big {
   width: 60em;
+}
+
+.metric-charts-row {
+  display: flex;
+  column-gap: 2em;
 }
 
 .navigation-list {
@@ -108,9 +113,11 @@
 
 .key-value {
   margin-top: 1em;
-  max-width: 60em;
+  //max-width: 60em;
   display: flex;
-  justify-content: space-between;
+  //justify-content: space-between;
+  justify-content: start;
+  align-items: center;
 
   .horizontal-key-value,
   .vertical-key-value {
@@ -132,6 +139,8 @@
   .vertical-key-value .key {
     font-size: 16/18em;
     line-height: 18/16; // compensate smaller font-size (1/font-size)
+    display: flex;
+    justify-content: center;
   }
 
   .vertical-key-value .value {
