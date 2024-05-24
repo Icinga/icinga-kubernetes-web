@@ -46,19 +46,18 @@ class ChartsController extends Controller
         );
 
         $metrics = new Metrics(Database::connection());
-        $clusterMetrics = [];
 
-        $clusterMetrics = $metrics->getClusterUsage(
+        $clusterMetrics = $metrics->getClusterMetrics(
             (new DateTime())->sub(new DateInterval('PT12H')),
-            Metrics::$ClusterCpuUsage,
-            Metrics::$ClusterMemoryUsage
+            Metrics::CLUSTER_CPU_USAGE,
+            Metrics::CLUSTER_MEMORY_USAGE
         );
 
         $this->addContent(
             new LineChart(
                 'chart-medium',
-                implode(', ', $clusterMetrics[Metrics::$ClusterCpuUsage]),
-                implode(', ', array_keys($clusterMetrics[Metrics::$ClusterCpuUsage])),
+                implode(', ', $clusterMetrics[Metrics::CLUSTER_CPU_USAGE]),
+                implode(', ', array_keys($clusterMetrics[Metrics::CLUSTER_CPU_USAGE])),
                 'CPU Usage',
                 '#00a8ff'
             )
@@ -67,23 +66,18 @@ class ChartsController extends Controller
         $this->addContent(
             new LineChart(
                 'chart-medium',
-                implode(', ', $clusterMetrics[Metrics::$ClusterMemoryUsage]),
-                implode(', ', array_keys($clusterMetrics[Metrics::$ClusterMemoryUsage])),
+                implode(', ', $clusterMetrics[Metrics::CLUSTER_MEMORY_USAGE]),
+                implode(', ', array_keys($clusterMetrics[Metrics::CLUSTER_MEMORY_USAGE])),
                 'Memory Usage',
                 '#8c7ae6'
             )
         );
 
-//        $numberOfRunningPods = $metrics->getNumberOfPodsByState('running');
-//        $numberOfPendingPods = $metrics->getNumberOfPodsByState('pending');
-//        $numberOfFailedPods = $metrics->getNumberOfPodsByState('failed');
-//        $numberOfSucceededPods = $metrics->getNumberOfPodsByState('succeeded');
-
         $pods = $metrics->getNumberOfPodsByState(
-            Metrics::$PodStateRunning,
-            Metrics::$PodStatePending,
-            Metrics::$PodStateFailed,
-            Metrics::$PodStateSucceeded
+            Metrics::POD_STATE_RUNNING,
+            Metrics::POD_STATE_PENDING,
+            Metrics::POD_STATE_FAILED,
+            Metrics::POD_STATE_SUCCEEDED
         );
 
         $this->addContent(
@@ -92,35 +86,35 @@ class ChartsController extends Controller
                 implode(
                     ', ',
                     [
-                    $pods[Metrics::$PodStateRunning],
-                    $pods[Metrics::$PodStatePending],
-                    $pods[Metrics::$PodStateFailed],
-                    $pods[Metrics::$PodStateSucceeded]
+                        $pods[Metrics::POD_STATE_RUNNING],
+                        $pods[Metrics::POD_STATE_PENDING],
+                        $pods[Metrics::POD_STATE_FAILED],
+                        $pods[Metrics::POD_STATE_SUCCEEDED]
                     ]
                 ),
                 implode(
                     ', ',
                     [
-                        $pods[Metrics::$PodStateRunning] . ' Running',
-                        $pods[Metrics::$PodStatePending] . ' Pending',
-                        $pods[Metrics::$PodStateFailed] . ' Failed',
-                        $pods[Metrics::$PodStateSucceeded] . ' Succeeded'
+                        $pods[Metrics::POD_STATE_RUNNING] . ' Running',
+                        $pods[Metrics::POD_STATE_PENDING] . ' Pending',
+                        $pods[Metrics::POD_STATE_FAILED] . ' Failed',
+                        $pods[Metrics::POD_STATE_SUCCEEDED] . ' Succeeded'
                     ]
                 ),
                 '#007bff, #ffc107, #dc3545, #28a745'
             )
         );
 
-        $current = $metrics->getClusterUsage(
-            (new DateTime())->sub(new DateInterval('PT1M')),
-            Metrics::$ClusterCpuUsage,
-            Metrics::$ClusterMemoryUsage
+        $current = $metrics->getClusterMetrics(
+            (new DateTime())->sub(new DateInterval('PT2M')),
+            Metrics::CLUSTER_CPU_USAGE,
+            Metrics::CLUSTER_MEMORY_USAGE
         );
 
         $this->addContent(
             new DoughnutChartStates(
                 'chart-small',
-                $current[Metrics::$ClusterCpuUsage][array_key_last($current[Metrics::$ClusterCpuUsage])],
+                $current[Metrics::CLUSTER_CPU_USAGE][array_key_last($current[Metrics::CLUSTER_CPU_USAGE])],
                 'CPU Usage',
                 '#28a745, #ffc107, #dc3545'
             )
@@ -129,7 +123,7 @@ class ChartsController extends Controller
         $this->addContent(
             new DoughnutChartStates(
                 'chart-small',
-                $current[Metrics::$ClusterMemoryUsage][array_key_last($current[Metrics::$ClusterMemoryUsage])],
+                $current[Metrics::CLUSTER_MEMORY_USAGE][array_key_last($current[Metrics::CLUSTER_MEMORY_USAGE])],
                 'Memory Usage',
                 '#28a745, #ffc107, #dc3545'
             )
@@ -149,19 +143,22 @@ class ChartsController extends Controller
         );
 
         $metrics = new Metrics(Database::connection());
-        $nodeMetrics = [];
 
-        $metrics->getNodeNetworkBytes($nodeMetrics, 'received', $this->LAST_1_HOUR);
-        $metrics->getNodeNetworkBytes($nodeMetrics, 'transmitted', $this->LAST_1_HOUR);
+        $nodeNetworkMetrics = $metrics->getNodeNetworkBytes(
+            (new DateTime())->sub(new DateInterval('PT1H')),
+            Metrics::NODE_NETWORK_RECEIVED_BYTES,
+            Metrics::NODE_NETWORK_TRANSMITTED_BYTES
+        );
 
-        foreach ($nodeMetrics as $node) {
+
+        foreach ($nodeNetworkMetrics as $node) {
             $this->addContent(
                 new LineChart(
                     'chart-medium',
-                    implode(', ', $node['receivedBytes'])
+                    implode(', ', $node[Metrics::NODE_NETWORK_RECEIVED_BYTES])
                     . '; '
-                    . implode(', ', $node['transmittedBytes']),
-                    implode(', ', array_keys($node['receivedBytes'])),
+                    . implode(', ', $node[Metrics::NODE_NETWORK_TRANSMITTED_BYTES]),
+                    implode(', ', array_keys($node[Metrics::NODE_NETWORK_RECEIVED_BYTES])),
                     'Received Bytes; Transmitted Bytes',
                     '#593684; #a3367f'
                 )
@@ -182,23 +179,23 @@ class ChartsController extends Controller
         );
 
         $metrics = new Metrics(Database::connection());
-        $podMetrics = [];
 
-        $metrics->getPodRequest($podMetrics, 'cpu');
-        $metrics->getPodRequest($podMetrics, 'memory');
+        $podMetricsCurrent = $metrics->getPodMetricsCurrent(
+            Metrics::POD_CPU_REQUEST,
+            Metrics::POD_CPU_LIMIT,
+            Metrics::POD_CPU_USAGE_CORES,
+            Metrics::POD_MEMORY_REQUEST,
+            Metrics::POD_MEMORY_LIMIT,
+            Metrics::POD_MEMORY_USAGE_BYTES
+        );
 
-        $metrics->getPodLimit($podMetrics, 'cpu');
-        $metrics->getPodLimit($podMetrics, 'memory');
+        $podMetricsPeriod = $metrics->getPodMetrics(
+            (new DateTime())->sub(new DateInterval('PT1H')),
+            Metrics::POD_CPU_USAGE,
+            Metrics::POD_MEMORY_USAGE
+        );
 
-        $metrics->getPodCpuCoreUsage($podMetrics);
-        $metrics->getPodMemoryByteUsage($podMetrics);
-
-        $metrics->getPodUsage($podMetrics, 'cpu', $this->LAST_1_HOUR);
-        $metrics->getPodUsage($podMetrics, 'memory', $this->LAST_1_HOUR);
-
-        echo '<pre>';
-//        print_r($podMetrics);
-//        exit;
+        $podMetrics = Metrics::mergeMetrics($podMetricsCurrent, $podMetricsPeriod);
 
         $table = new HtmlElement('table', new Attributes(['class' => 'condition-table']));
         $table->addHtml(
@@ -224,13 +221,13 @@ class ChartsController extends Controller
             $tr->addHtml(new HtmlElement('td', null, new Text($pod['name'])));
             $td = new HtmlElement('td', null);
 
-            if (isset($pod['cpuLimit']) && $pod['cpuRequest'] < $pod['cpuLimit']) {
+            if (isset($pod[Metrics::POD_CPU_LIMIT]) && $pod[Metrics::POD_CPU_REQUEST] < $pod[Metrics::POD_CPU_LIMIT]) {
                 $td->addHtml(
                     new DoughnutChartRequestLimit(
                         'chart-mini',
-                        $pod['cpuRequest'],
-                        $pod['cpuLimit'],
-                        $pod['cpuUsageCores']
+                        $pod[Metrics::POD_CPU_REQUEST],
+                        $pod[Metrics::POD_CPU_LIMIT],
+                        $pod[Metrics::POD_CPU_USAGE_CORES]
                     )
                 );
             }
@@ -238,13 +235,16 @@ class ChartsController extends Controller
             $tr->addHtml($td);
             $td = new HtmlElement('td', null);
 
-            if (isset($pod['memoryLimit']) && $pod['memoryRequest'] < $pod['memoryLimit']) {
+            if (
+                isset($pod[Metrics::POD_MEMORY_LIMIT])
+                && $pod[Metrics::POD_MEMORY_REQUEST] < $pod[Metrics::POD_MEMORY_LIMIT]
+            ) {
                 $td->addHtml(
                     new DoughnutChartRequestLimit(
                         'chart-mini',
-                        $pod['memoryRequest'],
-                        $pod['memoryLimit'],
-                        $pod['memoryUsageBytes']
+                        $pod[Metrics::POD_MEMORY_REQUEST],
+                        $pod[Metrics::POD_MEMORY_LIMIT],
+                        $pod[Metrics::POD_MEMORY_USAGE_BYTES]
                     )
                 );
             }
@@ -252,12 +252,12 @@ class ChartsController extends Controller
             $tr->addHtml($td);
             $td = new HtmlElement('td', null);
 
-            if (isset($pod['cpu'])) {
+            if (isset($pod[Metrics::POD_CPU_USAGE])) {
                 $td->addHtml(
                     new LineChartMinified(
                         'chart-mini',
-                        implode(', ', $pod['cpu']),
-                        implode(', ', array_keys($pod['cpu'])),
+                        implode(', ', $pod[Metrics::POD_CPU_USAGE]),
+                        implode(', ', array_keys($pod[Metrics::POD_CPU_USAGE])),
                         '#00a8ff'
                     )
                 );
@@ -266,12 +266,12 @@ class ChartsController extends Controller
             $tr->addHtml($td);
             $td = new HtmlElement('td', null);
 
-            if (isset($pod['memory'])) {
+            if (isset($pod[Metrics::POD_MEMORY_USAGE])) {
                 $td->addHtml(
                     new LineChartMinified(
                         'chart-mini',
-                        implode(', ', $pod['memory']),
-                        implode(', ', array_keys($pod['memory'])),
+                        implode(', ', $pod[Metrics::POD_MEMORY_USAGE]),
+                        implode(', ', array_keys($pod[Metrics::POD_MEMORY_USAGE])),
                         '#ffa800'
                     )
                 );
