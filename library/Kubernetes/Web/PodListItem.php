@@ -81,7 +81,8 @@ class PodListItem extends BaseListItem
                         'chart-mini',
                         $podMetricsCurrent[Metrics::POD_CPU_REQUEST],
                         $podMetricsCurrent[Metrics::POD_CPU_LIMIT],
-                        $podMetricsCurrent[Metrics::POD_CPU_USAGE_CORES]
+                        $podMetricsCurrent[Metrics::POD_CPU_USAGE_CORES],
+                        Metrics::COLOR_CPU
                     )
                 )
             );
@@ -94,7 +95,8 @@ class PodListItem extends BaseListItem
                         'chart-mini',
                         $podMetricsCurrent[Metrics::POD_MEMORY_REQUEST],
                         $podMetricsCurrent[Metrics::POD_MEMORY_LIMIT],
-                        $podMetricsCurrent[Metrics::POD_MEMORY_USAGE_BYTES]
+                        $podMetricsCurrent[Metrics::POD_MEMORY_USAGE_BYTES],
+                        Metrics::COLOR_MEMORY
                     )
                 )
             );

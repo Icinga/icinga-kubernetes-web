@@ -213,7 +213,7 @@
                                 backgroundColor: [
                                     '#0000',
                                     color,
-                                    '#aaaaaa7f'
+                                    '#aaaaaa3f'
                                 ],
                                 weight: 6,
                             }
@@ -259,9 +259,10 @@
 
             for (let doughnutChartRequestLimit of doughnutChartRequestLimits) {
 
-                let real = doughnutChartRequestLimit.dataset.real;
                 let request = doughnutChartRequestLimit.dataset.request;
                 let limit = doughnutChartRequestLimit.dataset.limit;
+                let real = doughnutChartRequestLimit.dataset.real;
+                let realColor = doughnutChartRequestLimit.dataset.realColor;
 
                 new Chart(doughnutChartRequestLimit, {
                         type: "doughnut",
@@ -271,7 +272,7 @@
 
                                 {
                                     borderWidth: 0,
-                                    backgroundColor: ["#0000", "#44d982", "#aaaaaa7f"],
+                                    backgroundColor: ["#0000", "#44d982", "#aaaaaa3f"],
                                     data: [2 / 3 * limit, request, limit - request],
                                     thickness: [[80, 90]],
                                     weight: 5,
@@ -284,7 +285,7 @@
                                 },
                                 {
                                     borderWidth: 0,
-                                    backgroundColor: ["#0000", "#593684", "#aaaaaa7f"],
+                                    backgroundColor: ["#0000", realColor, "#aaaaaa3f"],
                                     data: [2 / 3 * limit, real, limit - real],
                                     weight: 15,
                                 },
@@ -296,7 +297,7 @@
                                 },
                                 {
                                     borderWidth: 0,
-                                    backgroundColor: ["#0000", "#7eadff", "#aaaaaa7f"],
+                                    backgroundColor: ["#0000", "#7eadff", "#aaaaaa3f"],
                                     data: [2 / 3 * limit, limit, 0],
                                     weight: 5,
                                 },
