@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\NodeCondition;
@@ -17,6 +18,8 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\StateBall;
+use DateTime;
+use DateInterval;
 
 class NodeDetail extends BaseHtmlElement
 {
@@ -34,39 +37,66 @@ class NodeDetail extends BaseHtmlElement
 
     protected function assemble()
     {
+        $metrics = new Metrics(Database::connection());
+        $nodeMetricsPeriod = $metrics->getNodeMetrics(
+            (new DateTime())->sub(new DateInterval('PT12H')),
+            $this->node->id,
+            Metrics::NODE_CPU_USAGE,
+            Metrics::NODE_MEMORY_USAGE
+        );
+        $metricRow = [];
+        if (isset ($nodeMetricsPeriod[Metrics::NODE_CPU_USAGE])) {
+            $metricRow[] = new LineChart(
+                'chart-medium',
+                implode(', ', $nodeMetricsPeriod[Metrics::NODE_CPU_USAGE]),
+                implode(', ', array_keys($nodeMetricsPeriod[Metrics::NODE_CPU_USAGE])),
+                'CPU Usage',
+                Metrics::COLOR_CPU
+            );
+        }
+        if (isset ($nodeMetricsPeriod[Metrics::NODE_MEMORY_USAGE])) {
+            $metricRow[] = new LineChart(
+                'chart-medium',
+                implode(', ', $nodeMetricsPeriod[Metrics::NODE_MEMORY_USAGE]),
+                implode(', ', array_keys($nodeMetricsPeriod[Metrics::NODE_MEMORY_USAGE])),
+                'Memory Usage',
+                Metrics::COLOR_MEMORY
+            );
+        }
         $this->addHtml(
+            new MetricCharts($metricRow),
             new Details([
-                $this->translate('Name')                      => $this->node->name,
-                $this->translate('UID')                       => $this->node->uid,
-                $this->translate('Resource Version')          => $this->node->resource_version,
-                $this->translate('Created')                   => $this->node->created->format('Y-m-d H:i:s'),
-                $this->translate('Pod CIDR')                  => $this->node->pod_cidr,
-                $this->translate('Number of IPs')             => $this->node->num_ips,
-                $this->translate('Unschedulable')             => $this->node->unschedulable,
-                $this->translate('Ready')                     => $this->node->ready,
-                $this->translate('CPU Capacity')              => sprintf('%d cores', $this->node->cpu_capacity / 1000),
-                $this->translate('CPU Allocatable')           => sprintf(
+                $this->translate('Name') => $this->node->name,
+                $this->translate('UID') => $this->node->uid,
+                $this->translate('Resource Version') => $this->node->resource_version,
+                $this->translate('Created') => $this->node->created->format('Y-m-d H:i:s'),
+                $this->translate('Pod CIDR') => $this->node->pod_cidr,
+                $this->translate('Number of IPs') => $this->node->num_ips,
+                $this->translate('Unschedulable') => $this->node->unschedulable,
+                $this->translate('Ready') => $this->node->ready,
+                $this->translate('CPU Capacity') => sprintf('%d cores', $this->node->cpu_capacity / 1000),
+                $this->translate('CPU Allocatable') => sprintf(
                     '%d cores',
                     $this->node->cpu_allocatable / 1000
                 ),
-                $this->translate('Memory Capacity')           => Format::bytes($this->node->memory_capacity / 1000),
-                $this->translate('Memory Allocatable')        => Format::bytes($this->node->memory_allocatable / 1000),
-                $this->translate('Pod Capacity')              => $this->node->pod_capacity,
-                $this->translate('Roles')                     => $this->node->roles,
-                $this->translate('Machine ID')                => $this->node->machine_id,
-                $this->translate('System UUID')               => $this->node->system_uuid,
-                $this->translate('Boot ID')                   => $this->node->boot_id,
-                $this->translate('Kernel Version')            => $this->node->kernel_version,
-                $this->translate('OS Image')                  => $this->node->os_image,
-                $this->translate('Operating System')          => $this->node->operating_system,
-                $this->translate('Architecture')              => $this->node->architecture,
+                $this->translate('Memory Capacity') => Format::bytes($this->node->memory_capacity / 1000),
+                $this->translate('Memory Allocatable') => Format::bytes($this->node->memory_allocatable / 1000),
+                $this->translate('Pod Capacity') => $this->node->pod_capacity,
+                $this->translate('Roles') => $this->node->roles,
+                $this->translate('Machine ID') => $this->node->machine_id,
+                $this->translate('System UUID') => $this->node->system_uuid,
+                $this->translate('Boot ID') => $this->node->boot_id,
+                $this->translate('Kernel Version') => $this->node->kernel_version,
+                $this->translate('OS Image') => $this->node->os_image,
+                $this->translate('Operating System') => $this->node->operating_system,
+                $this->translate('Architecture') => $this->node->architecture,
                 $this->translate('Container Runtime Version') => $this->node->container_runtime_version,
-                $this->translate('Kubelet Version')           => $this->node->kubelet_version,
-                $this->translate('Kube Proxy Version')        => $this->node->kube_proxy_version,
-                $this->translate('Icinga State')              => (new HtmlDocument())
+                $this->translate('Kubelet Version') => $this->node->kubelet_version,
+                $this->translate('Kube Proxy Version') => $this->node->kube_proxy_version,
+                $this->translate('Icinga State') => (new HtmlDocument())
                     ->addHtml(new StateBall($this->node->icinga_state, StateBall::SIZE_MEDIUM))
                     ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->node->icinga_state))),
-                $this->translate('Icinga State Reason')       => new HtmlElement(
+                $this->translate('Icinga State Reason') => new HtmlElement(
                     'div',
                     new Attributes(['class' => 'state-reason detail']),
                     Text::create($this->node->icinga_state_reason)

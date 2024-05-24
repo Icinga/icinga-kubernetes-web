@@ -5,14 +5,14 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Links;
+use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Model\Container;
-use Icinga\Module\Kubernetes\Model\Pod;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
-use ipl\Html\HtmlString;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
@@ -40,7 +40,7 @@ class PodListItem extends BaseListItem
         $main->addHtml(new HtmlElement(
             'div',
             new Attributes(['class' => 'state-reason list']),
-            Text::create(explode("\n", (string) $this->item->icinga_state_reason)[0])
+            Text::create(explode("\n", (string)$this->item->icinga_state_reason)[0])
         ));
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
@@ -61,6 +61,45 @@ class PodListItem extends BaseListItem
             new HorizontalKeyValue($this->translate('Namespace'), $this->item->namespace),
             new HorizontalKeyValue($this->translate('Node'), $this->item->node_name)
         ));
+
+        $metrics = new Metrics(Database::connection());
+        $podMetricsCurrent = $metrics->getPodMetricsCurrent(
+            $this->item->id,
+            Metrics::POD_CPU_REQUEST,
+            Metrics::POD_CPU_LIMIT,
+            Metrics::POD_CPU_USAGE_CORES,
+            Metrics::POD_MEMORY_REQUEST,
+            Metrics::POD_MEMORY_LIMIT,
+            Metrics::POD_MEMORY_USAGE_BYTES
+        );
+
+        if (isset($podMetricsCurrent[Metrics::POD_CPU_LIMIT]) && $podMetricsCurrent[Metrics::POD_CPU_REQUEST] < $podMetricsCurrent[Metrics::POD_CPU_LIMIT]) {
+            $keyValue->addHtml(
+                new VerticalKeyValue(
+                    $this->translate('CPU Request/Limit'),
+                    new DoughnutChartRequestLimit(
+                        'chart-mini',
+                        $podMetricsCurrent[Metrics::POD_CPU_REQUEST],
+                        $podMetricsCurrent[Metrics::POD_CPU_LIMIT],
+                        $podMetricsCurrent[Metrics::POD_CPU_USAGE_CORES]
+                    )
+                )
+            );
+        }
+        if (isset($podMetricsCurrent[Metrics::POD_MEMORY_LIMIT]) && $podMetricsCurrent[Metrics::POD_MEMORY_REQUEST] < $podMetricsCurrent[Metrics::POD_MEMORY_LIMIT]) {
+            $keyValue->addHtml(
+                new VerticalKeyValue(
+                    $this->translate('Memory Request/Limit'),
+                    new DoughnutChartRequestLimit(
+                        'chart-mini',
+                        $podMetricsCurrent[Metrics::POD_MEMORY_REQUEST],
+                        $podMetricsCurrent[Metrics::POD_MEMORY_LIMIT],
+                        $podMetricsCurrent[Metrics::POD_MEMORY_USAGE_BYTES]
+                    )
+                )
+            );
+        }
+
         $main->addHtml($keyValue);
     }
 
