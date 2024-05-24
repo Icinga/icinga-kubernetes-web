@@ -1,4 +1,4 @@
-/* Icinga Web 2 | (c) 2022 Icinga GmbH | GPLv2+ */
+/* Icinga Web 2 | (c) 2024 Icinga GmbH | GPLv2+ */
 
 (function (Icinga) {
 
@@ -222,7 +222,7 @@
                     options: {
                         animation: false,
                         rotation: 360 * 0.3,
-                        cutout: '70%',
+                        cutout: '50%',
                         plugins: {
                             legend: {
                                 display: false,
@@ -286,7 +286,7 @@
                                     borderWidth: 0,
                                     backgroundColor: ["#0000", "#593684", "#aaaaaa7f"],
                                     data: [2 / 3 * limit, real, limit - real],
-                                    weight: 20,
+                                    weight: 15,
                                 },
                                 {
                                     borderWidth: 0,
@@ -308,7 +308,7 @@
                                     enabled: false,
                                 },
                             },
-                            cutout: "50%",
+                            cutout: "40%",
                             hover: {
                                 mode: null,
                             },
