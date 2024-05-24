@@ -1,5 +1,7 @@
 <?php
 
+/* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Common;
 
 use ipl\Sql\Select;
@@ -9,6 +11,10 @@ use DateTimeInterface;
 
 class Metrics
 {
+    public const COLOR_CPU = '#FFCA3A';
+
+    public const COLOR_MEMORY = '#1982C4';
+
     public const CLUSTER_CPU_USAGE = 'cpu.usage';
 
     public const CLUSTER_MEMORY_USAGE = 'memory.usage';
@@ -20,6 +26,10 @@ class Metrics
     public const POD_STATE_FAILED = 'failed';
 
     public const POD_STATE_SUCCEEDED = 'succeeded';
+
+    public const NODE_CPU_USAGE = 'cpu.usage';
+
+    public const NODE_MEMORY_USAGE = 'memory.usage';
 
     public const NODE_NETWORK_RECEIVED_BYTES = 'network.received.bytes';
 
@@ -71,6 +81,10 @@ class Metrics
                 $data[$category][$ts] = $row['value'];
             }
 
+            if (!isset($data[$category])) {
+                continue;
+            }
+
             $this->fillGaps($data[$category]);
             ksort($data[$category]);
         }
@@ -98,7 +112,7 @@ class Metrics
         return $out;
     }
 
-    public function getNodeNetworkBytes(DateTimeInterface $startDataTime, string ...$metricCategories): array
+    public function getNodesMetrics(DateTimeInterface $startDataTime, string ...$metricCategories): array
     {
         $data = [];
 
@@ -132,7 +146,72 @@ class Metrics
         return $data;
     }
 
-    public function getPodMetricsCurrent(string ...$metricCategories): array
+    public function getNodeMetrics(DateTimeInterface $startDataTime, string $nodeId, string ...$metricCategories): array
+    {
+        $data = [];
+
+        foreach ($metricCategories as $category) {
+            $rs = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['node_metric.timestamp', 'node_metric.value'])
+                    ->from('prometheus_node_metric AS node_metric')
+                    ->join('node', 'node_metric.node_id = node.id')
+                    ->where(
+                        'node_id = ? AND node_metric.category = ? AND node_metric.timestamp > ?',
+                        $nodeId,
+                        $category,
+                        $startDataTime->getTimestamp() * 1000
+                    ),
+                PDO::FETCH_ASSOC
+            );
+
+            foreach ($rs as $row) {
+                $data[$category][$row['timestamp']] = $row['value'];
+            }
+
+            if (!isset($data[$category])) {
+                continue;
+            }
+
+            $this->fillGaps($data[$category]);
+            ksort($data[$category]);
+        }
+
+        return $data;
+    }
+
+    public function getNodeMetricsCurrent(string $nodeId, string ...$metricCategories): array
+    {
+        $data = [];
+
+        foreach ($metricCategories as $category) {
+            $rs = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['node_metric.value'])
+                    ->from('prometheus_node_metric AS node_metric')
+                    ->join('node', 'node_metric.node_id = node.id')
+                    ->join(
+                        [
+                            'latest_metrics' => (new Select())
+                                ->columns(['MAX(timestamp) AS latest_timestamp'])
+                                ->from('prometheus_node_metric')
+                                ->where('node_id = ? AND category = ?', $nodeId, $category)
+                        ],
+                        'node_metric.timestamp = latest_metrics.latest_timestamp'
+                    )
+                    ->where('node_id = ? AND node_metric.category = ?', $nodeId, $category),
+                PDO::FETCH_ASSOC
+            );
+
+            foreach ($rs as $row) {
+                $data[$category] = $row['value'];
+            }
+        }
+
+        return $data;
+    }
+
+    public function getPodsMetricsCurrent(string ...$metricCategories): array
     {
         $data = [];
 
@@ -167,7 +246,38 @@ class Metrics
         return $data;
     }
 
-    public function getPodMetrics(DateTimeInterface $startDateTime, string ...$metricCategories): array
+    public function getPodMetricsCurrent(string $podId, string ...$metricCategories): array
+    {
+        $data = [];
+
+        foreach ($metricCategories as $category) {
+            $rs = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['pod_metric.value'])
+                    ->from('prometheus_pod_metric AS pod_metric')
+                    ->join('pod', 'pod_metric.pod_id = pod.id')
+                    ->join(
+                        [
+                            'latest_metrics' => (new Select())
+                                ->columns(['MAX(timestamp) AS latest_timestamp'])
+                                ->from('prometheus_pod_metric')
+                                ->where('pod_id = ? AND category = ?', $podId, $category)
+                        ],
+                        'pod_metric.timestamp = latest_metrics.latest_timestamp'
+                    )
+                    ->where('pod_id = ? AND pod_metric.category = ?', $podId, $category),
+                PDO::FETCH_ASSOC
+            );
+
+            foreach ($rs as $row) {
+                $data[$category] = $row['value'];
+            }
+        }
+
+        return $data;
+    }
+
+    public function getPodsMetrics(DateTimeInterface $startDateTime, string ...$metricCategories): array
     {
         $data = [];
 
@@ -205,17 +315,40 @@ class Metrics
         return $data;
     }
 
-    protected function fillGaps(array &$data): void
+    public function getPodMetrics(DateTimeInterface $startDateTime, string $podId, string ...$metricCategories): array
     {
-        $firstTs = min(array_keys($data));
-        $lastTs = max(array_keys($data));
+        $data = [];
 
-        for ($ts = $firstTs; $ts <= $lastTs; $ts += 60000) {
-            if (!isset($data[$ts])) {
-                $data[$ts] = 0;
+        foreach ($metricCategories as $category) {
+            $rs = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['pod_metric.timestamp', 'pod_metric.value'])
+                    ->from('prometheus_pod_metric AS pod_metric')
+                    ->join('pod', 'pod_metric.pod_id = pod.id')
+                    ->where(
+                        'pod.id = ? AND pod_metric.category = ? AND pod_metric.timestamp > ?',
+                        $podId,
+                        $category,
+                        $startDateTime->getTimestamp() * 1000
+                    ),
+                PDO::FETCH_ASSOC
+            );
+
+            foreach ($rs as $row) {
+                $data[$category][$row['timestamp']] = $row['value'];
             }
+
+            if (!isset($data[$category])) {
+                continue;
+            }
+
+            $this->fillGaps($data[$category]);
+            ksort($data[$category]);
         }
+
+        return $data;
     }
+
     public static function mergeMetrics(array ...$arrays): array
     {
         $merged = [];
@@ -231,5 +364,17 @@ class Metrics
         });
 
         return $merged;
+    }
+
+    protected function fillGaps(array &$data): void
+    {
+        $firstTs = min(array_keys($data));
+        $lastTs = max(array_keys($data));
+
+        for ($ts = $firstTs; $ts <= $lastTs; $ts += 60000) {
+            if (!isset($data[$ts])) {
+                $data[$ts] = 0;
+            }
+        }
     }
 }
