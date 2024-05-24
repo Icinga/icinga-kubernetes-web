@@ -64,7 +64,7 @@ class NodeListItem extends BaseListItem
                 'chart-mini',
                 $nodeMetrics[Metrics::NODE_CPU_USAGE],
                 'CPU Usage',
-                '#28a745, #ffc107, #dc3545'
+                implode(', ', [Metrics::COLOR_CPU, Metrics::COLOR_WARNING, Metrics::COLOR_CRITICAL])
             )
         ));
         $keyValue->addHtml(new VerticalKeyValue(
@@ -73,7 +73,7 @@ class NodeListItem extends BaseListItem
                 'chart-mini',
                 $nodeMetrics[Metrics::NODE_MEMORY_USAGE],
                 'Memory Usage',
-                '#28a745, #ffc107, #dc3545'
+                implode(', ', [Metrics::COLOR_MEMORY, Metrics::COLOR_WARNING, Metrics::COLOR_CRITICAL])
             )
         ));
 
