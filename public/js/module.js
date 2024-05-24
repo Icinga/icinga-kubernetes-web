@@ -14,7 +14,8 @@
         }
 
         onRendered(event, autorefresh, scripted, autosubmit) {
-            let color = window.getComputedStyle(event.target).getPropertyValue('color');
+            let rgbColor = window.getComputedStyle(event.target).getPropertyValue('color');
+            let rgbaColor = rgbColor.replace('rgb', 'rgba').replace(')', ', 0.2)');
 
             let lineCharts = event.target.querySelectorAll('.line-chart');
             let lineChartMinifieds = event.target.querySelectorAll('.line-chart-minified');
@@ -73,7 +74,7 @@
                         plugins: {
                             legend: {
                                 labels: {
-                                    color: color,
+                                    color: rgbColor,
                                 }
                             },
                         },
@@ -81,22 +82,22 @@
                         scales: {
                             x: {
                                 grid: {
-                                    color: color,
+                                    color: rgbaColor,
                                 },
                                 ticks: {
                                     maxTicksLimit: 12,
                                     minRotation: 45,
                                     maxRotation: 45,
-                                    color: color,
+                                    color: rgbColor,
                                 },
                             },
                             y: {
                                 grid: {
-                                    color: color,
+                                    color: rgbaColor,
                                 },
                                 ticks: {
                                     maxTicksLimit: 5,
-                                    color: color,
+                                    color: rgbColor,
                                 },
                             },
                         },

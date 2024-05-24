@@ -11,9 +11,13 @@ use DateTimeInterface;
 
 class Metrics
 {
-    public const COLOR_CPU = '#FFCA3A';
+    public const COLOR_CPU = '#1982c4';
 
-    public const COLOR_MEMORY = '#1982C4';
+    public const COLOR_MEMORY = '#6a4c93';
+
+    public const COLOR_WARNING = '#ffaa44';
+
+    public const COLOR_CRITICAL = '#ff5566';
 
     public const CLUSTER_CPU_USAGE = 'cpu.usage';
 
