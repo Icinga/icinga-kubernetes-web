@@ -1,5 +1,7 @@
 <?php
 
+/* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | GPLv2 */
+
 namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Web\Controller;
@@ -144,7 +146,7 @@ class ChartsController extends Controller
 
         $metrics = new Metrics(Database::connection());
 
-        $nodeNetworkMetrics = $metrics->getNodeNetworkBytes(
+        $nodeNetworkMetrics = $metrics->getNodesMetrics(
             (new DateTime())->sub(new DateInterval('PT1H')),
             Metrics::NODE_NETWORK_RECEIVED_BYTES,
             Metrics::NODE_NETWORK_TRANSMITTED_BYTES
@@ -180,7 +182,7 @@ class ChartsController extends Controller
 
         $metrics = new Metrics(Database::connection());
 
-        $podMetricsCurrent = $metrics->getPodMetricsCurrent(
+        $podMetricsCurrent = $metrics->getPodsMetricsCurrent(
             Metrics::POD_CPU_REQUEST,
             Metrics::POD_CPU_LIMIT,
             Metrics::POD_CPU_USAGE_CORES,
@@ -189,7 +191,7 @@ class ChartsController extends Controller
             Metrics::POD_MEMORY_USAGE_BYTES
         );
 
-        $podMetricsPeriod = $metrics->getPodMetrics(
+        $podMetricsPeriod = $metrics->getPodsMetrics(
             (new DateTime())->sub(new DateInterval('PT1H')),
             Metrics::POD_CPU_USAGE,
             Metrics::POD_MEMORY_USAGE
