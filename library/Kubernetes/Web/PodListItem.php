@@ -73,7 +73,10 @@ class PodListItem extends BaseListItem
             Metrics::POD_MEMORY_USAGE_BYTES
         );
 
-        if (isset($podMetricsCurrent[Metrics::POD_CPU_LIMIT]) && $podMetricsCurrent[Metrics::POD_CPU_REQUEST] < $podMetricsCurrent[Metrics::POD_CPU_LIMIT]) {
+        if (
+            isset($podMetricsCurrent[Metrics::POD_CPU_LIMIT])
+            && $podMetricsCurrent[Metrics::POD_CPU_REQUEST] < $podMetricsCurrent[Metrics::POD_CPU_LIMIT]
+        ) {
             $keyValue->addHtml(
                 new VerticalKeyValue(
                     $this->translate('CPU Request/Limit'),
@@ -87,7 +90,10 @@ class PodListItem extends BaseListItem
                 )
             );
         }
-        if (isset($podMetricsCurrent[Metrics::POD_MEMORY_LIMIT]) && $podMetricsCurrent[Metrics::POD_MEMORY_REQUEST] < $podMetricsCurrent[Metrics::POD_MEMORY_LIMIT]) {
+        if (
+            isset($podMetricsCurrent[Metrics::POD_MEMORY_LIMIT])
+            && $podMetricsCurrent[Metrics::POD_MEMORY_REQUEST] < $podMetricsCurrent[Metrics::POD_MEMORY_LIMIT]
+        ) {
             $keyValue->addHtml(
                 new VerticalKeyValue(
                     $this->translate('Memory Request/Limit'),

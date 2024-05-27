@@ -49,7 +49,7 @@ class PodDetail extends BaseHtmlElement
             Metrics::POD_MEMORY_USAGE
         );
         $metricRow = [];
-        if (isset ($podMetricsPeriod[Metrics::POD_CPU_USAGE])) {
+        if (isset($podMetricsPeriod[Metrics::POD_CPU_USAGE])) {
             $metricRow[] = new LineChart(
                 'chart-medium',
                 implode(', ', $podMetricsPeriod[Metrics::POD_CPU_USAGE]),
@@ -58,7 +58,7 @@ class PodDetail extends BaseHtmlElement
                 Metrics::COLOR_CPU
             );
         }
-        if (isset ($podMetricsPeriod[Metrics::POD_MEMORY_USAGE])) {
+        if (isset($podMetricsPeriod[Metrics::POD_MEMORY_USAGE])) {
             $metricRow[] = new LineChart(
                 'chart-medium',
                 implode(', ', $podMetricsPeriod[Metrics::POD_MEMORY_USAGE]),
