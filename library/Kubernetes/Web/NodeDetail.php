@@ -45,7 +45,7 @@ class NodeDetail extends BaseHtmlElement
             Metrics::NODE_MEMORY_USAGE
         );
         $metricRow = [];
-        if (isset ($nodeMetricsPeriod[Metrics::NODE_CPU_USAGE])) {
+        if (isset($nodeMetricsPeriod[Metrics::NODE_CPU_USAGE])) {
             $metricRow[] = new LineChart(
                 'chart-medium',
                 implode(', ', $nodeMetricsPeriod[Metrics::NODE_CPU_USAGE]),
@@ -54,7 +54,7 @@ class NodeDetail extends BaseHtmlElement
                 Metrics::COLOR_CPU
             );
         }
-        if (isset ($nodeMetricsPeriod[Metrics::NODE_MEMORY_USAGE])) {
+        if (isset($nodeMetricsPeriod[Metrics::NODE_MEMORY_USAGE])) {
             $metricRow[] = new LineChart(
                 'chart-medium',
                 implode(', ', $nodeMetricsPeriod[Metrics::NODE_MEMORY_USAGE]),
