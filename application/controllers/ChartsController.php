@@ -213,7 +213,7 @@ class ChartsController extends Controller
                     new HtmlElement('th', null, new Text('Cpu')),
                     new HtmlElement('th', null, new Text('Memory'))
                 )
-            ),
+            )
         );
 
         $tbody = new HtmlElement('tbody');
