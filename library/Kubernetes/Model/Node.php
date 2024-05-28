@@ -76,6 +76,8 @@ class Node extends Model
             'container_runtime_version' => $this->translate('Container Runtime Version'),
             'kubelet_version'           => $this->translate('Kubelet Version'),
             'kube_proxy_version'        => $this->translate('KubeProxy Version'),
+            'icinga_state'              => $this->translate('Icinga State'),
+            'icinga_state_reason'       => $this->translate('Icinga State Reason'),
             'created'                   => $this->translate('Created At')
         ];
     }
@@ -107,6 +109,8 @@ class Node extends Model
             'container_runtime_version',
             'kubelet_version',
             'kube_proxy_version',
+            'icinga_state',
+            'icinga_state_reason',
             'created'
         ];
     }

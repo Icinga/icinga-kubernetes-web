@@ -8,12 +8,15 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\NodeCondition;
+use ipl\Html\Attributes;
 use Icinga\Util\Format;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
+use ipl\Web\Widget\StateBall;
 
 class NodeDetail extends BaseHtmlElement
 {
@@ -59,7 +62,15 @@ class NodeDetail extends BaseHtmlElement
                 $this->translate('Architecture')              => $this->node->architecture,
                 $this->translate('Container Runtime Version') => $this->node->container_runtime_version,
                 $this->translate('Kubelet Version')           => $this->node->kubelet_version,
-                $this->translate('Kube Proxy Version')        => $this->node->kube_proxy_version
+                $this->translate('Kube Proxy Version')        => $this->node->kube_proxy_version,
+                $this->translate('Icinga State')              => (new HtmlDocument())
+                    ->addHtml(new StateBall($this->node->icinga_state, StateBall::SIZE_MEDIUM))
+                    ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->node->icinga_state))),
+                $this->translate('Icinga State Reason')       => new HtmlElement(
+                    'div',
+                    new Attributes(['class' => 'state-reason detail']),
+                    Text::create($this->node->icinga_state_reason)
+                )
             ]),
             new Labels($this->node->label),
             new Annotations($this->node->annotation),
@@ -68,11 +79,15 @@ class NodeDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::all(
-                        Filter::equal('reference_kind', 'Node'),
-                        Filter::equal('reference_name', $this->node->name)
-                    )))
+                new EventList(
+                    Event::on(Database::connection())
+                        ->filter(
+                            Filter::all(
+                                Filter::equal('reference_kind', 'Node'),
+                                Filter::equal('reference_name', $this->node->name)
+                            )
+                        )
+                )
             )
         );
     }
