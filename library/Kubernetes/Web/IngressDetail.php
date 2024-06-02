@@ -61,5 +61,7 @@ class IngressDetail extends BaseHtmlElement
                 )
             );
         }
+
+        $this->addHtml(new Yaml($this->ingress->yaml));
     }
 }

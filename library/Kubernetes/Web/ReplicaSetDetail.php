@@ -74,7 +74,8 @@ class ReplicaSetDetail extends BaseHtmlElement
                             )
                         )
                 )
-            )
+            ),
+            new Yaml($this->replicaSet->yaml)
         );
     }
 }

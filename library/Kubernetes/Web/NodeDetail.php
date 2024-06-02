@@ -88,7 +88,8 @@ class NodeDetail extends BaseHtmlElement
                             )
                         )
                 )
-            )
+            ),
+            new Yaml($this->node->yaml)
         );
     }
 }
