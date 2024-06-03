@@ -35,6 +35,10 @@ class ConfigMap extends Model
         $relations
             ->belongsToMany('label', Label::class)
             ->through('config_map_label');
+
+        $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('config_map_annotation');
     }
 
     public function getColumnDefinitions()

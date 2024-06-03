@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
+use Icinga\Module\Kubernetes\Model\Annotation;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\PodCondition;
@@ -41,6 +42,7 @@ class PodDetail extends BaseHtmlElement
                 $this->translate('Phase')          => $this->pod->phase
             ])),
             new Labels($this->pod->label),
+            new Annotations($this->pod->annotation),
             new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',

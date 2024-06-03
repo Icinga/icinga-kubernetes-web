@@ -36,6 +36,10 @@ class Job extends Model
             ->through('job_label');
 
         $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('job_annotation');
+
+        $relations
             ->belongsToMany('pod', Pod::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('name')

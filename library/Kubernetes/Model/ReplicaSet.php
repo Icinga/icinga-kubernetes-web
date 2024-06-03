@@ -35,6 +35,10 @@ class ReplicaSet extends Model
             ->through('replica_set_label');
 
         $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('replica_set_annotation');
+
+        $relations
             ->belongsToMany('pod', Pod::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('name')

@@ -35,6 +35,10 @@ class NamespaceModel extends Model
         $relations
             ->belongsToMany('label', Label::class)
             ->through('namespace_label');
+
+        $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('namespace_annotation');
     }
 
     public function getColumnDefinitions()

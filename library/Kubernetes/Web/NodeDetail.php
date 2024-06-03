@@ -62,6 +62,7 @@ class NodeDetail extends BaseHtmlElement
                 $this->translate('Kube Proxy Version')        => $this->node->kube_proxy_version
             ]),
             new Labels($this->node->label),
+            new Annotations($this->node->annotation),
             new ConditionTable($this->node, (new NodeCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',

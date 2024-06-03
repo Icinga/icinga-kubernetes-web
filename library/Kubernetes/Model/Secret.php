@@ -32,6 +32,10 @@ class Secret extends Model
         $relations
             ->belongsToMany('label', Label::class)
             ->through('secret_label');
+
+        $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('secret_annotation');
     }
 
     public function getColumns()

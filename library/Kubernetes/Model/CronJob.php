@@ -33,6 +33,10 @@ class CronJob extends Model
         $relations
             ->belongsToMany('label', Label::class)
             ->through('cron_job_label');
+
+        $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('cron_job_annotation');
     }
 
     public function getColumnDefinitions()

@@ -35,6 +35,10 @@ class DaemonSet extends Model
             ->through('daemon_set_label');
 
         $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('daemon_set_annotation');
+
+        $relations
             ->belongsToMany('pod', Pod::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('name')

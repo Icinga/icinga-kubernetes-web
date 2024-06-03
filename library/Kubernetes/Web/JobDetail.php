@@ -45,6 +45,7 @@ class JobDetail extends BaseHtmlElement
                 $this->translate('Failed')                     => $this->job->failed
             ])),
             new Labels($this->job->label),
+            new Annotations($this->job->annotation),
             new ConditionTable($this->job, (new JobCondition())->getColumnDefinitions()),
             new HtmlElement(
                 'section',

@@ -49,6 +49,10 @@ class Deployment extends Model
         $relations
             ->belongsToMany('label', Label::class)
             ->through('deployment_label');
+
+        $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('deployment_annotation');
     }
 
     public function getColumnDefinitions()

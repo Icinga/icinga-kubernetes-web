@@ -34,6 +34,7 @@ class ConfigMapDetail extends BaseHtmlElement
                 ]
             )),
             new Labels($this->configMap->label),
+            new Annotations($this->configMap->annotation),
             new Data($this->configMap->data->execute())
         );
     }
