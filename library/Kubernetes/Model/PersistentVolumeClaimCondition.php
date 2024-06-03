@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -17,8 +17,8 @@ class PersistentVolumeClaimCondition extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'pvc_id'
+        $behaviors->add(new Uuid([
+            'pvc_uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -62,7 +62,7 @@ class PersistentVolumeClaimCondition extends Model
 
     public function getKeyName()
     {
-        return ['pvc_id', 'type'];
+        return ['pvc_uuid', 'type'];
     }
 
     public function getTableName()

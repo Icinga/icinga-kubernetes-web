@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -25,8 +25,8 @@ class PersistentVolumeClaim extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'id'
+        $behaviors->add(new Uuid([
+            'uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -41,8 +41,8 @@ class PersistentVolumeClaim extends Model
         $relations
             ->belongsToMany('persistent_volume', PersistentVolume::class)
             ->through('persistent_volume_claim_ref')
-            ->setTargetCandidateKey('id')
-            ->setTargetForeignKey('persistent_volume_id')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('persistent_volume_uuid')
             ->setCandidateKey('name')
             ->setForeignKey('name');
 
@@ -53,8 +53,8 @@ class PersistentVolumeClaim extends Model
         $relations
             ->belongsToMany('pod', Pod::class)
             ->through(PodPvc::class)
-            ->setTargetCandidateKey('id')
-            ->setTargetForeignKey('pod_id')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('pod_uuid')
             ->setCandidateKey('name')
             ->setForeignKey('claim_name');
     }
@@ -104,7 +104,7 @@ class PersistentVolumeClaim extends Model
 
     public function getKeyName()
     {
-        return 'id';
+        return 'uuid';
     }
 
     public function getSearchColumns()

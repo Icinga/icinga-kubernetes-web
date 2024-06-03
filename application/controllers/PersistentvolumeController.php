@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeDetail;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatController;
+use Ramsey\Uuid\Uuid;
 
 class PersistentvolumeController extends CompatController
 {
@@ -16,9 +17,12 @@ class PersistentvolumeController extends CompatController
     {
         $this->addTitleTab($this->translate('Persistent Volume'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var PersistentVolume $persistentVolume */
         $persistentVolume = PersistentVolume::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($persistentVolume === null) {

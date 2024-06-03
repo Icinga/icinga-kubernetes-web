@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -17,8 +17,8 @@ class Endpoint extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'id'
+        $behaviors->add(new Uuid([
+            'uuid'
         ]));
 
         $behaviors->add(new BoolCast([
@@ -67,7 +67,7 @@ class Endpoint extends Model
 
     public function getKeyName()
     {
-        return 'id';
+        return 'uuid';
     }
 
     public function getTableName()

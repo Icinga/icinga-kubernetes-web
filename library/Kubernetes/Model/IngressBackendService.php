@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
@@ -16,10 +16,10 @@ class IngressBackendService extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'ingress_id',
-            'service_id',
-            'ingress_rule_id'
+        $behaviors->add(new Uuid([
+            'ingress_uuid',
+            'service_uuid',
+            'ingress_rule_uuid'
         ]));
     }
 
@@ -42,7 +42,7 @@ class IngressBackendService extends Model
     public function getColumns()
     {
         return [
-            'ingress_rule_id',
+            'ingress_rule_uuid',
             'service_name',
             'service_port_name',
             'service_port_number'
@@ -51,7 +51,7 @@ class IngressBackendService extends Model
 
     public function getKeyName()
     {
-        return ['ingress_id', 'service_id'];
+        return ['ingress_uuid', 'service_uuid'];
     }
 
     public function getTableName()

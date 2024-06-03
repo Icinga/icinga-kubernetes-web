@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\IngressDetail;
 use ipl\Stdlib\Filter;
+use Ramsey\Uuid\Uuid;
 
 class IngressController extends Controller
 {
@@ -16,9 +17,12 @@ class IngressController extends Controller
     {
         $this->addTitleTab($this->translate('Ingress'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var Ingress $ingress */
         $ingress = Ingress::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($ingress === null) {

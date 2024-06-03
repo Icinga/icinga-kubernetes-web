@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Web\ContainerDetail;
 use Icinga\Module\Kubernetes\Web\Controller;
 use ipl\Stdlib\Filter;
+use Ramsey\Uuid\Uuid;
 
 class ContainerController extends Controller
 {
@@ -16,10 +17,13 @@ class ContainerController extends Controller
     {
         $this->addTitleTab($this->translate('Container'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var Container $container */
         $container = Container::on(Database::connection())
             ->with('log')
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($container === null) {

@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -25,8 +25,8 @@ class Pod extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'id'
+        $behaviors->add(new Uuid([
+            'uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -45,8 +45,8 @@ class Pod extends Model
             ->through(PodPvc::class)
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('claim_name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
+            ->setCandidateKey('uuid')
+            ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('label', Label::class)
@@ -61,40 +61,40 @@ class Pod extends Model
             ->through('pod_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
+            ->setCandidateKey('uuid')
+            ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('replica_set', ReplicaSet::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
+            ->setCandidateKey('uuid')
+            ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('daemon_set', DaemonSet::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
+            ->setCandidateKey('uuid')
+            ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('stateful_set', StatefulSet::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
+            ->setCandidateKey('uuid')
+            ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('job', Job::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
+            ->setCandidateKey('uuid')
+            ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsTo('node', Node::class)
@@ -156,7 +156,7 @@ class Pod extends Model
 
     public function getKeyName()
     {
-        return 'id';
+        return 'uuid';
     }
 
     public function getSearchColumns()

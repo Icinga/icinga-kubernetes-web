@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
@@ -17,8 +18,8 @@ class Job extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'id'
+        $behaviors->add(new Uuid([
+            'uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -39,8 +40,8 @@ class Job extends Model
             ->through('pod_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
+            ->setCandidateKey('uuid')
+            ->setForeignKey('pod_uuid');
     }
 
     public function getColumnDefinitions()
@@ -96,7 +97,7 @@ class Job extends Model
 
     public function getKeyName()
     {
-        return 'id';
+        return 'uuid';
     }
 
     public function getSearchColumns()

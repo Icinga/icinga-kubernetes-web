@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\ConfigMap;
 use Icinga\Module\Kubernetes\Web\ConfigMapDetail;
 use Icinga\Module\Kubernetes\Web\Controller;
 use ipl\Stdlib\Filter;
+use Ramsey\Uuid\Uuid;
 
 class ConfigmapController extends Controller
 {
@@ -16,9 +17,12 @@ class ConfigmapController extends Controller
     {
         $this->addTitleTab('Config Map');
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var ConfigMap $configMap */
         $configMap = ConfigMap::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($configMap === null) {

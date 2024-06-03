@@ -32,7 +32,7 @@ class IngressDetail extends BaseHtmlElement
 
         $backendServices = IngressBackendService::on(Database::connection())
             ->filter(Filter::all(
-                Filter::equal('ingress_id', $this->ingress->id)
+                Filter::equal('ingress_uuid', $this->ingress->uuid)
             ));
         if ($backendServices->count()) {
             $this->addHtml(
@@ -48,7 +48,7 @@ class IngressDetail extends BaseHtmlElement
 
         $backendResources = IngressBackendResource::on(Database::connection())
             ->filter(Filter::all(
-                Filter::equal('ingress_id', $this->ingress->id)
+                Filter::equal('ingress_uuid', $this->ingress->uuid)
             ));
         if ($backendResources->count()) {
             $this->addHtml(

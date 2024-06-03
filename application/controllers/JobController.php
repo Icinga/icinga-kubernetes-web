@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Web\JobDetail;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatController;
+use Ramsey\Uuid\Uuid;
 
 class JobController extends CompatController
 {
@@ -16,9 +17,12 @@ class JobController extends CompatController
     {
         $this->addTitleTab($this->translate('Job'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var Job $job */
         $job = Job::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($job === null) {

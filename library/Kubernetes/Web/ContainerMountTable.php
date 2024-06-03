@@ -53,7 +53,7 @@ class ContainerMountTable extends Table
             $podPvc = PodPvc::on(Database::connection())
                 ->filter(
                     Filter::all(
-                        Filter::equal('pod_id', $this->container->pod_id),
+                        Filter::equal('pod_uuid', $this->container->pod_uuid),
                         Filter::equal('volume_name', $mount->volume_name)
                     )
                 )
@@ -88,7 +88,7 @@ class ContainerMountTable extends Table
             $volume = PodVolume::on(Database::connection())
                 ->filter(
                     Filter::all(
-                        Filter::equal('pod_id', $this->container->pod_id),
+                        Filter::equal('pod_uuid', $this->container->pod_uuid),
                         Filter::equal('volume_name', $mount->volume_name)
                     )
                 )

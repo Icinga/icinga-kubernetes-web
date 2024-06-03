@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Web\NamespaceDetail;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatController;
+use Ramsey\Uuid\Uuid;
 
 class NamespaceController extends CompatController
 {
@@ -16,9 +17,12 @@ class NamespaceController extends CompatController
     {
         $this->addTitleTab($this->translate('Namespace'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var NamespaceModel $namespace */
         $namespace = NamespaceModel::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($namespace === null) {

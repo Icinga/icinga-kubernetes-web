@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\ReplicaSetDetail;
 use ipl\Stdlib\Filter;
+use Ramsey\Uuid\Uuid;
 
 class ReplicasetController extends Controller
 {
@@ -16,9 +17,12 @@ class ReplicasetController extends Controller
     {
         $this->addTitleTab($this->translate('Replica Set'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var ReplicaSet $replicaSet */
         $replicaSet = ReplicaSet::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($replicaSet === null) {
