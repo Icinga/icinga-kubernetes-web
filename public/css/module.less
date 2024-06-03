@@ -178,3 +178,19 @@
   padding: 0;
   margin: 0;
 }
+
+.state-reason {
+  .monospace();
+  word-break: break-word;
+
+  &.detail {
+    .rounded-corners(.25em);
+    background-color: @gray-lighter;
+    padding: .5em;
+  }
+
+  &.list {
+    font-size: 11/12em;
+    line-height: 1.5*12/11em;
+  }
+}
