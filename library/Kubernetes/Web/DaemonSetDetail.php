@@ -7,11 +7,14 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\DaemonSetCondition;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
+use ipl\Web\Widget\StateBall;
 
 class DaemonSetDetail extends BaseHtmlElement
 {
@@ -40,10 +43,10 @@ class DaemonSetDetail extends BaseHtmlElement
                 $this->translate('Number Ready')             => $this->daemonSet->number_ready,
                 $this->translate('Number Available')         => $this->daemonSet->number_available,
                 $this->translate('Number Unavailable')       => $this->daemonSet->number_unavailable,
-                $this->translate('Icinga State')           => (new HtmlDocument())
+                $this->translate('Icinga State')             => (new HtmlDocument())
                     ->addHtml(new StateBall($this->daemonSet->icinga_state, StateBall::SIZE_MEDIUM))
                     ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->daemonSet->icinga_state))),
-                $this->translate('Icinga State Reason')    => new HtmlElement(
+                $this->translate('Icinga State Reason')      => new HtmlElement(
                     'div',
                     new Attributes(['class' => 'state-reason detail']),
                     Text::create($this->daemonSet->icinga_state_reason)
