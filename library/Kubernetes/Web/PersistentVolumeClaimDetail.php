@@ -56,7 +56,8 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 new PodList($this->pvc->pod)
-            )
+            ),
+            new Yaml($this->pvc->yaml)
         );
     }
 }

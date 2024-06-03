@@ -60,7 +60,8 @@ class DaemonSetDetail extends BaseHtmlElement
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 new PodList($this->daemonSet->pod->with(['node']))
-            )
+            ),
+            new Yaml($this->daemonSet->yaml)
         );
     }
 }

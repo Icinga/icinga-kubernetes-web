@@ -63,6 +63,7 @@ class PersistentVolume extends Model
             'volume_source_type' => $this->translate('Volume Source Type'),
             'storage_class'      => $this->translate('Storage Class'),
             'reclaim_policy'     => $this->translate('Reclaim Policy'),
+            'yaml'              => $this->translate('YAML'),
             'created'            => $this->translate('Created At')
         ];
     }
@@ -81,6 +82,7 @@ class PersistentVolume extends Model
             'volume_source_type',
             'storage_class',
             'reclaim_policy',
+            'yaml',
             'created'
         ];
     }

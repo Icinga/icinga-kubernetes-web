@@ -31,7 +31,8 @@ class SecretDetail extends BaseHtmlElement
             ])),
             new Labels($this->secret->label),
             new Annotations($this->secret->annotation),
-            new Data($this->secret->data->execute())
+            new Data($this->secret->data->execute()),
+            new Yaml($this->secret->yaml)
         );
     }
 }

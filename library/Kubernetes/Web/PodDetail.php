@@ -64,7 +64,8 @@ class PodDetail extends BaseHtmlElement
                             )
                         )
                 )
-            )
+            ),
+            new Yaml($this->pod->yaml)
         );
     }
 }

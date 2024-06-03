@@ -63,7 +63,8 @@ class DeploymentDetail extends BaseHtmlElement
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Replica Sets'))),
                 new ReplicaSetList($this->deployment->replica_set)
-            )
+            ),
+            new Yaml($this->deployment->yaml)
         );
     }
 }

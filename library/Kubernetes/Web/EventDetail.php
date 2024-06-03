@@ -47,7 +47,8 @@ class EventDetail extends BaseHtmlElement
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Note'))),
                 new Text($this->event->note)
-            )
+            ),
+            new Yaml($this->event->yaml)
         );
     }
 }

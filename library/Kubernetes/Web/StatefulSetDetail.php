@@ -65,7 +65,8 @@ class StatefulSetDetail extends BaseHtmlElement
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 new PodList($this->statefulSet->pod->with(['node']))
-            )
+            ),
+            new Yaml($this->statefulSet->yaml)
         );
     }
 }

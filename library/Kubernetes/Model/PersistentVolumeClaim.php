@@ -78,6 +78,7 @@ class PersistentVolumeClaim extends Model
             'volume_name'          => $this->translate('Volume Name'),
             'volume_mode'          => $this->translate('Volume Mode'),
             'storage_class'        => $this->translate('Storage Class'),
+            'yaml'                 => $this->translate('YAML'),
             'created'              => $this->translate('Created At')
         ];
     }
@@ -97,6 +98,7 @@ class PersistentVolumeClaim extends Model
             'volume_name',
             'volume_mode',
             'storage_class',
+            'yaml',
             'created'
         ];
     }

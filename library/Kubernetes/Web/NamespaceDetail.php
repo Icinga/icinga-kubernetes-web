@@ -33,7 +33,8 @@ class NamespaceDetail extends BaseHtmlElement
                 $this->translate('Phase')            => $this->namespace->phase
             ]),
             new Labels($this->namespace->label),
-            new Annotations($this->namespace->annotation)
+            new Annotations($this->namespace->annotation),
+            new Yaml($this->namespace->yaml)
         );
     }
 }

@@ -56,6 +56,7 @@ class CronJob extends Model
             'active'                        => $this->translate('Active'),
             'last_schedule_time'            => $this->translate('Last Schedule Time'),
             'last_successful_time'          => $this->translate('Last Successful Time'),
+            'yaml'                          => $this->translate('YAML'),
             'created'                       => $this->translate('Created At')
         ];
     }
@@ -77,6 +78,7 @@ class CronJob extends Model
             'active',
             'last_schedule_time',
             'last_successful_time',
+            'yaml',
             'created'
         ];
     }

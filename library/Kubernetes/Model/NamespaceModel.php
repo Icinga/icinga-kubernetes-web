@@ -49,6 +49,7 @@ class NamespaceModel extends Model
             'uid'              => $this->translate('UID'),
             'resource_version' => $this->translate('Resource Version'),
             'phase'            => $this->translate('Phase'),
+            'yaml'             => $this->translate('YAML'),
             'created'          => $this->translate('Created At')
         ];
     }
@@ -61,6 +62,7 @@ class NamespaceModel extends Model
             'uid',
             'resource_version',
             'phase',
+            'yaml',
             'created'
         ];
     }

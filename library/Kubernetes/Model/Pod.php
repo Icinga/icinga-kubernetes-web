@@ -126,6 +126,7 @@ class Pod extends Model
             'reason'              => $this->translate('Phase Reason'),
             'message'             => $this->translate('Phase Message'),
             'qos'                 => $this->translate('Quality of Service'),
+            'yaml'                => $this->translate('YAML'),
             'created'             => $this->translate('Created At')
         ];
     }
@@ -149,6 +150,7 @@ class Pod extends Model
             'reason',
             'message',
             'qos',
+            'yaml',
             'created'
         ];
     }

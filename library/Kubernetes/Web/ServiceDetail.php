@@ -101,5 +101,7 @@ class ServiceDetail extends BaseHtmlElement
                 new HtmlElement('h2', null, new Text($this->translate('Pods')))
             )));
         }
+
+        $this->addHtml(new Yaml($this->service->yaml));
     }
 }

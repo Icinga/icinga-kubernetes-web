@@ -65,6 +65,7 @@ class DaemonSet extends Model
             'number_unavailable'       => $this->translate('Number Unavailable'),
             'icinga_state'             => $this->translate('Icinga State'),
             'icinga_state_reason'      => $this->translate('Icinga State Reason'),
+            'yaml'                    => $this->translate('YAML'),
             'created'                  => $this->translate('Created At')
         ];
     }
@@ -87,6 +88,7 @@ class DaemonSet extends Model
             'number_unavailable',
             'icinga_state',
             'icinga_state_reason',
+            'yaml',
             'created'
         ];
     }

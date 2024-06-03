@@ -51,7 +51,8 @@ class PersistentVolumeDetail extends BaseHtmlElement
                 new Attributes(['class' => 'persistent-volume-claims']),
                 new HtmlElement('h2', null, new Text($this->translate('Claims'))),
                 new PersistentVolumeClaimList($this->persistentVolume->pvc)
-            )
+            ),
+            new Yaml($this->persistentVolume->yaml)
         );
     }
 }

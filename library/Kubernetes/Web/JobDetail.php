@@ -67,7 +67,8 @@ class JobDetail extends BaseHtmlElement
                             )
                         )
                 )
-            )
+            ),
+            new Yaml($this->job->yaml)
         );
     }
 }
