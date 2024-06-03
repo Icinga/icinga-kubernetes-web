@@ -11,6 +11,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\Icon;
@@ -33,6 +34,12 @@ class DeploymentListItem extends BaseListItem
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml($this->createHeader());
+
+        $main->addHtml(new HtmlElement(
+            'div',
+            new Attributes(['class' => 'state-reason list']),
+            Text::create($this->item->icinga_state_reason)
+        ));
 
         $pods = new HtmlElement('div', new Attributes(['class' => 'pod-balls']));
         for ($i = 0; $i < $this->item->unavailable_replicas; $i++) {
@@ -68,25 +75,12 @@ class DeploymentListItem extends BaseListItem
         $title->addHtml(Html::sprintf(
             $this->translate('%s is %s', '<deployment> is <health>'),
             new Link($this->item->name, Links::deployment($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
+            Html::tag('span', null, $this->item->icinga_state)
         ));
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function getHealth(): string
-    {
-        switch (true) {
-            case $this->item->unavailable_replicas > 0:
-                return Health::UNHEALTHY;
-            case $this->item->available_replicas < $this->item->desired_replicas:
-                return Health::DEGRADED;
-            default:
-                return Health::HEALTHY;
-        }
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }
