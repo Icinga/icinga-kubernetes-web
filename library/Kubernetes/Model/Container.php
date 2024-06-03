@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -24,9 +24,9 @@ class Container extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'id',
-            'pod_id'
+        $behaviors->add(new Uuid([
+            'uuid',
+            'pod_uuid'
         ]));
 
         $behaviors->add(new BoolCast([
@@ -69,7 +69,7 @@ class Container extends Model
     public function getColumns()
     {
         return [
-            'pod_id',
+            'pod_uuid',
             'name',
             'image',
             'cpu_limits',
@@ -91,7 +91,7 @@ class Container extends Model
 
     public function getKeyName()
     {
-        return 'id';
+        return 'uuid';
     }
 
     public function getTableName()

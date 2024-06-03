@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Web\NodeDetail;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatController;
+use Ramsey\Uuid\Uuid;
 
 class NodeController extends CompatController
 {
@@ -16,9 +17,12 @@ class NodeController extends CompatController
     {
         $this->addTitleTab($this->translate('Node'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var Node $node */
         $node = Node::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($node === null) {

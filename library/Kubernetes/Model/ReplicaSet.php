@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -17,8 +17,8 @@ class ReplicaSet extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'id'
+        $behaviors->add(new Uuid([
+            'uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -39,16 +39,16 @@ class ReplicaSet extends Model
             ->through('pod_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('pod_id');
+            ->setCandidateKey('uuid')
+            ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('deployment', Deployment::class)
             ->through('replica_set_owner')
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('name')
-            ->setCandidateKey('id')
-            ->setForeignKey('replica_set_id');
+            ->setCandidateKey('uuid')
+            ->setForeignKey('replica_set_uuid');
     }
 
     public function getColumnDefinitions()
@@ -92,7 +92,7 @@ class ReplicaSet extends Model
 
     public function getKeyName()
     {
-        return 'id';
+        return 'uuid';
     }
 
     public function getSearchColumns()

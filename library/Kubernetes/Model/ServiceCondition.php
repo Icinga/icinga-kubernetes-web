@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -17,8 +17,8 @@ class ServiceCondition extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'service_id'
+        $behaviors->add(new Uuid([
+            'service_uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -61,7 +61,7 @@ class ServiceCondition extends Model
 
     public function getKeyName()
     {
-        return ['service_id', 'type'];
+        return ['service_uuid', 'type'];
     }
 
     public function getTableName()

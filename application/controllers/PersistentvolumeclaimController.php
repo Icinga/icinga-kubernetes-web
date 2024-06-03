@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeClaimDetail;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatController;
+use Ramsey\Uuid\Uuid;
 
 class PersistentvolumeclaimController extends CompatController
 {
@@ -16,9 +17,12 @@ class PersistentvolumeclaimController extends CompatController
     {
         $this->addTitleTab($this->translate('Persistent Volume Claim'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var PersistentVolumeClaim $pvc */
         $pvc = PersistentVolumeClaim::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($pvc === null) {

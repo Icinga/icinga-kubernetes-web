@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -17,8 +17,8 @@ class PodCondition extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'pod_id'
+        $behaviors->add(new Uuid([
+            'pod_uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -62,7 +62,7 @@ class PodCondition extends Model
 
     public function getKeyName()
     {
-        return ['pod_id', 'type'];
+        return ['pod_uuid', 'type'];
     }
 
     public function getTableName()

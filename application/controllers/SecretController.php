@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\SecretDetail;
 use ipl\Stdlib\Filter;
+use Ramsey\Uuid\Uuid;
 
 class SecretController extends Controller
 {
@@ -16,9 +17,12 @@ class SecretController extends Controller
     {
         $this->addTitleTab($this->translate('Secret'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var Secret $secret */
         $secret = Secret::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($secret === null) {

@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -17,8 +17,8 @@ class DaemonSetCondition extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'daemon_set_id'
+        $behaviors->add(new Uuid([
+            'daemon_set_uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -59,7 +59,7 @@ class DaemonSetCondition extends Model
 
     public function getKeyName()
     {
-        return ['daemon_set_id', 'type'];
+        return ['daemon_set_uuid', 'type'];
     }
 
     public function getTableName()

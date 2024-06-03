@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
 use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
@@ -16,8 +17,8 @@ class IngressTls extends Model
 
     public function createBehaviors(Behaviors $behaviors)
     {
-        $behaviors->add(new Binary([
-            'ingress_id'
+        $behaviors->add(new Uuid([
+            'ingress_uuid'
         ]));
     }
 
@@ -44,7 +45,7 @@ class IngressTls extends Model
 
     public function getKeyName()
     {
-        return 'ingress_id';
+        return 'ingress_uuid';
     }
 
     public function getTableName()

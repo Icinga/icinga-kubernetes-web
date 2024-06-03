@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DaemonSetDetail;
 use ipl\Stdlib\Filter;
+use Ramsey\Uuid\Uuid;
 
 class DaemonsetController extends Controller
 {
@@ -16,9 +17,12 @@ class DaemonsetController extends Controller
     {
         $this->addTitleTab($this->translate('Daemon Set'));
 
+        $uuid = $this->params->getRequired('id');
+        $uuidBytes = Uuid::fromString($uuid)->getBytes();
+
         /** @var DaemonSet $daemonSet */
         $daemonSet = DaemonSet::on(Database::connection())
-            ->filter(Filter::equal('id', $this->params->getRequired('id')))
+            ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
         if ($daemonSet === null) {
