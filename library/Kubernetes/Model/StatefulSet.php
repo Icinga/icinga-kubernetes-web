@@ -66,6 +66,8 @@ class StatefulSet extends Model
             'current_replicas'      => $this->translate('Current Replicas'),
             'updated_replicas'      => $this->translate('Updated Replicas'),
             'available_replicas'    => $this->translate('Available Replicas'),
+            'icinga_state'          => $this->translate('Icinga State'),
+            'icinga_state_reason'   => $this->translate('Icinga State Reason'),
             'created'               => $this->translate('Created At')
         ];
     }
@@ -88,6 +90,8 @@ class StatefulSet extends Model
             'current_replicas',
             'updated_replicas',
             'available_replicas',
+            'icinga_state',
+            'icinga_state_reason',
             'created'
         ];
     }
