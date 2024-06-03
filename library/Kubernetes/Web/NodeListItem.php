@@ -5,8 +5,8 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
+use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -14,8 +14,8 @@ use ipl\Html\Html;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
+use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\VerticalKeyValue;
 
 class NodeListItem extends BaseListItem
@@ -30,6 +30,12 @@ class NodeListItem extends BaseListItem
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml($this->createHeader());
+
+        $main->addHtml(new HtmlElement(
+            'div',
+            new Attributes(['class' => 'state-reason list']),
+            Text::create($this->item->icinga_state_reason)
+        ));
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         $keyValue->addHtml(new VerticalKeyValue($this->translate('CIDR'), $this->item->pod_cidr));
@@ -51,24 +57,12 @@ class NodeListItem extends BaseListItem
         $title->addHtml(Html::sprintf(
             $this->translate('%s is %s', '<node> is <ready>'),
             new Link($this->item->name, Links::node($this->item), ['class' => 'subject']),
-            new HtmlElement(
-                'span',
-                null,
-                new Text($this->item->ready ? $this->translate('ready') : $this->translate('not ready'))
-            )
+            Html::tag('span', null, $this->item->icinga_state)
         ));
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $visual->addHtml(new Icon(
-            $this->getReadyIcon(),
-            ['class' => ['node-' . ($this->item->ready ? 'ready' : 'not-ready')]]
-        ));
-    }
-
-    protected function getReadyIcon(): string
-    {
-        return $this->item->ready ? Icons::NODE_READY : Icons::NODE_NOT_READY;
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }
