@@ -13,7 +13,6 @@ use ipl\Html\Html;
 use ipl\Html\HtmlElement;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
-use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
@@ -33,6 +32,12 @@ class DaemonSetListItem extends BaseListItem
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml($this->createHeader());
+
+        $main->addHtml(new HtmlElement(
+            'div',
+            new Attributes(['class' => 'state-reason list']),
+            Text::create($this->item->icinga_state_reason)
+        ));
 
         $pods = new HtmlElement('div', new Attributes(['class' => 'pod-balls']));
         for ($i = 0; $i < $this->item->number_unavailable; $i++) {
@@ -60,29 +65,12 @@ class DaemonSetListItem extends BaseListItem
         $title->addHtml(Html::sprintf(
             $this->translate('%s is %s', '<daemon_set> is <health>'),
             new Link($this->item->name, Links::daemonSet($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
+            Html::tag('span', null, $this->item->icinga_state)
         ));
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function getHealth(): string
-    {
-        if ($this->item->desired_number_scheduled < 1) {
-            return Health::UNDECIDABLE;
-        }
-
-        switch (true) {
-            case $this->item->number_available < 1:
-                return Health::UNHEALTHY;
-            case $this->item->number_unavailable > 1:
-                return Health::DEGRADED;
-            default:
-                return Health::HEALTHY;
-        }
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }

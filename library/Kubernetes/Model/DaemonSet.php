@@ -63,6 +63,8 @@ class DaemonSet extends Model
             'update_number_scheduled'  => $this->translate('Update Number Scheduled'),
             'number_available'         => $this->translate('Number Available'),
             'number_unavailable'       => $this->translate('Number Unavailable'),
+            'icinga_state'             => $this->translate('Icinga State'),
+            'icinga_state_reason'      => $this->translate('Icinga State Reason'),
             'created'                  => $this->translate('Created At')
         ];
     }
@@ -83,6 +85,8 @@ class DaemonSet extends Model
             'update_number_scheduled',
             'number_available',
             'number_unavailable',
+            'icinga_state',
+            'icinga_state_reason',
             'created'
         ];
     }

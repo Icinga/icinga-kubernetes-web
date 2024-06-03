@@ -39,7 +39,15 @@ class DaemonSetDetail extends BaseHtmlElement
                 $this->translate('Number Misscheduled')      => $this->daemonSet->number_misscheduled,
                 $this->translate('Number Ready')             => $this->daemonSet->number_ready,
                 $this->translate('Number Available')         => $this->daemonSet->number_available,
-                $this->translate('Number Unavailable')       => $this->daemonSet->number_unavailable
+                $this->translate('Number Unavailable')       => $this->daemonSet->number_unavailable,
+                $this->translate('Icinga State')           => (new HtmlDocument())
+                    ->addHtml(new StateBall($this->daemonSet->icinga_state, StateBall::SIZE_MEDIUM))
+                    ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->daemonSet->icinga_state))),
+                $this->translate('Icinga State Reason')    => new HtmlElement(
+                    'div',
+                    new Attributes(['class' => 'state-reason detail']),
+                    Text::create($this->daemonSet->icinga_state_reason)
+                )
             ])),
             new Labels($this->daemonSet->label),
             new Annotations($this->daemonSet->annotation),
