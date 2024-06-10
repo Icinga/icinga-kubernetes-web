@@ -124,9 +124,9 @@ class Metrics
         foreach ($metricCategories as $category) {
             $rs = $this->db->YieldAll(
                 (new Select())
-                    ->columns(['node.id', 'node.name', 'node_metric.timestamp', 'node_metric.value'])
+                    ->columns(['node.uuid', 'node.name', 'node_metric.timestamp', 'node_metric.value'])
                     ->from('prometheus_node_metric AS node_metric')
-                    ->join('node', 'node_metric.node_id = node.id')
+                    ->join('node', 'node_metric.node_uuid = node.uuid')
                     ->where(
                         'node_metric.category = ? AND node_metric.timestamp > ?',
                         $category,
@@ -160,9 +160,9 @@ class Metrics
                 (new Select())
                     ->columns(['node_metric.timestamp', 'node_metric.value'])
                     ->from('prometheus_node_metric AS node_metric')
-                    ->join('node', 'node_metric.node_id = node.id')
+                    ->join('node', 'node_metric.node_uuid = node.uuid')
                     ->where(
-                        'node_id = ? AND node_metric.category = ? AND node_metric.timestamp > ?',
+                        'node_uuid = ? AND node_metric.category = ? AND node_metric.timestamp > ?',
                         $nodeId,
                         $category,
                         $startDataTime->getTimestamp() * 1000
@@ -194,17 +194,17 @@ class Metrics
                 (new Select())
                     ->columns(['node_metric.value'])
                     ->from('prometheus_node_metric AS node_metric')
-                    ->join('node', 'node_metric.node_id = node.id')
+                    ->join('node', 'node_metric.node_uuid = node.uuid')
                     ->join(
                         [
                             'latest_metrics' => (new Select())
                                 ->columns(['MAX(timestamp) AS latest_timestamp'])
                                 ->from('prometheus_node_metric')
-                                ->where('node_id = ? AND category = ?', $nodeId, $category)
+                                ->where('node_uuid = ? AND category = ?', $nodeId, $category)
                         ],
                         'node_metric.timestamp = latest_metrics.latest_timestamp'
                     )
-                    ->where('node_id = ? AND node_metric.category = ?', $nodeId, $category),
+                    ->where('node_uuid = ? AND node_metric.category = ?', $nodeId, $category),
                 PDO::FETCH_ASSOC
             );
 
@@ -223,18 +223,18 @@ class Metrics
         foreach ($metricCategories as $category) {
             $rs = $this->db->YieldAll(
                 (new Select())
-                    ->columns(['pod.id', 'pod.name', 'pod_metric.value'])
+                    ->columns(['pod.uuid', 'pod.name', 'pod_metric.value'])
                     ->from('prometheus_pod_metric AS pod_metric')
-                    ->join('pod', 'pod_metric.pod_id = pod.id')
+                    ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
                     ->join(
                         [
                             'latest_metrics' => (new Select())
-                                ->columns(['pod_id', 'MAX(timestamp) AS latest_timestamp'])
+                                ->columns(['pod_uuid', 'MAX(timestamp) AS latest_timestamp'])
                                 ->from('prometheus_pod_metric')
                                 ->where('category = ?', $category)
-                                ->groupBy('pod_id')
+                                ->groupBy('pod_uuid')
                         ],
-                        'pod_metric.pod_id = latest_metrics.pod_id'
+                        'pod_metric.pod_uuid = latest_metrics.pod_uuid'
                         . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
                     )
                     ->where('pod_metric.category = ?', $category),
@@ -260,17 +260,17 @@ class Metrics
                 (new Select())
                     ->columns(['pod_metric.value'])
                     ->from('prometheus_pod_metric AS pod_metric')
-                    ->join('pod', 'pod_metric.pod_id = pod.id')
+                    ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
                     ->join(
                         [
                             'latest_metrics' => (new Select())
                                 ->columns(['MAX(timestamp) AS latest_timestamp'])
                                 ->from('prometheus_pod_metric')
-                                ->where('pod_id = ? AND category = ?', $podId, $category)
+                                ->where('pod_uuid = ? AND category = ?', $podId, $category)
                         ],
                         'pod_metric.timestamp = latest_metrics.latest_timestamp'
                     )
-                    ->where('pod_id = ? AND pod_metric.category = ?', $podId, $category),
+                    ->where('pod_uuid = ? AND pod_metric.category = ?', $podId, $category),
                 PDO::FETCH_ASSOC
             );
 
@@ -289,9 +289,9 @@ class Metrics
         foreach ($metricCategories as $category) {
             $rs = $this->db->YieldAll(
                 (new Select())
-                    ->columns(['pod.id', 'pod.name', 'pod_metric.timestamp', 'pod_metric.value'])
+                    ->columns(['pod.uuid', 'pod.name', 'pod_metric.timestamp', 'pod_metric.value'])
                     ->from('prometheus_pod_metric AS pod_metric')
-                    ->join('pod', 'pod_metric.pod_id = pod.id')
+                    ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
                     ->where(
                         'pod_metric.category = ? AND pod_metric.timestamp > ?',
                         $category,
@@ -329,9 +329,9 @@ class Metrics
                 (new Select())
                     ->columns(['pod_metric.timestamp', 'pod_metric.value'])
                     ->from('prometheus_pod_metric AS pod_metric')
-                    ->join('pod', 'pod_metric.pod_id = pod.id')
+                    ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
                     ->where(
-                        'pod.id = ? AND pod_metric.category = ? AND pod_metric.timestamp > ?',
+                        'pod.uuid = ? AND pod_metric.category = ? AND pod_metric.timestamp > ?',
                         $podId,
                         $category,
                         $startDateTime->getTimestamp() * 1000

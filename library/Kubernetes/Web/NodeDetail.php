@@ -40,7 +40,7 @@ class NodeDetail extends BaseHtmlElement
         $metrics = new Metrics(Database::connection());
         $nodeMetricsPeriod = $metrics->getNodeMetrics(
             (new DateTime())->sub(new DateInterval('PT12H')),
-            $this->node->id,
+            $this->node->uuid,
             Metrics::NODE_CPU_USAGE,
             Metrics::NODE_MEMORY_USAGE
         );

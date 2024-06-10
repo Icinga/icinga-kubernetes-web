@@ -44,7 +44,7 @@ class PodDetail extends BaseHtmlElement
         $metrics = new Metrics(Database::connection());
         $podMetricsPeriod = $metrics->getPodMetrics(
             (new DateTime())->sub(new DateInterval('PT12H')),
-            $this->pod->id,
+            $this->pod->uuid,
             Metrics::POD_CPU_USAGE,
             Metrics::POD_MEMORY_USAGE
         );

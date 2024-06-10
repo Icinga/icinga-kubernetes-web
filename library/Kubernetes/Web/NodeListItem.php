@@ -53,29 +53,34 @@ class NodeListItem extends BaseListItem
 
         $metrics = new Metrics(Database::connection());
         $nodeMetrics = $metrics->getNodeMetricsCurrent(
-            $this->item->id,
+            $this->item->uuid,
             Metrics::NODE_CPU_USAGE,
             Metrics::NODE_MEMORY_USAGE
         );
 
-        $keyValue->addHtml(new VerticalKeyValue(
-            $this->translate('CPU Usage'),
-            new DoughnutChartStates(
-                'chart-mini',
-                $nodeMetrics[Metrics::NODE_CPU_USAGE],
-                'CPU Usage',
-                implode(', ', [Metrics::COLOR_CPU, Metrics::COLOR_WARNING, Metrics::COLOR_CRITICAL])
-            )
-        ));
-        $keyValue->addHtml(new VerticalKeyValue(
-            $this->translate('Memory Usage'),
-            new DoughnutChartStates(
-                'chart-mini',
-                $nodeMetrics[Metrics::NODE_MEMORY_USAGE],
-                'Memory Usage',
-                implode(', ', [Metrics::COLOR_MEMORY, Metrics::COLOR_WARNING, Metrics::COLOR_CRITICAL])
-            )
-        ));
+        if (isset($nodeMetrics[Metrics::NODE_CPU_USAGE])) {
+            $keyValue->addHtml(new VerticalKeyValue(
+                $this->translate('CPU Usage'),
+                new DoughnutChartStates(
+                    'chart-mini',
+                    $nodeMetrics[Metrics::NODE_CPU_USAGE],
+                    'CPU Usage',
+                    implode(', ', [Metrics::COLOR_CPU, Metrics::COLOR_WARNING, Metrics::COLOR_CRITICAL])
+                )
+            ));
+        }
+
+        if (isset($nodeMetrics[Metrics::NODE_MEMORY_USAGE])) {
+            $keyValue->addHtml(new VerticalKeyValue(
+                $this->translate('Memory Usage'),
+                new DoughnutChartStates(
+                    'chart-mini',
+                    $nodeMetrics[Metrics::NODE_MEMORY_USAGE],
+                    'Memory Usage',
+                    implode(', ', [Metrics::COLOR_MEMORY, Metrics::COLOR_WARNING, Metrics::COLOR_CRITICAL])
+                )
+            ));
+        }
 
         $main->addHtml($keyValue);
     }
