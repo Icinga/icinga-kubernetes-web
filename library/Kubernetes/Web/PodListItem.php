@@ -64,7 +64,7 @@ class PodListItem extends BaseListItem
 
         $metrics = new Metrics(Database::connection());
         $podMetricsCurrent = $metrics->getPodMetricsCurrent(
-            $this->item->id,
+            $this->item->uuid,
             Metrics::POD_CPU_REQUEST,
             Metrics::POD_CPU_LIMIT,
             Metrics::POD_CPU_USAGE_CORES,
