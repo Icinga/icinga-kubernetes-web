@@ -10,12 +10,14 @@ use Icinga\Module\Kubernetes\Model\Container;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormattedString;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
+use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
 class ContainerDetail extends BaseHtmlElement
@@ -39,7 +41,15 @@ class ContainerDetail extends BaseHtmlElement
             $this->translate('Image')         => $this->container->image,
             $this->translate('Started')       => Icons::ready($this->container->started),
             $this->translate('Ready')         => Icons::ready($this->container->ready),
-            $this->translate('Restart Count') => $this->container->restart_count
+            $this->translate('Restart Count') => $this->container->restart_count,
+            $this->translate('Icinga State')  => (new HtmlDocument())
+                ->addHtml(new StateBall($this->container->icinga_state, StateBall::SIZE_MEDIUM))
+                ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->container->icinga_state))),
+            $this->translate('Icinga State Reason') => new HtmlElement(
+                'div',
+                new Attributes(['class' => 'state-reason detail']),
+                Text::create($this->container->icinga_state_reason)
+            )
         ]));
 
         $state = new HtmlElement(

@@ -6,11 +6,9 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
-use Icinga\Module\Kubernetes\Model\Annotation;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\PodCondition;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -18,6 +16,7 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
+use ipl\Web\Widget\CopyToClipboard;
 use ipl\Web\Widget\StateBall;
 
 class PodDetail extends BaseHtmlElement
@@ -36,6 +35,9 @@ class PodDetail extends BaseHtmlElement
 
     protected function assemble()
     {
+        $icingaStateReason = new PluginOutputContainer(new PluginOutput($this->pod->icinga_state_reason));
+        CopyToClipboard::attachTo($icingaStateReason);
+
         $this->addHtml(
             new Details(new ResourceDetails($this->pod, [
                 $this->translate('IP')                  => $this->pod->ip,
@@ -46,11 +48,7 @@ class PodDetail extends BaseHtmlElement
                 $this->translate('Icinga State')        => (new HtmlDocument())
                     ->addHtml(new StateBall($this->pod->icinga_state, StateBall::SIZE_MEDIUM))
                     ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->pod->icinga_state))),
-                $this->translate('Icinga State Reason') => new HtmlElement(
-                    'div',
-                    new Attributes(['class' => 'state-reason detail']),
-                    Text::create($this->pod->icinga_state_reason)
-                )
+                $this->translate('Icinga State Reason') => $icingaStateReason
             ])),
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),

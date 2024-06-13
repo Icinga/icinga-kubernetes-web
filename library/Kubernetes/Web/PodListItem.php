@@ -40,7 +40,7 @@ class PodListItem extends BaseListItem
         $main->addHtml(new HtmlElement(
             'div',
             new Attributes(['class' => 'state-reason list']),
-            Text::create($this->item->icinga_state_reason)
+            Text::create(explode("\n", (string) $this->item->icinga_state_reason)[0])
         ));
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
@@ -50,24 +50,8 @@ class PodListItem extends BaseListItem
         $containers = new HtmlElement('span');
         /** @var Container $container */
         foreach ($this->item->container as $container) {
-            switch ($container->state) {
-                case Container::STATE_RUNNING:
-                    $state = $container->ready ? 'ok' : 'critical';
-
-                    break;
-                case Container::STATE_TERMINATED:
-                    $state = 'unknown';
-
-                    break;
-                case Container::STATE_WAITING:
-                    $state = 'pending';
-
-                    break;
-                default:
-                    $state = 'bug';
-            }
             $containerRestarts += $container->restart_count;
-            $containers->addHtml(new StateBall($state, StateBall::SIZE_MEDIUM));
+            $containers->addHtml(new StateBall($container->icinga_state, StateBall::SIZE_MEDIUM));
         }
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Containers'), $containers));
         $keyValue->addHtml(new VerticalKeyValue($this->translate('Restarts'), $containerRestarts));

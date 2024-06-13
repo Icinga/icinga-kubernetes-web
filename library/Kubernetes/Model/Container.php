@@ -62,7 +62,9 @@ class Container extends Model
             'state'           => $this->translate('State'),
             'ready'           => $this->translate('Ready'),
             'started'         => $this->translate('Started At'),
-            'restart_count'   => $this->translate('Restart Count')
+            'restart_count'   => $this->translate('Restart Count'),
+            'icinga_state'        => $this->translate('Icinga State'),
+            'icinga_state_reason' => $this->translate('Icinga State Reason')
         ];
     }
 
@@ -80,7 +82,9 @@ class Container extends Model
             'state_details',
             'ready',
             'started',
-            'restart_count'
+            'restart_count',
+            'icinga_state',
+            'icinga_state_reason'
         ];
     }
 
