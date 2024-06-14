@@ -20,6 +20,7 @@ use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
+use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 use ipl\Web\Widget\VerticalKeyValue;
 
@@ -36,10 +37,11 @@ class ContainerListItem extends BaseListItem
     {
         $main->addHtml($this->createHeader());
 
-        $stateDetails = json_decode($this->item->state_details);
-        if (isset($stateDetails->message)) {
-            $main->addHtml(new HtmlElement('p', null, new Text($stateDetails->message)));
-        }
+        $main->addHtml(new HtmlElement(
+            'div',
+            new Attributes(['class' => 'state-reason list']),
+            Text::create($this->item->icinga_state_reason)
+        ));
 
         $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
         $keyValue->addHtml(new HtmlElement(
@@ -59,26 +61,18 @@ class ContainerListItem extends BaseListItem
         $title->addHtml(Html::sprintf(
             $this->translate('%s is %s', '<container> is <container_state>'),
             new Link($this->item->name, Links::container($this->item), ['class' => 'subject']),
-            new HtmlElement('span', null, new Text($this->item->state))
+            new HtmlElement('span', null, new Text($this->item->icinga_state))
         ));
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $visual->addHtml(new Icon(
-            $this->getStateIcon(),
-            [
-                'class' => [
-                    'container-state-' . $this->item->state,
-                    $this->item->ready ? 'container-ready' : 'container-not-ready'
-                ]
-            ]
-        ));
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 
     protected function createStateDetails(): ValidHtml
     {
-        $stateDetails = json_decode($this->item->state_details);
+        $stateDetails = json_decode((string) $this->item->state_details);
 
         switch ($this->item->state) {
             case Container::STATE_RUNNING:
@@ -94,21 +88,7 @@ class ContainerListItem extends BaseListItem
                     new VerticalKeyValue($this->translate('Reason'), $stateDetails->reason)
                 );
             default:
-                return new FormattedString('Unknown state %s', $this->item->state);
-        }
-    }
-
-    protected function getStateIcon(): string
-    {
-        switch ($this->item->state) {
-            case Container::STATE_WAITING:
-                return Icons::CONTAINER_WAITING;
-            case Container::STATE_RUNNING:
-                return Icons::CONTAINER_RUNNING;
-            case Container::STATE_TERMINATED:
-                return Icons::CONTAINER_TERMINATED;
-            default:
-                return Icons::BUG;
+                return new FormattedString('Unknown state %s', [$this->item->state]);
         }
     }
 }
