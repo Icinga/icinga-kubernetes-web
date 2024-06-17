@@ -1,6 +1,6 @@
 <?php
 
-/* Icinga for Kubernetes Web | (c) 2023 Icinga GmbH | GPLv2 */
+/* Icinga for Kubernetes Web | (c) 2023 Icinga GmbH | AGPLv3 */
 
 /** @var Module $this */
 
