@@ -136,7 +136,7 @@ class Metrics
             );
 
             foreach ($rs as $row) {
-                $id = $row['id'];
+                $id = $row['uuid'];
                 $ts = $row['timestamp'];
                 $data[$id]['name'] = $row['name'];
                 $data[$id][$category][$ts] = $row['value'];
@@ -242,7 +242,7 @@ class Metrics
             );
 
             foreach ($rs as $row) {
-                $id = $row['id'];
+                $id = $row['uuid'];
                 $data[$id]['name'] = $row['name'];
                 $data[$id][$category] = $row['value'];
             }
@@ -301,7 +301,7 @@ class Metrics
             );
 
             foreach ($rs as $row) {
-                $id = $row['id'];
+                $id = $row['uuid'];
                 $ts = $row['timestamp'];
 
                 $data[$id]['name'] = $row['name'];
