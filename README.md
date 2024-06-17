@@ -29,4 +29,4 @@ Icinga for Kubernetes Web documentation is available at [icinga.com/docs](https:
 ## License
 
 Icinga for Kubernetes Web and the Icinga for Kubernetes Web documentation are licensed under the terms of the
-[GNU General Public License Version 2](LICENSE).
+[GNU Affero General Public License Version 3](LICENSE).
