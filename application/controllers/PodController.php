@@ -43,7 +43,7 @@ class PodController extends CompatController
             new HtmlElement('div', new Attributes(['class' => 'resource-list item-list']),
                 new HtmlElement('div', new Attributes(['class' => 'list-item']),
                     new HtmlElement('div', new Attributes(['class' => 'visual']),
-                        new StateBall('critical', StateBall::SIZE_MEDIUM_LARGE)),
+                        new StateBall($pod->icinga_state, StateBall::SIZE_MEDIUM_LARGE)),
                     new HtmlElement('div', new Attributes(['class' => 'main']),
                         new HtmlElement('header', null,
                             new HtmlElement('div', new Attributes(['class' => 'title']),
@@ -52,7 +52,7 @@ class PodController extends CompatController
                                     new Text($pod->name)
                                 ),
                                 new Text(' is '),
-                                new HtmlElement('span', new Attributes(['class' => 'state-text']), new Text($pod->phase))
+                                new HtmlElement('span', new Attributes(['class' => 'state-text']), new Text($pod->icinga_state))
                             ),
                             new TimeSince('1716284368')
                         ),
