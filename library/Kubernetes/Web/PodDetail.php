@@ -117,8 +117,7 @@ class PodDetail extends BaseHtmlElement
             ])),
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),
-            new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),
-
+            new PodConditions($this->pod),
             new HtmlElement(
                 'section',
                 null,
