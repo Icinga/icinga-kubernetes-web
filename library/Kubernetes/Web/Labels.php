@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -27,10 +28,62 @@ class Labels extends BaseHtmlElement
 
     protected function assemble()
     {
-        $this->addHtml(new HtmlElement('h2', null, new Text($this->translate('Labels'))));
+        $listItems = [];
+        $sortItems = [];
+        $previousTitle = "";
+        $titleAdded = false;
 
         foreach ($this->labels as $label) {
-            $this->addHtml(new HorizontalKeyValue($label->name, $label->value));
+            $labelParts = explode('/', $label->name);
+            $currentTitle = count($labelParts) > 1 ? $labelParts[0] : "-";
+            $name = count($labelParts) > 1 ? $labelParts[1] : $label->name;
+
+            if ($currentTitle !== $previousTitle) {
+                if ($currentTitle !== "-") {
+                    $listItems[] = $this->createTitleItem($currentTitle);
+                } elseif (! $titleAdded){
+                    $sortItems[] = $this->createTitleItem($currentTitle);
+                    $titleAdded = true;
+                }
+                $previousTitle = $currentTitle;
+            }
+
+            $listItem = $this->createListItem($name, $label->value);
+
+            if ($currentTitle !== "-") {
+                $listItems[] = $listItem;
+            } else {
+                $sortItems[] = $listItem;
+            }
         }
+
+        $content = new HtmlElement('ul', new Attributes(['class' => 'labels']), ...$listItems, ...$sortItems);
+
+        $this->addWrapper(
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text($this->translate('Labels'))),
+                $content
+            )
+        );
+    }
+
+    private function createTitleItem($title)
+    {
+        return new HtmlElement(
+            'li', null,
+            new HtmlElement('span', new Attributes(['class' => 'title']), new Text($title))
+        );
+    }
+
+    private function createListItem($name, $value)
+    {
+        return  new HtmlElement(
+            'ul', null,
+            new HtmlElement(
+                'li', null, new HorizontalKeyValue($name, $value)
+            )
+        );
     }
 }
