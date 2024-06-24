@@ -56,8 +56,7 @@ class PodDetail extends BaseHtmlElement
             ])),
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),
-            new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),
-
+            new PodConditions($this->pod),
             new HtmlElement('section', null,
                 new HtmlElement('h2', null, new Text('Environment')),
                 new HtmlElement('div', new Attributes(['class' => 'environment-widget']),
