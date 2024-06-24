@@ -119,60 +119,6 @@ class PodDetail extends BaseHtmlElement
             new Annotations($this->pod->annotation),
             new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),
 
-            /* new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),*/
-            new HtmlElement(
-                'section',
-                null,
-                new HtmlElement('h2', null, new Text('Conditions')),
-                new HtmlElement('ul', new Attributes(['class' => 'condition-list item-list']),
-                    new HtmlElement('li', new Attributes(['class' => 'list-item']),
-                        new HtmlElement('div', new Attributes(['class' => 'visual inactive']),
-                            (new Icon('circle'))->setStyle('fa-regular')
-                        ),
-                        new HtmlElement('div', new Attributes(['class' => 'main']),
-                            new HtmlElement('header', null,
-                                new HtmlElement('h3', null, new Text('Ready'))
-                            )
-                        )
-                    ),
-                    new HtmlElement('li', new Attributes(['class' => 'list-item']),
-                        new HtmlElement('div', new Attributes(['class' => 'visual error']),
-                            new Icon('times-circle')
-                        ),
-                        new HtmlElement('div', new Attributes(['class' => 'main']),
-                            new HtmlElement('header', null,
-                                new HtmlElement('h3', null, new Text('Containers Ready')),
-                                new TimeAgo(1715752000)
-                            ),
-                            new HtmlElement('section', new Attributes(['class' => 'caption']),
-                                new PluginOutputContainer(new PluginOutput('Nullam id dolor id nibh ultricies vehicula ut id elit. Maecenas faucibus mollis interdum. Maecenas faucibus mollis interdum. Etiam porta sem malesuada magna mollis euismod. Sed posuere consectetur est at lobortis.'))
-                            )
-                        )
-                    ),
-                    new HtmlElement('li', new Attributes(['class' => 'list-item']),
-                        new HtmlElement('div', new Attributes(['class' => 'visual success']),
-                            (new Icon('check-circle'))->setStyle('fa-regular')
-                        ),
-                        new HtmlElement('div', new Attributes(['class' => 'main']),
-                            new HtmlElement('header', null,
-                                new HtmlElement('h3', null, new Text('Scheduled')),
-                                new TimeAgo(1715740000)
-                            )
-                        )
-                    ),
-                    new HtmlElement('li', new Attributes(['class' => 'list-item']),
-                        new HtmlElement('div', new Attributes(['class' => 'visual success']),
-                            (new Icon('check-circle'))->setStyle('fa-regular')
-                        ),
-                        new HtmlElement('div', new Attributes(['class' => 'main']),
-                            new HtmlElement('header', null,
-                                new HtmlElement('h3', null, new Text('Initialized')),
-                                new TimeAgo(1715690000)
-                            )
-                        )
-                    )
-                )
-            ),
             new HtmlElement(
                 'section',
                 null,
