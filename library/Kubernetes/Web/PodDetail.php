@@ -4,7 +4,6 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Icingadb\Model\Behavior\ActionAndNoteUrl;
 use Icinga\Module\Icingadb\Util\PluginOutput;
 use Icinga\Module\Icingadb\Widget\PluginOutputContainer;
 use Icinga\Module\Kubernetes\Common\Database;
@@ -23,7 +22,6 @@ use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\CopyToClipboard;
 use ipl\Web\Widget\StateBall;
-use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\TimeAgo;
 
@@ -61,8 +59,6 @@ class PodDetail extends BaseHtmlElement
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),
             new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),
-
-            /* new Labels($this->pod->label), */
 
             new HtmlElement('section', null,
                 new HtmlElement('h2', null, new Text('Environment')),
@@ -108,33 +104,6 @@ class PodDetail extends BaseHtmlElement
                     )
                 )
             ),
-
-            /* new Labels($this->pod->label), */
-            new HtmlElement('section', null,
-                new HtmlElement('h2', null, new Text($this->translate('Labels'))),
-                new HtmlElement('ul', new Attributes(['class' => 'labels']),
-                    new HtmlElement('li', null,
-                        new HtmlElement('span', new Attributes(['class' => 'title']),
-                            new Text('app.kubernetes.io')
-                        ),
-                        new HtmlElement('ul', null,
-                            new HtmlElement('li', null, new HorizontalKeyValue('instance', 'redis-cluster')),
-                            new HtmlElement('li', null, new HorizontalKeyValue('name', 'redis-cluster')),
-                            new HtmlElement('li', null, new HorizontalKeyValue('managed-by', 'Helm'))
-                        )
-                    ),
-                    new HtmlElement('li', null,
-                        new HtmlElement('span', new Attributes(['class' => 'title']),
-                            new Text('helm.sh')
-                        ),
-                        new HtmlElement('ul', null,
-                            new HtmlElement('li', null, new HorizontalKeyValue('chart', 'redis-cluster-862')),
-                            new HtmlElement('li', null, new HorizontalKeyValue('something', 'true'))
-                        )
-                    )
-                )
-            ),
-
             /* new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),*/
             new HtmlElement(
                 'section',
