@@ -68,6 +68,8 @@ class Job extends Model
             'succeeded'                  => $this->translate('Succeeded'),
             'failed'                     => $this->translate('Failed'),
             'yaml'                       => $this->translate('YAML'),
+            'icinga_state'               => $this->translate('Icinga State'),
+            'icinga_state_reason'        => $this->translate('Icinga State Reason'),
             'created'                    => $this->translate('Created At')
         ];
     }
@@ -92,6 +94,8 @@ class Job extends Model
             'succeeded',
             'failed',
             'yaml',
+            'icinga_state',
+            'icinga_state_reason',
             'created'
         ];
     }

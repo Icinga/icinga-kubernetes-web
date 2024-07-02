@@ -11,6 +11,7 @@ use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -32,6 +33,12 @@ class JobListItem extends BaseListItem
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml($this->createHeader());
+
+        $main->addHtml(new HtmlElement(
+            'div',
+            new Attributes(['class' => 'state-reason list']),
+            Text::create($this->item->icinga_state_reason)
+        ));
 
         $pods = new HtmlElement('div', new Attributes(['class' => 'pod-balls']));
         for ($i = 0; $i < $this->item->failed; $i++) {
@@ -59,28 +66,12 @@ class JobListItem extends BaseListItem
         $title->addHtml(Html::sprintf(
             $this->translate('%s is %s', '<job> is <health>'),
             new Link($this->item->name, Links::job($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
+            Html::tag('span', null, $this->item->icinga_state)
         ));
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function getHealth(): string
-    {
-        foreach ($this->item->condition as $jobCondition) {
-            if ($jobCondition->type === "complete" && $jobCondition->status === "true") {
-                return Health::HEALTHY;
-            } elseif ($jobCondition->type === "failed" && $jobCondition->status === "true") {
-                return Health::UNHEALTHY;
-            } elseif ($jobCondition->type === "suspended" && $jobCondition->status === "true") {
-                return Health::UNDECIDABLE;
-            }
-        }
-
-        return Health::DEGRADED;
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }
