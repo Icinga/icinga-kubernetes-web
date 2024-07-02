@@ -8,7 +8,6 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Job;
-use Icinga\Module\Kubernetes\Model\JobCondition;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -46,7 +45,7 @@ class JobDetail extends BaseHtmlElement
             ])),
             new Labels($this->job->label),
             new Annotations($this->job->annotation),
-            new ConditionTable($this->job, (new JobCondition())->getColumnDefinitions()),
+            new JobConditions($this->job),
             new HtmlElement(
                 'section',
                 null,
