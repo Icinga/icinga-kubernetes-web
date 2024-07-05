@@ -57,7 +57,7 @@ class DeploymentDetail extends BaseHtmlElement
             ])),
             new Labels($this->deployment->label),
             new Annotations($this->deployment->annotation),
-            new ConditionTable($this->deployment, (new DeploymentCondition())->getColumnDefinitions()),
+			new DeploymentConditions($this->deployment),
             new HtmlElement(
                 'section',
                 null,
