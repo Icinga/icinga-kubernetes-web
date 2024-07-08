@@ -62,40 +62,41 @@ class PodDetail extends BaseHtmlElement
                 new HtmlElement('div', new Attributes(['class' => 'environment-widget']),
                     new HtmlElement('span', new Attributes(['class' => 'label-namespace']),
                         new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ns'])),
-                        new Text(' '),
                         new Text('namespace')
                     ),
-                    new HtmlElement('ul', null,
-                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb breadcrumb-right']),
-                            new StateBall('ok', StateBall::SIZE_MEDIUM),
-                            new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
-                            new Text(' '),
-                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
+                    new HtmlElement('ul', new Attributes(['class' => 'breadcrumbs']),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-right']),
+                            new HtmlElement('a', new Attributes([
+                                'href' => '/'
+                            ]),
                                 new Text('ing-name-random')
                             )
                         ),
-                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb breadcrumb-right']),
-                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
-                                new StateBall('ok', StateBall::SIZE_MEDIUM),
-                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-svc'])),
-                                new Text(' '),
-                                new Text('service-name-random')
-                            )
-                        ),
-                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb']),
-                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
-                                new StateBall('ok', StateBall::SIZE_MEDIUM),
-                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
-                                new Text(' '),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-right']),
+                            new HtmlElement('a', new Attributes([
+                                'href' => '/'
+                            ]),
                                 new Text('ing-name-random')
                             )
                         ),
-                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb breadcrumb-left']),
-                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
-                                new StateBall('ok', StateBall::SIZE_MEDIUM),
-                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
-                                new Text(' '),
-                                new Text('rs-name-random')
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-middle active']),
+                            new HtmlElement('span', null,
+                                new Text('ing-name-random')
+                            )
+
+                        ),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-left']),
+                            new HtmlElement('a', new Attributes([
+                                'href' => '/'
+                            ]),
+                                new Text('ing-name-random')
+                            )
+                        ),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-left']),
+                            new HtmlElement('a', new Attributes([
+                                'href' => '/'
+                            ]),
+                                new Text('ing-name-random')
                             )
                         )
                     )
