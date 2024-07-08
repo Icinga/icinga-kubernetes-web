@@ -1,4 +1,10 @@
 .environment-widget {
+  position: relative;
+  padding: .5em;
+  border: 1px solid @gray-light;
+  border-radius: 1em;
+  margin-top: 1em;
+
   @border: 2px solid #666;
   @background: @gray-light;
 
@@ -9,38 +15,70 @@
     display: block;
     padding: .25em .5em;
     background: @body-bg-color;
+  }
 
-    i {
-      opacity: .8;
-    }
+  i {
+    opacity: .8;
+  }
+
+  a:hover {
+    text-decoration: none;
   }
 
   .breadcrumbs {
     @breadcrumb-bg: @gray-light;
     @breadcrumb-bg-active: @tr-active-color;
-    @breadcrumb-bg-hover: lime;
 
-    @breadcrumb-border: 2px solid #666;
+    @breadcrumb-bg-hover: mix(@icinga-blue, @body-bg-color, 50%);
+
+    @border-color: @body-bg-color;
+    @breadcrumb-border: 2px solid @border-color;
 
     display: flex;
 
     li {
       position: relative;
       display: inline-block;
-      width: auto;
-      margin: .5em 0 0 0;
 
       flex: 1 1 auto;
       width: 0;
+
+      &:first-child {
+        border-left: @breadcrumb-border;
+        background: @breadcrumb-bg;
+
+        &:before,
+        &:after {
+          border-left: 0;
+        }
+
+        border-top-left-radius: .5em;
+        border-bottom-left-radius: .5em;
+      }
+
+      &:last-child {
+        border-right: @breadcrumb-border;
+        background: @breadcrumb-bg;
+
+        &:before,
+        &:after {
+          border-right: 0;
+        }
+
+        border-top-right-radius: .5em;
+        border-bottom-right-radius: .5em;
+      }
     }
 
     li > * {
-      padding: 1em .5em;
+      padding: .75em .5em;
       display: block;
 
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
+
+      text-align: center;
     }
 
     li.active,
@@ -49,9 +87,19 @@
       background: @breadcrumb-bg-active;
     }
 
+    li:not(.active) {
+      &:hover:before,
+      &:hover:after,
+      &.breadcrumb-right:hover:first-child,
+      &.breadcrumb-left:hover:last-child {
+        background: @breadcrumb-bg-hover
+      }
+    }
+
     .breadcrumb-left,
-    .breadcrumb-right,
-    .breadcrumb-middle {
+    .breadcrumb-right {
+      z-index: 1;
+
       &:before,
       &:after {
         content: '';
@@ -60,9 +108,8 @@
         height: 50%;
         right: 0;
         background: white;
-        border-left: @breadcrumb-border;
-        border-right: @breadcrumb-border;
         z-index: -2;
+        background: @breadcrumb-bg;
       }
     }
 
@@ -70,13 +117,20 @@
       &:before {
         top: 0;
         transform: skew(30deg);
-        border-top: @breadcrumb-border;
+      }
+
+      &:before, &:after {
+        border-right: @breadcrumb-border;
       }
 
       &:after {
         bottom: 0;
         transform: skew(-30deg);
-        border-bottom: @breadcrumb-border;
+      }
+
+      &:first-child:before,
+      &:first-child:after {
+        left: .75em;
       }
     }
 
@@ -84,27 +138,51 @@
       &:before {
         top: 0;
         transform: skew(-30deg);
-        border-top: @breadcrumb-border;
       }
 
       &:after {
         bottom: 0;
         transform: skew(30deg);
-        border-bottom: @breadcrumb-border;
+      }
+
+      &:before, &:after {
+        border-left: @breadcrumb-border;
+      }
+
+      &:last-child:before,
+      &:last-child:after {
+        right: .75em;
+        left: -.5em;
       }
     }
 
     .breadcrumb-middle {
+      z-index: 0;
+      margin-left: -.5em;
+      margin-right: -.5em;
+      padding: 0 .5em;
+
+      &:after,
       &:before {
-        top: 0;
-        transform: perspective(60) rotateX(-30deg) scaleY(1.125) translateY(0.2px);
-        border-top: @breadcrumb-border;
+        content: "";
+        display: block;
+        border: @breadcrumb-border;
+        border-top: 0;
+
+        position: absolute;
+        height: .5em;
+      }
+
+      &:before {
+        bottom: calc(~'-0.5em - 2px');
+        left: .25em;
+        right: .75em;
       }
 
       &:after {
-        bottom: 0;
-        transform: perspective(60) rotateX(30deg) scaleY(1.125) translateY(-0.2px);
-        border-bottom: @breadcrumb-border;
+        bottom: calc(~'-1em - 2px');
+        left: .5em;
+        right: 1em;
       }
     }
   }
@@ -114,3 +192,11 @@
     list-style-type: none;
   }
 }
+
+@light-mode: {
+  @light-body-bg-color: #F5F9FA;
+
+  .breadcrumbs {
+    --breadcrumb-bg-hover: mix(@icinga-blue, @light-body-bg-color, 50%);
+  }
+};
