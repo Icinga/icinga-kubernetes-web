@@ -21,6 +21,7 @@ use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\CopyToClipboard;
+use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
 
 class PodDetail extends BaseHtmlElement
@@ -69,6 +70,9 @@ class PodDetail extends BaseHtmlElement
                             new HtmlElement('a', new Attributes([
                                 'href' => '/'
                             ]),
+                                new StateBall('ok', StateBall::SIZE_MEDIUM),
+                                new Text(' '),
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
                                 new Text('ing-name-random')
                             )
                         ),
@@ -76,12 +80,19 @@ class PodDetail extends BaseHtmlElement
                             new HtmlElement('a', new Attributes([
                                 'href' => '/'
                             ]),
-                                new Text('ing-name-random')
+                                new StateBall('ok', StateBall::SIZE_MEDIUM),
+                                new Text(' '),
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-svc'])),
+                                new Text('svc-name-random')
                             )
                         ),
                         new HtmlElement('li', new Attributes(['class' => 'breadcrumb-middle active']),
                             new HtmlElement('span', null,
-                                new Text('ing-name-random')
+                                new StateBall('ok', StateBall::SIZE_MEDIUM),
+                                new Text(' '),
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-pod'])),
+                                new Text('3'),
+                                new Text('(83)')
                             )
 
                         ),
@@ -89,14 +100,10 @@ class PodDetail extends BaseHtmlElement
                             new HtmlElement('a', new Attributes([
                                 'href' => '/'
                             ]),
-                                new Text('ing-name-random')
-                            )
-                        ),
-                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-left']),
-                            new HtmlElement('a', new Attributes([
-                                'href' => '/'
-                            ]),
-                                new Text('ing-name-random')
+                                new StateBall('ok', StateBall::SIZE_MEDIUM),
+                                new Text(' '),
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-rs'])),
+                                new Text('rs-name-random')
                             )
                         )
                     )
