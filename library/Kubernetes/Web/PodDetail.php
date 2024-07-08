@@ -12,8 +12,6 @@ use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
-use Icinga\Module\Kubernetes\Model\PodCondition;
-use Icinga\Web\Form\Decorator\ElementDoubler;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -127,36 +125,44 @@ class PodDetail extends BaseHtmlElement
                         new Text(' '),
                         new Text('namespace')
                     ),
-                    new HtmlElement('ul', null,
-                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb breadcrumb-right']),
-                            new StateBall('ok', StateBall::SIZE_MEDIUM),
-                            new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
-                            new Text(' '),
-                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
+                    new HtmlElement('ul', new Attributes(['class' => 'breadcrumbs']),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-right']),
+                            new HtmlElement('a', new Attributes([
+                                'href' => '/'
+                            ]),
+                                new StateBall('ok', StateBall::SIZE_MEDIUM),
+                                new Text(' '),
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
                                 new Text('ing-name-random')
                             )
                         ),
-                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb breadcrumb-right']),
-                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-right']),
+                            new HtmlElement('a', new Attributes([
+                                'href' => '/'
+                            ]),
                                 new StateBall('ok', StateBall::SIZE_MEDIUM),
+                                new Text(' '),
                                 new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-svc'])),
-                                new Text(' '),
-                                new Text('service-name-random')
+                                new Text('svc-name-random')
                             )
                         ),
-                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb']),
-                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-middle active']),
+                            new HtmlElement('span', null,
                                 new StateBall('ok', StateBall::SIZE_MEDIUM),
-                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
                                 new Text(' '),
-                                new Text('ing-name-random')
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-pod'])),
+                                new Text('3'),
+                                new Text('(83)')
                             )
+
                         ),
-                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb breadcrumb-left']),
-                            new HtmlElement('span', new Attributes(['class' => 'resource-name']),
+                        new HtmlElement('li', new Attributes(['class' => 'breadcrumb-left']),
+                            new HtmlElement('a', new Attributes([
+                                'href' => '/'
+                            ]),
                                 new StateBall('ok', StateBall::SIZE_MEDIUM),
-                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-ingress'])),
                                 new Text(' '),
+                                new HtmlElement('i', new Attributes(['class' => 'ikicon-kubernetes ikicon-kubernetes-rs'])),
                                 new Text('rs-name-random')
                             )
                         )
