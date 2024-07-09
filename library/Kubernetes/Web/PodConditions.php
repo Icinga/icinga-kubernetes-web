@@ -8,7 +8,15 @@ use Icinga\Module\Kubernetes\Model\PodCondition;
 
 class PodConditions extends Conditions
 {
-    protected const SORT_ORDER = ["Ready", "ContainersReady", "PodReadyToStartContainers", "Initialized", "PodScheduled"];
+    protected const SORT_ORDER = [
+        "PodScheduled",
+        "Initialized",
+        "DisruptionTarget",
+        "Completed", // Custom condition
+        "PodReadyToStartContainers",
+        "ContainersReady",
+        "Ready"
+    ];
 
     protected $pod;
 
@@ -24,56 +32,52 @@ class PodConditions extends Conditions
 
     private function processConditions()
     {
-        $processedConditions = [];
-        $isCompletedConditionAdded = false;
+        $conditions = iterator_to_array($this->pod->condition);
 
-        foreach ($this->pod->condition as $condition) {
-            if ($condition->type === "Ready") {
-                $lastTransition = $condition->last_transition;
-            }
-
-            if ($this->pod->phase === "succeeded") {
-                if (! $isCompletedConditionAdded && isset($lastTransition)) {
-                    $completedCondition = $this->createCompletedCondition($lastTransition);
-                    $processedConditions[] = $completedCondition;
-                    $isCompletedConditionAdded = true;
-                }
-                if (in_array($condition->type, ["PodScheduled", "Initialized"])) {
-                    $processedConditions[] = $condition;
-                }
-            } else {
-                $processedConditions[] = $condition;
-            }
+        if ($this->pod->phase === "succeeded") {
+            $conditions[] = $this->createCompletedCondition();
         }
 
-        usort($processedConditions, function ($a, $b) {
+        usort($conditions, function ($a, $b) {
             return array_search($a->type, static::SORT_ORDER) <=> array_search($b->type, static::SORT_ORDER);
         });
 
-        return $processedConditions;
+        foreach ($conditions as $i => $condition) {
+            if ($condition->status === "True" && ($condition->type === "Completed" || $condition->type === "DisruptionTarget")) {
+                // TODO(el): Only set last_transistion if condition->type is "Completed".
+                $condition->last_transition = $conditions[$i-1]->last_transition;
+
+                return array_reverse(array_slice($conditions, 0, $i+1));
+            }
+        }
+
+        return array_reverse($conditions);
     }
 
-    private function createCompletedCondition($lastTransition): PodCondition
+    private function createCompletedCondition(): PodCondition
     {
         $completed = new PodCondition();
         $completed->type = "Completed";
         $completed->reason = "All containers have been terminated successfully and will not be restarted.";
         $completed->message = "";
-        $completed->status = "True";
-        $completed->last_transition = $lastTransition;
+        $completed->status = "true";
 
         return $completed;
     }
 
     protected function getVisual($status, $type): array
     {
-        switch ($status) {
-            case "True":
-                return ['success', 'check-circle'];
-            case "False":
-                return ['error', 'times-circle'];
-            default:
-                return ['unknown', 'question-circle'];
-        }
+		if ($status === "true" && $type === "DisruptionTarget") {
+			return ['error', 'times-circle'];
+		} else {
+			switch ($status) {
+				case "true":
+					return ['success', 'check-circle'];
+				case "false":
+					return ['error', 'times-circle'];
+				default:
+					return ['unknown', 'question-circle'];
+			}
+		}
     }
 }
