@@ -53,7 +53,7 @@ class ReplicaSetDetail extends BaseHtmlElement
             ])),
             new Labels($this->replicaSet->label),
             new Annotations($this->replicaSet->annotation),
-            new ConditionTable($this->replicaSet, (new ReplicaSetCondition())->getColumnDefinitions()),
+			new ReplicaSetConditions($this->replicaSet),
             new HtmlElement(
                 'section',
                 null,
