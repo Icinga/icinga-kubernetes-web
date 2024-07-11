@@ -32,6 +32,8 @@ class Pod extends Model
 
         $relations->hasMany('pod_volume', PodVolume::class);
 
+        $relations->hasOne('owner', PodOwner::class)->setJoinType('LEFT');
+
         $relations
             ->belongsToMany('pvc', PersistentVolumeClaim::class)
             ->through(PodPvc::class)
