@@ -30,6 +30,8 @@ class ReplicaSet extends Model
     {
         $relations->hasMany('condition', ReplicaSetCondition::class);
 
+        $relations->hasOne('owner', ReplicaSetOwner::class)->setJoinType('LEFT');
+
         $relations
             ->belongsToMany('label', Label::class)
             ->through('replica_set_label');
