@@ -9,12 +9,15 @@ use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Model\JobCondition;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
+use ipl\Web\Widget\StateBall;
 
 class JobDetail extends BaseHtmlElement
 {
@@ -42,7 +45,15 @@ class JobDetail extends BaseHtmlElement
                 $this->translate('Completion Mode')            => ucfirst(Str::camel($this->job->completion_mode)),
                 $this->translate('Active')                     => $this->job->active,
                 $this->translate('Succeeded')                  => $this->job->succeeded,
-                $this->translate('Failed')                     => $this->job->failed
+                $this->translate('Failed')                     => $this->job->failed,
+                $this->translate('Icinga State')               => (new HtmlDocument())
+                    ->addHtml(new StateBall($this->job->icinga_state, StateBall::SIZE_MEDIUM))
+                    ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->job->icinga_state))),
+                $this->translate('Icinga State Reason')        => new HtmlElement(
+                    'div',
+                    new Attributes(['class' => 'state-reason detail']),
+                    Text::create($this->job->icinga_state_reason)
+                )
             ])),
             new Labels($this->job->label),
             new Annotations($this->job->annotation),
