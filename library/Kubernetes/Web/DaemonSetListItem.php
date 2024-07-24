@@ -29,9 +29,10 @@ class DaemonSetListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header
-            ->addHtml($this->createTitle())
-            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header->addHtml(
+            $this->createTitle(),
+            new TimeAgo($this->item->created->getTimestamp())
+        );
     }
 
     protected function assembleCaption(BaseHtmlElement $caption): void
@@ -41,9 +42,11 @@ class DaemonSetListItem extends BaseListItem
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->addHtml($this->createHeader());
-        $main->addHtml($this->createCaption());
-        $main->addHtml($this->createFooter());
+        $main->addHtml(
+            $this->createHeader(),
+            $this->createCaption(),
+            $this->createFooter()
+        );
     }
 
     protected function assembleFooter(BaseHtmlElement $footer): void
