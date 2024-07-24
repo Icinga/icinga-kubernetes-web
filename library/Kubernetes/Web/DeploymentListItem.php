@@ -57,7 +57,10 @@ class DeploymentListItem extends BaseListItem
             ->addIndicator('ok', $this->item->available_replicas);
 
         $footer->addHtml(
-            (new HorizontalKeyValue(new HtmlElement('i', new Attributes(['class' => 'icon ikicon-kubernetes-pod'])), $pods))
+            (new HorizontalKeyValue(
+                new HtmlElement('i', new Attributes(['class' => 'icon ikicon-kubernetes-pod'])),
+                $pods
+            ))
                 ->addAttributes([
                     'title' => sprintf(
                         $this->translate(
