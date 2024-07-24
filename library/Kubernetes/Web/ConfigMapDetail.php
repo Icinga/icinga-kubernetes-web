@@ -18,6 +18,8 @@ class ConfigMapDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
+    protected $defaultAttributes = ['class' => 'config-map-detail'];
+
     public function __construct(ConfigMap $configMap)
     {
         $this->configMap = $configMap;
