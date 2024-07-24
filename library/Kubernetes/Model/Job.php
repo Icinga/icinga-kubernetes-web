@@ -56,8 +56,8 @@ class Job extends Model
         $relations
             ->belongsToMany('pod', Pod::class)
             ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
 
