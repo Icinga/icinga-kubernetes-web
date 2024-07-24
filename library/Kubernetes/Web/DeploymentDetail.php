@@ -35,28 +35,32 @@ class DeploymentDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->deployment, [
-                $this->translate('Strategy')                  => (new HtmlDocument())
-                    ->addHtml(new Icon(DeploymentListItem::UPDATE_STRATEGY_ICONS[$this->deployment->strategy]))
-                    ->addHtml(new Text($this->deployment->strategy)),
-                $this->translate('Min Ready Seconds')         => (new HtmlDocument())
-                    ->addHtml(new Icon('stopwatch'))
-                    ->addHtml(new Text($this->deployment->min_ready_seconds . 's')),
-                $this->translate('Progress Deadline Seconds') => (new HtmlDocument())
-                    ->addHtml(new Icon('skull-crossbones'))
-                    ->addHtml(new Text($this->deployment->progress_deadline_seconds . 's')),
+                $this->translate('Strategy')                  => (new HtmlDocument())->addHtml(
+                    new Icon(DeploymentListItem::UPDATE_STRATEGY_ICONS[$this->deployment->strategy]),
+                    new Text($this->deployment->strategy)
+                ),
+                $this->translate('Min Ready Seconds')         => (new HtmlDocument())->addHtml(
+                    new Icon('stopwatch'),
+                    new Text($this->deployment->min_ready_seconds . 's')
+                ),
+                $this->translate('Progress Deadline Seconds') => (new HtmlDocument())->addHtml(
+                    new Icon('skull-crossbones'),
+                    new Text($this->deployment->progress_deadline_seconds . 's')
+                ),
                 $this->translate('Desired Replicas')          => $this->deployment->desired_replicas,
                 $this->translate('Actual Replicas')           => $this->deployment->actual_replicas,
                 $this->translate('Updated Replicas')          => $this->deployment->updated_replicas,
                 $this->translate('Ready Replicas')            => $this->deployment->ready_replicas,
                 $this->translate('Available Replicas')        => $this->deployment->available_replicas,
                 $this->translate('Unavailable Replicas')      => $this->deployment->unavailable_replicas,
-                $this->translate('Icinga State')              => (new HtmlDocument())
-                    ->addHtml(new StateBall($this->deployment->icinga_state, StateBall::SIZE_MEDIUM))
-                    ->addHtml(new HtmlElement(
+                $this->translate('Icinga State')              => (new HtmlDocument())->addHtml(
+                    new StateBall($this->deployment->icinga_state, StateBall::SIZE_MEDIUM),
+                    new HtmlElement(
                         'span',
                         new Attributes(['class' => 'icinga-state-text']),
                         Text::create($this->deployment->icinga_state)
-                    )),
+                    )
+                ),
                 $this->translate('Icinga State Reason')       => new HtmlElement(
                     'div',
                     new Attributes(['class' => 'icinga-state-reason']),
