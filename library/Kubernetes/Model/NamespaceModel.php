@@ -15,9 +15,9 @@ class NamespaceModel extends Model
 {
     use Translation;
 
-    public const PHASE_ACTIVE = 'active';
+    public const PHASE_ACTIVE = 'Active';
 
-    public const PHASE_TERMINATING = 'terminating';
+    public const PHASE_TERMINATING = 'Terminating';
 
     public function createBehaviors(Behaviors $behaviors)
     {
