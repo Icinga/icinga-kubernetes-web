@@ -13,45 +13,53 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Stdlib\Str;
+use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
 
 class DeploymentDetail extends BaseHtmlElement
 {
     use Translation;
 
-    protected $defaultAttributes = [
-        'class' => 'deployment-detail'
-    ];
-
-    /** @var Deployment */
-    protected $deployment;
+    protected Deployment $deployment;
 
     protected $tag = 'div';
+
+    protected $defaultAttributes = ['class' => 'deployment-detail'];
 
     public function __construct(Deployment $deployment)
     {
         $this->deployment = $deployment;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->deployment, [
-                $this->translate('Strategy')             => ucfirst(Str::camel($this->deployment->strategy)),
-                $this->translate('Min Ready Seconds')    => $this->deployment->min_ready_seconds,
-                $this->translate('Desired Replicas')     => $this->deployment->desired_replicas,
-                $this->translate('Actual Replicas')      => $this->deployment->actual_replicas,
-                $this->translate('Updated Replicas')     => $this->deployment->updated_replicas,
-                $this->translate('Ready Replicas')       => $this->deployment->ready_replicas,
-                $this->translate('Available Replicas')   => $this->deployment->available_replicas,
-                $this->translate('Unavailable Replicas') => $this->deployment->unavailable_replicas,
-                $this->translate('Icinga State')         => (new HtmlDocument())
+                $this->translate('Strategy')                  => (new HtmlDocument())
+                    ->addHtml(new Icon(DeploymentListItem::UPDATE_STRATEGY_ICONS[$this->deployment->strategy]))
+                    ->addHtml(new Text($this->deployment->strategy)),
+                $this->translate('Min Ready Seconds')         => (new HtmlDocument())
+                    ->addHtml(new Icon('stopwatch'))
+                    ->addHtml(new Text($this->deployment->min_ready_seconds . 's')),
+                $this->translate('Progress Deadline Seconds') => (new HtmlDocument())
+                    ->addHtml(new Icon('skull-crossbones'))
+                    ->addHtml(new Text($this->deployment->progress_deadline_seconds . 's')),
+                $this->translate('Desired Replicas')          => $this->deployment->desired_replicas,
+                $this->translate('Actual Replicas')           => $this->deployment->actual_replicas,
+                $this->translate('Updated Replicas')          => $this->deployment->updated_replicas,
+                $this->translate('Ready Replicas')            => $this->deployment->ready_replicas,
+                $this->translate('Available Replicas')        => $this->deployment->available_replicas,
+                $this->translate('Unavailable Replicas')      => $this->deployment->unavailable_replicas,
+                $this->translate('Icinga State')              => (new HtmlDocument())
                     ->addHtml(new StateBall($this->deployment->icinga_state, StateBall::SIZE_MEDIUM))
-                    ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->deployment->icinga_state))),
-                $this->translate('Icinga State Reason')  => new HtmlElement(
+                    ->addHtml(new HtmlElement(
+                        'span',
+                        new Attributes(['class' => 'icinga-state-text']),
+                        Text::create($this->deployment->icinga_state)
+                    )),
+                $this->translate('Icinga State Reason')       => new HtmlElement(
                     'div',
-                    new Attributes(['class' => 'state-reason detail']),
+                    new Attributes(['class' => 'icinga-state-reason']),
                     Text::create($this->deployment->icinga_state_reason)
                 )
             ])),

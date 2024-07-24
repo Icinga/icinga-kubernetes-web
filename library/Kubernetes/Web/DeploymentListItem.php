@@ -5,7 +5,6 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\Health;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -13,16 +12,20 @@ use ipl\Html\Html;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Stdlib\Str;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
-use ipl\Web\Widget\VerticalKeyValue;
 
 class DeploymentListItem extends BaseListItem
 {
     use Translation;
+
+    public const UPDATE_STRATEGY_ICONS = [
+        'Recreate'      => 'recycle',
+        'RollingUpdate' => 'repeat'
+    ];
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -31,51 +34,79 @@ class DeploymentListItem extends BaseListItem
             ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
+    protected function assembleCaption(BaseHtmlElement $caption): void
+    {
+        $caption->addHtml(new Text($this->item->icinga_state_reason));
+    }
+
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml($this->createHeader());
+        $main->addHtml($this->createCaption());
+        $main->addHtml($this->createFooter());
+    }
 
-        $main->addHtml(new HtmlElement(
-            'div',
-            new Attributes(['class' => 'state-reason list']),
-            Text::create($this->item->icinga_state_reason)
-        ));
+    protected function assembleFooter(BaseHtmlElement $footer): void
+    {
+        $pods = (new ItemCountIndicator())
+            ->addIndicator('critical', $this->item->unavailable_replicas)
+            ->addIndicator('pending', $this->item->unavailable_replicas - $this->item->available_replicas)
+            ->addIndicator('ok', $this->item->available_replicas);
 
-        $pods = new HtmlElement('div', new Attributes(['class' => 'pod-balls']));
-        for ($i = 0; $i < $this->item->unavailable_replicas; $i++) {
-            $pods->addHtml(new StateBall('critical', StateBall::SIZE_MEDIUM));
-        }
-        $pending = $this->item->desired_replicas - $this->item->unavailable_replicas - $this->item->available_replicas;
-        for ($i = 0; $i < $pending; $i++) {
-            $pods->addHtml(new StateBall('pending', StateBall::SIZE_MEDIUM));
-        }
-        for ($i = 0; $i < $this->item->available_replicas; $i++) {
-            $pods->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
-        }
-        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->addHtml(new VerticalKeyValue($this->translate('Pods'), $pods));
-        $keyValue->addHtml(new VerticalKeyValue(
-            $this->translate('Strategy'),
-            ucfirst(Str::camel($this->item->strategy))
-        ));
-        $keyValue->addHtml(new VerticalKeyValue(
-            $this->translate('Min Ready Seconds'),
-            $this->item->min_ready_seconds
-        ));
-        $keyValue->addHtml(new VerticalKeyValue(
-            $this->translate('Progress Deadline Seconds'),
-            $this->item->min_ready_seconds
-        ));
-        $keyValue->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
-        $main->addHtml($keyValue);
+        $footer->addHtml(
+            (new HorizontalKeyValue(new HtmlElement('i', new Attributes(['class' => 'icon ikicon-kubernetes-pod'])), $pods))
+                ->addAttributes([
+                    'title' => sprintf(
+                        $this->translate(
+                            '%d %s available (%d unavailable)',
+                            '%d:num_of_available_replicas %s:replicas_translation (%d:num_of_unavailable_replicas)'
+                        ),
+                        $pods->getIndicator('ok'),
+                        $this->translatePlural('replica', 'replicas', $pods->getIndicator('ok')),
+                        $pods->getIndicator('critical')
+                    ),
+                    'class' => 'pods-value'
+                ]),
+            (new Icon(static::UPDATE_STRATEGY_ICONS[$this->item->strategy]))
+                ->addAttributes([
+                    'title' => sprintf(
+                        '%s: %s',
+                        $this->translate('Update Strategy'),
+                        $this->item->strategy
+                    )
+                ]),
+            (new HorizontalKeyValue(new Icon('stopwatch'), $this->item->min_ready_seconds . 's'))
+                ->addAttributes([
+                    'title' => $this->translate('Min Ready Seconds'),
+                ]),
+            (new HorizontalKeyValue(new Icon('skull-crossbones'), $this->item->progress_deadline_seconds . 's'))
+                ->addAttributes([
+                    'title' => $this->translate('Progress Deadline Seconds'),
+                ])
+        );
+
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<deployment> is <health>'),
-            new Link($this->item->name, Links::deployment($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->item->icinga_state)
+            $this->translate('%s is %s', '<deployment> is <icinga_state>'),
+            [
+                new HtmlElement(
+                    'span',
+                    new Attributes(['class' => 'namespace-badge']),
+                    new Icon('folder-open'),
+                    new Text($this->item->namespace)
+                ),
+                new Link(
+                    $this->item->name,
+                    Links::deployment($this->item),
+                    ['class' => 'subject']
+                )
+            ],
+            new HtmlElement(
+                'span', new Attributes(['class' => 'icinga-state-text']), new Text($this->item->icinga_state)
+            )
         ));
     }
 
