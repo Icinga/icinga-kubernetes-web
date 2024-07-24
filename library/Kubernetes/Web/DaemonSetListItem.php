@@ -56,12 +56,16 @@ class DaemonSetListItem extends BaseListItem
             ->addIndicator('ok', $this->item->number_available);
 
         $footer->addHtml(
-            (new HorizontalKeyValue(new HtmlElement('i', new Attributes(['class' => 'icon ikicon-kubernetes-pod'])), $pods))
+            (new HorizontalKeyValue(
+                new HtmlElement('i', new Attributes(['class' => 'icon ikicon-kubernetes-pod'])),
+                $pods
+            ))
                 ->addAttributes([
                     'title' => sprintf(
                         $this->translate(
                             '%d %s available (%d unavailable)',
-                            '%d:num_of_available_daemon_pods %s:daemon_pods_translation (%d:num_of_unavailable_daemon_pods)'
+                            '%d:num_of_available_daemon_pods %s:daemon_pods_translation'
+                            . ' (%d:num_of_unavailable_daemon_pods)'
                         ),
                         $pods->getIndicator('ok'),
                         $this->translatePlural('daemon pod', 'daemon pods', $pods->getIndicator('ok')),
