@@ -14,17 +14,16 @@ class ConfigMapDetail extends BaseHtmlElement
 {
     use Translation;
 
-    /** @var ConfigMap */
-    protected $configMap;
+    protected ConfigMap $configMap;
 
     protected $tag = 'div';
 
-    public function __construct($configMap)
+    public function __construct(ConfigMap $configMap)
     {
         $this->configMap = $configMap;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new Details(new ResourceDetails(
