@@ -72,7 +72,7 @@ class ReplicaSet extends Model
             'available_replicas'     => $this->translate('Available Replicas'),
             'icinga_state'           => $this->translate('Icinga State'),
             'icinga_state_reason'    => $this->translate('Icinga State Reason'),
-            'yaml'                  => $this->translate('YAML'),
+            'yaml'                   => $this->translate('YAML'),
             'created'                => $this->translate('Created At')
         ];
     }
