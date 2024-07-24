@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Web\Widget\Icon;
@@ -39,9 +40,12 @@ class ConfigMapListItem extends BaseListItem
                 new Text($this->item->namespace)
             ),
             new Link(
-                $this->item->name,
+                (new HtmlDocument())->addHtml(
+                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-config-map'])),
+                    new Text($this->item->name)
+                ),
                 Links::configMap($this->item),
-                ['class' => 'subject']
+                new Attributes(['class' => 'subject'])
             )
         );
     }
