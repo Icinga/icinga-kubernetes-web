@@ -58,13 +58,13 @@ class DeploymentDetail extends BaseHtmlElement
                     new HtmlElement(
                         'span',
                         new Attributes(['class' => 'icinga-state-text']),
-                        Text::create($this->deployment->icinga_state)
+                        new Text($this->deployment->icinga_state)
                     )
                 ),
                 $this->translate('Icinga State Reason')       => new HtmlElement(
                     'div',
                     new Attributes(['class' => 'icinga-state-reason']),
-                    Text::create($this->deployment->icinga_state_reason)
+                    new Text($this->deployment->icinga_state_reason)
                 )
             ])),
             new Labels($this->deployment->label),
