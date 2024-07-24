@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
@@ -38,7 +39,14 @@ class NamespaceListItem extends BaseListItem
     {
         $title->addHtml(Html::sprintf(
             $this->translate('%s is %s', '<namespace> is <namespace_phase>'),
-            new Link($this->item->name, Links::namespace($this->item), ['class' => 'subject']),
+            new Link(
+                (new HtmlDocument())->addHtml(
+                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                    new Text($this->item->name)
+                ),
+                Links::namespace($this->item),
+                new Attributes(['class' => 'subject'])
+            ),
             new HtmlElement('span', new Attributes(['class' => 'namespace-phase']), new Text($this->item->phase))
         ));
     }
