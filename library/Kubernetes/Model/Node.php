@@ -23,6 +23,7 @@ class Node extends Model
         ]));
 
         $behaviors->add(new BoolCast([
+            'unschedulable',
             'ready'
         ]));
 
