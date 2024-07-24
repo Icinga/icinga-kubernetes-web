@@ -35,12 +35,14 @@ class DaemonSetDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->daemonSet, [
-                $this->translate('Update Strategy')          => (new HtmlDocument())
-                    ->addHtml(new Icon(DaemonSetListItem::UPDATE_STRATEGY_ICONS[$this->daemonSet->update_strategy]))
-                    ->addHtml(new Text($this->daemonSet->update_strategy)),
-                $this->translate('Min Ready Seconds')        => (new HtmlDocument())
-                    ->addHtml(new Icon('stopwatch'))
-                    ->addHtml(new Text($this->daemonSet->min_ready_seconds . 's')),
+                $this->translate('Update Strategy')          => (new HtmlDocument())->addHtml(
+                    new Icon(DaemonSetListItem::UPDATE_STRATEGY_ICONS[$this->daemonSet->update_strategy]),
+                    new Text($this->daemonSet->update_strategy)
+                ),
+                $this->translate('Min Ready Seconds')        => (new HtmlDocument())->addHtml(
+                    new Icon('stopwatch'),
+                    new Text($this->daemonSet->min_ready_seconds . 's')
+                ),
                 $this->translate('Desired Number Scheduled') => $this->daemonSet->desired_number_scheduled,
                 $this->translate('Current Number Scheduled') => $this->daemonSet->current_number_scheduled,
                 $this->translate('Update Number Scheduled')  => $this->daemonSet->update_number_scheduled,
@@ -48,13 +50,14 @@ class DaemonSetDetail extends BaseHtmlElement
                 $this->translate('Number Ready')             => $this->daemonSet->number_ready,
                 $this->translate('Number Available')         => $this->daemonSet->number_available,
                 $this->translate('Number Unavailable')       => $this->daemonSet->number_unavailable,
-                $this->translate('Icinga State')             => (new HtmlDocument())
-                    ->addHtml(new StateBall($this->daemonSet->icinga_state, StateBall::SIZE_MEDIUM))
-                    ->addHtml(new HtmlElement(
+                $this->translate('Icinga State')             => (new HtmlDocument())->addHtml(
+                    new StateBall($this->daemonSet->icinga_state, StateBall::SIZE_MEDIUM),
+                    new HtmlElement(
                         'span',
                         new Attributes(['class' => 'icinga-state-text']),
                         new Text($this->daemonSet->icinga_state)
-                    )),
+                    )
+                ),
                 $this->translate('Icinga State Reason')      => new HtmlElement(
                     'div',
                     new Attributes(['class' => 'icinga-state-reason']),

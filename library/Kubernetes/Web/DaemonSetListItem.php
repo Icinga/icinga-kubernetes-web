@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
@@ -57,7 +58,7 @@ class DaemonSetListItem extends BaseListItem
 
         $footer->addHtml(
             (new HorizontalKeyValue(
-                new HtmlElement('i', new Attributes(['class' => 'icon ikicon-kubernetes-pod'])),
+                new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
                 $pods
             ))
                 ->addAttributes([
@@ -71,7 +72,7 @@ class DaemonSetListItem extends BaseListItem
                         $this->translatePlural('daemon pod', 'daemon pods', $pods->getIndicator('ok')),
                         $pods->getIndicator('critical')
                     ),
-                    'class' => 'pods-value'
+                    'class' => 'pods-indicator'
                 ]),
             (new Icon(static::UPDATE_STRATEGY_ICONS[$this->item->update_strategy]))
                 ->addAttributes([
@@ -100,9 +101,12 @@ class DaemonSetListItem extends BaseListItem
                     new Text($this->item->namespace)
                 ),
                 new Link(
-                    $this->item->name,
+                    (new HtmlDocument())->addHtml(
+                        new HtmlElement('i', new Attributes(['class' => 'icon kicon-daemon-set'])),
+                        new Text($this->item->name)
+                    ),
                     Links::daemonSet($this->item),
-                    ['class' => 'subject']
+                    new Attributes(['class' => 'subject'])
                 )
             ],
             new HtmlElement(
