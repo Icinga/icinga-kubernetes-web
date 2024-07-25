@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
@@ -87,9 +88,12 @@ class ReplicaSetListItem extends BaseListItem
                     new Text($this->item->namespace)
                 ),
                 new Link(
-                    $this->item->name,
+                    (new HtmlDocument())->addHtml(
+                        new HtmlElement('i', new Attributes(['class' => 'icon kicon-replica-set'])),
+                        new Text($this->item->name)
+                    ),
                     Links::replicaSet($this->item),
-                    ['class' => 'subject']
+                    new Attributes(['class' => 'subject'])
                 )
             ],
             new HtmlElement(

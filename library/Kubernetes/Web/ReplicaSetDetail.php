@@ -38,24 +38,26 @@ class ReplicaSetDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->replicaSet, [
-                $this->translate('Min Ready Seconds')      => (new HtmlDocument())
-                    ->addHtml(new Icon('stopwatch'))
-                    ->addHtml(new Text($this->replicaSet->min_ready_seconds . 's')),
+                $this->translate('Min Ready Seconds')      => (new HtmlDocument())->addHtml(
+                    new Icon('stopwatch'),
+                    new Text($this->replicaSet->min_ready_seconds . 's')
+                ),
                 $this->translate('Desired Replicas')       => $this->replicaSet->desired_replicas,
                 $this->translate('Actual Replicas')        => $this->replicaSet->actual_replicas,
                 $this->translate('Fully Labeled Replicas') => $this->replicaSet->fully_labeled_replicas,
                 $this->translate('Ready Replicas')         => $this->replicaSet->ready_replicas,
                 $this->translate('Available Replicas')     => $this->replicaSet->available_replicas,
-                $this->translate('Icinga State')           => (new HtmlDocument())
-                    ->addHtml(new StateBall($this->replicaSet->icinga_state, StateBall::SIZE_MEDIUM))
-                    ->addHtml(new HtmlElement(
-                            'span',
-                            new Attributes(['class' => 'icinga-state-text']),
-                            Text::create($this->replicaSet->icinga_state))
-                    ),
+                $this->translate('Icinga State')           => (new HtmlDocument())->addHtml(
+                    new StateBall($this->replicaSet->icinga_state, StateBall::SIZE_MEDIUM),
+                    new HtmlElement(
+                        'span',
+                        new Attributes(['class' => 'icinga-state-text']),
+                        Text::create($this->replicaSet->icinga_state)
+                    )
+                ),
                 $this->translate('Icinga State Reason')    => new HtmlElement(
                     'div',
-                    new Attributes(['class' => 'state-reason detail']),
+                    new Attributes(['class' => 'icinga-state-reason']),
                     Text::create($this->replicaSet->icinga_state_reason)
                 )
             ])),
