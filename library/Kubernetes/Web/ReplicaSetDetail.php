@@ -55,10 +55,8 @@ class ReplicaSetDetail extends BaseHtmlElement
                         Text::create($this->replicaSet->icinga_state)
                     )
                 ),
-                $this->translate('Icinga State Reason')    => new HtmlElement(
-                    'div',
-                    new Attributes(['class' => 'icinga-state-reason']),
-                    Text::create($this->replicaSet->icinga_state_reason)
+                $this->translate('Icinga State Reason')    => new IcingaStateReason(
+                    $this->replicaSet->icinga_state_reason
                 )
             ])),
             new Labels($this->replicaSet->label),
