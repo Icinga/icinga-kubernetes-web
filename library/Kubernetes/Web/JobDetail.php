@@ -78,6 +78,7 @@ class JobDetail extends BaseHtmlElement
             new Labels($this->job->label),
             new Annotations($this->job->annotation),
             new JobConditions($this->job),
+			new JobEnvironment($this->job),
             new HtmlElement(
                 'section',
                 null,

@@ -69,6 +69,7 @@ class DaemonSetDetail extends BaseHtmlElement
             new Labels($this->daemonSet->label),
             new Annotations($this->daemonSet->annotation),
             new ConditionTable($this->daemonSet, (new DaemonSetCondition())->getColumnDefinitions()),
+            new DaemonSetEnvironment($this->daemonSet),
             new HtmlElement(
                 'section',
                 null,

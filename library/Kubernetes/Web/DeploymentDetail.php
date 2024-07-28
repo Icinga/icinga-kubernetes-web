@@ -71,6 +71,8 @@ class DeploymentDetail extends BaseHtmlElement
             new Labels($this->deployment->label),
             new Annotations($this->deployment->annotation),
             new DeploymentConditions($this->deployment),
+            new DeploymentConditions($this->deployment),
+            new DeploymentEnvironment($this->deployment),
             new HtmlElement(
                 'section',
                 null,
