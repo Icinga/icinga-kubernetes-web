@@ -60,7 +60,8 @@ class StatefulSetDetail extends BaseHtmlElement
             new Labels($this->statefulSet->label),
             new Annotations($this->statefulSet->annotation),
             new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions()),
-            new HtmlElement(
+            new StatefulSetEnvironment($this->statefulSet),
+			new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),

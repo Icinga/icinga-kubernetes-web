@@ -58,6 +58,7 @@ class PodDetail extends BaseHtmlElement
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),
             new PodConditions($this->pod),
+			new PodEnvironment($this->pod),
             new HtmlElement('section', null,
                 new HtmlElement('h2', null, new Text('Environment')),
                 new HtmlElement('div', new Attributes(['class' => 'environment-widget']),

@@ -54,6 +54,7 @@ class ReplicaSetDetail extends BaseHtmlElement
             new Labels($this->replicaSet->label),
             new Annotations($this->replicaSet->annotation),
 			new ReplicaSetConditions($this->replicaSet),
+			new ReplicaSetEnvironment($this->replicaSet),
             new HtmlElement(
                 'section',
                 null,
