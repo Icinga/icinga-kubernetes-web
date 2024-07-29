@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
@@ -18,6 +19,8 @@ use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\CopyToClipboard;
 use ipl\Web\Widget\StateBall;
+use DateTime;
+use DateInterval;
 
 class PodDetail extends BaseHtmlElement
 {
@@ -38,7 +41,35 @@ class PodDetail extends BaseHtmlElement
         $icingaStateReason = new PluginOutputContainer(new PluginOutput($this->pod->icinga_state_reason));
         CopyToClipboard::attachTo($icingaStateReason);
 
+        $metrics = new Metrics(Database::connection());
+        $podMetricsPeriod = $metrics->getPodMetrics(
+            (new DateTime())->sub(new DateInterval('PT12H')),
+            $this->pod->uuid,
+            Metrics::POD_CPU_USAGE,
+            Metrics::POD_MEMORY_USAGE
+        );
+        $metricRow = [];
+        if (isset($podMetricsPeriod[Metrics::POD_CPU_USAGE])) {
+            $metricRow[] = new LineChart(
+                'chart-medium',
+                implode(', ', $podMetricsPeriod[Metrics::POD_CPU_USAGE]),
+                implode(', ', array_keys($podMetricsPeriod[Metrics::POD_CPU_USAGE])),
+                'CPU Usage',
+                Metrics::COLOR_CPU
+            );
+        }
+        if (isset($podMetricsPeriod[Metrics::POD_MEMORY_USAGE])) {
+            $metricRow[] = new LineChart(
+                'chart-medium',
+                implode(', ', $podMetricsPeriod[Metrics::POD_MEMORY_USAGE]),
+                implode(', ', array_keys($podMetricsPeriod[Metrics::POD_MEMORY_USAGE])),
+                'Memory Usage',
+                Metrics::COLOR_MEMORY
+            );
+        }
+
         $this->addHtml(
+            new MetricCharts($metricRow),
             new Details(new ResourceDetails($this->pod, [
                 $this->translate('IP')                  => $this->pod->ip,
                 $this->translate('Node')                => $this->pod->node_name,
