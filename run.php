@@ -6,4 +6,5 @@
 
 if ($this::exists('notifications')) {
     $this->provideHook('ApplicationState', 'AutoPopulateSource');
+    $this->provideHook('Notifications/ObjectsRenderer');
 }
