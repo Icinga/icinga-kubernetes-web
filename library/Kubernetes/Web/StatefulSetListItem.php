@@ -79,22 +79,24 @@ class StatefulSetListItem extends BaseListItem
                     ),
                     'class' => 'pods-indicator'
                 ]),
-            (new Icon(static::MANAGEMENT_POLICY_ICONS[$this->item->pod_management_policy]))
-                ->addAttributes([
-                    'title' => sprintf(
-                        '%s: %s',
-                        $this->translate('Pod Management Policy'),
-                        $this->item->pod_management_policy
-                    )
-                ]),
-            (new Icon(static::UPDATE_STRATEGY_ICONS[$this->item->update_strategy]))
-                ->addAttributes([
-                    'title' => sprintf(
-                        '%s: %s',
-                        $this->translate('Update Strategy'),
-                        $this->item->update_strategy
-                    )
-                ]),
+            new HorizontalKeyValue(new Icon(static::MANAGEMENT_POLICY_ICONS[$this->item->pod_management_policy]), $this->item->pod_management_policy),
+            new HorizontalKeyValue(new Icon(static::UPDATE_STRATEGY_ICONS[$this->item->update_strategy]), $this->item->update_strategy),
+//            (new Icon(static::MANAGEMENT_POLICY_ICONS[$this->item->pod_management_policy]))
+//                ->addAttributes([
+//                    'title' => sprintf(
+//                        '%s: %s',
+//                        $this->translate('Pod Management Policy'),
+//                        $this->item->pod_management_policy
+//                    )
+//                ]),
+//            (new Icon(static::UPDATE_STRATEGY_ICONS[$this->item->update_strategy]))
+//                ->addAttributes([
+//                    'title' => sprintf(
+//                        '%s: %s',
+//                        $this->translate('Update Strategy'),
+//                        $this->item->update_strategy
+//                    )
+//                ]),
             (new HorizontalKeyValue(new Icon('stopwatch'), $this->item->min_ready_seconds . 's'))
                 ->addAttributes([
                     'title' => $this->translate('Min Ready Seconds'),

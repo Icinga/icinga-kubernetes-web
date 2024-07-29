@@ -87,6 +87,14 @@ class PodListItem extends BaseListItem
                         $this->translate('Container Restarts'),
                         $containerRestarts
                     )
+                ]),
+            (new Icon('lightbulb'))
+                ->addAttributes([
+                    'title' => sprintf(
+                        '%s: %s',
+                        $this->translate('Restart Policy'),
+                        $this->item->restart_policy
+                    )
                 ])
         );
 
