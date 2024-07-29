@@ -47,6 +47,12 @@ footer {
   max-width: 8em;
   padding: 0 .25em;
   vertical-align: baseline;
+
+  // Namespace badges are wrapped by an "a" HTML tag when rendered in Icinga Notifications via the object
+  // renderer hook, which forces the font weight to bold and the text colour to the default text one, making
+  // the lists look different within Icinga Notification than in Icinga for Kubernetes.
+  font-weight: normal;
+  color: @text-color-light;
 }
 
 .caption {
