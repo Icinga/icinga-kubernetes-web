@@ -30,7 +30,7 @@ class StatefulSetListItem extends BaseListItem
 
     public const MANAGEMENT_POLICY_ICONS = [
         'OrderedReady' => 'shuffle',
-        'Parallel'     => 'right-left'
+        'Parallel'     => 'grip-lines'
     ];
 
     protected function assembleHeader(BaseHtmlElement $header): void
@@ -77,7 +77,7 @@ class StatefulSetListItem extends BaseListItem
                         $this->translatePlural('replica', 'replicas', $pods->getIndicator('ok')),
                         $pods->getIndicator('critical')
                     ),
-                    'class' => 'pods-value'
+                    'class' => 'pods-indicator'
                 ]),
             (new Icon(static::MANAGEMENT_POLICY_ICONS[$this->item->pod_management_policy]))
                 ->addAttributes([

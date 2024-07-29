@@ -28,7 +28,7 @@ class PersistentVolumeDetail extends BaseHtmlElement
         $this->persistentVolume = $persistentVolume;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new Details([
@@ -41,15 +41,15 @@ class PersistentVolumeDetail extends BaseHtmlElement
                     new Attributes(['class' => 'persistent-volume-phase']),
                     new Text($this->persistentVolume->phase)
                 ),
-                $this->translate('Capacity')           => Format::bytes($this->persistentVolume->capacity / 1000),
+                $this->translate('Volume Mode')        => $this->persistentVolume->volume_mode,
+                $this->translate('Volume Source Type') => $this->persistentVolume->volume_source_type,
+                $this->translate('Reclaim Policy')     => $this->persistentVolume->reclaim_policy,
+                $this->translate('Storage Class')      => $this->persistentVolume->storage_class,
                 $this->translate('Access Modes')       => implode(
                     ', ',
                     AccessModes::asNames($this->persistentVolume->access_modes)
                 ),
-                $this->translate('Volume Mode')        => $this->persistentVolume->volume_mode,
-                $this->translate('Volume Source Type') => $this->persistentVolume->volume_source_type,
-                $this->translate('Reclaim Policy')     => $this->persistentVolume->reclaim_policy,
-                $this->translate('Storage Class')      => $this->persistentVolume->storage_class
+                $this->translate('Capacity')           => Format::bytes($this->persistentVolume->capacity / 1000),
             ]),
             new HtmlElement(
                 'section',

@@ -29,7 +29,7 @@ class PluginOutput extends HtmlString
         '~\@{6,}~'
     ];
 
-    /** @var string[] Replacements for {@see PluginOutput::TEXT_PATTERNS} */
+    /** @var string[] Replacements for {@see static::TEXT_PATTERNS} */
     protected const TEXT_REPLACEMENTS = [
         "\t",
         "\n",
@@ -49,7 +49,7 @@ class PluginOutput extends HtmlString
         '~\\\n~'
     ];
 
-    /** @var string[] Replacements for {@see PluginOutput::HTML_PATTERNS} */
+    /** @var string[] Replacements for {@see static::HTML_PATTERNS} */
     protected const HTML_REPLACEMENTS = [
         "\t",
         "\n"

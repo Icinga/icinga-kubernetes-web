@@ -36,6 +36,7 @@ class ResourceDetails implements IteratorAggregate
             $this->translate('Resource Version') => $this->resource->resource_version,
             $this->translate('Created')          => $this->resource->created->format('Y-m-d H:i:s')
         ]));
+
         if ($this->details !== null) {
             $iterator->append($this->yieldDetails());
         }

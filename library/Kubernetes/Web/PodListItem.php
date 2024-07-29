@@ -28,9 +28,9 @@ class PodListItem extends BaseListItem
     use Translation;
 
     public const QOS_ICONS = [
-        'BestEffort' => 'award',
-        'Burstable'  => 'wand-magic-sparkles',
-        'Guaranteed' => 'helmet-safety'
+        'BestEffort' => 'eraser',
+        'Burstable'  => 'life-ring',
+        'Guaranteed' => 'heart-pulse'
     ];
 
     protected function assembleHeader(BaseHtmlElement $header): void
@@ -168,7 +168,7 @@ class PodListItem extends BaseListItem
                 new HtmlElement(
                     'span',
                     new Attributes(['class' => 'namespace-badge']),
-                    new Icon('folder-open'),
+                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
                     new Text($this->item->namespace)
                 ),
                 new Link(

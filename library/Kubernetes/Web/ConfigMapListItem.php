@@ -11,7 +11,6 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
-use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 
@@ -36,7 +35,7 @@ class ConfigMapListItem extends BaseListItem
             new HtmlElement(
                 'span',
                 new Attributes(['class' => 'namespace-badge']),
-                new Icon('folder-open'),
+                new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
                 new Text($this->item->namespace)
             ),
             new Link(

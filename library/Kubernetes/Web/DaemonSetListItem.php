@@ -97,7 +97,7 @@ class DaemonSetListItem extends BaseListItem
                 new HtmlElement(
                     'span',
                     new Attributes(['class' => 'namespace-badge']),
-                    new Icon('folder-open'),
+                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
                     new Text($this->item->namespace)
                 ),
                 new Link(

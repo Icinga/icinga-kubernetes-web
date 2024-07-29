@@ -1,0 +1,168 @@
+/* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
+
+.monospace() {
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.icinga-state-reason {
+  .monospace();
+  .rounded-corners(.25em);
+  background-color: @gray-lighter;
+  padding: .5em;
+}
+
+.icinga-state-text,
+.namespace-phase,
+.persistent-volume-phase,
+.pvc-phase {
+  text-transform: uppercase;
+}
+
+.state-ball {
+  margin-right: .3em;
+}
+
+.namespace-badge {
+  background-color: @gray-lighter;
+  vertical-align: baseline;
+  padding: 0 .25em;
+  border-radius: .25em;
+  line-height: 1.5em / 12 * 11; // 1.5em / @font-size-small
+  margin-right: .2em;
+
+  .icon {
+    opacity: .8;
+    vertical-align: baseline;
+  }
+}
+
+.item-count-indicator {
+  height: 14/12em;
+  width: 44/12em; // 44px / 1em, 1em = 12px;
+  --state-color: @gray;
+
+  display: flex;
+  padding-left: 0;
+
+  li {
+    width: 7px;
+    height: 7px;
+
+    list-style-type: none;
+    margin-right: 1px;
+
+    &.critical {
+      --state-color: @state-critical
+    }
+
+    &.warning {
+      --state-color: @state-warning;
+    }
+
+    &.unknown {
+      --state-color: @state-unknown;
+    }
+
+    &.ok {
+      --state-color: @state-ok;
+    }
+  }
+
+  &.ball li {
+    border-radius: 50%;
+    background-color: var(--state-color);
+    margin-left: -4px;
+
+    &:nth-child(2n) {
+      margin-top: 7px;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+
+  &.narrow > li {
+  }
+
+  &.text > li {
+    background-color: @gray-light;
+    color: var(--state-color)
+  }
+}
+
+// List Items
+.item-list {
+  .list-item {
+    .phase-text,
+    .statefulset-text,
+    .replica-text {
+      color: @text-color;
+      text-transform: uppercase;
+    }
+
+    .title .namespace-badge {
+      margin-right: 0;
+      max-width: 8em;
+      .text-ellipsis();
+      color: @text-color-light;
+    }
+
+    .main .horizontal-key-value {
+      .key {
+        width: auto;
+        margin-right: .2em;
+      }
+
+      .value {
+        .text-ellipsis();
+      }
+    }
+
+    .horizontal-key-value {
+      &.pods-value {
+        align-items: center;
+        min-width: 1em;
+
+        .value {
+          min-width: 1em;
+        }
+      }
+
+      .icon {
+        opacity: .8;
+      }
+    }
+
+    footer > * {
+      font-size: 1em;
+      overflow: hidden;
+    }
+  }
+}
+
+.item-list {
+  &.daemon-set-list,
+  &.deployment-list,
+  &.pod-list,
+  &.replica-set-list,
+  &.stateful-set-list {
+    .list-item footer {
+      justify-content: flex-start;
+      align-items: baseline;
+
+      > *:not(:last-child) {
+        margin-right: 1em;
+      }
+
+      > *.push-right {
+        margin-right: auto;
+      }
+    }
+  }
+}
+
+// double class hack `.item-list` to overwrite style
+.item-list.item-list .list-item .visual {
+  justify-content: flex-start;
+}

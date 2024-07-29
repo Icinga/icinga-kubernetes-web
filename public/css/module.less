@@ -1,26 +1,5 @@
 /* Icinga for Kubernetes Web | (c) 2023 Icinga GmbH | AGPLv3 */
 
-.chart-mini {
-  width: 8em;
-}
-
-.chart-small {
-  width: 20em;
-}
-
-.chart-medium {
-  width: 40em;
-}
-
-.chart-big {
-  width: 60em;
-}
-
-.metric-charts-row {
-  display: flex;
-  column-gap: 2em;
-}
-
 .navigation-list {
   list-style-type: none;
 
@@ -38,72 +17,12 @@
   }
 }
 
-.container-state-running {
-  &.container-ready {
-    color: @state-ok;
-  }
-
-  &.container-not-ready {
-    color: @state-critical;
-  }
-}
-
-.container-state-waiting {
-  color: @state-pending;
-}
-
-.container-state-terminated {
-  color: @state-unknown;
-}
-
-.pod-phase-running {
-  &.pod-ready {
-    color: @state-ok;
-  }
-
-  &.pod-not-ready {
-    color: @state-critical;
-  }
-}
-
-.pod-phase-succeeded {
-  color: @state-ok;
-}
-
-.pod-phase-pending {
-  color: @state-pending;
-}
-
-.pod-phase-failed {
-  color: @state-critical;
-}
-
-.health-healthy {
-  color: @state-ok;
-}
-
-.health-degraded {
-  color: @state-warning;
-}
-
-.health-unhealthy {
-  color: @state-critical;
-}
-
 .namespace-phase-active {
   color: @state-ok;
 }
 
 .namespace-phase-terminating {
   color: @state-unknown;
-}
-
-.node-ready {
-  color: @state-ok;
-}
-
-.node-not-ready {
-  color: @state-critical;
 }
 
 .item-list .list-item .visual {
@@ -186,20 +105,18 @@
   }
 }
 
-.monospace() {
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-}
+
 
 .logs p {
   .monospace();
-  padding: 1em;
   background-color: black;
   color: white;
-  white-space: pre;
-  max-height: 50em;
-  overflow: auto;
   display: flex;
   flex-direction: column-reverse;
+  max-height: 50em;
+  overflow: auto;
+  padding: 1em;
+  white-space: pre;
 }
 
 .details,

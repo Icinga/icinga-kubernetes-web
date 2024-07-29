@@ -104,10 +104,8 @@ class NodeDetail extends BaseHtmlElement
                             'span', new Attributes(['class' => 'icinga-state-text']),
                             Text::create($this->node->icinga_state))
                     ),
-                $this->translate('Icinga State Reason')       => new HtmlElement(
-                    'div',
-                    new Attributes(['class' => 'icinga-state-reason']),
-                    Text::create($this->node->icinga_state_reason)
+                $this->translate('Icinga State Reason')       => new IcingaStateReason(
+                    $this->node->icinga_state_reason
                 )
             ]),
             new Labels($this->node->label),

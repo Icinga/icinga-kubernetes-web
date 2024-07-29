@@ -54,7 +54,7 @@ class ReplicaSetListItem extends BaseListItem
 
         $footer->addHtml(
             (new HorizontalKeyValue(
-                new HtmlElement('i', new Attributes(['class' => 'icon ikicon-kubernetes-pod'])),
+                new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
                 $pods
             ))
                 ->addAttributes([
@@ -67,7 +67,7 @@ class ReplicaSetListItem extends BaseListItem
                         $this->translatePlural('replica', 'replicas', $pods->getIndicator('ok')),
                         $pods->getIndicator('critical')
                     ),
-                    'class' => 'pods-value'
+                    'class' => 'pods-indicator'
                 ]),
             (new HorizontalKeyValue(new Icon('stopwatch'), $this->item->min_ready_seconds . 's'))
                 ->addAttributes([
@@ -84,7 +84,7 @@ class ReplicaSetListItem extends BaseListItem
                 new HtmlElement(
                     'span',
                     new Attributes(['class' => 'namespace-badge']),
-                    new Icon('folder-open'),
+                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
                     new Text($this->item->namespace)
                 ),
                 new Link(

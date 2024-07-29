@@ -58,11 +58,7 @@ class DaemonSetDetail extends BaseHtmlElement
                         new Text($this->daemonSet->icinga_state)
                     )
                 ),
-                $this->translate('Icinga State Reason')      => new HtmlElement(
-                    'div',
-                    new Attributes(['class' => 'icinga-state-reason']),
-                    new Text($this->daemonSet->icinga_state_reason)
-                )
+                $this->translate('Icinga State Reason') => new IcingaStateReason($this->daemonSet->icinga_state_reason)
             ])),
             new Labels($this->daemonSet->label),
             new Annotations($this->daemonSet->annotation),

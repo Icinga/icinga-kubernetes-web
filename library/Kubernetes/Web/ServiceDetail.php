@@ -34,7 +34,7 @@ class ServiceDetail extends BaseHtmlElement
         $this->service = $service;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $endpointSlices = EndpointSlice::on(Database::connection())
             ->filter(

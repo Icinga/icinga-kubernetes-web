@@ -15,13 +15,11 @@ class PersistentVolumeClaim extends Model
 {
     use Translation;
 
-    public const DEFAULT_VOLUME_MODE = 'filesystem';
+    public const PHASE_BOUND = 'Bound';
 
-    public const PHASE_BOUND = 'bound';
+    public const PHASE_LOST = 'Failed';
 
-    public const PHASE_LOST = 'failed';
-
-    public const PHASE_PENDING = 'pending';
+    public const PHASE_PENDING = 'Pending';
 
     public function createBehaviors(Behaviors $behaviors)
     {
@@ -121,10 +119,5 @@ class PersistentVolumeClaim extends Model
     public function getTableName()
     {
         return 'pvc';
-    }
-
-    public function getVolumeMode(): string
-    {
-        return $this->volume_mode ?? static::DEFAULT_VOLUME_MODE;
     }
 }
