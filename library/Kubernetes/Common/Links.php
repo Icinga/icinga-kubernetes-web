@@ -99,7 +99,7 @@ abstract class Links
 
     public static function replicaSet(ReplicaSet $replicaSet): Url
     {
-        return Url::fromPath('kubernetes/replicaSet', ['id' => (string) Uuid::fromBytes($replicaSet->uuid)]);
+        return Url::fromPath('kubernetes/replicaset', ['id' => (string) Uuid::fromBytes($replicaSet->uuid)]);
     }
 
     public static function secret(Secret $secret): Url
