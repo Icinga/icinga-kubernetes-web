@@ -28,14 +28,18 @@ class MetricCharts extends BaseHtmlElement
 
     protected function assemble()
     {
-        $this->addHtml(new HtmlElement('h2', null, new Text($this->translate('Metric Charts'))));
-
         foreach ($this->chartRows as $row) {
             $rowElement = new HtmlElement('div', new Attributes(['class' => 'metric-charts-row']));
             foreach ($row as $chart) {
                 $rowElement->addHtml($chart);
             }
-            $this->addHtml($rowElement);
+            if (! $rowElement->isEmpty()) {
+                $this->addHtml($rowElement);
+            }
+        }
+
+        if (! $this->isEmpty()) {
+            $this->prepend(new HtmlElement('h2', null, new Text($this->translate('Metric Charts'))));
         }
     }
 }
