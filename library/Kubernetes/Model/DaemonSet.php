@@ -30,6 +30,8 @@ class DaemonSet extends Model
     {
         $relations->hasMany('condition', DaemonSetCondition::class);
 
+        $relations->hasOne('owner', DaemonSetOwner::class)->setJoinType('LEFT');
+
         $relations
             ->belongsToMany('label', Label::class)
             ->through('daemon_set_label');
