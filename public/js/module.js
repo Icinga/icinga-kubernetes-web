@@ -320,8 +320,6 @@
                     }
                 );
             }
-
-            console.log("Charts rendered");
         }
     }
 
