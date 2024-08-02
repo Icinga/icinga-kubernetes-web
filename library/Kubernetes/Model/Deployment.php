@@ -29,6 +29,7 @@ class Deployment extends Model
     public function createRelations(Relations $relations)
     {
         $relations->hasMany('condition', DeploymentCondition::class);
+
         $relations->hasOne('owner', DeploymentOwner::class)->setJoinType('LEFT');
 
         $relations

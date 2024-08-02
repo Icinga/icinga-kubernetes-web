@@ -31,6 +31,8 @@ class StatefulSet extends Model
     {
         $relations->hasMany('condition', StatefulSetCondition::class);
 
+        $relations->hasOne('owner', StatefulSetOwner::class)->setJoinType('LEFT');
+
         $relations
             ->belongsToMany('label', Label::class)
             ->through('stateful_set_label');
