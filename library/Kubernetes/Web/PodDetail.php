@@ -4,6 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use DateInterval;
+use DateTime;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
@@ -20,8 +22,6 @@ use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
-use DateTime;
-use DateInterval;
 
 class PodDetail extends BaseHtmlElement
 {
@@ -81,19 +81,18 @@ class PodDetail extends BaseHtmlElement
                     new Icon('share-nodes'),
                     new Text($this->pod->node_name)
                 ),
+                $this->translate('Container Restarts')  => (new HtmlDocument())->addHtml(
+                    new Icon('arrows-spin'),
+                    new Text($containerRestarts)
+                ),
+                $this->translate('Restart Policy')      => (new HtmlDocument())->addHtml(
+                    new Icon('recycle'),
+                    new Text($this->pod->restart_policy)
+                ),
                 $this->translate('QoS Class')           => (new HtmlDocument())->addHtml(
-                    (new Icon(PodListItem::QOS_ICONS[$this->pod->qos]))
-                        ->addAttributes([
-                            'title' => sprintf(
-                                '%s: %s',
-                                $this->translate('Quality of Service'),
-                                $this->pod->qos
-                            )
-                        ]),
+                    new Icon('life-ring'),
                     new Text($this->pod->qos)
                 ),
-                $this->translate('Restart Policy')      => $this->pod->restart_policy,
-                $this->translate('Container Restarts')  => $containerRestarts,
                 $this->translate('Phase')               => $this->pod->phase,
                 $this->translate('Reason')              => $this->pod->reason,
                 $this->translate('Message')             => $this->pod->message,
