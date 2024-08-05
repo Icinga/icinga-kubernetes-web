@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -79,29 +80,20 @@ class StatefulSetListItem extends BaseListItem
                     ),
                     'class' => 'pods-indicator'
                 ]),
-            new HorizontalKeyValue(new Icon(static::MANAGEMENT_POLICY_ICONS[$this->item->pod_management_policy]), $this->item->pod_management_policy),
-            new HorizontalKeyValue(new Icon(static::UPDATE_STRATEGY_ICONS[$this->item->update_strategy]), $this->item->update_strategy),
-//            (new Icon(static::MANAGEMENT_POLICY_ICONS[$this->item->pod_management_policy]))
-//                ->addAttributes([
-//                    'title' => sprintf(
-//                        '%s: %s',
-//                        $this->translate('Pod Management Policy'),
-//                        $this->item->pod_management_policy
-//                    )
-//                ]),
-//            (new Icon(static::UPDATE_STRATEGY_ICONS[$this->item->update_strategy]))
-//                ->addAttributes([
-//                    'title' => sprintf(
-//                        '%s: %s',
-//                        $this->translate('Update Strategy'),
-//                        $this->item->update_strategy
-//                    )
-//                ]),
-            (new HorizontalKeyValue(new Icon('stopwatch'), $this->item->min_ready_seconds . 's'))
-                ->addAttributes([
-                    'title' => $this->translate('Min Ready Seconds'),
-                    'class' => 'push-right'
-                ]),
+            new HorizontalKeyValue(
+                new Icon('stopwatch', ['title' => $this->translate('Min Ready Duration')]),
+                Format::seconds($this->item->min_ready_seconds, $this->translate('None'))
+            ),
+            new HorizontalKeyValue(
+                new Icon('retweet', ['title' => $this->translate('Update Strategy')]),
+                $this->item->update_strategy
+            ),
+            (new HorizontalKeyValue(
+                new Icon('shuffle', ['title' => $this->translate('Pod Management Policy')]),
+                $this->item->pod_management_policy
+            ))->addAttributes([
+                'class' => 'push-right'
+            ]),
             (new HorizontalKeyValue(
                 new HtmlElement('i', new Attributes(['class' => 'icon kicon-service'])),
                 $this->item->service_name

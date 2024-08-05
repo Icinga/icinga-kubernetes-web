@@ -4,7 +4,10 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
+use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Model\StatefulSetCondition;
 use ipl\Html\Attributes;
@@ -13,6 +16,7 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
 
@@ -35,19 +39,22 @@ class StatefulSetDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->statefulSet, [
-                $this->translate('Pod Management Policy') => (new HtmlDocument())->addHtml(
-                    new Icon(StatefulSetListItem::MANAGEMENT_POLICY_ICONS[$this->statefulSet->pod_management_policy]),
-                    new Text($this->statefulSet->pod_management_policy)
+                $this->translate('Min Ready Duration')    => (new HtmlDocument())->addHtml(
+                    new Icon('stopwatch'),
+                    new Text(Format::seconds($this->statefulSet->min_ready_seconds, $this->translate('None')))
                 ),
                 $this->translate('Update Strategy')       => (new HtmlDocument())->addHtml(
-                    new Icon(StatefulSetListItem::UPDATE_STRATEGY_ICONS[$this->statefulSet->update_strategy]),
+                    new Icon('retweet'),
                     new Text($this->statefulSet->update_strategy)
+                ),
+                $this->translate('Pod Management Policy') => (new HtmlDocument())->addHtml(
+                    new Icon('shuffle'),
+                    new Text($this->statefulSet->pod_management_policy)
                 ),
                 $this->translate('Service Name')          => (new HtmlDocument())->addHtml(
                     new HtmlElement('i', new Attributes(['class' => 'icon kicon-service'])),
                     new Text($this->statefulSet->service_name)
                 ),
-                $this->translate('Min Ready Seconds')     => $this->statefulSet->min_ready_seconds,
                 $this->translate('Desired Replicas')      => $this->statefulSet->desired_replicas,
                 $this->translate('Actual Replicas')       => $this->statefulSet->actual_replicas,
                 $this->translate('Current Replicas')      => $this->statefulSet->current_replicas,
@@ -73,6 +80,15 @@ class StatefulSetDetail extends BaseHtmlElement
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 new PodList($this->statefulSet->pod->with(['node']))
+            ),
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text($this->translate('Events'))),
+                new EventList(
+                    Event::on(Database::connection())
+                        ->filter(Filter::equal('referent_uuid', $this->statefulSet->uuid))
+                )
             ),
             new Yaml($this->statefulSet->yaml)
         );

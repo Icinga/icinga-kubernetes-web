@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -69,10 +70,10 @@ class ReplicaSetListItem extends BaseListItem
                     ),
                     'class' => 'pods-indicator'
                 ]),
-            (new HorizontalKeyValue(new Icon('stopwatch'), $this->item->min_ready_seconds . 's'))
-                ->addAttributes([
-                    'title' => $this->translate('Min Ready Seconds')
-                ])
+            new HorizontalKeyValue(
+                new Icon('stopwatch', ['title' => $this->translate('Min Ready Duration')]),
+                Format::seconds($this->item->min_ready_seconds, $this->translate('None'))
+            ),
         );
     }
 

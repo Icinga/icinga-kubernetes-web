@@ -4,12 +4,15 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Stdlib\Filter;
 
 class NamespaceDetail extends BaseHtmlElement
 {
@@ -40,6 +43,15 @@ class NamespaceDetail extends BaseHtmlElement
             ]),
             new Labels($this->namespace->label),
             new Annotations($this->namespace->annotation),
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text($this->translate('Events'))),
+                new EventList(
+                    Event::on(Database::connection())
+                        ->filter(Filter::equal('referent_uuid', $this->namespace->uuid))
+                )
+            ),
             new Yaml($this->namespace->yaml)
         );
     }

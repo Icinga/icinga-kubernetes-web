@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -22,11 +23,6 @@ use ipl\Web\Widget\TimeAgo;
 class DaemonSetListItem extends BaseListItem
 {
     use Translation;
-
-    public const UPDATE_STRATEGY_ICONS = [
-        'RollingUpdate' => 'repeat',
-        'OnDelete'      => 'trash'
-    ];
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -74,18 +70,14 @@ class DaemonSetListItem extends BaseListItem
                     ),
                     'class' => 'pods-indicator'
                 ]),
-            (new Icon(static::UPDATE_STRATEGY_ICONS[$this->item->update_strategy]))
-                ->addAttributes([
-                    'title' => sprintf(
-                        '%s: %s',
-                        $this->translate('Update Strategy'),
-                        $this->item->update_strategy
-                    )
-                ]),
-            (new HorizontalKeyValue(new Icon('stopwatch'), $this->item->min_ready_seconds . 's'))
-                ->addAttributes([
-                    'title' => $this->translate('Min Ready Seconds')
-                ])
+            new HorizontalKeyValue(
+                new Icon('stopwatch', ['title' => $this->translate('Min Ready Duration')]),
+                Format::seconds($this->item->min_ready_seconds, $this->translate('None'))
+            ),
+            new HorizontalKeyValue(
+                new Icon('retweet', ['title' => $this->translate('Update Strategy')]),
+                $this->item->update_strategy
+            )
         );
     }
 

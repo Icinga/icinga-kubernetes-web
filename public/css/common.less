@@ -43,6 +43,8 @@
   }
 }
 
+.containers-indicator,
+.pods-indicator,
 .item-count-indicator {
   height: 14/12em;
   width: 44/12em; // 44px / 1em, 1em = 12px;
@@ -73,6 +75,11 @@
     &.ok {
       --state-color: @state-ok;
     }
+  }
+
+
+  &.box li {
+    background-color: var(--state-color);
   }
 
   &.ball li {

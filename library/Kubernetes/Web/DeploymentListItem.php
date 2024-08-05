@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -22,11 +23,6 @@ use ipl\Web\Widget\TimeAgo;
 class DeploymentListItem extends BaseListItem
 {
     use Translation;
-
-    public const UPDATE_STRATEGY_ICONS = [
-        'Recreate'      => 'recycle',
-        'RollingUpdate' => 'repeat'
-    ];
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -52,6 +48,7 @@ class DeploymentListItem extends BaseListItem
 
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
+
         $pods = (new ItemCountIndicator())
             ->addIndicator('critical', $this->item->unavailable_replicas)
             ->addIndicator('pending', $this->item->unavailable_replicas - $this->item->available_replicas)
@@ -74,22 +71,18 @@ class DeploymentListItem extends BaseListItem
                     ),
                     'class' => 'pods-indicator'
                 ]),
-            (new Icon(static::UPDATE_STRATEGY_ICONS[$this->item->strategy]))
-                ->addAttributes([
-                    'title' => sprintf(
-                        '%s: %s',
-                        $this->translate('Update Strategy'),
-                        $this->item->strategy
-                    )
-                ]),
-            (new HorizontalKeyValue(new Icon('stopwatch'), $this->item->min_ready_seconds . 's'))
-                ->addAttributes([
-                    'title' => $this->translate('Min Ready Seconds'),
-                ]),
-            (new HorizontalKeyValue(new Icon('skull-crossbones'), $this->item->progress_deadline_seconds . 's'))
-                ->addAttributes([
-                    'title' => $this->translate('Progress Deadline Seconds'),
-                ])
+            new HorizontalKeyValue(
+                new Icon('stopwatch', ['title' => $this->translate('Min Ready Duration')]),
+                Format::seconds($this->item->min_ready_seconds, $this->translate('None'))
+            ),
+            new HorizontalKeyValue(
+                new Icon('retweet', ['title' => $this->translate('Strategy')]),
+                $this->item->strategy
+            ),
+            new HorizontalKeyValue(
+                new Icon('skull-crossbones', ['title' => $this->translate('Progress Deadline')]),
+                Format::seconds($this->item->progress_deadline_seconds)
+            )
         );
 
     }

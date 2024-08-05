@@ -59,6 +59,7 @@ class PodListItem extends BaseListItem
     {
         $containerRestarts = 0;
         $containers = new ItemCountIndicator();
+        $containers->setStyle($containers::STYLE_BOX);
         /** @var Container $container */
         foreach ($this->item->container as $container) {
             $containerRestarts += $container->restart_count;
@@ -88,28 +89,17 @@ class PodListItem extends BaseListItem
                         $containerRestarts
                     )
                 ]),
-            (new Icon('lightbulb'))
-                ->addAttributes([
-                    'title' => sprintf(
-                        '%s: %s',
-                        $this->translate('Restart Policy'),
-                        $this->item->restart_policy
-                    )
-                ])
+            new HorizontalKeyValue(
+                (new Icon('recycle'))->addAttributes(['title' => $this->translate('Restart Policy')]),
+                $this->item->restart_policy
+            )
         );
 
         if ($this->item->qos !== null) {
-            $footer->addHtml(
-                (new Icon(static::QOS_ICONS[$this->item->qos]))
-                    ->addAttributes([
-                        'title' => sprintf(
-                            '%s: %s',
-                            $this->translate('Quality of Service'),
-                            $this->item->qos
-                        ),
-                        'class' => 'push-right'
-                    ])
-            );
+            $footer->addHtml((new HorizontalKeyValue(
+                (new Icon('life-ring'))->addAttributes(['title' => $this->translate('Quality of Service')]),
+                $this->item->qos
+            ))->addAttributes(['class' => 'push-right']));
         }
 
         if ($this->item->ip !== null) {

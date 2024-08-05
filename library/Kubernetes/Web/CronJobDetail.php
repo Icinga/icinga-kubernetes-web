@@ -4,10 +4,16 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Cron\CronExpression;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\CronJob;
+use Icinga\Module\Kubernetes\Model\Event;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Stdlib\Filter;
 
 class CronJobDetail extends BaseHtmlElement
 {
@@ -48,6 +54,15 @@ class CronJobDetail extends BaseHtmlElement
             ])),
             new Labels($this->cronJob->label),
             new Annotations($this->cronJob->annotation),
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text($this->translate('Events'))),
+                new EventList(
+                    Event::on(Database::connection())
+                        ->filter(Filter::equal('referent_uuid', $this->cronJob->uuid))
+                )
+            ),
             new Yaml($this->cronJob->yaml)
         );
     }

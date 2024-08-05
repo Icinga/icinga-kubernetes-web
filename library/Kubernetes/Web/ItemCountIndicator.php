@@ -13,9 +13,9 @@ use ipl\Html\Text;
 
 class ItemCountIndicator extends BaseHtmlElement implements Countable
 {
-    protected const STYLE_BALL = 'ball';
+    public const STYLE_BALL = 'ball';
 
-    protected const STYLE_BOX = 'box';
+    public const STYLE_BOX = 'box';
 
     protected const MAX_ITEMS = 10;
 
@@ -23,7 +23,7 @@ class ItemCountIndicator extends BaseHtmlElement implements Countable
 
     protected string $style = self::STYLE_BALL;
 
-    protected array $indicators;
+    protected array $indicators = [];
 
     protected $tag = 'ul';
 

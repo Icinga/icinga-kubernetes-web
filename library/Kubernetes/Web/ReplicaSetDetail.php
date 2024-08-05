@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
@@ -38,9 +39,9 @@ class ReplicaSetDetail extends BaseHtmlElement
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->replicaSet, [
-                $this->translate('Min Ready Seconds')      => (new HtmlDocument())->addHtml(
+                $this->translate('Min Ready Duration')     => (new HtmlDocument())->addHtml(
                     new Icon('stopwatch'),
-                    new Text($this->replicaSet->min_ready_seconds . 's')
+                    new Text(Format::seconds($this->replicaSet->min_ready_seconds, $this->translate('None')))
                 ),
                 $this->translate('Desired Replicas')       => $this->replicaSet->desired_replicas,
                 $this->translate('Actual Replicas')        => $this->replicaSet->actual_replicas,
@@ -74,13 +75,7 @@ class ReplicaSetDetail extends BaseHtmlElement
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
                 new EventList(
                     Event::on(Database::connection())
-                        ->filter(
-                            Filter::all(
-                                Filter::equal('reference_kind', 'ReplicaSet'),
-                                Filter::equal('reference_namespace', $this->replicaSet->namespace),
-                                Filter::equal('reference_name', $this->replicaSet->name)
-                            )
-                        )
+                        ->filter(Filter::equal('referent_uuid', $this->replicaSet->uuid))
                 )
             ),
             new Yaml($this->replicaSet->yaml)
