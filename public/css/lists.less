@@ -3,9 +3,13 @@
 footer {
   align-items: baseline;
   justify-content: flex-start;
+  padding-top: 0;
+  height: 1.5em;
+  align-items: stretch;
 
   > * {
     font-size: 1em;
+    color: @text-color-light;
   }
 
   > *:not(:last-child) {
@@ -18,9 +22,18 @@ footer {
   }
 
   > .horizontal-key-value {
+
+    padding: 0;
+    align-items: center;
+
+    .value {
+      color: @text-color-light;
+    }
+
     .key {
       width: auto;
       margin-right: .2em;
+      color: @gray-semilight;
     }
   }
 }
