@@ -8,6 +8,7 @@ use DateTime;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
@@ -90,7 +91,7 @@ class ContainerListItem extends BaseListItem
                 Links::container($this->item),
                 ['class' => 'subject']
             ),
-            new HtmlElement('span', null, new Text($this->item->icinga_state))
+            new HtmlElement('span', new Attributes(['class' => 'icinga-state-text']), new Text($this->item->icinga_state))
         ));
     }
 
