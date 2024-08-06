@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -68,22 +69,22 @@ class JobListItem extends BaseListItem
                         $pods->getIndicator('critical')
                     )
                 ]),
-            (new HorizontalKeyValue(new Icon('grip-lines'), $this->item->parallelism))
-                ->addAttributes([
-                    'title' => $this->translate('Parallelism')
-                ]),
-            (new HorizontalKeyValue(new Icon('check-double'), $this->item->getCompletions()))
-                ->addAttributes([
-                    'title' => $this->translate('Completions')
-                ]),
-            (new HorizontalKeyValue(new Icon('circle-exclamation'), $this->item->backoff_limit))
-                ->addAttributes([
-                    'title' => $this->translate('Back-off Limit')
-                ]),
-            (new HorizontalKeyValue(new Icon('skull-crossbones'), $this->item->active_deadline_seconds . 's'))
-                ->addAttributes([
-                    'title' => $this->translate('Active Deadline Seconds')
-                ])
+            new HorizontalKeyValue(
+                new Icon('grip-lines', ['title' => $this->translate('Parallelism')]),
+                $this->item->parallelism
+            ),
+            new HorizontalKeyValue(
+                new Icon('check-double', ['title' => $this->translate('Completions')]),
+                $this->item->getCompletions()
+            ),
+            new HorizontalKeyValue(
+                new Icon('circle-exclamation', ['title' => $this->translate('Back-off Limit')]),
+                $this->item->backoff_limit
+            ),
+            new HorizontalKeyValue(
+                new Icon('skull-crossbones', ['title' => $this->translate('Active Deadline Duration')]),
+                Format::seconds($this->item->active_deadline_seconds) ?? $this->translate('None')
+            )
         );
     }
 

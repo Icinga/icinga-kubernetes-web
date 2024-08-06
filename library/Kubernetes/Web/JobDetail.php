@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Job;
@@ -55,9 +56,9 @@ class JobDetail extends BaseHtmlElement
                 $this->translate('Failed')                     => $this->job->failed,
                 $this->translate('Start Time')                 => $this->job->getStartTime(),
                 $this->translate('Active')                     => $this->job->active,
-                $this->translate('Active Deadline Seconds')    => (new HtmlDocument())->addHtml(
+                $this->translate('Active Deadline Duration')   => (new HtmlDocument())->addHtml(
                     new Icon('skull-crossbones'),
-                    new Text($this->job->active_deadline_seconds . 's')
+                    new Text(Format::seconds($this->job->active_deadline_seconds) ?? $this->translate('None'))
                 ),
                 $this->translate('TTL Seconds After Finished') => $this->job->ttl_seconds_after_finished,
                 $this->translate('Icinga State')               => (new HtmlDocument())->addHtml(
