@@ -67,8 +67,7 @@ class ReplicaSetListItem extends BaseListItem
                         $pods->getIndicator('ok'),
                         $this->translatePlural('replica', 'replicas', $pods->getIndicator('ok')),
                         $pods->getIndicator('critical')
-                    ),
-                    'class' => 'pods-indicator'
+                    )
                 ]),
             new HorizontalKeyValue(
                 new Icon('stopwatch', ['title' => $this->translate('Min Ready Duration')]),

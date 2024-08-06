@@ -19,8 +19,6 @@ class ItemCountIndicator extends BaseHtmlElement implements Countable
 
     protected const MAX_ITEMS = 10;
 
-    protected const NARROW_THRESHOLD = 5;
-
     protected string $style = self::STYLE_BALL;
 
     protected array $indicators = [];
@@ -59,14 +57,6 @@ class ItemCountIndicator extends BaseHtmlElement implements Countable
         return $this->indicators[$state];
     }
 
-    /**
-     *
-     *
-     * @param string $state
-     * @param int $count
-     *
-     * @return $this
-     */
     public function addIndicator(string $state, int $count): self
     {
         if (! isset($this->indicators[$state])) {
@@ -89,14 +79,12 @@ class ItemCountIndicator extends BaseHtmlElement implements Countable
             $this->addAttributes(['class' => 'text']);
 
             foreach ($this->indicators as $state => $count) {
-                $this->addHtml(new HtmlElement('li', new Attributes(['class' => $state]), new Text($count)));
+                if ($count > 0) {
+                    $this->addHtml(new HtmlElement('li', new Attributes(['class' => $state]), new Text($count)));
+                }
             }
         } else {
             $this->addAttributes(['class' => $this->getStyle()]);
-
-            if (count($this) > static::NARROW_THRESHOLD) {
-                $this->addAttributes(['class' => 'narrow']);
-            }
 
             foreach ($this->indicators as $state => $count) {
                 for ($i = 0; $i < $count; ++$i) {

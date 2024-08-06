@@ -66,8 +66,7 @@ class JobListItem extends BaseListItem
                         $pods->getIndicator('ok'),
                         $this->translatePlural('replica', 'replicas', $pods->getIndicator('ok')),
                         $pods->getIndicator('critical')
-                    ),
-                    'class' => 'pods-indicator'
+                    )
                 ]),
             (new HorizontalKeyValue(new Icon('grip-lines'), $this->item->parallelism))
                 ->addAttributes([

@@ -1,0 +1,94 @@
+/* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
+
+.logs > p {
+  .monospace();
+  background-color: black;
+  color: white;
+  display: flex;
+  flex-direction: column-reverse;
+  max-height: 50em;
+  overflow: auto;
+  padding: 1em;
+  white-space: pre;
+}
+
+.item-count-indicator {
+  width: 6em;
+  --state-color: @gray;
+
+  display: flex;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    margin-right: 1px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  li {
+    width: 7px;
+    height: 7px;
+
+    &.critical {
+      --state-color: @state-critical
+    }
+
+    &.warning {
+      --state-color: @state-warning;
+    }
+
+    &.unknown {
+      --state-color: @state-unknown;
+    }
+
+    &.pending {
+      --state-color: @state-pending;
+    }
+
+    &.ok {
+      --state-color: @state-ok;
+    }
+  }
+
+
+  &.box li {
+    background-color: var(--state-color);
+    margin-right: 2px;
+  }
+
+  &.ball li {
+    background-color: var(--state-color);
+    border-radius: 50%;
+    margin-left: -4px;
+
+    &:nth-child(2n) {
+      margin-top: 7px;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+
+  &.text > li {
+    .state-badge();
+    background-color: @gray-light;
+    color: var(--state-color);
+    height: auto;
+    padding: 0;
+    width: auto;
+  }
+}
+
+.details,
+.labels,
+.annotations,
+.state {
+  .horizontal-key-value > .key {
+    width: 25em;
+  }
+}

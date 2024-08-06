@@ -16,6 +16,7 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
+use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
@@ -39,10 +40,16 @@ class ContainerDetail extends BaseHtmlElement
         $this->addHtml(new Details([
             $this->translate('Name')                => $this->container->name,
             $this->translate('Image')               => $this->container->image,
-            $this->translate('Image Pull Policy')   => $this->container->image_pull_policy,
+            $this->translate('Image Pull Policy')   => (new HtmlDocument())->addHtml(
+                new Icon('download'),
+                new Text($this->container->image_pull_policy)
+            ),
             $this->translate('Started')             => Icons::ready($this->container->started),
             $this->translate('Ready')               => Icons::ready($this->container->ready),
-            $this->translate('Restarts')            => $this->container->restart_count,
+            $this->translate('Restarts')            => (new HtmlDocument())->addHtml(
+                new Icon('arrows-spin'),
+                new Text($this->container->restart_count)
+            ),
             $this->translate('Icinga State')        => (new HtmlDocument())->addHtml(
                 new StateBall($this->container->icinga_state, StateBall::SIZE_MEDIUM),
                 new HtmlElement(

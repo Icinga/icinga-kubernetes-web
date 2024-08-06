@@ -67,8 +67,7 @@ class DaemonSetListItem extends BaseListItem
                         $pods->getIndicator('ok'),
                         $this->translatePlural('daemon pod', 'daemon pods', $pods->getIndicator('ok')),
                         $pods->getIndicator('critical')
-                    ),
-                    'class' => 'pods-indicator'
+                    )
                 ]),
             new HorizontalKeyValue(
                 new Icon('stopwatch', ['title' => $this->translate('Min Ready Duration')]),

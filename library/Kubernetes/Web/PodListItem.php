@@ -78,8 +78,7 @@ class PodListItem extends BaseListItem
                         $containers->getIndicator('ok'),
                         $this->translatePlural('container', 'containers', $containers->getIndicator('ok')),
                         $containers->getIndicator('critical')
-                    ),
-                    'class' => 'containers-indicator'
+                    )
                 ]),
             (new HorizontalKeyValue(new Icon('arrows-spin'), $containerRestarts))
                 ->addAttributes([

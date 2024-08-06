@@ -20,6 +20,7 @@ use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
+use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
 
@@ -76,10 +77,13 @@ class PodDetail extends BaseHtmlElement
         $this->addHtml(
             new MetricCharts($metricRow),
             new Details(new ResourceDetails($this->pod, [
-                $this->translate('IP')                  => $this->pod->ip,
+                $this->translate('IP')                  => $this->pod->ip ??
+                    new EmptyState($this->translate('No IP')),
                 $this->translate('Node')                => (new HtmlDocument())->addHtml(
                     new Icon('share-nodes'),
-                    new Text($this->pod->node_name)
+                    $this->pod->node_name ?
+                        new Text($this->pod->node_name) :
+                        new EmptyState($this->translate('No Node')),
                 ),
                 $this->translate('Container Restarts')  => (new HtmlDocument())->addHtml(
                     new Icon('arrows-spin'),
@@ -94,8 +98,10 @@ class PodDetail extends BaseHtmlElement
                     new Text($this->pod->qos)
                 ),
                 $this->translate('Phase')               => $this->pod->phase,
-                $this->translate('Reason')              => $this->pod->reason,
-                $this->translate('Message')             => $this->pod->message,
+                $this->translate('Reason')              => $this->pod->reason ??
+                    new EmptyState($this->translate('No reason')),
+                $this->translate('Message')             => $this->pod->message ??
+                    new EmptyState($this->translate('No message')),
                 $this->translate('Icinga State')        => (new HtmlDocument())->addHtml(
                     new StateBall($this->pod->icinga_state, StateBall::SIZE_MEDIUM),
                     new HtmlElement(
