@@ -1,11 +1,10 @@
 /* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
 footer {
-  align-items: baseline;
+  align-items: stretch;
   justify-content: flex-start;
   padding-top: 0;
   height: 1.5em;
-  align-items: stretch;
 
   > * {
     font-size: 1em;
@@ -16,24 +15,24 @@ footer {
     margin-right: 1em;
   }
 
-  > *.push-right {
-    margin-right: auto;
-    // TODO(el): Should be margin-left and then the class must be added to the first element to be moved to the right.
+  > *.push-left {
+    margin-left: auto;
   }
 
   > .horizontal-key-value {
-
-    padding: 0;
     align-items: center;
-
-    .value {
-      color: @text-color-light;
-    }
+    padding: 0;
+    overflow: hidden;
 
     .key {
       width: auto;
       margin-right: .2em;
       color: @gray-semilight;
+    }
+    .value {
+      .text-ellipsis();
+      color: @text-color-light;
+      min-width: 1em;
     }
   }
 }
@@ -91,4 +90,8 @@ footer {
 .container-list > .list-item > .visual > .state-ball,
 .container-detail > .details > .horizontal-key-value > .value > .state-ball {
   border-radius: initial;
+}
+
+.state-ball.state-none {
+  border: 1px solid @gray-light;
 }

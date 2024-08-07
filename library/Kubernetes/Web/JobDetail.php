@@ -35,7 +35,7 @@ class JobDetail extends BaseHtmlElement
         $this->job = $job;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->job, [

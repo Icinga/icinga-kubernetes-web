@@ -61,11 +61,11 @@ class JobListItem extends BaseListItem
                 ->addAttributes([
                     'title' => sprintf(
                         $this->translate(
-                            '%d %s available (%d unavailable)',
-                            '%d:num_of_available_replicas %s:replicas_translation (%d:num_of_unavailable_replicas)'
+                            '%d %s available (%d not available)',
+                            '%d:num_of_available_pods %s:pods_translation (%d:num_of_unavailable_pods)'
                         ),
                         $pods->getIndicator('ok'),
-                        $this->translatePlural('replica', 'replicas', $pods->getIndicator('ok')),
+                        $this->translatePlural('pod', 'pods', $pods->getIndicator('ok')),
                         $pods->getIndicator('critical')
                     )
                 ]),

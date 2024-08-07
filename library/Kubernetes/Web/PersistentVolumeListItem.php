@@ -65,15 +65,15 @@ class PersistentVolumeListItem extends BaseListItem
                 $this->translate('Volume Mode'),
                 $this->item->volume_mode
             ),
-            (new HorizontalKeyValue(
+            new HorizontalKeyValue(
                 $this->translate('Access Mode'),
                 implode(', ', AccessModes::asNames((int) $this->item->access_modes))
-            ))
-                ->addAttributes(new Attributes(['class' => 'push-right'])),
-            new HorizontalKeyValue(
+            ),
+            (new HorizontalKeyValue(
                 $this->translate('Capacity'),
                 Format::bytes($this->item->capacity / 1000)
-            )
+            ))
+                ->addAttributes(new Attributes(['class' => 'push-left']))
         );
     }
 

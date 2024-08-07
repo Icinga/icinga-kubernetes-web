@@ -40,7 +40,8 @@ class ServiceListItem extends BaseListItem
     {
         $footer->addHtml(
             new HorizontalKeyValue($this->translate('Type'), $this->item->type),
-            new HorizontalKeyValue($this->translate('Cluster IP'), $this->item->cluster_ip)
+            (new HorizontalKeyValue($this->translate('Cluster IP'), $this->item->cluster_ip))
+                ->addAttributes(['class' => 'push-left'])
         );
     }
 

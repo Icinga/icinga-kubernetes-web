@@ -78,12 +78,12 @@ class PodDetail extends BaseHtmlElement
             new MetricCharts($metricRow),
             new Details(new ResourceDetails($this->pod, [
                 $this->translate('IP')                  => $this->pod->ip ??
-                    new EmptyState($this->translate('No IP')),
+                    new EmptyState($this->translate('None')),
                 $this->translate('Node')                => (new HtmlDocument())->addHtml(
                     new Icon('share-nodes'),
                     $this->pod->node_name ?
                         new Text($this->pod->node_name) :
-                        new EmptyState($this->translate('No Node')),
+                        new EmptyState($this->translate('None')),
                 ),
                 $this->translate('Container Restarts')  => (new HtmlDocument())->addHtml(
                     new Icon('arrows-spin'),
@@ -93,15 +93,15 @@ class PodDetail extends BaseHtmlElement
                     new Icon('recycle'),
                     new Text($this->pod->restart_policy)
                 ),
-                $this->translate('QoS Class')           => (new HtmlDocument())->addHtml(
+                $this->translate('Quality of Service')           => (new HtmlDocument())->addHtml(
                     new Icon('life-ring'),
                     new Text($this->pod->qos)
                 ),
                 $this->translate('Phase')               => $this->pod->phase,
                 $this->translate('Reason')              => $this->pod->reason ??
-                    new EmptyState($this->translate('No reason')),
+                    new EmptyState($this->translate('None')),
                 $this->translate('Message')             => $this->pod->message ??
-                    new EmptyState($this->translate('No message')),
+                    new EmptyState($this->translate('None')),
                 $this->translate('Icinga State')        => (new HtmlDocument())->addHtml(
                     new StateBall($this->pod->icinga_state, StateBall::SIZE_MEDIUM),
                     new HtmlElement(

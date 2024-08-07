@@ -80,34 +80,25 @@ class PodListItem extends BaseListItem
                         $containers->getIndicator('critical')
                     )
                 ]),
-            (new HorizontalKeyValue(new Icon('arrows-spin'), $containerRestarts))
-                ->addAttributes([
-                    'title' => sprintf(
-                        '%s: %d',
-                        $this->translate('Container Restarts'),
-                        $containerRestarts
-                    )
-                ]),
+            new HorizontalKeyValue(
+                new Icon('arrows-spin', ['title' => $this->translate('Container Restarts')]),
+                $containerRestarts
+            ),
             new HorizontalKeyValue(
                 (new Icon('recycle'))->addAttributes(['title' => $this->translate('Restart Policy')]),
                 $this->item->restart_policy
-            )
-        );
-
-        if ($this->item->qos !== null) {
-            $footer->addHtml((new HorizontalKeyValue(
+            ),
+            new HorizontalKeyValue(
                 (new Icon('life-ring'))->addAttributes(['title' => $this->translate('Quality of Service')]),
                 $this->item->qos
-            ))->addAttributes(['class' => 'push-right']));
-        }
-
-        if ($this->item->ip !== null) {
-            $footer->addHtml(new HorizontalKeyValue('IP', $this->item->ip));
-        }
-
-        if ($this->item->node_name !== null) {
-            $footer->addHtml(new HorizontalKeyValue(new Icon('share-nodes'), $this->item->node_name));
-        }
+            ),
+            (new HorizontalKeyValue(
+                $this->translate('IP'),
+                $this->item->ip ?? $this->translate('None')
+            ))
+                ->addAttributes(['class' => 'push-left']),
+            new HorizontalKeyValue(new Icon('share-nodes'), $this->item->node_name ?? $this->translate('None'))
+        );
 
         $metrics = new Metrics(Database::connection());
         $podMetricsCurrent = $metrics->getPodMetricsCurrent(

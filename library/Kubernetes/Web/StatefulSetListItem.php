@@ -87,17 +87,16 @@ class StatefulSetListItem extends BaseListItem
                 new Icon('retweet', ['title' => $this->translate('Update Strategy')]),
                 $this->item->update_strategy
             ),
-            (new HorizontalKeyValue(
+            new HorizontalKeyValue(
                 new Icon('shuffle', ['title' => $this->translate('Pod Management Policy')]),
                 $this->item->pod_management_policy
-            ))->addAttributes([
-                'class' => 'push-right'
-            ]),
+            ),
             (new HorizontalKeyValue(
                 new HtmlElement('i', new Attributes(['class' => 'icon kicon-service'])),
                 $this->item->service_name
             ))
                 ->addAttributes([
+                    'class' => 'push-left',
                     'title' => $this->translate('Service Name'),
                 ])
         );
