@@ -13,17 +13,18 @@ class SecretDetail extends BaseHtmlElement
 {
     use Translation;
 
-    /** @var Secret */
-    protected $secret;
+    protected Secret $secret;
 
     protected $tag = 'div';
+
+    protected $defaultAttributes = ['class' => 'secret-detail'];
 
     public function __construct(Secret $secret)
     {
         $this->secret = $secret;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->secret, [
@@ -31,7 +32,7 @@ class SecretDetail extends BaseHtmlElement
             ])),
             new Labels($this->secret->label),
             new Annotations($this->secret->annotation),
-            new Data($this->secret->data->execute()),
+            new Data($this->secret->data),
             new Yaml($this->secret->yaml)
         );
     }
