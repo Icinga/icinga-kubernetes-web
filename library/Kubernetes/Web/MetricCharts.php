@@ -39,7 +39,7 @@ class MetricCharts extends BaseHtmlElement
         }
 
         if (! $this->isEmpty()) {
-            $this->prepend(new HtmlElement('h2', null, new Text($this->translate('Metric Charts'))));
+            $this->prepend(new HtmlElement('h2', null, new Text($this->translate('Metrics'))));
         }
     }
 }
