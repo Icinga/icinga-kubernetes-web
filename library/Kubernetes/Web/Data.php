@@ -10,43 +10,41 @@ use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\EmptyState;
-use Iterator;
 
 class Data extends BaseHtmlElement
 {
     use Translation;
 
-    /** @var Iterator */
-    protected $data;
+    protected iterable $data;
 
     protected $tag = 'section';
 
-    public function __construct(Iterator $data)
+    protected $defaultAttributes = ['class' => 'data'];
+
+    public function __construct(iterable $data)
     {
         $this->data = $data;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(new HtmlElement('h2', null, new Text($this->translate('Data'))));
 
-        if (! $this->data->valid()) {
-            // TODO(el): Is this even possible?
-            $this->addHtml(new EmptyState($this->translate('No data to display.')));
-
-            return;
-        }
-
-        foreach ($this->data as $data) {
-            $this->addHtml(new HtmlElement(
-                'div',
-                new Attributes([
-                    'class'               => 'collapsible',
-                    'data-visible-height' => 100
-                ]),
-                new HtmlElement('h3', null, new Text($data->name)),
-                new HtmlElement('pre', null, new Text($data->value))
-            ));
+        $data = yield_iterable($this->data);
+        if ($data->valid()) {
+            foreach ($data as $item) {
+                $this->addHtml(new HtmlElement(
+                    'div',
+                    new Attributes([
+                        'class'               => 'collapsible',
+                        'data-visible-height' => 100
+                    ]),
+                    new HtmlElement('h3', null, new Text($item->name)),
+                    new HtmlElement('pre', null, new Text($item->value))
+                ));
+            }
+        } else {
+            $this->addHtml(new EmptyState($this->translate('No items to display.')));
         }
     }
 }

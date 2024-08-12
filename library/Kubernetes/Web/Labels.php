@@ -8,29 +8,35 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\HorizontalKeyValue;
 
 class Labels extends BaseHtmlElement
 {
     use Translation;
 
-    protected $defaultAttributes = ['class' => 'labels'];
-
-    protected $labels;
+    protected iterable $labels;
 
     protected $tag = 'section';
+
+    protected $defaultAttributes = ['class' => 'labels'];
 
     public function __construct(iterable $labels)
     {
         $this->labels = $labels;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(new HtmlElement('h2', null, new Text($this->translate('Labels'))));
 
-        foreach ($this->labels as $label) {
-            $this->addHtml(new HorizontalKeyValue($label->name, $label->value));
+        $labels = yield_iterable($this->labels);
+        if ($labels->valid()) {
+            foreach ($labels as $label) {
+                $this->addHtml(new HorizontalKeyValue($label->name, $label->value));
+            }
+        } else {
+            $this->addHtml(new EmptyState($this->translate('No items to display.')));
         }
     }
 }
