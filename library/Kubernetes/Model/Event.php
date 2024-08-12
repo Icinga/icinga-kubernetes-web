@@ -15,7 +15,8 @@ class Event extends Model
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Uuid([
-            'uuid'
+            'uuid',
+            'referent_uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -32,6 +33,7 @@ class Event extends Model
     public function getColumns()
     {
         return [
+            'referent_uuid',
             'namespace',
             'name',
             'uid',

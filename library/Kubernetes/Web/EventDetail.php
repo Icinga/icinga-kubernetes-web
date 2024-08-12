@@ -10,14 +10,14 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\TimeAgo;
 
 class EventDetail extends BaseHtmlElement
 {
     use Translation;
 
-    /** @var Event */
-    protected $event;
+    protected Event $event;
 
     protected $tag = 'div';
 
@@ -26,7 +26,7 @@ class EventDetail extends BaseHtmlElement
         $this->event = $event;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->event, [
@@ -35,9 +35,12 @@ class EventDetail extends BaseHtmlElement
                 $this->translate('Count')                => $this->event->count,
                 $this->translate('Type')                 => $this->event->type,
                 $this->translate('Reason')               => $this->event->reason,
-                $this->translate('Action')               => $this->event->action,
-                $this->translate('Reporting Controller') => $this->event->reporting_controller,
-                $this->translate('Reporting Instance')   => $this->event->reporting_instance,
+                $this->translate('Action')               => $this->event->action ??
+                    new EmptyState($this->translate('None')),
+                $this->translate('Reporting Controller') => $this->event->reporting_controller ??
+                    new EmptyState($this->translate('None')),
+                $this->translate('Reporting Instance')   => $this->event->reporting_instance ??
+                    new EmptyState($this->translate('None')),
                 $this->translate('Reference Kind')       => $this->event->reference_kind,
                 $this->translate('Reference Namespace')  => $this->event->reference_namespace,
                 $this->translate('Reference Name')       => $this->event->reference_name
