@@ -45,7 +45,7 @@ abstract class BaseListItem extends BaseHtmlElement
     {
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->add([
             $this->createVisual(),

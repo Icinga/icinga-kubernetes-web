@@ -30,7 +30,7 @@ class ConditionTable extends Table
         $this->resource = $resource;
     }
 
-    public function assemble()
+    protected function assemble(): void
     {
         $conditions = $this->resource->condition->execute();
         if (! $conditions->valid()) {

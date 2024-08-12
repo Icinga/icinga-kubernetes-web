@@ -26,7 +26,7 @@ class MetricCharts extends BaseHtmlElement
         $this->chartRows = $chartRows;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         foreach ($this->chartRows as $row) {
             $rowElement = new HtmlElement('div', new Attributes(['class' => 'metric-charts-row']));

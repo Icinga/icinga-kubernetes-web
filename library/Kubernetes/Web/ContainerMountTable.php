@@ -35,7 +35,7 @@ class ContainerMountTable extends Table
         $this->volumeColumnDefinitions = $volumeColumnDefinitions;
     }
 
-    public function assemble()
+    protected function assemble(): void
     {
         $header = new HtmlElement('tr');
         foreach ($this->mountColumnDefinitions as $label) {

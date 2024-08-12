@@ -23,7 +23,7 @@ class InternalEndpointList extends BaseHtmlElement
         $this->endpoints = $endpoints;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addWrapper(new HtmlElement(
             'section',

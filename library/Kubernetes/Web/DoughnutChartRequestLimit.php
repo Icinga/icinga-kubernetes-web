@@ -34,7 +34,7 @@ class DoughnutChartRequestLimit extends BaseHtmlElement
         $this->realColor = $realColor;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new HtmlElement(

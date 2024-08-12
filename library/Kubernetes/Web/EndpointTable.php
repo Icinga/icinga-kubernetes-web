@@ -28,7 +28,7 @@ class EndpointTable extends Table
         $this->columnDefinitions = $columnDefinitions;
     }
 
-    public function assemble()
+    protected function assemble(): void
     {
         $this->addWrapper(
             new HtmlElement(

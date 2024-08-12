@@ -30,7 +30,7 @@ class LineChartMinified extends BaseHtmlElement
         $this->color = $color;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new HtmlElement(

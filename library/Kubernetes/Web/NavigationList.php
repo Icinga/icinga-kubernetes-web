@@ -19,7 +19,7 @@ class NavigationList extends BaseHtmlElement
         $this->listItems = $listItems;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         foreach ($this->listItems as $listItem) {
             $this->addHtml(

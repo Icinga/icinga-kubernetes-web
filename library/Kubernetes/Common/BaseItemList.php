@@ -56,7 +56,7 @@ abstract class BaseItemList extends BaseHtmlElement
     {
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $itemClass = $this->getItemClass();
 

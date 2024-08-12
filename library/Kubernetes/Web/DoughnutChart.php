@@ -30,7 +30,7 @@ class DoughnutChart extends BaseHtmlElement
         $this->colors = $colors;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new HtmlElement(

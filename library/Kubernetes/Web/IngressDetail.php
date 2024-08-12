@@ -26,7 +26,7 @@ class IngressDetail extends BaseHtmlElement
         $this->ingress = $ingress;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(new Details(new ResourceDetails($this->ingress)));
 

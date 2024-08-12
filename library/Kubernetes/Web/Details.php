@@ -25,7 +25,7 @@ class Details extends BaseHtmlElement
         $this->details = $details;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(new HtmlElement('h2', null, new Text($this->translate('Details'))));
 
