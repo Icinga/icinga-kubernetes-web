@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Model;
 
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
+use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -19,6 +20,10 @@ class CronJob extends Model
     {
         $behaviors->add(new Uuid([
             'uuid'
+        ]));
+
+        $behaviors->add(new BoolCast([
+            'suspend'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -37,6 +42,10 @@ class CronJob extends Model
         $relations
             ->belongsToMany('annotation', Annotation::class)
             ->through('cron_job_annotation');
+
+        $relations
+            ->belongsToMany('job', Job::class)
+            ->through('job_owner');
     }
 
     public function getColumnDefinitions()

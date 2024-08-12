@@ -5,17 +5,17 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\Health;
+use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\Html;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Web\Widget\Icon;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
-use ipl\Web\Widget\VerticalKeyValue;
 
 class CronJobListItem extends BaseListItem
 {
@@ -23,46 +23,60 @@ class CronJobListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header
-            ->addHtml($this->createTitle())
-            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header->addHtml(
+            $this->createTitle(),
+            new TimeAgo($this->item->created->getTimestamp())
+        );
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->addHtml($this->createHeader());
+        $main->addHtml(
+            $this->createHeader(),
+            $this->createFooter()
+        );
+    }
 
-        $lastScheduleTime = '-';
-        if (isset($this->cronJob->last_schedule_time)) {
-            $lastScheduleTime = $this->cronJob->last_schedule_time->format('Y-m-d H:i:s');
+    protected function assembleFooter(BaseHtmlElement $footer): void
+    {
+        if (isset($this->item->last_schedule_time)) {
+            $lastScheduleTime = $this->item->last_schedule_time->format('Y-m-d H:i:s');
+        } else {
+            $lastScheduleTime = $this->translate('None');
         }
-        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue
-            ->addHtml(new VerticalKeyValue($this->translate('Schedule'), $this->item->schedule))
-            ->addHtml(new VerticalKeyValue($this->translate('Suspend'), $this->item->suspend))
-            ->addHtml(new VerticalKeyValue($this->translate('Active'), $this->item->active))
-            ->addHtml(new VerticalKeyValue($this->translate('Last Schedule'), $lastScheduleTime))
-            ->addHtml(new VerticalKeyValue($this->translate('Namespace'), $this->item->namespace));
-        $main->addHtml($keyValue);
+
+        if (isset($this->item->last_successful_time)) {
+            $lastSuccessfulTime = $this->item->last_successful_time->format('Y-m-d H:i:s');
+        } else {
+            $lastSuccessfulTime = $this->translate('None');
+        }
+
+        $footer->addHtml(
+            new HorizontalKeyValue($this->translate('Active'), $this->item->active),
+            new HorizontalKeyValue($this->translate('Suspend'), Icons::ready($this->item->suspend)),
+            (new HorizontalKeyValue($this->translate('Last Scheduled'), $lastScheduleTime))
+                ->addAttributes(['class' => 'push-left']),
+            new HorizontalKeyValue($this->translate('Last Successful'), $lastSuccessfulTime),
+        );
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<cron_job> is <health>'),
-            new Link($this->item->name, Links::cronJob($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->getHealth())
-        ));
-    }
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $health = $this->getHealth();
-        $visual->addHtml(new Icon(Health::icon($health), ['class' => ['health-' . $health]]));
-    }
-
-    protected function getHealth(): string
-    {
-        return Health::HEALTHY;
+        $title->addHtml(
+            new HtmlElement(
+                'span',
+                new Attributes(['class' => 'namespace-badge']),
+                new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                new Text($this->item->namespace)
+            ),
+            new Link(
+                (new HtmlDocument())->addHtml(
+                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-cronjob'])),
+                    new Text($this->item->name)
+                ),
+                Links::cronJob($this->item),
+                new Attributes(['class' => 'subject'])
+            )
+        );
     }
 }
