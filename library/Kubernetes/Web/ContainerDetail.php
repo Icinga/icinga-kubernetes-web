@@ -24,32 +24,40 @@ class ContainerDetail extends BaseHtmlElement
 {
     use Translation;
 
-    /** @var Container */
-    protected $container;
+    protected Container $container;
 
     protected $tag = 'div';
+
+    protected $defaultAttributes = ['class' => 'container-detail'];
 
     public function __construct(Container $container)
     {
         $this->container = $container;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(new Details([
-            $this->translate('Name')          => $this->container->name,
-            $this->translate('Image')         => $this->container->image,
-            $this->translate('Started')       => Icons::ready($this->container->started),
-            $this->translate('Ready')         => Icons::ready($this->container->ready),
-            $this->translate('Restart Count') => $this->container->restart_count,
-            $this->translate('Icinga State')  => (new HtmlDocument())
-                ->addHtml(new StateBall($this->container->icinga_state, StateBall::SIZE_MEDIUM))
-                ->addHtml(new HtmlElement('span', null, Text::create(' ' . $this->container->icinga_state))),
-            $this->translate('Icinga State Reason') => new HtmlElement(
-                'div',
-                new Attributes(['class' => 'state-reason detail']),
-                Text::create($this->container->icinga_state_reason)
-            )
+            $this->translate('Name')                => $this->container->name,
+            $this->translate('Image')               => $this->container->image,
+            $this->translate('Image Pull Policy')   => (new HtmlDocument())->addHtml(
+                new Icon('download'),
+                new Text($this->container->image_pull_policy)
+            ),
+            $this->translate('Started')             => Icons::ready($this->container->started),
+            $this->translate('Ready')               => Icons::ready($this->container->ready),
+            $this->translate('Restarts')            => (new HtmlDocument())->addHtml(
+                new Icon('arrows-spin'),
+                new Text($this->container->restart_count)
+            ),
+            $this->translate('Icinga State')        => (new HtmlDocument())->addHtml(
+                new StateBall($this->container->icinga_state, StateBall::SIZE_MEDIUM),
+                new HtmlElement(
+                    'span',
+                    new Attributes(['class' => 'icinga-state-text']),
+                    new Text($this->container->icinga_state))
+            ),
+            $this->translate('Icinga State Reason') => new IcingaStateReason($this->container->icinga_state_reason)
         ]));
 
         $state = new HtmlElement(
@@ -58,7 +66,7 @@ class ContainerDetail extends BaseHtmlElement
             new HtmlElement('h2', null, new Text($this->translate('State'))),
             new HorizontalKeyValue($this->translate('State'), ucfirst(Str::camel($this->container->state)))
         );
-        $stateDetails = json_decode($this->container->state_details);
+        $stateDetails = json_decode((string) $this->container->state_details);
         switch ($this->container->state) {
             case Container::STATE_RUNNING:
                 $state->addHtml(
@@ -78,7 +86,7 @@ class ContainerDetail extends BaseHtmlElement
 
                 break;
             default:
-                $state->addHtml(new FormattedString('Unknown state %s', $this->container->state));
+                $state->addHtml(new FormattedString('Unknown state %s', [$this->container->state]));
         }
         $this->addHtml($state);
 

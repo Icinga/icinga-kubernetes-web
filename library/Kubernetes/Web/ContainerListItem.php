@@ -8,21 +8,18 @@ use DateTime;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\Container;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\FormattedString;
 use ipl\Html\Html;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
-use ipl\Html\ValidHtml;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
-use ipl\Web\Widget\VerticalKeyValue;
 
 class ContainerListItem extends BaseListItem
 {
@@ -31,36 +28,68 @@ class ContainerListItem extends BaseListItem
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml($this->createTitle());
+
+        $stateDetails = json_decode((string) $this->item->state_details);
+
+        if (isset($stateDetails->finishedAt)) {
+            $time = new DateTime($stateDetails->finishedAt);
+        } elseif (isset($stateDetails->startedAt)) {
+            $time = new DateTime($stateDetails->startedAt);
+        } else {
+            $time = null;
+        }
+
+        if (isset($time)) {
+            $header->addHtml(new TimeAgo($time->getTimestamp()));
+        }
+    }
+
+    protected function assembleCaption(BaseHtmlElement $caption): void
+    {
+        $caption->addHtml(new Text($this->item->icinga_state_reason));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->addHtml($this->createHeader());
+        $main->addHtml(
+            $this->createHeader(),
+            $this->createCaption(),
+            $this->createFooter()
+        );
+    }
 
-        $main->addHtml(new HtmlElement(
-            'div',
-            new Attributes(['class' => 'state-reason list']),
-            Text::create($this->item->icinga_state_reason)
-        ));
-
-        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->addHtml(new HtmlElement(
-            'div',
-            null,
+    protected function assembleFooter(BaseHtmlElement $footer): void
+    {
+        $footer->addHtml(
             new HorizontalKeyValue($this->translate('Started'), Icons::ready($this->item->started)),
-            new HorizontalKeyValue($this->translate('Ready'), Icons::ready($this->item->ready))
-        ));
-        $keyValue->addHtml($this->createStateDetails());
-        $keyValue->addHtml(new VerticalKeyValue($this->translate('Image'), $this->item->image));
-        $keyValue->addHtml(new VerticalKeyValue($this->translate('Restarts'), $this->item->restart_count));
-        $main->addHtml($keyValue);
+            new HorizontalKeyValue($this->translate('Ready'), Icons::ready($this->item->ready)),
+            new HorizontalKeyValue(
+                new Icon('arrows-spin', new Attributes(['title' => $this->translate('Restarts')])),
+                new Text($this->item->restart_count)
+            ),
+            (new HorizontalKeyValue(new Text($this->translate('Image')), new Text($this->item->image)))
+                ->addAttributes([
+                    'class' => 'push-left container-image'
+                ]),
+            new HorizontalKeyValue(
+                new Icon('download', new Attributes(['title' => $this->translate('Image Pull Policy')])),
+                new Text($this->item->image_pull_policy)
+            )
+        );
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
             $this->translate('%s is %s', '<container> is <container_state>'),
-            new Link($this->item->name, Links::container($this->item), ['class' => 'subject']),
+            new Link(
+                (new HtmlDocument())->addHtml(
+                    new Icon('box'),
+                    new Text($this->item->name)
+                ),
+                Links::container($this->item),
+                ['class' => 'subject']
+            ),
             new HtmlElement('span', null, new Text($this->item->icinga_state))
         ));
     }
@@ -68,27 +97,5 @@ class ContainerListItem extends BaseListItem
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
         $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
-    }
-
-    protected function createStateDetails(): ValidHtml
-    {
-        $stateDetails = json_decode((string) $this->item->state_details);
-
-        switch ($this->item->state) {
-            case Container::STATE_RUNNING:
-                return new VerticalKeyValue(
-                    $this->translate('Started At'),
-                    new TimeAgo((new DateTime($stateDetails->startedAt))->getTimestamp())
-                );
-            case Container::STATE_TERMINATED:
-            case Container::STATE_WAITING:
-                return new HtmlElement(
-                    'div',
-                    null,
-                    new VerticalKeyValue($this->translate('Reason'), $stateDetails->reason)
-                );
-            default:
-                return new FormattedString('Unknown state %s', [$this->item->state]);
-        }
     }
 }

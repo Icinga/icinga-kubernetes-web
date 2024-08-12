@@ -16,11 +16,11 @@ class Container extends Model
 {
     use Translation;
 
-    public const STATE_RUNNING = 'running';
+    public const STATE_RUNNING = 'Running';
 
-    public const STATE_TERMINATED = 'terminated';
+    public const STATE_TERMINATED = 'Terminated';
 
-    public const STATE_WAITING = 'waiting';
+    public const STATE_WAITING = 'Waiting';
 
     public function createBehaviors(Behaviors $behaviors)
     {
@@ -53,16 +53,17 @@ class Container extends Model
     public function getColumnDefinitions()
     {
         return [
-            'name'            => $this->translate('Name'),
-            'image'           => $this->translate('Image'),
-            'cpu_limits'      => $this->translate('CPU Limits'),
-            'cpu_requests'    => $this->translate('CPU Requests'),
-            'memory_limits'   => $this->translate('Memory Limits'),
-            'memory_requests' => $this->translate('Memory Requests'),
-            'state'           => $this->translate('State'),
-            'ready'           => $this->translate('Ready'),
-            'started'         => $this->translate('Started At'),
-            'restart_count'   => $this->translate('Restart Count'),
+            'name'                => $this->translate('Name'),
+            'image'               => $this->translate('Image'),
+            'image_pull_policy'   => $this->translate('Image Pull Policy'),
+            'cpu_limits'          => $this->translate('CPU Limits'),
+            'cpu_requests'        => $this->translate('CPU Requests'),
+            'memory_limits'       => $this->translate('Memory Limits'),
+            'memory_requests'     => $this->translate('Memory Requests'),
+            'state'               => $this->translate('State'),
+            'ready'               => $this->translate('Ready'),
+            'started'             => $this->translate('Started At'),
+            'restart_count'       => $this->translate('Restart Count'),
             'icinga_state'        => $this->translate('Icinga State'),
             'icinga_state_reason' => $this->translate('Icinga State Reason')
         ];
@@ -73,6 +74,7 @@ class Container extends Model
         return [
             'pod_uuid',
             'name',
+            'image_pull_policy',
             'image',
             'cpu_limits',
             'cpu_requests',
