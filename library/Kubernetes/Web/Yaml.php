@@ -9,22 +9,25 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Web\Widget\CopyToClipboard;
 use ipl\Web\Widget\EmptyState;
 
 class Yaml extends BaseHtmlElement
 {
     use Translation;
 
-    protected $yaml;
+    protected ?string $yaml;
 
     protected $tag = 'section';
 
-    public function __construct($yaml)
+    protected $defaultAttributes = ['class' => 'yaml'];
+
+    public function __construct(?string $yaml)
     {
         $this->yaml = $yaml;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(new HtmlElement('h2', null, new Text($this->translate('Yaml'))));
 
@@ -34,15 +37,17 @@ class Yaml extends BaseHtmlElement
             return;
         }
 
-        $this->addHtml(
-            new HtmlElement(
-                'div',
-                new Attributes([
-                    'class'               => 'collapsible',
-                    'data-visible-height' => 100
-                ]),
-                new HtmlElement('pre', null, new Text($this->yaml))
-            )
-        );
+        $yaml = new HtmlElement('pre', null, new Text($this->yaml));
+
+        CopyToClipboard::attachTo($yaml);
+
+        $this->addHtml(new HtmlElement(
+            'div',
+            new Attributes([
+                'class'               => 'collapsible',
+                'data-visible-height' => 100
+            ]),
+            $yaml
+        ));
     }
 }
