@@ -15,17 +15,15 @@ class PersistentVolume extends Model
 {
     use Translation;
 
-    public const DEFAULT_VOLUME_MODE = 'filesystem';
+    public const PHASE_AVAILABLE = 'Available';
 
-    public const PHASE_AVAILABLE = 'available';
+    public const PHASE_BOUND = 'Bound';
 
-    public const PHASE_BOUND = 'bound';
+    public const PHASE_FAILED = 'Failed';
 
-    public const PHASE_FAILED = 'failed';
+    public const PHASE_PENDING = 'Pending';
 
-    public const PHASE_PENDING = 'pending';
-
-    public const PHASE_RELEASED = 'released';
+    public const PHASE_RELEASED = 'Released';
 
     public function createBehaviors(Behaviors $behaviors)
     {
@@ -105,10 +103,5 @@ class PersistentVolume extends Model
     public function getTableName()
     {
         return 'persistent_volume';
-    }
-
-    public function getVolumeMode(): string
-    {
-        return $this->volume_mode ?? static::DEFAULT_VOLUME_MODE;
     }
 }
