@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Model;
 
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -16,6 +15,20 @@ class Job extends Model
 {
     use Translation;
 
+    public function getCompletions(): int|string
+    {
+        return $this->completions ?? $this->translate('Any');
+    }
+
+    public function getStartTime(): string
+    {
+        if ($this->start_time !== null) {
+            return $this->start_time->format('Y-m-d H:i:s');
+        }
+
+        return $this->translate('Not started');
+    }
+
     public function createBehaviors(Behaviors $behaviors)
     {
         $behaviors->add(new Uuid([
@@ -23,6 +36,7 @@ class Job extends Model
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
+            'start_time',
             'created'
         ]));
     }
@@ -46,6 +60,11 @@ class Job extends Model
             ->setTargetForeignKey('name')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
+
+        $relations
+            ->belongsToMany('cron_job', CronJob::class)
+            ->through('job_owner')
+            ->setTargetForeignKey('owner_uuid');
     }
 
     public function getColumnDefinitions()
@@ -67,6 +86,8 @@ class Job extends Model
             'active'                     => $this->translate('Active'),
             'succeeded'                  => $this->translate('Succeeded'),
             'failed'                     => $this->translate('Failed'),
+            'icinga_state'               => $this->translate('Icinga State'),
+            'icinga_state_reason'        => $this->translate('Icinga State Reason'),
             'yaml'                       => $this->translate('YAML'),
             'created'                    => $this->translate('Created At')
         ];
@@ -91,6 +112,8 @@ class Job extends Model
             'active',
             'succeeded',
             'failed',
+            'icinga_state',
+            'icinga_state_reason',
             'yaml',
             'created'
         ];

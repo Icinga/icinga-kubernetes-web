@@ -5,44 +5,76 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Model\JobCondition;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
-use ipl\Stdlib\Str;
+use ipl\Web\Widget\Icon;
+use ipl\Web\Widget\StateBall;
 
 class JobDetail extends BaseHtmlElement
 {
     use Translation;
 
-    /** @var Job */
-    protected $job;
+    protected Job $job;
 
     protected $tag = 'div';
+
+    protected $defaultAttributes = ['class' => 'job-detail'];
 
     public function __construct(Job $job)
     {
         $this->job = $job;
     }
 
-    protected function assemble()
+    protected function assemble(): void
     {
         $this->addHtml(
             new Details(new ResourceDetails($this->job, [
-                $this->translate('Parallelism')                => $this->job->parallelism,
-                $this->translate('Completions')                => $this->job->completions,
-                $this->translate('Active Deadline Seconds')    => $this->job->active_deadline_seconds,
-                $this->translate('Backoff Limit')              => $this->job->backoff_limit,
-                $this->translate('TTL Seconds After Finished') => $this->job->ttl_seconds_after_finished,
-                $this->translate('Completion Mode')            => ucfirst(Str::camel($this->job->completion_mode)),
-                $this->translate('Active')                     => $this->job->active,
-                $this->translate('Succeeded')                  => $this->job->succeeded,
-                $this->translate('Failed')                     => $this->job->failed
+                $this->translate('Parallelism')                 => (new HtmlDocument())->addHtml(
+                    new Icon('grip-lines'),
+                    new Text($this->job->parallelism)
+                ),
+                $this->translate('Completion Mode')             => $this->job->completion_mode,
+                $this->translate('Completions')                 => (new HtmlDocument())->addHtml(
+                    new Icon('check-double'),
+                    new Text($this->job->getCompletions())
+                ),
+                $this->translate('Succeeded')                   => $this->job->succeeded,
+                $this->translate('Backoff Limit')               => (new HtmlDocument())->addHtml(
+                    new Icon('circle-exclamation'),
+                    new Text($this->job->backoff_limit)
+                ),
+                $this->translate('Failed')                      => $this->job->failed,
+                $this->translate('Start Time')                  => $this->job->getStartTime(),
+                $this->translate('Active')                      => $this->job->active,
+                $this->translate('Active Deadline Duration')    => (new HtmlDocument())->addHtml(
+                    new Icon('skull-crossbones'),
+                    new Text(Format::seconds($this->job->active_deadline_seconds) ?? $this->translate('None'))
+                ),
+                $this->translate('TTL Duration After Finished') => (new HtmlDocument())->addHtml(
+                    new Icon('hourglass-start'),
+                    new Text(Format::seconds($this->job->ttl_seconds_after_finished) ?? $this->translate('None'))
+                ),
+                $this->translate('Icinga State')                => (new HtmlDocument())->addHtml(
+                    new StateBall($this->job->icinga_state, StateBall::SIZE_MEDIUM),
+                    new HtmlElement(
+                        'span',
+                        new Attributes(['class' => 'icinga-state-text']),
+                        new Text($this->job->icinga_state)
+                    )
+                ),
+                $this->translate('Icinga State Reason')         => new IcingaStateReason(
+                    $this->job->icinga_state_reason
+                )
             ])),
             new Labels($this->job->label),
             new Annotations($this->job->annotation),
