@@ -1,0 +1,90 @@
+/* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
+
+footer {
+  align-items: stretch;
+  height: 1.5em;
+  justify-content: flex-start;
+  padding-top: 0;
+
+  > * {
+    font-size: 1em;
+  }
+
+  > *:not(:last-child) {
+    margin-right: 1em;
+  }
+
+  > *.push-left {
+    margin-left: auto;
+  }
+
+  > .horizontal-key-value {
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+
+    .key {
+      width: auto;
+      margin-right: .2em;
+    }
+    .value {
+      .text-ellipsis();
+      color: @text-color-light;
+      min-width: 1em;
+    }
+  }
+}
+
+.namespace-badge {
+  .text-ellipsis();
+  background-color: @gray-lighter;
+  border-radius: .25em;
+  line-height: 1.5em / 12 * 11; // 1.5em / @font-size-small
+  margin-right: .2em;
+  max-width: 8em;
+  padding: 0 .25em;
+  vertical-align: baseline;
+
+  .icon {
+    opacity: .8;
+    vertical-align: baseline;
+  }
+}
+
+.caption {
+  .monospace();
+  color: var(--default-text-color, @default-text-color);
+  font-size: 11/12em;
+  line-height: 1.5*12/11em;
+  word-break: break-word;
+}
+
+.visual {
+  font-size: 1.5em;
+  justify-content: flex-start;
+}
+
+.config-map-list,
+.cronjob-list,
+.secret-list,
+.service-list {
+  > .list-item > .visual {
+    // The specified lists have no indicator for their state, therefore visual is hidden so that no space is occupied.
+    display: none;
+  }
+}
+
+.internal-endpoint-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.container-list > .list-item > .visual > .state-ball,
+.container-detail > .details > .horizontal-key-value > .value > .state-ball {
+  border-radius: initial;
+}
+
+.state-ball.state-none {
+  border: 1px solid @gray-light;
+}

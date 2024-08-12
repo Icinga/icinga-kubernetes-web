@@ -177,4 +177,11 @@ $this->provideConfigTab(
     ]
 );
 
+
 $this->provideJsFile('vendor/chart.umd.js');
+
+$this->provideCssFile('charts.less');
+$this->provideCssFile('common.less');
+$this->provideCssFile('icons.less');
+$this->provideCssFile('lists.less');
+$this->provideCssFile('widgets.less');

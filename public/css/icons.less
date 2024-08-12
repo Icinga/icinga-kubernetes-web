@@ -1,0 +1,90 @@
+/* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
+
+@font-face {
+  font-family: "Icinga for Kubernetes";
+  src: url("../kubernetes/assets?asset=Icinga-Kubernetes.ttf") format("truetype"),
+  url("../kubernetes/assets?asset=Icinga-Kubernetes.woff") format("woff"),
+  url("../kubernetes/assets?asset=Icinga-Kubernetes.svg") format("svg");
+  font-display: block;
+  font-style: normal;
+  font-weight: normal;
+}
+
+[class^="kicon"]:before, [class*=" kicon"]:before {
+  // !important to prevent issues with browser extensions that change fonts.
+  font-family: "Icinga for Kubernetes" !important;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  speak: never;
+  text-transform: none;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+.kicon-config-map:before {
+  content: "\e900";
+}
+
+.kicon-cronjob:before {
+  content: "\e901";
+}
+
+.kicon-deployment:before {
+  content: "\e902";
+}
+
+.kicon-daemon-set:before {
+  content: "\e903";
+}
+
+.kicon-ingress:before {
+  content: "\e904";
+}
+
+.kicon-job:before {
+  content: "\e905";
+}
+
+.kicon-limits:before {
+  content: "\e906";
+}
+
+.kicon-namespace:before {
+  content: "\e907";
+}
+
+.kicon-persistent-volume:before {
+  content: "\e908";
+}
+
+.kicon-pod:before {
+  content: "\e909";
+}
+
+.kicon-persistentvolumeclaim,
+.kicon-pvc {
+  &:before {
+    content: "\e90a";
+  }
+}
+
+.kicon-replica-set:before {
+  content: "\e90b";
+}
+
+.kicon-secret:before {
+  content: "\e90c";
+}
+
+.kicon-stateful-set:before {
+  content: "\e90d";
+}
+
+.kicon-service:before {
+  content: "\e90e";
+}
+
+.kicon-volume:before {
+  content: "\e90f";
+}
