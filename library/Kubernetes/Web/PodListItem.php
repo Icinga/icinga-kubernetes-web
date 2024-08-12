@@ -12,11 +12,12 @@ use Icinga\Module\Kubernetes\Model\Container;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
+use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
@@ -26,41 +27,78 @@ class PodListItem extends BaseListItem
 {
     use Translation;
 
+    public const QOS_ICONS = [
+        'BestEffort' => 'eraser',
+        'Burstable'  => 'life-ring',
+        'Guaranteed' => 'heart-pulse'
+    ];
+
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header
-            ->addHtml($this->createTitle())
-            ->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header->addHtml(
+            $this->createTitle(),
+            new TimeAgo($this->item->created->getTimestamp())
+        );
+    }
+
+    protected function assembleCaption(BaseHtmlElement $caption): void
+    {
+        $caption->addHtml(new Text($this->item->icinga_state_reason));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->addHtml($this->createHeader());
+        $main->addHtml(
+            $this->createHeader(),
+            $this->createCaption(),
+            $this->createFooter()
+        );
+    }
 
-        $main->addHtml(new HtmlElement(
-            'div',
-            new Attributes(['class' => 'state-reason list']),
-            Text::create(explode("\n", (string)$this->item->icinga_state_reason)[0])
-        ));
-
-        $keyValue = new HtmlElement('div', new Attributes(['class' => 'key-value']));
-        $keyValue->addHtml(new VerticalKeyValue($this->translate('IP'), $this->item->ip));
-        $keyValue->addHtml(new VerticalKeyValue($this->translate('QoS'), ucfirst(Str::camel($this->item->qos))));
+    protected function assembleFooter(BaseHtmlElement $footer): void
+    {
         $containerRestarts = 0;
-        $containers = new HtmlElement('span');
+        $containers = new ItemCountIndicator();
+        $containers->setStyle($containers::STYLE_BOX);
         /** @var Container $container */
         foreach ($this->item->container as $container) {
             $containerRestarts += $container->restart_count;
-            $containers->addHtml(new StateBall($container->icinga_state, StateBall::SIZE_MEDIUM));
+            $containers->addIndicator($container->icinga_state, 1);
         }
-        $keyValue->addHtml(new VerticalKeyValue($this->translate('Containers'), $containers));
-        $keyValue->addHtml(new VerticalKeyValue($this->translate('Restarts'), $containerRestarts));
-        $keyValue->addHtml(new HtmlElement(
-            'div',
-            null,
-            new HorizontalKeyValue($this->translate('Namespace'), $this->item->namespace),
-            new HorizontalKeyValue($this->translate('Node'), $this->item->node_name)
-        ));
+
+        $footer->addHtml(
+            (new HorizontalKeyValue(new Icon('box'), $containers))
+                ->addAttributes([
+                    'title' => sprintf(
+                        $this->translate(
+                            '%d %s running (%d not running)',
+                            '%d:num_of_running_containers %s:containers_translation'
+                            . ' (%d:num_of_not_running_containers)'
+                        ),
+                        $containers->getIndicator('ok'),
+                        $this->translatePlural('container', 'containers', $containers->getIndicator('ok')),
+                        $containers->getIndicator('critical')
+                    )
+                ]),
+            new HorizontalKeyValue(
+                new Icon('arrows-spin', ['title' => $this->translate('Container Restarts')]),
+                $containerRestarts
+            ),
+            new HorizontalKeyValue(
+                (new Icon('recycle'))->addAttributes(['title' => $this->translate('Restart Policy')]),
+                $this->item->restart_policy
+            ),
+            new HorizontalKeyValue(
+                (new Icon('life-ring'))->addAttributes(['title' => $this->translate('Quality of Service')]),
+                $this->item->qos
+            ),
+            (new HorizontalKeyValue(
+                $this->translate('IP'),
+                $this->item->ip ?? $this->translate('None')
+            ))
+                ->addAttributes(['class' => 'push-left']),
+            new HorizontalKeyValue(new Icon('share-nodes'), $this->item->node_name ?? $this->translate('None'))
+        );
 
         $metrics = new Metrics(Database::connection());
         $podMetricsCurrent = $metrics->getPodMetricsCurrent(
@@ -77,7 +115,7 @@ class PodListItem extends BaseListItem
             isset($podMetricsCurrent[Metrics::POD_CPU_LIMIT])
             && $podMetricsCurrent[Metrics::POD_CPU_REQUEST] < $podMetricsCurrent[Metrics::POD_CPU_LIMIT]
         ) {
-            $keyValue->addHtml(
+            $footer->addHtml(
                 new VerticalKeyValue(
                     $this->translate('CPU Request/Limit'),
                     new DoughnutChartRequestLimit(
@@ -90,11 +128,12 @@ class PodListItem extends BaseListItem
                 )
             );
         }
+
         if (
             isset($podMetricsCurrent[Metrics::POD_MEMORY_LIMIT])
             && $podMetricsCurrent[Metrics::POD_MEMORY_REQUEST] < $podMetricsCurrent[Metrics::POD_MEMORY_LIMIT]
         ) {
-            $keyValue->addHtml(
+            $footer->addHtml(
                 new VerticalKeyValue(
                     $this->translate('Memory Request/Limit'),
                     new DoughnutChartRequestLimit(
@@ -107,16 +146,31 @@ class PodListItem extends BaseListItem
                 )
             );
         }
-
-        $main->addHtml($keyValue);
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<pod> is <pod_phase>'),
-            new Link($this->item->name, Links::pod($this->item), ['class' => 'subject']),
-            Html::tag('span', null, $this->item->icinga_state)
+            $this->translate('%s is %s', '<pod> is <icinga_state>'),
+            [
+                new HtmlElement(
+                    'span',
+                    new Attributes(['class' => 'namespace-badge']),
+                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                    new Text($this->item->namespace)
+                ),
+                new Link(
+                    (new HtmlDocument())->addHtml(
+                        new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+                        new Text($this->item->name)
+                    ),
+                    Links::pod($this->item),
+                    new Attributes(['class' => 'subject'])
+                )
+            ],
+            new HtmlElement(
+                'span', new Attributes(['class' => 'icinga-state-text']), new Text($this->item->icinga_state)
+            )
         ));
     }
 
