@@ -10,6 +10,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\TimeAgo;
 
@@ -41,15 +42,21 @@ class EventDetail extends BaseHtmlElement
                     new EmptyState($this->translate('None')),
                 $this->translate('Reporting Instance')   => $this->event->reporting_instance ??
                     new EmptyState($this->translate('None')),
-                $this->translate('Reference Kind')       => $this->event->reference_kind,
-                $this->translate('Reference Namespace')  => $this->event->reference_namespace,
-                $this->translate('Reference Name')       => $this->event->reference_name
+                $this->translate('Referent Kind')       => $this->event->reference_kind,
+                $this->translate('Referent Namespace')  => $this->event->reference_namespace,
+                $this->translate('Referent Name')       => $this->event->reference_name
             ])),
             new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Note'))),
                 new Text($this->event->note)
+            ),
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text($this->translate('Referent'))),
+                Factory::createList($this->event->reference_kind, Filter::equal('uuid', $this->event->referent_uuid))
             ),
             new Yaml($this->event->yaml)
         );
