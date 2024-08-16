@@ -29,6 +29,7 @@ footer {
       margin-right: .2em;
       color: @gray-semilight;
     }
+
     .value {
       .text-ellipsis();
       color: @text-color-light;
@@ -46,25 +47,20 @@ footer {
   max-width: 8em;
   padding: 0 .25em;
   vertical-align: baseline;
-
-  .icon {
-    opacity: .8;
-    vertical-align: baseline;
-  }
-}
-
-.subject,
-.key {
-  .icon {
-    opacity: .8;
-  }
 }
 
 .caption {
-  .monospace();
+  .monospace-font();
   color: @text-color-light;
+  // Reduce to one line and change props for elliptic text accordingly, as the Icinga PHP library,
+  // which also defines rules for this class, assumes a height of two lines.
+  display: block;
   height: 1.5em;
-  word-break: break-word;
+  white-space: nowrap;
+}
+
+.title > .icinga-state-text {
+  color: @default-text-color;
 }
 
 .visual {
@@ -86,13 +82,4 @@ footer {
   list-style-type: none;
   margin: 0;
   padding: 0;
-}
-
-.container-list > .list-item > .visual > .state-ball,
-.container-detail > .details > .horizontal-key-value > .value > .state-ball {
-  border-radius: initial;
-}
-
-.state-ball.state-none {
-  border: 1px solid @gray-light;
 }

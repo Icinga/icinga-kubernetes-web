@@ -1,11 +1,7 @@
 /* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
-.monospace() {
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-}
-
 .icinga-state-reason {
-  .monospace();
+  .monospace-font();
   .rounded-corners(.25em);
   background-color: @gray-lighter;
   margin: 0 -.5em;
@@ -19,23 +15,25 @@
   text-transform: uppercase;
 }
 
-.icinga-state-text {
-  color: @default-text-color;
-}
-
 .state-ball {
   margin-right: .3em;
+
+  // Main use case is the event list, which also contains informational events.
+  &.state-none {
+    border: 1px solid @gray-light;
+  }
+}
+
+.container-list > .list-item > .visual > .state-ball,
+.container-detail > .details > .horizontal-key-value > .value > .state-ball {
+  // Display squares instead of balls for containers.
+  border-radius: initial;
 }
 
 .horizontal-key-value,
 .vertical-key-value {
-  > .value {
-    > .icon {
-      opacity: .8;
-    }
-    > .empty-state {
-      display: inline-block;
-    }
+  > .empty-state {
+    display: inline-block;
   }
 }
 
