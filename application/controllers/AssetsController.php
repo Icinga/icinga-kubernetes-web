@@ -79,7 +79,6 @@ class AssetsController extends Controller
             && file_exists($path)
         ) {
             return $path;
-
         }
 
         return null;

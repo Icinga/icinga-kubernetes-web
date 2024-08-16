@@ -55,7 +55,8 @@ class ContainerDetail extends BaseHtmlElement
                 new HtmlElement(
                     'span',
                     new Attributes(['class' => 'icinga-state-text']),
-                    new Text($this->container->icinga_state))
+                    new Text($this->container->icinga_state)
+                )
             ),
             $this->translate('Icinga State Reason') => new IcingaStateReason($this->container->icinga_state_reason)
         ]));

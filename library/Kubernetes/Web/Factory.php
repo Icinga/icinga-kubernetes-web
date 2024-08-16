@@ -105,7 +105,6 @@ abstract class Factory
                 return new ConfigMapList($q);
             default:
                 throw new InvalidArgumentException("Unknown type $type");
-
         }
     }
 }

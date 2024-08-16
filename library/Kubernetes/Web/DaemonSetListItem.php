@@ -101,7 +101,9 @@ class DaemonSetListItem extends BaseListItem
                 )
             ],
             new HtmlElement(
-                'span', new Attributes(['class' => 'icinga-state-text']), new Text($this->item->icinga_state)
+                'span',
+                new Attributes(['class' => 'icinga-state-text']),
+                new Text($this->item->icinga_state)
             )
         ));
     }

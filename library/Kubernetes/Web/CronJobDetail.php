@@ -47,7 +47,8 @@ class CronJobDetail extends BaseHtmlElement
         $this->addHtml(
             new Details(new ResourceDetails($this->cronJob, [
                 $this->translate('Schedule')                      => $this->cronJob->schedule,
-                $this->translate('Timezone')                      => $this->cronJob->timezone ?? new EmptyState($this->translate('None')),
+                $this->translate('Timezone')                      => $this->cronJob->timezone ??
+                    new EmptyState($this->translate('None')),
                 $this->translate('Active')                        => $this->cronJob->active,
                 $this->translate('Starting Deadline Seconds')     => $this->cronJob->starting_deadline_seconds,
                 $this->translate('Concurrency  Policy')           => $this->cronJob->concurrency_policy,

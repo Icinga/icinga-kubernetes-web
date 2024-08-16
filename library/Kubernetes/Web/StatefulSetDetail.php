@@ -66,7 +66,8 @@ class StatefulSetDetail extends BaseHtmlElement
                     new HtmlElement(
                         'span',
                         new Attributes(['class' => 'icinga-state-text']),
-                        new Text(' ' . $this->statefulSet->icinga_state))
+                        new Text(' ' . $this->statefulSet->icinga_state)
+                    )
                 ),
                 $this->translate('Icinga State Reason')   => new IcingaStateReason(
                     $this->statefulSet->icinga_state_reason

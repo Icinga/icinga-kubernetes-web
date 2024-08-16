@@ -90,7 +90,11 @@ class ContainerListItem extends BaseListItem
                 Links::container($this->item),
                 ['class' => 'subject']
             ),
-            new HtmlElement('span', new Attributes(['class' => 'icinga-state-text']), new Text($this->item->icinga_state))
+            new HtmlElement(
+                'span',
+                new Attributes(['class' => 'icinga-state-text']),
+                new Text($this->item->icinga_state)
+            )
         ));
     }
 

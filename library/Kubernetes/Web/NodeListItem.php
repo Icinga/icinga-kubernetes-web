@@ -43,6 +43,7 @@ class NodeListItem extends BaseListItem
             $this->createFooter()
         );
     }
+
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
         $footer->addHtml(
@@ -104,7 +105,9 @@ class NodeListItem extends BaseListItem
                 new Attributes(['class' => 'subject'])
             ),
             new HtmlElement(
-                'span', new Attributes(['class' => 'icinga-state-text']), new Text($this->item->icinga_state)
+                'span',
+                new Attributes(['class' => 'icinga-state-text']),
+                new Text($this->item->icinga_state)
             )
         ));
     }

@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Common;
 
 abstract class Format
 {
-
     public const TIME_SECOND = 1;
 
     public const TIME_MINUTE = 60 * self::TIME_SECOND;
@@ -17,7 +16,7 @@ abstract class Format
 
     public const TIME_YEAR = 365 * self::TIME_DAY;
 
-    const TIME_UNITS = [
+    protected const TIME_UNITS = [
         "year"   => self::TIME_YEAR,
         "day"    => self::TIME_DAY,
         "hour"   => self::TIME_HOUR,

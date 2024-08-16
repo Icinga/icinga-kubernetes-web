@@ -90,7 +90,9 @@ class PersistentVolumeListItem extends BaseListItem
                 new Attributes(['class' => 'subject'])
             ),
             new HtmlElement(
-                'span', new Attributes(['class' => 'persistent-volume-phase']), new Text($this->item->phase)
+                'span',
+                new Attributes(['class' => 'persistent-volume-phase']),
+                new Text($this->item->phase)
             )
         ));
     }

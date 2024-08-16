@@ -83,7 +83,6 @@ class DeploymentListItem extends BaseListItem
                 Format::seconds($this->item->progress_deadline_seconds)
             )
         );
-
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
@@ -107,7 +106,9 @@ class DeploymentListItem extends BaseListItem
                 )
             ],
             new HtmlElement(
-                'span', new Attributes(['class' => 'icinga-state-text']), new Text($this->item->icinga_state)
+                'span',
+                new Attributes(['class' => 'icinga-state-text']),
+                new Text($this->item->icinga_state)
             )
         ));
     }
