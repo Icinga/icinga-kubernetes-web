@@ -17,6 +17,7 @@ use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
+use ipl\Web\Widget\EmptyState;
 
 class PersistentVolumeClaimDetail extends BaseHtmlElement
 {
@@ -42,19 +43,21 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
                     new Attributes(['class' => 'pvc-phase']),
                     new Text($this->pvc->phase)
                 ),
-                $this->translate('Volume Name')          => $this->pvc->volume_name,
+                $this->translate('Volume Name')          => $this->pvc->volume_name ??
+                    new EmptyState($this->translate('None')),
                 $this->translate('Volume Mode')          => $this->pvc->volume_mode,
                 $this->translate('Storage Class')        => $this->pvc->storage_class,
                 $this->translate('Desired Access Modes') => implode(
                     ', ',
                     AccessModes::asNames($this->pvc->desired_access_modes)
                 ),
-                $this->translate('Actual Access Modes')  => implode(
-                    ', ',
-                    AccessModes::asNames($this->pvc->actual_access_modes)
-                ),
+                $this->translate('Actual Access Modes')  => $this->pvc->actual_access_modes !== null ?
+                    implode(', ', AccessModes::asNames($this->pvc->actual_access_modes)) :
+                    new EmptyState($this->translate('None')),
                 $this->translate('Minimum Capacity')     => Format::bytes($this->pvc->minimum_capacity / 1000),
-                $this->translate('Actual Capacity')      => Format::bytes($this->pvc->actual_capacity / 1000)
+                $this->translate('Actual Capacity')      => $this->pvc->actual_capacity !== null ?
+                    Format::bytes($this->pvc->actual_capacity / 1000) :
+                    new EmptyState($this->translate('None'))
             ])),
             new Labels($this->pvc->label),
             new Annotations($this->pvc->annotation),

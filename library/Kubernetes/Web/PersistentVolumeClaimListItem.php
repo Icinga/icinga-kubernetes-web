@@ -17,6 +17,7 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -62,11 +63,15 @@ class PersistentVolumeClaimListItem extends BaseListItem
             ),
             new HorizontalKeyValue(
                 $this->translate('Access Modes'),
-                implode(', ', AccessModes::asNames($this->item->actual_access_modes))
+                $this->item->actual_access_modes !== null ?
+                    implode(', ', AccessModes::asNames($this->item->actual_access_modes)) :
+                    new EmptyState($this->translate('None'))
             ),
             (new HorizontalKeyValue(
                 $this->translate('Capacity'),
-                Format::bytes($this->item->actual_capacity / 1000)
+                $this->item->actual_capacity !== null ?
+                    Format::bytes($this->item->actual_capacity / 1000) :
+                    new EmptyState($this->translate('None'))
             ))
                 ->addAttributes(new Attributes(['class' => 'push-left']))
         );
