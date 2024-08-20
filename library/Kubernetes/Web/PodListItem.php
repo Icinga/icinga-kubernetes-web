@@ -5,9 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Model\Container;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -21,7 +19,6 @@ use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
-use ipl\Web\Widget\VerticalKeyValue;
 
 class PodListItem extends BaseListItem
 {
@@ -99,53 +96,6 @@ class PodListItem extends BaseListItem
                 ->addAttributes(['class' => 'push-left']),
             new HorizontalKeyValue(new Icon('share-nodes'), $this->item->node_name ?? $this->translate('None'))
         );
-
-        $metrics = new Metrics(Database::connection());
-        $podMetricsCurrent = $metrics->getPodMetricsCurrent(
-            $this->item->uuid,
-            Metrics::POD_CPU_REQUEST,
-            Metrics::POD_CPU_LIMIT,
-            Metrics::POD_CPU_USAGE_CORES,
-            Metrics::POD_MEMORY_REQUEST,
-            Metrics::POD_MEMORY_LIMIT,
-            Metrics::POD_MEMORY_USAGE_BYTES
-        );
-
-        if (
-            isset($podMetricsCurrent[Metrics::POD_CPU_LIMIT])
-            && $podMetricsCurrent[Metrics::POD_CPU_REQUEST] < $podMetricsCurrent[Metrics::POD_CPU_LIMIT]
-        ) {
-            $footer->addHtml(
-                new VerticalKeyValue(
-                    $this->translate('CPU Request/Limit'),
-                    new DoughnutChartRequestLimit(
-                        'chart-mini',
-                        $podMetricsCurrent[Metrics::POD_CPU_REQUEST],
-                        $podMetricsCurrent[Metrics::POD_CPU_LIMIT],
-                        $podMetricsCurrent[Metrics::POD_CPU_USAGE_CORES],
-                        Metrics::COLOR_CPU
-                    )
-                )
-            );
-        }
-
-        if (
-            isset($podMetricsCurrent[Metrics::POD_MEMORY_LIMIT])
-            && $podMetricsCurrent[Metrics::POD_MEMORY_REQUEST] < $podMetricsCurrent[Metrics::POD_MEMORY_LIMIT]
-        ) {
-            $footer->addHtml(
-                new VerticalKeyValue(
-                    $this->translate('Memory Request/Limit'),
-                    new DoughnutChartRequestLimit(
-                        'chart-mini',
-                        $podMetricsCurrent[Metrics::POD_MEMORY_REQUEST],
-                        $podMetricsCurrent[Metrics::POD_MEMORY_LIMIT],
-                        $podMetricsCurrent[Metrics::POD_MEMORY_USAGE_BYTES],
-                        Metrics::COLOR_MEMORY
-                    )
-                )
-            );
-        }
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
