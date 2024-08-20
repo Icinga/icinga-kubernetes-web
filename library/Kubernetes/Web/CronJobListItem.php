@@ -54,9 +54,10 @@ class CronJobListItem extends BaseListItem
         $footer->addHtml(
             new HorizontalKeyValue($this->translate('Active'), $this->item->active),
             new HorizontalKeyValue($this->translate('Suspend'), Icons::ready($this->item->suspend)),
-            (new HorizontalKeyValue($this->translate('Last Scheduled'), $lastScheduleTime))
+            (new HorizontalKeyValue($this->translate('Last Successful'), $lastSuccessfulTime))
                 ->addAttributes(['class' => 'push-left']),
-            new HorizontalKeyValue($this->translate('Last Successful'), $lastSuccessfulTime),
+            new HorizontalKeyValue($this->translate('Last Scheduled'), $lastScheduleTime)
+
         );
     }
 

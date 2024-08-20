@@ -55,8 +55,8 @@ class CronJobDetail extends BaseHtmlElement
                 $this->translate('Suspend')                       => Icons::ready($this->cronJob->suspend),
                 $this->translate('Successful Jobs History Limit') => $this->cronJob->successful_jobs_history_limit,
                 $this->translate('Failed Jobs History Limit')     => $this->cronJob->failed_jobs_history_limit,
-                $this->translate('Last Schedule Time')            => $lastScheduleTime,
-                $this->translate('Last Successful Time')          => $lastSuccessfulTime
+                $this->translate('Last Successful Time')          => $lastSuccessfulTime,
+                $this->translate('Last Schedule Time')            => $lastScheduleTime
             ])),
             new Labels($this->cronJob->label),
             new Annotations($this->cronJob->annotation),
