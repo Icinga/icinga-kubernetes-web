@@ -177,6 +177,14 @@ $this->provideConfigTab(
     ]
 );
 
+$this->provideConfigTab(
+    'prometheus',
+    [
+        'title' => $this->translate('Prometheus'),
+        'label' => $this->translate('Prometheus'),
+        'url'   => 'config/prometheus'
+    ]
+);
 
 $this->provideJsFile('vendor/chart.umd.js');
 
