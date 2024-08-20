@@ -5,6 +5,8 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\AccessModes;
+use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
@@ -12,6 +14,7 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Stdlib\Filter;
 
 class PersistentVolumeDetail extends BaseHtmlElement
 {
@@ -56,6 +59,15 @@ class PersistentVolumeDetail extends BaseHtmlElement
                 new Attributes(['class' => 'persistent-volume-claims']),
                 new HtmlElement('h2', null, new Text($this->translate('Claims'))),
                 new PersistentVolumeClaimList($this->persistentVolume->pvc)
+            ),
+            new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text($this->translate('Events'))),
+                new EventList(
+                    Event::on(Database::connection())
+                        ->filter(Filter::equal('referent_uuid', $this->persistentVolume->uuid))
+                )
             ),
             new Yaml($this->persistentVolume->yaml)
         );
