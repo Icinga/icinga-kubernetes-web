@@ -190,6 +190,15 @@ if (Module::exists('notifications')) {
     );
 }
 
+$this->provideConfigTab(
+    'prometheus',
+    [
+        'title' => $this->translate('Prometheus'),
+        'label' => $this->translate('Prometheus'),
+        'url'   => 'config/prometheus'
+    ]
+);
+
 $this->providePermission(
     Auth::SHOW_CONFIG_MAPS,
     $this->translate('Allow to show config maps')

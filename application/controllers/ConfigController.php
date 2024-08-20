@@ -11,6 +11,7 @@ use Icinga\Exception\Http\HttpNotFoundException;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Forms\DatabaseConfigForm;
 use Icinga\Module\Kubernetes\Forms\NotificationsConfigForm;
+use Icinga\Module\Kubernetes\Forms\PrometheusConfigForm;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Notifications\Common\Database as NotificationsDatabase;
@@ -173,6 +174,46 @@ class ConfigController extends Controller
                 // TODO(el): Add error box.
             }
         }
+
+        $this->addContent($form);
+    }
+
+    public function prometheusAction()
+    {
+        $db = Database::connection();
+        $dbConfig = KConfig::on($db)->filter(Filter::equal('key', 'prometheus.url'))->first();
+
+//        $config = Config::module('kubernetes');
+        $form = (new PrometheusConfigForm())
+            ->populate(['prometheus_url' => $dbConfig->value])
+            ->on(PrometheusConfigForm::ON_SUCCESS, function ($form) use ($db, $dbConfig) {
+                if ($form->isLocked()) {
+                    Notification::error($this->translate('Prometheus configuration is locked'));
+                    return;
+                }
+
+//                $config->setSection('prometheus', $form->getValues());
+//                $config->saveIni();
+
+                if ($dbConfig) {
+                    $db->update('config',
+                        ['value' => $form->getValue('prometheus_url')],
+                        [$db->quoteIdentifier('key') . ' = ?' => 'prometheus.url']
+                    );
+                } else {
+                    $db->insert('config',
+                        [
+                            $db->quoteIdentifier('key') => 'prometheus.url',
+                            'value'                     => $form->getValue('prometheus_url')
+                        ]
+                    );
+                }
+
+
+                Notification::success($this->translate('New configuration has successfully been stored'));
+            })->handleRequest($this->getServerRequest());
+
+        $this->mergeTabs($this->Module()->getConfigTabs()->activate('prometheus'));
 
         $this->addContent($form);
     }
