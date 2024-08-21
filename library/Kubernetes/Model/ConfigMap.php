@@ -29,10 +29,6 @@ class ConfigMap extends Model
     public function createRelations(Relations $relations)
     {
         $relations
-            ->belongsToMany('data', Data::class)
-            ->through('config_map_data');
-
-        $relations
             ->belongsToMany('label', Label::class)
             ->through('config_map_label');
 
@@ -49,7 +45,6 @@ class ConfigMap extends Model
             'uid'              => $this->translate('UID'),
             'resource_version' => $this->translate('Resource Version'),
             'immutable'        => $this->translate('Immutable'),
-            'yaml'             => $this->translate('YAML'),
             'created'          => $this->translate('Created At')
         ];
     }
@@ -63,7 +58,6 @@ class ConfigMap extends Model
             'uid',
             'resource_version',
             'immutable',
-            'yaml',
             'created'
         ];
     }
