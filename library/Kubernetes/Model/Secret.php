@@ -26,10 +26,6 @@ class Secret extends Model
     public function createRelations(Relations $relations)
     {
         $relations
-            ->belongsToMany('data', Data::class)
-            ->through('secret_data');
-
-        $relations
             ->belongsToMany('label', Label::class)
             ->through('secret_label');
 
@@ -47,7 +43,6 @@ class Secret extends Model
             'resource_version',
             'type',
             'immutable',
-            'yaml',
             'created'
         ];
     }
