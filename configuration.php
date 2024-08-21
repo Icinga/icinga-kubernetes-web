@@ -177,6 +177,15 @@ $this->provideConfigTab(
     ]
 );
 
+$this->provideConfigTab(
+    'notifications',
+    [
+        'title' => $this->translate('Notifications'),
+        'label' => $this->translate('Notifications'),
+        'url'   => 'config/notifications'
+    ]
+);
+
 
 $this->provideJsFile('vendor/chart.umd.js');
 
