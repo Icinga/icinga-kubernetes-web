@@ -57,7 +57,6 @@ class CronJobListItem extends BaseListItem
             (new HorizontalKeyValue($this->translate('Last Successful'), $lastSuccessfulTime))
                 ->addAttributes(['class' => 'push-left']),
             new HorizontalKeyValue($this->translate('Last Scheduled'), $lastScheduleTime)
-
         );
     }
 
