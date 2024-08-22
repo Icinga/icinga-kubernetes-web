@@ -21,6 +21,5 @@ if (! function_exists('yield_iterable')) {
 /** @var $this \Icinga\Application\Modules\Module */
 
 if ($this::exists('notifications')) {
-    $this->provideHook('ApplicationState', 'AutoPopulateSource');
     $this->provideHook('Notifications/ObjectsRenderer');
 }
