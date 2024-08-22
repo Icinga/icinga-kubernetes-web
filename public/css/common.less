@@ -29,8 +29,12 @@ pre {
 
 .horizontal-key-value,
 .vertical-key-value {
-  > .value > .empty-state {
-    display: inline-block;
+  > .value {
+    .text-ellipsis();
+
+    > .empty-state {
+      display: inline-block;
+    }
   }
 }
 
