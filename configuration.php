@@ -124,6 +124,15 @@ $section->add(
 );
 
 $section->add(
+    N_('Cluster Services'),
+    [
+        'description' => $this->translate('Cluster Services'),
+        'url'         => 'kubernetes/services?label.name=kubernetes.io%2Fcluster-service&label.value=true',
+        'priority'    => $priority++
+    ]
+);
+
+$section->add(
     N_('Ingresses'),
     [
         'description' => $this->translate('Ingresses'),
