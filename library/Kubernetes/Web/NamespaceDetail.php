@@ -39,7 +39,9 @@ class NamespaceDetail extends BaseHtmlElement
                 $this->translate('Created')          => $this->namespace->created->format('Y-m-d H:i:s'),
                 $this->translate('Phase')            => new HtmlElement(
                     'span',
-                    new Attributes(['class' => 'namespace-phase']),
+                    new Attributes([
+                        'class' => 'namespace-phase namespace-phase-' . strtolower($this->namespace->phase)
+                    ]),
                     new Text($this->namespace->phase)
                 )
             ]),

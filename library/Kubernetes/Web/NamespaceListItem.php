@@ -55,6 +55,8 @@ class NamespaceListItem extends BaseListItem
     {
         if ($this->item->phase === NamespaceModel::PHASE_ACTIVE) {
             $visual->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
+        } else {
+            $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
         }
     }
 }
