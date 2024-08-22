@@ -4,10 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Forms;
 
-use Icinga\Data\ResourceFactory;
 use ipl\Html\Attributes;
 use ipl\Html\Html;
-use ipl\Html\HtmlElement;
 use ipl\Web\Compat\CompatForm;
 use Icinga\Module\Kubernetes\Model\Config;
 use ipl\Stdlib\Filter;
@@ -17,6 +15,20 @@ class NotificationsConfigForm extends CompatForm
 {
     protected function assemble(): void
     {
+        $submit = $this->createElement('submit', 'submit', [
+            'label'    => $this->translate('Save Changes'),
+            'disabled' => $this->isLocked() || $this->sourceAlreadyExists()
+        ]);
+        $this->registerElement($submit);
+        $this->decorate($submit);
+
+        $remove = $this->createElement('submit', 'remove', [
+            'label'          => $this->translate('Remove'),
+            'class'          => 'btn-remove',
+        ]);
+        $this->registerElement($remove);
+        $this->decorate($remove);
+
         if ($this->isLocked()) {
             $this->addHtml(
                 Html::tag('div', Attributes::create(['class' => 'control-group']), [
@@ -33,58 +45,50 @@ class NotificationsConfigForm extends CompatForm
             );
         }
 
-        $this->addElement(
-            'text',
-            'notifications_url',
+        if ($this->sourceAlreadyExists()) {
+            $this->addHtml(
+                Html::tag('div', Attributes::create(['class' => 'control-group']), [
+                    Html::tag(
+                        'div',
+                        Attributes::create(['class' => 'control-label-group']),
+                    ),
+                    Html::tag(
+                        'p',
+                        Attributes::create(),
+                        "Notifications configuration has already a source."
+                    )
+                ])
+            );
+        }
+
+        $this->addElement('text', 'notifications_url',
             [
                 'label'    => $this->translate('URL'),
                 'required' => true,
-                'disabled' => $this->isLocked(),
+                'disabled' => $this->isLocked() || $this->sourceAlreadyExists(),
                 'value'    => ''
             ]
         );
 
-        $this->addElement(
-            'text',
-            'notifications_kubernetes_web_url',
+        $this->addElement('text', 'notifications_kubernetes_web_url',
             [
                 'label'    => $this->translate('Kubernetes Web URL'),
-//                'required' => true,
-                'disabled' => $this->isLocked(),
-                'value'    => ''
-            ]
-        );
-
-        $this->addElement(
-            'text',
-            'notifications_username',
-            [
-                'label'    => $this->translate('Username'),
                 'required' => true,
-                'disabled' => $this->isLocked(),
+                'disabled' => $this->isLocked() || $this->sourceAlreadyExists(),
                 'value'    => ''
             ]
         );
 
-        $this->addElement(
-            'password',
-            'notifications_password',
-            [
-                'label'    => $this->translate('Password'),
-                'required' => true,
-                'disabled' => $this->isLocked(),
-                'value'    => ''
-            ]
-        );
+        if (! $this->sourceAlreadyExists()) {
+            $this->addHtml($submit);
+        } else {
+            $this->addHtml($remove);
+        }
+    }
 
-        $this->addElement(
-            'submit',
-            'submit',
-            [
-                'label' => $this->translate('Save Changes'),
-                'disabled' => $this->isLocked()
-            ]
-        );
+    public function hasBeenSubmitted(): bool
+    {
+        return $this->hasBeenSent() && ($this->getPopulatedValue('submit') || $this->getPopulatedValue('remove'));
     }
 
     public function isLocked(): bool
@@ -92,7 +96,19 @@ class NotificationsConfigForm extends CompatForm
         $config = Config::on(Database::connection());
         $config->filter(Filter::equal('key', 'notifications.locked'));
 
-        if ($config->first()->value === 'true') {
+        if (isset($config->first()->value) && $config->first()->value === 'true') {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function sourceAlreadyExists()
+    {
+        $config = Config::on(Database::connection());
+        $config->filter(Filter::equal('key', 'notifications.source_id'));
+
+        if (isset($config->first()->value)) {
             return true;
         }
 
