@@ -13,13 +13,12 @@
 }
 
 .item-count-indicator {
-  width: 6em;
   --state-color: @gray;
-
   display: flex;
   list-style-type: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
+  width: 6em;
 
   li {
     margin-right: 1px;
@@ -30,8 +29,8 @@
   }
 
   li {
-    width: 7px;
     height: 7px;
+    width: 7px;
 
     &.critical {
       --state-color: @state-critical
@@ -57,7 +56,9 @@
 
   &.box li {
     background-color: var(--state-color);
+    height: 6px;
     margin-right: 2px;
+    width: 6px;
   }
 
   &.ball li {

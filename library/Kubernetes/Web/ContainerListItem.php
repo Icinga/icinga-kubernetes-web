@@ -100,6 +100,6 @@ class ContainerListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_SMALL));
     }
 }
