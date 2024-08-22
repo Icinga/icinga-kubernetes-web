@@ -8,7 +8,7 @@ pre {
 .icinga-state-text,
 .namespace-phase,
 .persistent-volume-phase,
-.pvc-phase {
+.persistent-volume-claim-phase {
   text-transform: uppercase;
 }
 
@@ -42,6 +42,31 @@ pre {
   color: @state-ok;
 }
 
-.namespace-phase-terminating {
-  color: @state-unknown;
+.pv-phase-pending {
+  color: @color-pending;
+}
+
+.pv-phase-available,
+.pv-phase-bound {
+  color: @color-ok;
+}
+
+.pv-phase-released {
+  color: @color-warning;
+}
+
+.pv-phase-failed {
+  color: @color-critical;
+}
+
+.pvc-phase-pending {
+  color: @color-pending;
+}
+
+.pvc-phase-bound {
+  color: @color-ok;
+}
+
+.pvc-phase-lost {
+  color: @color-critical;
 }

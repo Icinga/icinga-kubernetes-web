@@ -97,12 +97,18 @@ class PersistentVolumeClaimListItem extends BaseListItem
                     new Attributes(['class' => 'subject'])
                 )
             ],
-            new HtmlElement('span', new Attributes(['class' => 'pvc-phase']), new Text($this->item->phase))
+            new HtmlElement(
+                'span',
+                new Attributes(['class' => 'persistent-volume-claim-phase']),
+                new Text($this->item->phase)
+            )
         ));
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $visual->addHtml(new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]));
+        $visual->addHtml(
+            new Icon($this->getPhaseIcon(), ['class' => ['pvc-phase-' . strtolower($this->item->phase)]])
+        );
     }
 }

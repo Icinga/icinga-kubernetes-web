@@ -41,7 +41,9 @@ class PersistentVolumeDetail extends BaseHtmlElement
                 $this->translate('Created')            => $this->persistentVolume->created->format('Y-m-d H:i:s'),
                 $this->translate('Phase')              => new HtmlElement(
                     'span',
-                    new Attributes(['class' => 'persistent-volume-phase']),
+                    new Attributes([
+                        'class' => 'persistent-volume-phase pv-phase-' . strtolower($this->persistentVolume->phase)
+                    ]),
                     new Text($this->persistentVolume->phase)
                 ),
                 $this->translate('Volume Mode')        => $this->persistentVolume->volume_mode,

@@ -99,6 +99,8 @@ class PersistentVolumeListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $visual->addHtml(new Icon($this->getPhaseIcon(), ['class' => ['phase-' . $this->item->phase]]));
+        $visual->addHtml(
+            new Icon($this->getPhaseIcon(), ['class' => ['pv-phase-' . strtolower($this->item->phase)]])
+        );
     }
 }

@@ -40,7 +40,9 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
             new Details(new ResourceDetails($this->pvc, [
                 $this->translate('Phase')                => new HtmlElement(
                     'span',
-                    new Attributes(['class' => 'pvc-phase']),
+                    new Attributes([
+                        'class' => 'persistent-volume-claim-phase pvc-phase-' . strtolower($this->pvc->phase)
+                    ]),
                     new Text($this->pvc->phase)
                 ),
                 $this->translate('Volume Name')          => $this->pvc->volume_name ??
