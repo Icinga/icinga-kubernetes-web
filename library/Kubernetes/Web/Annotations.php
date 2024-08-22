@@ -4,6 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\CopyToClipboard;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -32,9 +34,33 @@ class Annotations extends BaseHtmlElement
 
         $annotations = yield_iterable($this->annotations);
         if ($annotations->valid()) {
+            $container = new HtmlElement(
+                'div',
+                new Attributes([
+                    'class'               => 'collapsible',
+                    'data-visible-height' => 100
+                ])
+            );
+
             foreach ($annotations as $annotation) {
-                $this->addHtml(new HorizontalKeyValue($annotation->name, $annotation->value));
+                $value = json_decode($annotation->value);
+
+                $container->addHtml(new HorizontalKeyValue(
+                    $annotation->name,
+                    $value !== null && ! is_scalar($value) ?
+                        CopyToClipboard::attachTo(new HtmlElement(
+                            'pre',
+                            null,
+                            new Text(json_encode(
+                                $value,
+                                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+                            ))
+                        )) :
+                        $annotation->value
+                ));
             }
+
+            $this->addHtml($container);
         } else {
             $this->addHtml(new EmptyState($this->translate('No items to display.')));
         }
