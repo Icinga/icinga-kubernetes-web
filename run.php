@@ -10,6 +10,5 @@ if (! function_exists('yield_iterable')) {
 $this->provideHook('Health');
 
 if ($this::exists('notifications')) {
-    $this->provideHook('ApplicationState', 'AutoPopulateSource');
     $this->provideHook('Notifications/ObjectsRenderer');
 }
