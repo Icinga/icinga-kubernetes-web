@@ -63,8 +63,14 @@ footer {
   white-space: nowrap;
 }
 
-.title > .icinga-state-text {
-  color: @default-text-color;
+.title {
+  .subject + .subject {
+    margin-left: .2em;
+  }
+
+  > .icinga-state-text {
+    color: @default-text-color;
+  }
 }
 
 .visual {

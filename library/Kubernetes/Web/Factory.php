@@ -4,7 +4,6 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Common\BaseItemList;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ConfigMap;
 use Icinga\Module\Kubernetes\Model\Container;
@@ -23,18 +22,53 @@ use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
-use InvalidArgumentException;
+use ipl\Html\Attributes;
+use ipl\Html\HtmlElement;
+use ipl\Html\ValidHtml;
 use ipl\Stdlib\Filter\Rule;
+use ipl\Web\Url;
+use ipl\Web\Widget\EmptyState;
+use ipl\Web\Widget\Icon;
 
 abstract class Factory
 {
-    public static function createList(string $type, Rule $filter): BaseItemList
+    public static function createIcon(string $type): ?ValidHtml
+    {
+        $type = strtolower(str_replace(['_', '-'], '', $type));
+
+        return match ($type) {
+            'configmap',
+            'container',
+            'cronjob',
+            'daemonset',
+            'deployment',
+            'event',
+            'ingress',
+            'job',
+            'namespace',
+            'persistentvolume',
+            'persistentvolumeclaim',
+            'pod',
+            'replicaset',
+            'secret',
+            'service',
+            'statefulset' => new HtmlElement('i', new Attributes(['class' => "icon kicon-$type"])),
+            'node'        => new Icon('share-nodes'),
+            default       => null
+        };
+    }
+
+    public static function createList(string $type, Rule $filter): ValidHtml
     {
         $type = strtolower(str_replace(['_', '-'], '', $type));
 
         $database = Database::connection();
 
         switch ($type) {
+            case 'configmap':
+                $q = ConfigMap::on($database)->filter($filter);
+
+                return new ConfigMapList($q);
             case 'container':
                 $q = Container::on($database)->filter($filter);
 
@@ -99,12 +133,34 @@ abstract class Factory
                 $q = StatefulSet::on($database)->filter($filter);
 
                 return new StatefulSetList($q);
-            case 'configmap':
-                $q = ConfigMap::on($database)->filter($filter);
-
-                return new ConfigMapList($q);
             default:
-                throw new InvalidArgumentException("Unknown type $type");
+                return new EmptyState("No items to display. $type seems to be a custom resource.");
         }
+    }
+
+    public static function createUrl(string $type): ?Url
+    {
+        $type = strtolower(str_replace(['_', '-'], '', $type));
+
+        return match ($type) {
+            'configmap',
+            'container',
+            'cronjob',
+            'daemonset',
+            'deployment',
+            'event',
+            'ingress',
+            'job',
+            'namespace',
+            'node',
+            'persistentvolume',
+            'persistentvolumeclaim',
+            'pod',
+            'replicaset',
+            'secret',
+            'service',
+            'statefulset' => Url::fromPath("kubernetes/$type"),
+            default       => null
+        };
     }
 }

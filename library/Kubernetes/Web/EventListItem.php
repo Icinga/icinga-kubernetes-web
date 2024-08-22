@@ -13,11 +13,9 @@ use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
 use ipl\I18n\Translation;
-use ipl\Web\Url;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
-use Ramsey\Uuid\Uuid;
 
 class EventListItem extends BaseListItem
 {
@@ -43,33 +41,43 @@ class EventListItem extends BaseListItem
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        if (isset($this->item->reference_namespace)) {
-            $namespace = new HtmlElement(
-                'span',
-                new Attributes(['class' => 'namespace-badge']),
-                new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
-                new Text($this->item->reference_namespace)
-            );
-        } else {
-            $namespace = null;
-        }
+        $title->addHtml(
+            new Link($this->item->reason, Links::event($this->item), new Attributes(['class' => 'subject']))
+        );
 
         $kind = strtolower($this->item->reference_kind);
 
-        $title->addHtml(
-            new Link($this->item->reason, Links::event($this->item), new Attributes(['class' => 'subject'])),
-            new Link(
-                (new HtmlDocument())->addHtml(
-                    $namespace,
-                    (new HtmlDocument())->addHtml(
-                        new HtmlElement('i', new Attributes(['class' => "icon kicon-$kind"])),
-                        new Text($this->item->reference_name)
-                    )
-                ),
-                Url::fromPath("kubernetes/$kind", ['id' => (string) Uuid::fromBytes($this->item->referent_uuid)]),
-                new Attributes(['class' => 'subject'])
-            )
-        );
+        $icon = Factory::createIcon($kind);
+        $url = Factory::createUrl($kind);
+
+        if ($url !== null) {
+            $content = new HtmlDocument();
+
+            if ($icon !== null) {
+                $content->addHtml($icon);
+            }
+
+            $content->addHtml(new Text($this->item->reference_name));
+
+            $referent = new Link($content, $url, new Attributes(['class' => 'subject']));
+        } else {
+            $referent = new HtmlElement(
+                'span',
+                new Attributes(['class' => 'subject']),
+                new Text($this->item->reference_name)
+            );
+        }
+
+        if (isset($this->item->reference_namespace)) {
+            $referent->prependHtml(new HtmlElement(
+                'span',
+                new Attributes(['class' => 'namespace-badge']),
+                Factory::createIcon('namespace'),
+                new Text($this->item->reference_namespace)
+            ));
+        }
+
+        $title->addHtml($referent);
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
