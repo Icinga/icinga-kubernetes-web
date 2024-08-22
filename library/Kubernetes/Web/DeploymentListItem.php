@@ -51,7 +51,7 @@ class DeploymentListItem extends BaseListItem
 
         $pods = (new ItemCountIndicator())
             ->addIndicator('critical', $this->item->unavailable_replicas)
-            ->addIndicator('pending', $this->item->unavailable_replicas - $this->item->available_replicas)
+            ->addIndicator('pending', $this->item->desired_replicas - $this->item->actual_replicas)
             ->addIndicator('ok', $this->item->available_replicas);
 
         $footer->addHtml(

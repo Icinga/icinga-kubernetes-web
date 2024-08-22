@@ -50,6 +50,7 @@ class DaemonSetListItem extends BaseListItem
     {
         $pods = (new ItemCountIndicator())
             ->addIndicator('critical', $this->item->number_unavailable)
+            ->addIndicator('pending', $this->item->desired_number_scheduled - $this->item->current_number_scheduled)
             ->addIndicator('ok', $this->item->number_available);
 
         $footer->addHtml(

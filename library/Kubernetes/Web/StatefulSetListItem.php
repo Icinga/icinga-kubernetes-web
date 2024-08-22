@@ -59,8 +59,8 @@ class StatefulSetListItem extends BaseListItem
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
         $pods = (new ItemCountIndicator())
-            ->addIndicator('critical', $this->item->desired_replicas - $this->item->actual_replicas)
-            ->addIndicator('pending', $this->item->actual_replicas - $this->item->available_replicas)
+            ->addIndicator('critical', $this->item->actual_replicas - $this->item->available_replicas)
+            ->addIndicator('pending', $this->item->desired_replicas - $this->item->actual_replicas)
             ->addIndicator('ok', $this->item->available_replicas);
 
         $footer->addHtml(
