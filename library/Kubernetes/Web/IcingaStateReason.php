@@ -36,9 +36,7 @@ class IcingaStateReason extends BaseHtmlElement
 
     protected string $icingaStateReason;
 
-    protected $tag = 'div';
-
-    protected $defaultAttributes = ['class' => 'icinga-state-reason preformatted'];
+    protected $tag = 'pre';
 
     public function __construct(string $icingaStateReason)
     {
