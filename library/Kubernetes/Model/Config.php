@@ -26,7 +26,8 @@ class Config extends Model
     {
         return [
             'key',
-            'value'
+            'value',
+            'locked'
         ];
     }
 }
