@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Forms;
 
 use Icinga\Data\ResourceFactory;
+use Icinga\Module\Kubernetes\Controllers\ConfigController;
 use ipl\Html\Attributes;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
@@ -45,6 +46,26 @@ class PrometheusConfigForm extends CompatForm
         );
 
         $this->addElement(
+            'text',
+            'prometheus_username',
+            [
+                'label'    => $this->translate('Username'),
+                'disabled' => $this->isLocked(),
+                'value'    => ''
+            ]
+        );
+
+        $this->addElement(
+            'password',
+            'prometheus_password',
+            [
+                'label'    => $this->translate('Password'),
+                'disabled' => $this->isLocked(),
+                'value'    => ''
+            ]
+        );
+
+        $this->addElement(
             'submit',
             'submit',
             [
@@ -57,9 +78,11 @@ class PrometheusConfigForm extends CompatForm
     public function isLocked(): bool
     {
         $config = Config::on(Database::connection());
-        $config->filter(Filter::equal('key', 'prometheus.locked'));
+        $config->filter(Filter::equal('key', ConfigController::PROMETHEUS_URL));
 
-        if (isset($config->first()->value) && $config->first()->value === 'true') {
+        $temp = $config->first();
+
+        if (isset($config->first()->locked) && $config->first()->locked === 'y') {
             return true;
         }
 
