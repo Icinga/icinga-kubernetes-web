@@ -46,8 +46,6 @@ class NodeListItem extends BaseListItem
     {
         $footer->addHtml(
             new VerticalKeyValue($this->translate('CIDR'), $this->item->pod_cidr),
-            new VerticalKeyValue($this->translate('Pod Capacity'), $this->item->pod_capacity),
-            new VerticalKeyValue($this->translate('IPs Available'), $this->item->num_ips),
             new VerticalKeyValue(
                 $this->translate('CPU Capacity'),
                 sprintf($this->translate('%d cores', 'number of CPU cores'), $this->item->cpu_allocatable / 1000)
