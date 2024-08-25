@@ -7,6 +7,7 @@ namespace Icinga\Module\Kubernetes\Controllers;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\PodDetail;
+use Icinga\Module\Kubernetes\Web\PodList;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatController;
 use Ramsey\Uuid\Uuid;
@@ -28,6 +29,8 @@ class PodController extends CompatController
         if ($pod === null) {
             $this->httpNotFound($this->translate('Pod not found'));
         }
+
+        $this->addControl(new PodList([$pod]));
 
         $this->addContent(new PodDetail($pod));
     }

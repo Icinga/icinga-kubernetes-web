@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\ReplicaSetDetail;
+use Icinga\Module\Kubernetes\Web\ReplicaSetList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -28,6 +29,8 @@ class ReplicasetController extends Controller
         if ($replicaSet === null) {
             $this->httpNotFound($this->translate('Replica Set not found'));
         }
+
+        $this->addControl(new ReplicaSetList([$replicaSet]));
 
         $this->addContent(new ReplicaSetDetail($replicaSet));
     }

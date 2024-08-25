@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DeploymentDetail;
+use Icinga\Module\Kubernetes\Web\DeploymentList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -28,6 +29,8 @@ class DeploymentController extends Controller
         if ($deployment === null) {
             $this->httpNotFound($this->translate('Deployment not found'));
         }
+
+        $this->addControl(new DeploymentList([$deployment]));
 
         $this->addContent(new DeploymentDetail($deployment));
     }

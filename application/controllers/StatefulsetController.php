@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\StatefulSetDetail;
+use Icinga\Module\Kubernetes\Web\StatefulSetList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -28,6 +29,8 @@ class StatefulsetController extends Controller
         if ($statefulSet === null) {
             $this->httpNotFound($this->translate('Stateful Set not found'));
         }
+
+        $this->addControl(new StatefulSetList([$statefulSet]));
 
         $this->addContent(new StatefulSetDetail($statefulSet));
     }
