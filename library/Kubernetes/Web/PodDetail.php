@@ -6,6 +6,8 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use DateInterval;
 use DateTime;
+use Icinga\Module\Icingadb\Util\PluginOutput;
+use Icinga\Module\Icingadb\Widget\PluginOutputContainer;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
@@ -23,6 +25,7 @@ use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
+use ipl\Web\Widget\TimeAgo;
 
 class PodDetail extends BaseHtmlElement
 {
@@ -114,7 +117,7 @@ class PodDetail extends BaseHtmlElement
             ])),
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),
-            new ConditionTable($this->pod, (new PodCondition())->getColumnDefinitions()),
+            new PodConditions($this->pod),
             new HtmlElement(
                 'section',
                 null,
