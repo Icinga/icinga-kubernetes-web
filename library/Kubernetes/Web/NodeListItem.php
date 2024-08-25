@@ -14,10 +14,10 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
-use ipl\Web\Widget\VerticalKeyValue;
 
 class NodeListItem extends BaseListItem
 {
@@ -45,12 +45,12 @@ class NodeListItem extends BaseListItem
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
         $footer->addHtml(
-            new VerticalKeyValue($this->translate('CIDR'), $this->item->pod_cidr),
-            new VerticalKeyValue(
+            new HorizontalKeyValue($this->translate('CIDR'), $this->item->pod_cidr),
+            new HorizontalKeyValue(
                 $this->translate('CPU Capacity'),
                 sprintf($this->translate('%d cores', 'number of CPU cores'), $this->item->cpu_allocatable / 1000)
             ),
-            new VerticalKeyValue(
+            new HorizontalKeyValue(
                 $this->translate('Memory Capacity'),
                 Format::bytes($this->item->memory_allocatable / 1000)
             )
