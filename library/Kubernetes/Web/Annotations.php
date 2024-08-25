@@ -13,6 +13,8 @@ use ipl\I18n\Translation;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\HorizontalKeyValue;
 
+use function Icinga\Module\Kubernetes\yield_iterable;
+
 class Annotations extends BaseHtmlElement
 {
     use Translation;
