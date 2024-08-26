@@ -16,6 +16,7 @@ use ipl\I18n\Translation;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
+use Ramsey\Uuid\Uuid;
 
 class EventListItem extends BaseListItem
 {
@@ -59,7 +60,11 @@ class EventListItem extends BaseListItem
 
             $content->addHtml(new Text($this->item->reference_name));
 
-            $referent = new Link($content, $url, new Attributes(['class' => 'subject']));
+            $referent = new Link(
+                $content,
+                $url->addParams(['id' => (string) Uuid::fromBytes($this->item->referent_uuid)]),
+                new Attributes(['class' => 'subject'])
+            );
         } else {
             $referent = new HtmlElement(
                 'span',
