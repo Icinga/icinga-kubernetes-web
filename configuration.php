@@ -177,6 +177,11 @@ $this->provideConfigTab(
     ]
 );
 
+$this->provideRestriction(
+    'kubernetes/filter/resources',
+    $this->translate('Restrict access to the resources that match the filter')
+);
+
 if (! \Icinga\Application\Icinga::app()->getModuleManager()->hasEnabled('icingadb')) {
     $this->provideJsFile('action-list.js');
 }
