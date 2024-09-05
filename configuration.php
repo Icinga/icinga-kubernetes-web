@@ -188,6 +188,11 @@ if (Module::exists('notifications')) {
     );
 }
 
+$this->provideRestriction(
+    'kubernetes/filter/resources',
+    $this->translate('Restrict access to the resources that match the filter')
+);
+
 if (! Module::exists('icingadb')) {
     $this->provideJsFile('action-list.js');
 }
