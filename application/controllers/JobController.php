@@ -7,6 +7,7 @@ namespace Icinga\Module\Kubernetes\Controllers;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Web\JobDetail;
+use Icinga\Module\Kubernetes\Web\JobList;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatController;
 use Ramsey\Uuid\Uuid;
@@ -28,6 +29,8 @@ class JobController extends CompatController
         if ($job === null) {
             $this->httpNotFound($this->translate('Job not found'));
         }
+
+        $this->addControl(new JobList([$job]));
 
         $this->addContent(new JobDetail($job));
     }
