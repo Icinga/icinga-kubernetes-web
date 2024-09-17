@@ -193,5 +193,6 @@ $this->provideCssFile('charts.less');
 $this->provideCssFile('common.less');
 $this->provideCssFile('conditions.less');
 $this->provideCssFile('icons.less');
+$this->provideCssFile('labels.less');
 $this->provideCssFile('lists.less');
 $this->provideCssFile('widgets.less');
