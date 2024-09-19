@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -19,7 +20,11 @@ class PersistentvolumeclaimsController extends ListController
 
     protected function getQuery(): Query
     {
-        return PersistentVolumeClaim::on(Database::connection());
+        $persistentVolumeClaims = PersistentVolumeClaim::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($persistentVolumeClaims);
+
+        return $persistentVolumeClaims;
     }
 
     protected function getSortColumns(): array

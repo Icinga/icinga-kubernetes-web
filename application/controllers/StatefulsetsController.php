@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -19,7 +20,11 @@ class StatefulsetsController extends ListController
 
     protected function getQuery(): Query
     {
-        return StatefulSet::on(Database::connection());
+        $statefulSets = StatefulSet::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($statefulSets);
+
+        return $statefulSets;
     }
 
     protected function getSortColumns(): array

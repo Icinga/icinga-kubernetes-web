@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Web\CronJobList;
@@ -19,7 +20,11 @@ class CronjobsController extends ListController
 
     protected function getQuery(): Query
     {
-        return CronJob::on(Database::connection());
+        $cronJobs = CronJob::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($cronJobs);
+
+        return $cronJobs;
     }
 
     protected function getSortColumns(): array

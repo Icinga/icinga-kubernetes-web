@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Web\JobList;
@@ -19,7 +20,11 @@ class JobsController extends ListController
 
     protected function getQuery(): Query
     {
-        return Job::on(Database::connection());
+        $jobs = Job::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($jobs);
+
+        return $jobs;
     }
 
     protected function getSortColumns(): array

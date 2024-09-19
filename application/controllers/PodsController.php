@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -19,7 +20,11 @@ class PodsController extends ListController
 
     protected function getQuery(): Query
     {
-        return Pod::on(Database::connection())->with('node');
+        $pods = Pod::on(Database::connection())->with('node');
+
+        Auth::getInstance()->applyRestrictions($pods);
+
+        return $pods;
     }
 
     protected function getSortColumns(): array

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Web\DeploymentList;
@@ -19,7 +20,11 @@ class DeploymentsController extends ListController
 
     protected function getQuery(): Query
     {
-        return Deployment::on(Database::connection());
+        $deployments = Deployment::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($deployments);
+
+        return $deployments;
     }
 
     protected function getSortColumns(): array

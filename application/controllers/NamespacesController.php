@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -19,7 +20,11 @@ class NamespacesController extends ListController
 
     protected function getQuery(): Query
     {
-        return NamespaceModel::on(Database::connection());
+        $namespaces = NamespaceModel::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($namespaces);
+
+        return $namespaces;
     }
 
     protected function getSortColumns(): array

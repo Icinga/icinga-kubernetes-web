@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -19,7 +20,11 @@ class NodesController extends ListController
 
     protected function getQuery(): Query
     {
-        return Node::on(Database::connection());
+        $nodes = Node::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($nodes);
+
+        return $nodes;
     }
 
     protected function getSortColumns(): array
