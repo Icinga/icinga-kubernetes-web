@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Web\EventList;
@@ -19,7 +20,11 @@ class EventsController extends ListController
 
     protected function getQuery(): Query
     {
-        return Event::on(Database::connection());
+        $events = Event::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($events);
+
+        return $events;
     }
 
     protected function getSortColumns(): array

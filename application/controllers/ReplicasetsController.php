@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -19,7 +20,11 @@ class ReplicasetsController extends ListController
 
     protected function getQuery(): Query
     {
-        return ReplicaSet::on(Database::connection());
+        $replicaSets = ReplicaSet::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($replicaSets);
+
+        return $replicaSets;
     }
 
     protected function getSortColumns(): array

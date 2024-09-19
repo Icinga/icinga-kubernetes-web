@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Web\DaemonSetList;
@@ -19,7 +20,11 @@ class DaemonsetsController extends ListController
 
     protected function getQuery(): Query
     {
-        return DaemonSet::on(Database::connection());
+        $daemonSets = DaemonSet::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($daemonSets);
+
+        return $daemonSets;
     }
 
     protected function getSortColumns(): array

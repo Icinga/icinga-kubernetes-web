@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ConfigMap;
 use Icinga\Module\Kubernetes\Web\ConfigMapList;
@@ -19,7 +20,11 @@ class ConfigmapsController extends ListController
 
     protected function getQuery(): Query
     {
-        return ConfigMap::on(Database::connection());
+        $configMaps = ConfigMap::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($configMaps);
+
+        return $configMaps;
     }
 
     protected function getSortColumns(): array

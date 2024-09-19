@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -19,7 +20,11 @@ class SecretsController extends ListController
 
     protected function getQuery(): Query
     {
-        return Secret::on(Database::connection());
+        $secrets = Secret::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($secrets);
+
+        return $secrets;
     }
 
     protected function getSortColumns(): array

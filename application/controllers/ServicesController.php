@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -19,7 +20,11 @@ class ServicesController extends ListController
 
     protected function getQuery(): Query
     {
-        return Service::on(Database::connection());
+        $services =  Service::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($services);
+
+        return $services;
     }
 
     protected function getSortColumns(): array

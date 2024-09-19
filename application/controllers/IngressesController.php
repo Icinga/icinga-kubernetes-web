@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Web\IngressList;
@@ -19,7 +20,11 @@ class IngressesController extends ListController
 
     protected function getQuery(): Query
     {
-        return Ingress::on(Database::connection());
+        $ingresses = Ingress::on(Database::connection());
+
+        Auth::getInstance()->applyRestrictions($ingresses);
+
+        return $ingresses;
     }
 
     protected function getSortColumns(): array
