@@ -6,4 +6,6 @@ if (! function_exists('yield_iterable')) {
     require_once __DIR__ . '/library/Kubernetes/functions.php';
 }
 
-$this->provideHook('Health');
+if (\Icinga\Application\Icinga::app()->getModuleManager()->hasEnabled('icingadb')) {
+    $this->provideHook('Health');
+}

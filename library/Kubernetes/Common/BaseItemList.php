@@ -4,46 +4,33 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
-use InvalidArgumentException;
 use ipl\Html\BaseHtmlElement;
 use ipl\I18n\Translation;
 use ipl\Stdlib\BaseFilter;
+use ipl\Stdlib\Filter;
+use ipl\Web\Filter\QueryString;
+use ipl\Web\Url;
 use ipl\Web\Widget\EmptyState;
+use Ramsey\Uuid\Uuid;
 
 abstract class BaseItemList extends BaseHtmlElement
 {
     use BaseFilter;
     use Translation;
 
-    protected $baseAttributes = [
-        'class'                         => 'item-list',
+    protected array $baseAttributes = [
+        'class'                         => 'item-list action-list',
         'data-base-target'              => '_next',
         'data-pdfexport-page-breaks-at' => '.list-item'
     ];
 
-    /** @var iterable */
-    protected $data;
+    protected iterable $query;
 
     protected $tag = 'ul';
 
-    /**
-     * Create a new item  list
-     *
-     * @param iterable $data Data source of the list
-     */
-    public function __construct($data)
+    public function __construct(iterable $query)
     {
-        if (! is_iterable($data)) {
-            throw new InvalidArgumentException('Data must be an array or an instance of Traversable');
-        }
-
-        $this->data = $data;
-
-        $this->addAttributes($this->baseAttributes);
-        $this->getAttributes()
-            ->registerAttributeCallback('class', function () {
-                return 'action-list';
-            });
+        $this->query = $query;
 
         $this->init();
     }
@@ -58,18 +45,31 @@ abstract class BaseItemList extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        $detailUrlAdded = false;
         $itemClass = $this->getItemClass();
 
-        foreach ($this->data as $data) {
-            /** @var BaseListItem $item */
-            $item = new $itemClass($data, $this);
+        foreach ($this->query as $item) {
+            if (! $detailUrlAdded) {
+                $this->addAttributes($this->baseAttributes + [
+                        'data-icinga-detail-url' => Url::fromPath('kubernetes/' . $item->getTableAlias())
+                    ]);
+                $detailUrlAdded = true;
+            }
 
-            $this->add($item);
+            $this->addHtml(
+                (new $itemClass($item, $this))
+                    ->addAttributes([
+                        'data-action-item'          => true,
+                        'data-icinga-detail-filter' => QueryString::render(
+                            Filter::equal('id', Uuid::fromBytes($item->uuid)->toString())
+                        )
+                    ])
+            );
         }
 
         if ($this->isEmpty()) {
             $this->setTag('div');
-            $this->add(new EmptyState($this->translate('No items to display.')));
+            $this->addHtml(new EmptyState($this->translate('No items to display.')));
         }
     }
 

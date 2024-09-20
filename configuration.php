@@ -186,9 +186,13 @@ $this->provideConfigTab(
     ]
 );
 
+if (! \Icinga\Application\Icinga::app()->getModuleManager()->hasEnabled('icingadb')) {
+    $this->provideJsFile('action-list.js');
+}
 
 $this->provideJsFile('vendor/chart.umd.js');
 
+$this->provideCssFile('action-list.less');
 $this->provideCssFile('charts.less');
 $this->provideCssFile('common.less');
 $this->provideCssFile('conditions.less');
