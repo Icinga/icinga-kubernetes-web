@@ -177,6 +177,86 @@ $this->provideConfigTab(
     ]
 );
 
+$this->providePermission(
+    'kubernetes/list/config-maps',
+    $this->translate('Allow to list config maps')
+);
+
+$this->providePermission(
+    'kubernetes/list/cron-jobs',
+    $this->translate('Allow to list cron jobs')
+);
+
+$this->providePermission(
+    'kubernetes/list/daemon-sets',
+    $this->translate('Allow to list daemon sets')
+);
+
+$this->providePermission(
+    'kubernetes/list/deployments',
+    $this->translate('Allow to list deployments')
+);
+
+$this->providePermission(
+    'kubernetes/list/events',
+    $this->translate('Allow to list events')
+);
+
+$this->providePermission(
+    'kubernetes/list/ingresses',
+    $this->translate('Allow to list ingresses')
+);
+
+$this->providePermission(
+    'kubernetes/list/jobs',
+    $this->translate('Allow to list jobs')
+);
+
+$this->providePermission(
+    'kubernetes/list/nodes',
+    $this->translate('Allow to list nodes')
+);
+
+$this->providePermission(
+    'kubernetes/list/persistent-volume-claims',
+    $this->translate('Allow to list persistent volume claims')
+);
+
+$this->providePermission(
+    'kubernetes/list/persistent-volumes',
+    $this->translate('Allow to list persistent volumes')
+);
+
+$this->providePermission(
+    'kubernetes/list/pods',
+    $this->translate('Allow to list pods')
+);
+
+$this->providePermission(
+    'kubernetes/list/replica-sets',
+    $this->translate('Allow to list replica sets')
+);
+
+$this->providePermission(
+    'kubernetes/list/secretes',
+    $this->translate('Allow to list secretes')
+);
+
+$this->providePermission(
+    'kubernetes/list/services',
+    $this->translate('Allow to list services')
+);
+
+$this->providePermission(
+    'kubernetes/list/stateful-sets',
+    $this->translate('Allow to list stateful sets')
+);
+
+$this->providePermission(
+    'kubernetes/show-yaml',
+    $this->translate('Allow to show yaml')
+);
+
 $this->provideRestriction(
     'kubernetes/filter/resources',
     $this->translate('Restrict access to the resources that match the filter')
