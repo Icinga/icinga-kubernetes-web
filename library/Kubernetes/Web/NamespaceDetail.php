@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use ipl\Html\Attributes;
@@ -46,8 +47,11 @@ class NamespaceDetail extends BaseHtmlElement
                 )
             ]),
             new Labels($this->namespace->label),
-            new Annotations($this->namespace->annotation),
-            new HtmlElement(
+            new Annotations($this->namespace->annotation)
+        );
+
+        if (Permissions::getInstance()->canList('event')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
@@ -55,8 +59,11 @@ class NamespaceDetail extends BaseHtmlElement
                     Event::on(Database::connection())
                         ->filter(Filter::equal('referent_uuid', $this->namespace->uuid))
                 )
-            ),
-            new Yaml($this->namespace->yaml)
-        );
+            ));
+        }
+
+        if (Permissions::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->namespace->yaml));
+        }
     }
 }

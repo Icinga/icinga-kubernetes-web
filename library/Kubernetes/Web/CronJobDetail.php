@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\Event;
@@ -58,14 +59,20 @@ class CronJobDetail extends BaseHtmlElement
                 $this->translate('Last Schedule Time')            => $lastScheduleTime
             ])),
             new Labels($this->cronJob->label),
-            new Annotations($this->cronJob->annotation),
-            new HtmlElement(
+            new Annotations($this->cronJob->annotation)
+        );
+
+        if (Permissions::getInstance()->canList('job')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Jobs'))),
                 new JobList($this->cronJob->job)
-            ),
-            new HtmlElement(
+            ));
+        }
+
+        if (Permissions::getInstance()->canList('event')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
@@ -73,8 +80,11 @@ class CronJobDetail extends BaseHtmlElement
                     Event::on(Database::connection())
                         ->filter(Filter::equal('referent_uuid', $this->cronJob->uuid))
                 )
-            ),
-            new Yaml($this->cronJob->yaml)
-        );
+            ));
+        }
+
+        if (Permissions::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->cronJob->yaml));
+        }
     }
 }

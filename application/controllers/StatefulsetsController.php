@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -34,5 +35,10 @@ class StatefulsetsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Stateful Sets');
+    }
+
+    protected function getPermission(): string
+    {
+         return Auth::SHOW_STATEFUL_SETS;
     }
 }

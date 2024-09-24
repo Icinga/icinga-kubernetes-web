@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Web\DeploymentList;
@@ -34,5 +35,10 @@ class DeploymentsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Deployments');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_DEPLOYMENTS;
     }
 }

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use ipl\Html\BaseHtmlElement;
@@ -58,8 +59,11 @@ class EventDetail extends BaseHtmlElement
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Referent'))),
                 Factory::createList($this->event->reference_kind, Filter::equal('uuid', $this->event->referent_uuid))
-            ),
-            new Yaml($this->event->yaml)
+            )
         );
+
+        if (Permissions::getInstance()->canShowYaml()) {
+            new Yaml($this->event->yaml);
+        }
     }
 }

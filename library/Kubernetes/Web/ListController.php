@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
 use ipl\Orm\Query;
 use ipl\Web\Compat\SearchControls;
@@ -32,9 +33,11 @@ abstract class ListController extends Controller
 
     public function indexAction(): void
     {
+        $this->assertPermission($this->getPermission());
+
         $this->addTitleTab($this->getTitle());
 
-        $q = $this->getQuery();
+        $q = Auth::getInstance()->withRestrictions($this->getPermission(), $this->getQuery());
 
         $limitControl = $this->createLimitControl();
         $sortControl = $this->createSortControl($q, $this->getSortColumns());
@@ -77,6 +80,8 @@ abstract class ListController extends Controller
     abstract protected function getSortColumns(): array;
 
     abstract protected function getContentClass(): string;
+
+    abstract protected function getPermission(): string;
 
     public function searchEditorAction(): void
     {

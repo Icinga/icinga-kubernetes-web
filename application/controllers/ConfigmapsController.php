@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ConfigMap;
 use Icinga\Module\Kubernetes\Web\ConfigMapList;
@@ -34,5 +35,10 @@ class ConfigmapsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Config Maps');
+    }
+
+    protected function getPermission(): string
+    {
+        return AUTH::SHOW_CONFIG_MAPS;
     }
 }

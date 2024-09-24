@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Web\Controller;
@@ -16,13 +17,15 @@ class JobController extends Controller
 {
     public function indexAction(): void
     {
+        $this->assertPermission(Auth::SHOW_JOBS);
+
         $this->addTitleTab($this->translate('Job'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
 
-        /** @var Job $job */
-        $job = Job::on(Database::connection())
+        $job = Auth::getInstance()
+            ->withRestrictions(Auth::SHOW_JOBS, Job::on(Database::connection()))
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 

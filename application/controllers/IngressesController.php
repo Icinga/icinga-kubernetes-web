@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Web\IngressList;
@@ -34,5 +35,10 @@ class IngressesController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Ingresses');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_INGRESSES;
     }
 }

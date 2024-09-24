@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\AccessModes;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
@@ -63,14 +64,20 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
             ])),
             new Labels($this->pvc->label),
             new Annotations($this->pvc->annotation),
-            new ConditionTable($this->pvc, (new PersistentVolumeClaimCondition())->getColumnDefinitions()),
-            new HtmlElement(
+            new ConditionTable($this->pvc, (new PersistentVolumeClaimCondition())->getColumnDefinitions())
+        );
+
+        if (Permissions::getInstance()->canList('pod')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 new PodList($this->pvc->pod)
-            ),
-            new HtmlElement(
+            ));
+        }
+
+        if (Permissions::getInstance()->canList('event')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
@@ -78,8 +85,11 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
                     Event::on(Database::connection())
                         ->filter(Filter::equal('referent_uuid', $this->pvc->uuid))
                 )
-            ),
-            new Yaml($this->pvc->yaml)
-        );
+            ));
+        }
+
+        if (Permissions::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->pvc->yaml));
+        }
     }
 }

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Web\CronJobList;
@@ -34,5 +35,10 @@ class CronjobsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Cron Jobs');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_CRON_JOBS;
     }
 }

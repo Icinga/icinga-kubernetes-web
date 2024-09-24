@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Web\DaemonSetList;
@@ -34,5 +35,10 @@ class DaemonsetsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Daemon Sets');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_DAEMON_SETS;
     }
 }

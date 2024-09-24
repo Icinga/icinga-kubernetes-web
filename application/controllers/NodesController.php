@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -33,5 +34,10 @@ class NodesController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Nodes');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_NODES;
     }
 }

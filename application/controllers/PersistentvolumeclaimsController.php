@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -34,5 +35,10 @@ class PersistentvolumeclaimsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Persistent Volume Claims');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_PERSISTENT_VOLUME_CLAIMS;
     }
 }

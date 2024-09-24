@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
@@ -75,14 +76,20 @@ class StatefulSetDetail extends BaseHtmlElement
             ])),
             new Labels($this->statefulSet->label),
             new Annotations($this->statefulSet->annotation),
-            new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions()),
-            new HtmlElement(
+            new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions())
+        );
+
+        if (Permissions::getInstance()->canList('pod')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 new PodList($this->statefulSet->pod->with(['node']))
-            ),
-            new HtmlElement(
+            ));
+        }
+
+        if (Permissions::getInstance()->canList('event')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
@@ -90,8 +97,11 @@ class StatefulSetDetail extends BaseHtmlElement
                     Event::on(Database::connection())
                         ->filter(Filter::equal('referent_uuid', $this->statefulSet->uuid))
                 )
-            ),
-            new Yaml($this->statefulSet->yaml)
-        );
+            ));
+        }
+
+        if (Permissions::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->statefulSet->yaml));
+        }
     }
 }
