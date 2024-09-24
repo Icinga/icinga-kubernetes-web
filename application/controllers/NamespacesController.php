@@ -22,7 +22,7 @@ class NamespacesController extends ListController
     {
         $namespaces = NamespaceModel::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($namespaces);
+        Auth::getInstance()->applyRestrictions($namespaces, $this->getPermission());
 
         return $namespaces;
     }
@@ -38,5 +38,10 @@ class NamespacesController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Namespaces');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_NAMESPACES;
     }
 }

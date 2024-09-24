@@ -22,7 +22,7 @@ class PodsController extends ListController
     {
         $pods = Pod::on(Database::connection())->with('node');
 
-        Auth::getInstance()->applyRestrictions($pods);
+        Auth::getInstance()->applyRestrictions($pods, $this->getPermission());
 
         return $pods;
     }
@@ -41,5 +41,10 @@ class PodsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Pods');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_PODS;
     }
 }

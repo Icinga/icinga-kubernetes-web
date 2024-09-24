@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Endpoint;
 use Icinga\Module\Kubernetes\Model\EndpointSlice;
@@ -91,15 +92,20 @@ class ServiceDetail extends BaseHtmlElement
                     Filter::equal('pod.label.value', $selector->value)
                 ));
             }
-            $this->addHtml((new PodList(
-                $pods
-            ))->setWrapper(new HtmlElement(
-                'section',
-                null,
-                new HtmlElement('h2', null, new Text($this->translate('Pods')))
-            )));
+
+            if (Permissions::getInstance()->canList('pod')) {
+                $this->addHtml((new PodList(
+                    $pods
+                ))->setWrapper(new HtmlElement(
+                    'section',
+                    null,
+                    new HtmlElement('h2', null, new Text($this->translate('Pods')))
+                )));
+            }
         }
 
-        $this->addHtml(new Yaml($this->service->yaml));
+        if (Permissions::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->service->yaml));
+        }
     }
 }

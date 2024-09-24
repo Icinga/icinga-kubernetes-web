@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Web\Controller;
@@ -15,6 +16,8 @@ class ServiceController extends Controller
 {
     public function indexAction(): void
     {
+        $this->assertPermission(Auth::SHOW_SERVICES);
+
         $this->addTitleTab($this->translate('Service'));
 
         $uuid = $this->params->getRequired('id');

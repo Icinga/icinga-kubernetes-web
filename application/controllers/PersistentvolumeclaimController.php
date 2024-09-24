@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Web\Controller;
@@ -15,6 +16,8 @@ class PersistentvolumeclaimController extends Controller
 {
     public function indexAction(): void
     {
+        $this->assertPermission(Auth::SHOW_PERSISTENT_VOLUME_CLAIMS);
+
         $this->addTitleTab($this->translate('Persistent Volume Claim'));
 
         $uuid = $this->params->getRequired('id');

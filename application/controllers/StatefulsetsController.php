@@ -22,7 +22,7 @@ class StatefulsetsController extends ListController
     {
         $statefulSets = StatefulSet::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($statefulSets);
+        Auth::getInstance()->applyRestrictions($statefulSets, $this->getPermission());
 
         return $statefulSets;
     }
@@ -39,5 +39,10 @@ class StatefulsetsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Stateful Sets');
+    }
+
+    protected function getPermission(): string
+    {
+         return Auth::SHOW_STATEFUL_SET;
     }
 }

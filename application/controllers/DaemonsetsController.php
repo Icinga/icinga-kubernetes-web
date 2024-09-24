@@ -22,7 +22,7 @@ class DaemonsetsController extends ListController
     {
         $daemonSets = DaemonSet::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($daemonSets);
+        Auth::getInstance()->applyRestrictions($daemonSets, $this->getPermission());
 
         return $daemonSets;
     }
@@ -39,5 +39,10 @@ class DaemonsetsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Daemon Sets');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_DAEMON_SETS;
     }
 }

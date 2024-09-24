@@ -22,7 +22,7 @@ class DeploymentsController extends ListController
     {
         $deployments = Deployment::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($deployments);
+        Auth::getInstance()->applyRestrictions($deployments, $this->getPermission());
 
         return $deployments;
     }
@@ -39,5 +39,10 @@ class DeploymentsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Deployments');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_DEPLOYMENTS;
     }
 }

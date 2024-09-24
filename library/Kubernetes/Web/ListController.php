@@ -32,6 +32,8 @@ abstract class ListController extends Controller
 
     public function indexAction(): void
     {
+        $this->assertPermission($this->getPermission());
+
         $this->addTitleTab($this->getTitle());
 
         $q = $this->getQuery();
@@ -77,6 +79,8 @@ abstract class ListController extends Controller
     abstract protected function getSortColumns(): array;
 
     abstract protected function getContentClass(): string;
+
+    abstract protected function getPermission(): string;
 
     public function searchEditorAction(): void
     {

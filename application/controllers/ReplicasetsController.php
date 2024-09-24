@@ -22,7 +22,7 @@ class ReplicasetsController extends ListController
     {
         $replicaSets = ReplicaSet::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($replicaSets);
+        Auth::getInstance()->applyRestrictions($replicaSets, $this->getPermission());
 
         return $replicaSets;
     }
@@ -39,5 +39,10 @@ class ReplicasetsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Replica Sets');
+    }
+
+    protected function getPermission(): string
+    {
+      return Auth::SHOW_REPLICA_SET;
     }
 }

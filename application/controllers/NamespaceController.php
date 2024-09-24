@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Web\Controller;
@@ -15,6 +16,8 @@ class NamespaceController extends Controller
 {
     public function indexAction(): void
     {
+        $this->assertPermission(Auth::SHOW_NAMESPACES);
+
         $this->addTitleTab($this->translate('Namespace'));
 
         $uuid = $this->params->getRequired('id');

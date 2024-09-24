@@ -22,7 +22,7 @@ class PersistentvolumesController extends ListController
     {
         $persistentVolumes = PersistentVolume::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($persistentVolumes);
+        Auth::getInstance()->applyRestrictions($persistentVolumes, $this->getPermission());
 
         return $persistentVolumes;
     }
@@ -39,5 +39,10 @@ class PersistentvolumesController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Persistent Volumes');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_PERSISTENT_VOLUMES;
     }
 }

@@ -22,7 +22,7 @@ class ServicesController extends ListController
     {
         $services =  Service::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($services);
+        Auth::getInstance()->applyRestrictions($services, $this->getPermission());
 
         return $services;
     }
@@ -39,5 +39,10 @@ class ServicesController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Services');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_SERVICES;
     }
 }

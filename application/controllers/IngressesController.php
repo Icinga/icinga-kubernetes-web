@@ -22,7 +22,7 @@ class IngressesController extends ListController
     {
         $ingresses = Ingress::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($ingresses);
+        Auth::getInstance()->applyRestrictions($ingresses, $this->getPermission());
 
         return $ingresses;
     }
@@ -39,5 +39,10 @@ class IngressesController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Ingresses');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_INGRESSES;
     }
 }

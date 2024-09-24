@@ -22,7 +22,7 @@ class JobsController extends ListController
     {
         $jobs = Job::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($jobs);
+        Auth::getInstance()->applyRestrictions($jobs, $this->getPermission());
 
         return $jobs;
     }
@@ -39,5 +39,10 @@ class JobsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Jobs');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_JOBS;
     }
 }

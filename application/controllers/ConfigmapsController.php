@@ -22,7 +22,7 @@ class ConfigmapsController extends ListController
     {
         $configMaps = ConfigMap::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($configMaps);
+        Auth::getInstance()->applyRestrictions($configMaps, $this->getPermission());
 
         return $configMaps;
     }
@@ -39,5 +39,10 @@ class ConfigmapsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Config Maps');
+    }
+
+    protected function getPermission(): string
+    {
+        return AUTH::SHOW_CONFIG_MAPS;
     }
 }

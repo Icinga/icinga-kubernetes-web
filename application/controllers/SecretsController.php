@@ -22,7 +22,7 @@ class SecretsController extends ListController
     {
         $secrets = Secret::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($secrets);
+        Auth::getInstance()->applyRestrictions($secrets, $this->getPermission());
 
         return $secrets;
     }
@@ -39,5 +39,10 @@ class SecretsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Secrets');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_SECRETS;
     }
 }

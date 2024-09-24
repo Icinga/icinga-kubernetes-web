@@ -22,7 +22,7 @@ class CronjobsController extends ListController
     {
         $cronJobs = CronJob::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($cronJobs);
+        Auth::getInstance()->applyRestrictions($cronJobs, $this->getPermission());
 
         return $cronJobs;
     }
@@ -39,5 +39,10 @@ class CronjobsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Cron Jobs');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_CRON_JOBS;
     }
 }

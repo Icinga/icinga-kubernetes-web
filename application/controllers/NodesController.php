@@ -22,7 +22,7 @@ class NodesController extends ListController
     {
         $nodes = Node::on(Database::connection());
 
-        Auth::getInstance()->applyRestrictions($nodes);
+        Auth::getInstance()->applyRestrictions($nodes, $this->getPermission());
 
         return $nodes;
     }
@@ -38,5 +38,10 @@ class NodesController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Nodes');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_NODES;
     }
 }

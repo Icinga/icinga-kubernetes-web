@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Job;
@@ -77,14 +78,20 @@ class JobDetail extends BaseHtmlElement
             ])),
             new Labels($this->job->label),
             new Annotations($this->job->annotation),
-            new JobConditions($this->job),
-            new HtmlElement(
+            new JobConditions($this->job)
+        );
+
+        if (Permissions::getInstance()->canList('pod')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 new PodList($this->job->pod->with(['node']))
-            ),
-            new HtmlElement(
+            ));
+        }
+
+        if (Permissions::getInstance()->canList('event')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
@@ -98,8 +105,11 @@ class JobDetail extends BaseHtmlElement
                             )
                         )
                 )
-            ),
-            new Yaml($this->job->yaml)
-        );
+            ));
+        }
+
+        if (Permissions::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->job->yaml));
+        }
     }
 }
