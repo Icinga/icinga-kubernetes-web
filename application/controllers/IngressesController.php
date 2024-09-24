@@ -20,6 +20,8 @@ class IngressesController extends ListController
 
     protected function getQuery(): Query
     {
+        $this->assertPermission('kubernetes/list/ingresses');
+
         $ingresses = Ingress::on(Database::connection());
 
         Auth::getInstance()->applyRestrictions($ingresses);

@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
@@ -61,14 +62,20 @@ class ReplicaSetDetail extends BaseHtmlElement
             ])),
             new Labels($this->replicaSet->label),
             new Annotations($this->replicaSet->annotation),
-            new ReplicaSetConditions($this->replicaSet),
-            new HtmlElement(
+            new ReplicaSetConditions($this->replicaSet)
+        );
+
+        if (Permissions::getInstance()->canList('pod')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 new PodList($this->replicaSet->pod->with(['node']))
-            ),
-            new HtmlElement(
+            ));
+        }
+
+        if (Permissions::getInstance()->canList('event')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
@@ -76,8 +83,11 @@ class ReplicaSetDetail extends BaseHtmlElement
                     Event::on(Database::connection())
                         ->filter(Filter::equal('referent_uuid', $this->replicaSet->uuid))
                 )
-            ),
-            new Yaml($this->replicaSet->yaml)
-        );
+            ));
+        }
+
+        if (Permissions::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->replicaSet->yaml));
+        }
     }
 }

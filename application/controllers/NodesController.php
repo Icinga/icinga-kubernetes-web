@@ -19,6 +19,8 @@ class NodesController extends ListController
 
     protected function getQuery(): Query
     {
+        $this->assertPermission('kubernetes/list/nodes');
+
         return Node::on(Database::connection());
     }
 

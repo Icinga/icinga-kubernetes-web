@@ -9,6 +9,7 @@ use DateTime;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Metrics;
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\NodeCondition;
@@ -111,8 +112,11 @@ class NodeDetail extends BaseHtmlElement
             ]),
             new Labels($this->node->label),
             new Annotations($this->node->annotation),
-            new ConditionTable($this->node, (new NodeCondition())->getColumnDefinitions()),
-            new HtmlElement(
+            new ConditionTable($this->node, (new NodeCondition())->getColumnDefinitions())
+        );
+
+        if (Permissions::getInstance()->canList('event')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
@@ -125,8 +129,11 @@ class NodeDetail extends BaseHtmlElement
                             )
                         )
                 )
-            ),
-            new Yaml($this->node->yaml)
-        );
+            ));
+        }
+
+        if (Permissions::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->node->yaml));
+        }
     }
 }

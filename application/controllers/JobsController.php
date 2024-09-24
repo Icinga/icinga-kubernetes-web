@@ -20,6 +20,8 @@ class JobsController extends ListController
 
     protected function getQuery(): Query
     {
+        $this->assertPermission('kubernetes/list/jobs');
+
         $jobs = Job::on(Database::connection());
 
         Auth::getInstance()->applyRestrictions($jobs);

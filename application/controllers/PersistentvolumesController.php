@@ -20,6 +20,8 @@ class PersistentvolumesController extends ListController
 
     protected function getQuery(): Query
     {
+        $this->assertPermission('kubernetes/list/persistent-volumes');
+
         $persistentVolumes = PersistentVolume::on(Database::connection());
 
         Auth::getInstance()->applyRestrictions($persistentVolumes);

@@ -8,6 +8,7 @@ use DateInterval;
 use DateTime;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Metrics;
+use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Event;
@@ -131,14 +132,20 @@ class PodDetail extends BaseHtmlElement
                 null,
                 new HtmlElement('h2', null, new Text('Containers')),
                 new ContainerList($this->pod->container)
-            ),
-            new HtmlElement(
+            )
+        );
+
+        if (Permissions::getInstance()->canList('persistent_volume_claim')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Persistent Volume Claims'))),
                 new PersistentVolumeClaimList($this->pod->pvc)
-            ),
-            new HtmlElement(
+            ));
+        }
+
+        if (Permissions::getInstance()->canList('event')) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
@@ -152,8 +159,11 @@ class PodDetail extends BaseHtmlElement
                             )
                         )
                 )
-            ),
-            new Yaml($this->pod->yaml)
-        );
+            ));
+        }
+
+        if (Permissions::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->pod->yaml));
+        }
     }
 }

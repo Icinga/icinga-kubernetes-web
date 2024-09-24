@@ -20,6 +20,8 @@ class PodsController extends ListController
 
     protected function getQuery(): Query
     {
+        $this->assertPermission('kubernetes/list/pods');
+
         $pods = Pod::on(Database::connection())->with('node');
 
         Auth::getInstance()->applyRestrictions($pods);

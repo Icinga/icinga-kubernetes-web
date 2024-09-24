@@ -20,6 +20,8 @@ class SecretsController extends ListController
 
     protected function getQuery(): Query
     {
+        $this->assertPermission('kubernetes/list/secrets');
+
         $secrets = Secret::on(Database::connection());
 
         Auth::getInstance()->applyRestrictions($secrets);

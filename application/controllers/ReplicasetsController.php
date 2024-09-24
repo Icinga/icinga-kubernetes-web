@@ -20,6 +20,8 @@ class ReplicasetsController extends ListController
 
     protected function getQuery(): Query
     {
+        $this->assertPermission('kubernetes/list/replica-sets');
+
         $replicaSets = ReplicaSet::on(Database::connection());
 
         Auth::getInstance()->applyRestrictions($replicaSets);

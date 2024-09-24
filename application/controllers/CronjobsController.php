@@ -20,6 +20,8 @@ class CronjobsController extends ListController
 
     protected function getQuery(): Query
     {
+        $this->assertPermission('kubernetes/list/cron-jobs');
+
         $cronJobs = CronJob::on(Database::connection());
 
         Auth::getInstance()->applyRestrictions($cronJobs);
