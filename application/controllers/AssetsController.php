@@ -8,6 +8,8 @@ use Icinga\Module\Kubernetes\Web\Controller;
 
 class AssetsController extends Controller
 {
+    protected bool $disableDefaultAutoRefresh = true;
+
     protected $requiresAuthentication = false;
 
     public function init()
