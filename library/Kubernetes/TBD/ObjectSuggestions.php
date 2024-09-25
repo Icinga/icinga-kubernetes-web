@@ -58,7 +58,7 @@ class ObjectSuggestions extends Suggestions
         $query = $model::on(Database::connection());
         $query->limit(static::DEFAULT_LIMIT);
 
-        if (strpos($column, ' ') !== false) {
+        if (str_contains($column, ' ')) {
             // $column may be a label
             list($path, $_) = Seq::find(
                 self::collectFilterColumns($query->getModel(), $query->getResolver()),
@@ -108,7 +108,7 @@ class ObjectSuggestions extends Suggestions
             // Only suggest exotic columns if the user knows about them
             $trimmedSearch = trim($searchTerm, ' *');
 
-            return substr($path, -strlen($trimmedSearch)) === $trimmedSearch;
+            return str_ends_with($path, $trimmedSearch);
         }
 
         return parent::matchSuggestion($path, $label, $searchTerm);
