@@ -95,11 +95,9 @@ class EventListItem extends BaseListItem
 
     protected function createTypeVisual(): ?ValidHtml
     {
-        switch ($this->item->type) {
-            case 'Warning':
-                return new StateBall('warning', StateBall::SIZE_MEDIUM);
-            default:
-                return new StateBall('none', StateBall::SIZE_MEDIUM);
-        }
+        return match ($this->item->type) {
+            'Warning' => new StateBall('warning', StateBall::SIZE_MEDIUM),
+            default   => new StateBall('none', StateBall::SIZE_MEDIUM)
+        };
     }
 }
