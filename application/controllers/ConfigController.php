@@ -13,6 +13,8 @@ use Icinga\Web\Widget\Tabs;
 
 class ConfigController extends Controller
 {
+    protected bool $disableDefaultAutoRefresh = true;
+
     public function init()
     {
         $this->assertPermission('config/modules');
