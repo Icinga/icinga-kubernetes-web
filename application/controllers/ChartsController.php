@@ -21,9 +21,9 @@ use ipl\Html\Text;
 
 class ChartsController extends Controller
 {
-    protected $LAST_1_HOUR = 60 * 60 * 1000;
-    protected $LAST_12_HOURS = 60 * 60 * 12 * 1000;
-    protected $LAST_24_HOURS = 60 * 60 * 24 * 1000;
+    protected int $LAST_1_HOUR = 60 * 60 * 1000;
+    protected int $LAST_12_HOURS = 60 * 60 * 12 * 1000;
+    protected int $LAST_24_HOURS = 60 * 60 * 24 * 1000;
 
     public function indexAction(): void
     {

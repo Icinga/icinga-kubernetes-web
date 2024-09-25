@@ -19,7 +19,7 @@ use UnexpectedValueException;
 class Uuid extends PropertyBehavior implements QueryAwareBehavior, RewriteFilterBehavior
 {
     /** @var bool Whether the query is using a pgsql adapter */
-    protected $isPostgres = true;
+    protected bool $isPostgres = true;
 
     public function fromDb($value, $key, $_)
     {

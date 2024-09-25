@@ -15,7 +15,7 @@ class IngressRuleTable extends Table
 
     protected $backend;
 
-    protected $backendColumnDefinitions;
+    protected array $backendColumnDefinitions;
 
     protected $defaultAttributes = [
         'class' => 'common-table collapsible'
@@ -23,9 +23,9 @@ class IngressRuleTable extends Table
 
     protected $ingress;
 
-    protected $ruleColumnDefinitions;
+    protected array $ruleColumnDefinitions;
 
-    protected $tlsColumnDefinitions;
+    protected array $tlsColumnDefinitions;
 
     public function __construct(
         $ingress,

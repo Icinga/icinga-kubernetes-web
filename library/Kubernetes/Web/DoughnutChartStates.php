@@ -13,13 +13,13 @@ class DoughnutChartStates extends BaseHtmlElement
     protected $defaultAttributes;
 
     /** @var string  */
-    protected $value;
+    protected string $value;
 
     /** @var string  */
-    protected $label;
+    protected string $label;
 
     /** @var string  */
-    protected $colors;
+    protected string $colors;
 
     public function __construct(string $chartSizeClass, string $value, string $label, string $colors)
     {

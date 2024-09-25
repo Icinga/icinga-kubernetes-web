@@ -24,8 +24,7 @@ class ObjectSuggestions extends Suggestions
 {
     use Translation;
 
-    /** @var Model */
-    protected $model;
+    protected Model $model;
 
     protected function createQuickSearchFilter($searchTerm): Filter\Chain
     {

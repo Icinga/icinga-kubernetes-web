@@ -17,7 +17,7 @@ class MetricCharts extends BaseHtmlElement
     protected $defaultAttributes = ['class' => 'metric-charts'];
 
     /** @var array */
-    protected $chartRows;
+    protected array $chartRows;
 
     protected $tag = 'section';
 

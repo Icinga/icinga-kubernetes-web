@@ -14,7 +14,7 @@ class EndpointTable extends Table
 {
     use Translation;
 
-    protected $columnDefinitions;
+    protected array $columnDefinitions;
 
     protected $defaultAttributes = [
         'class' => 'common-table collapsible'

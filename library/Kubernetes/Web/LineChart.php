@@ -13,16 +13,16 @@ class LineChart extends BaseHtmlElement
     protected $defaultAttributes;
 
     /** @var string  */
-    protected $values;
+    protected string $values;
 
     /** @var string  */
-    protected $labels;
+    protected string $labels;
 
     /** @var string  */
-    protected $label;
+    protected string $label;
 
     /** @var string  */
-    protected $color;
+    protected string $color;
 
     public function __construct(string $chartSizeClass, string $values, string $labels, string $label, string $color)
     {
