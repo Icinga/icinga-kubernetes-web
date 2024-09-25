@@ -8,7 +8,6 @@ use Icinga\Application\Config;
 use Icinga\Module\Kubernetes\Forms\DatabaseConfigForm;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Web\Notification;
-use Icinga\Web\Widget\Tab;
 use Icinga\Web\Widget\Tabs;
 
 class ConfigController extends Controller
@@ -46,7 +45,6 @@ class ConfigController extends Controller
      */
     protected function mergeTabs(Tabs $tabs): void
     {
-        /** @var Tab $tab */
         foreach ($tabs->getTabs() as $tab) {
             $this->tabs->add($tab->getName(), $tab);
         }

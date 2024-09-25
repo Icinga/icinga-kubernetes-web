@@ -56,7 +56,6 @@ class Metrics
     public const POD_MEMORY_USAGE = 'memory.usage';
 
 
-    /** @var Connection */
     protected Connection $db;
 
     public function __construct(Connection $db)

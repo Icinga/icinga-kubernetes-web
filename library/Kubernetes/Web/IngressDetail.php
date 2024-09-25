@@ -16,7 +16,6 @@ use ipl\Stdlib\Filter;
 
 class IngressDetail extends BaseHtmlElement
 {
-    /** @var Ingress */
     protected Ingress $ingress;
 
     protected $tag = 'div';

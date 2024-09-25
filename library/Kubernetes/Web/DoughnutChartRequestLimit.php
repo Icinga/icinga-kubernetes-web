@@ -12,16 +12,12 @@ class DoughnutChartRequestLimit extends BaseHtmlElement
 
     protected $defaultAttributes;
 
-    /** @var string  */
     protected string $request;
 
-    /** @var string  */
     protected string $limit;
 
-    /** @var string  */
     protected string $real;
 
-    /** @var string  */
     protected string $realColor;
 
     public function __construct(string $chartSizeClass, string $request, string $limit, string $real, string $realColor)

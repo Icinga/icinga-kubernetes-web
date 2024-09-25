@@ -12,6 +12,7 @@ class NavigationList extends BaseHtmlElement
     protected $tag = 'ul';
 
     protected $defaultAttributes = ['class' => 'navigation-list'];
+
     protected array $listItems = [];
 
     public function __construct(array $listItems)

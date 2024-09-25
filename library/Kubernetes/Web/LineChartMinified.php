@@ -12,13 +12,10 @@ class LineChartMinified extends BaseHtmlElement
 
     protected $defaultAttributes;
 
-    /** @var string  */
     protected string $values;
 
-    /** @var string  */
     protected string $labels;
 
-    /** @var string  */
     protected string $color;
 
     public function __construct(string $chartSizeClass, string $values, string $labels, string $color)

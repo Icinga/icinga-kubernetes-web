@@ -20,7 +20,6 @@ class CronJobDetail extends BaseHtmlElement
 {
     use Translation;
 
-    /** @var CronJob */
     protected CronJob $cronJob;
 
     protected $tag = 'div';
