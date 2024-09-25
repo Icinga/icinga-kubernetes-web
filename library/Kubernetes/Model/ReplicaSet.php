@@ -15,7 +15,7 @@ class ReplicaSet extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'uuid'
@@ -26,7 +26,7 @@ class ReplicaSet extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->hasMany('condition', ReplicaSetCondition::class);
 
@@ -57,7 +57,7 @@ class ReplicaSet extends Model
             ->setForeignKey('replica_set_uuid');
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'namespace'              => $this->translate('Namespace'),
@@ -77,7 +77,7 @@ class ReplicaSet extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'namespace',
@@ -97,22 +97,22 @@ class ReplicaSet extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['created desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): string
     {
         return 'uuid';
     }
 
-    public function getSearchColumns()
+    public function getSearchColumns(): array
     {
         return ['name'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'replica_set';
     }

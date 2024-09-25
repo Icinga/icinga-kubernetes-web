@@ -12,7 +12,7 @@ use ipl\Orm\Relations;
 
 class Secret extends Model
 {
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'uuid'
@@ -23,7 +23,7 @@ class Secret extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations
             ->belongsToMany('label', Label::class)
@@ -34,7 +34,7 @@ class Secret extends Model
             ->through('secret_annotation');
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'namespace',
@@ -47,12 +47,12 @@ class Secret extends Model
         ];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['uuid'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'secret';
     }

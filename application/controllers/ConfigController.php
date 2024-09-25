@@ -15,14 +15,14 @@ class ConfigController extends Controller
 {
     protected bool $disableDefaultAutoRefresh = true;
 
-    public function init()
+    public function init(): void
     {
         $this->assertPermission('config/modules');
 
         parent::init();
     }
 
-    public function databaseAction()
+    public function databaseAction(): void
     {
         $config = Config::module('kubernetes');
         $form = (new DatabaseConfigForm())

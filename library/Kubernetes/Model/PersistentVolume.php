@@ -25,7 +25,7 @@ class PersistentVolume extends Model
 
     public const PHASE_RELEASED = 'Released';
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'uuid'
@@ -36,7 +36,7 @@ class PersistentVolume extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations
             ->belongsToMany('pvc', PersistentVolumeClaim::class)
@@ -47,7 +47,7 @@ class PersistentVolume extends Model
             ->setForeignKey('persistent_volume_uuid');
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'namespace'          => $this->translate('Namespace'),
@@ -66,7 +66,7 @@ class PersistentVolume extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'namespace',
@@ -85,22 +85,22 @@ class PersistentVolume extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['created desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): string
     {
         return 'uuid';
     }
 
-    public function getSearchColumns()
+    public function getSearchColumns(): array
     {
         return ['name'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'persistent_volume';
     }

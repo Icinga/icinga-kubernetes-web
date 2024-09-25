@@ -22,7 +22,7 @@ class EventListItem extends BaseListItem
 {
     use Translation;
 
-    protected function assembleCaption(BaseHtmlElement $caption)
+    protected function assembleCaption(BaseHtmlElement $caption): void
     {
         $caption->addHtml(new Text($this->item->note));
     }

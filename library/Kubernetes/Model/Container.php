@@ -22,7 +22,7 @@ class Container extends Model
 
     public const STATE_WAITING = 'Waiting';
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'uuid',
@@ -39,7 +39,7 @@ class Container extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->hasMany('mount', ContainerMount::class);
 
@@ -50,7 +50,7 @@ class Container extends Model
         $relations->belongsTo('pod', Pod::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'name'                => $this->translate('Name'),
@@ -69,7 +69,7 @@ class Container extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'pod_uuid',
@@ -90,17 +90,17 @@ class Container extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['name'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): string
     {
         return 'uuid';
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'container';
     }

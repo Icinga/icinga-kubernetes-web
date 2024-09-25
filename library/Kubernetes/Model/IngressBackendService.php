@@ -14,7 +14,7 @@ class IngressBackendService extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'ingress_uuid',
@@ -23,14 +23,14 @@ class IngressBackendService extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('ingress', Ingress::class);
 
         $relations->belongsTo('ingress_rule', IngressRule::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'service_name'        => $this->translate('Service Name'),
@@ -39,7 +39,7 @@ class IngressBackendService extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'ingress_rule_uuid',
@@ -49,12 +49,12 @@ class IngressBackendService extends Model
         ];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['ingress_uuid', 'service_uuid'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'ingress_backend_service';
     }

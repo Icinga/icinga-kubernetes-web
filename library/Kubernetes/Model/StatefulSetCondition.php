@@ -15,7 +15,7 @@ class StatefulSetCondition extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'stateful_set_uuid'
@@ -26,12 +26,12 @@ class StatefulSetCondition extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('stateful_set', StatefulSet::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'type'            => $this->translate('Type'),
@@ -42,7 +42,7 @@ class StatefulSetCondition extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'status',
@@ -52,17 +52,17 @@ class StatefulSetCondition extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['last_transition desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['stateful_set_uuid', 'type'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'stateful_set_condition';
     }

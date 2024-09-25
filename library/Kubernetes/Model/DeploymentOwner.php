@@ -14,19 +14,19 @@ class DeploymentOwner extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'deployment_uuid'
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('deployment', Deployment::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'kind'                  => $this->translate('Kind'),
@@ -37,7 +37,7 @@ class DeploymentOwner extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'deployment_uuid',
@@ -50,17 +50,17 @@ class DeploymentOwner extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['name asc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['deployment_uuid', 'owner_uuid'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'deployment_owner';
     }

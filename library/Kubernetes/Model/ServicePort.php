@@ -14,19 +14,19 @@ class ServicePort extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'service_uuid'
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('service', Service::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'name'         => $this->translate('Name'),
@@ -38,7 +38,7 @@ class ServicePort extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'protocol',
@@ -49,12 +49,12 @@ class ServicePort extends Model
         ];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['service_uuid', 'name'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'service_port';
     }

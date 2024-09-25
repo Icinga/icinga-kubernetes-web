@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\TBD;
 
+use Generator;
 use Icinga\Module\Kubernetes\Common\Database;
 use ipl\I18n\Translation;
 use ipl\Orm\Exception\InvalidColumnException;
@@ -26,7 +27,7 @@ class ObjectSuggestions extends Suggestions
     /** @var Model */
     protected $model;
 
-    protected function createQuickSearchFilter($searchTerm)
+    protected function createQuickSearchFilter($searchTerm): Filter\Chain
     {
         $model = $this->getModel();
         $resolver = $model::on(Database::connection())->getResolver();
@@ -41,7 +42,7 @@ class ObjectSuggestions extends Suggestions
         return $quickFilter;
     }
 
-    protected function fetchColumnSuggestions($searchTerm)
+    protected function fetchColumnSuggestions($searchTerm): Generator
     {
         $model = $this->getModel();
         $query = $model::on(Database::connection());
@@ -52,7 +53,7 @@ class ObjectSuggestions extends Suggestions
         }
     }
 
-    protected function fetchValueSuggestions($column, $searchTerm, Filter\Chain $searchFilter)
+    protected function fetchValueSuggestions($column, $searchTerm, Filter\Chain $searchFilter): ObjectSuggestionsCursor
     {
         $model = $this->getModel();
         $query = $model::on(Database::connection());
@@ -102,7 +103,7 @@ class ObjectSuggestions extends Suggestions
         }
     }
 
-    protected function matchSuggestion($path, $label, $searchTerm)
+    protected function matchSuggestion($path, $label, $searchTerm): bool
     {
         if (preg_match('/[_.](id)$/', $path)) {
             // Only suggest exotic columns if the user knows about them
@@ -173,7 +174,7 @@ class ObjectSuggestions extends Suggestions
      * @param array $models
      * @param array $path
      */
-    protected static function collectRelations(Resolver $resolver, Model $subject, array &$models, array $path)
+    protected static function collectRelations(Resolver $resolver, Model $subject, array &$models, array $path): void
     {
         foreach ($resolver->getRelations($subject) as $name => $relation) {
             /** @var Relation $relation */
@@ -198,7 +199,7 @@ class ObjectSuggestions extends Suggestions
      *
      * @return $this
      */
-    public function setModel($model): self
+    public function setModel(string|Model $model): static
     {
         if (is_string($model)) {
             $model = new $model();
