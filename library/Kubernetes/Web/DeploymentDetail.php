@@ -8,7 +8,6 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Deployment;
-use Icinga\Module\Kubernetes\Model\DeploymentCondition;
 use Icinga\Module\Kubernetes\Model\Event;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;

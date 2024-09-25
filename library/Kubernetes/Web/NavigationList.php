@@ -2,9 +2,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
-use ipl\Html\Attributes;
 use ipl\Html\Text;
 
 class NavigationList extends BaseHtmlElement

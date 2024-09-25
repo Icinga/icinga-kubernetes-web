@@ -11,7 +11,6 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Web\Widget\EmptyState;
 
 class ItemCountIndicator extends BaseHtmlElement implements Countable
 {

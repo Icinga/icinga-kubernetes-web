@@ -2,10 +2,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
-use ipl\Html\Text;
-use ipl\Html\Attributes;
 
 class DoughnutChartRequestLimit extends BaseHtmlElement
 {

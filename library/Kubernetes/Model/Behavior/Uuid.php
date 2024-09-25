@@ -13,8 +13,6 @@ use ipl\Sql\Adapter\Pgsql;
 use ipl\Stdlib\Filter\Condition;
 use UnexpectedValueException;
 
-use function ipl\Stdlib\get_php_type;
-
 /**
  * Support hex filters for binary columns and PHP resource (in) / bytea hex format (out) transformation for PostgreSQL
  */

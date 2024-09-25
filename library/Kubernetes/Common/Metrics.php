@@ -4,10 +4,10 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
-use ipl\Sql\Select;
-use ipl\Sql\Connection;
-use PDO;
 use DateTimeInterface;
+use ipl\Sql\Connection;
+use ipl\Sql\Select;
+use PDO;
 
 class Metrics
 {
