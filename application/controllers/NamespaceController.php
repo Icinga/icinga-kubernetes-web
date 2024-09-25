@@ -6,12 +6,12 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\NamespaceDetail;
 use ipl\Stdlib\Filter;
-use ipl\Web\Compat\CompatController;
 use Ramsey\Uuid\Uuid;
 
-class NamespaceController extends CompatController
+class NamespaceController extends Controller
 {
     public function indexAction(): void
     {

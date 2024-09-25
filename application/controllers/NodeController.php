@@ -6,13 +6,13 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Node;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\NodeDetail;
 use Icinga\Module\Kubernetes\Web\NodeList;
 use ipl\Stdlib\Filter;
-use ipl\Web\Compat\CompatController;
 use Ramsey\Uuid\Uuid;
 
-class NodeController extends CompatController
+class NodeController extends Controller
 {
     public function indexAction(): void
     {
