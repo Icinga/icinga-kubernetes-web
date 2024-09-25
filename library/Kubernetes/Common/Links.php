@@ -11,6 +11,7 @@ use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Ingress;
+use Icinga\Module\Kubernetes\Model\InitContainer;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Model\Node;
@@ -59,6 +60,11 @@ abstract class Links
     public static function ingress(Ingress $ingress): Url
     {
         return Url::fromPath('kubernetes/ingress', ['id' => (string) Uuid::fromBytes($ingress->uuid)]);
+    }
+
+    public static function initContainer(InitContainer $initContainer): Url
+    {
+        return Url::fromPath('kubernetes/initcontainer', ['id' => (string) Uuid::fromBytes($initContainer->uuid)]);
     }
 
     public static function job(Job $job): Url

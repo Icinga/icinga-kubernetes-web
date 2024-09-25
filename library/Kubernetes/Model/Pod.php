@@ -52,6 +52,8 @@ class Pod extends Model
 
         $relations->hasMany('container', Container::class);
 
+        $relations->hasMany('init_container', InitContainer::class);
+
         $relations->hasMany('container_mount', ContainerMount::class);
 
         $relations
