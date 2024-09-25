@@ -32,11 +32,11 @@ use ipl\Web\Widget\Icon;
 
 abstract class Factory
 {
-    public static function createIcon(string $type): ?ValidHtml
+    public static function createIcon(string $kind): ?ValidHtml
     {
-        $type = strtolower(str_replace(['_', '-'], '', $type));
+        $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
-        return match ($type) {
+        return match ($kind) {
             'configmap',
             'container',
             'cronjob',
@@ -52,19 +52,19 @@ abstract class Factory
             'replicaset',
             'secret',
             'service',
-            'statefulset' => new HtmlElement('i', new Attributes(['class' => "icon kicon-$type"])),
+            'statefulset' => new HtmlElement('i', new Attributes(['class' => "icon kicon-$kind"])),
             'node'        => new Icon('share-nodes'),
             default       => null
         };
     }
 
-    public static function createList(string $type, Rule $filter): ValidHtml
+    public static function createList(string $kind, Rule $filter): ValidHtml
     {
-        $type = strtolower(str_replace(['_', '-'], '', $type));
+        $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
         $database = Database::connection();
 
-        switch ($type) {
+        switch ($kind) {
             case 'configmap':
                 $q = ConfigMap::on($database)->filter($filter);
 
@@ -134,15 +134,15 @@ abstract class Factory
 
                 return new StatefulSetList($q);
             default:
-                return new EmptyState("No items to display. $type seems to be a custom resource.");
+                return new EmptyState("No items to display. $kind seems to be a custom resource.");
         }
     }
 
-    public static function createUrl(string $type): ?Url
+    public static function createUrl(string $kind): ?Url
     {
-        $type = strtolower(str_replace(['_', '-'], '', $type));
+        $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
-        return match ($type) {
+        return match ($kind) {
             'configmap',
             'container',
             'cronjob',
@@ -159,7 +159,7 @@ abstract class Factory
             'replicaset',
             'secret',
             'service',
-            'statefulset' => Url::fromPath("kubernetes/$type"),
+            'statefulset' => Url::fromPath("kubernetes/$kind"),
             default       => null
         };
     }
