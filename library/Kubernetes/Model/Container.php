@@ -7,7 +7,6 @@ namespace Icinga\Module\Kubernetes\Model;
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
 use ipl\Orm\Behavior\BoolCast;
-use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
@@ -32,10 +31,6 @@ class Container extends Model
         $behaviors->add(new BoolCast([
             'ready',
             'started'
-        ]));
-
-        $behaviors->add(new MillisecondTimestamp([
-            'created'
         ]));
     }
 
