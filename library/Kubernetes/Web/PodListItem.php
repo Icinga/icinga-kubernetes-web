@@ -7,6 +7,8 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Container;
+use Icinga\Module\Kubernetes\Model\InitContainer;
+use Icinga\Module\Kubernetes\Model\SidecarContainer;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -57,6 +59,20 @@ class PodListItem extends BaseListItem
         $containerRestarts = 0;
         $containers = new ItemCountIndicator();
         $containers->setStyle($containers::STYLE_BOX);
+
+        /** @var InitContainer $initContainer */
+        foreach ($this->item->init_container as $container) {
+            if ($container->icinga_state !== 'ok') {
+                $containers->addIndicator($container->icinga_state, 1);
+            }
+        }
+
+        /** @var SidecarContainer $container */
+        foreach ($this->item->sidecar_container as $container) {
+            $containerRestarts += $container->restart_count;
+            $containers->addIndicator($container->icinga_state, 1);
+        }
+
         /** @var Container $container */
         foreach ($this->item->container as $container) {
             $containerRestarts += $container->restart_count;

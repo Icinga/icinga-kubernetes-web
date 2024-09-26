@@ -15,6 +15,7 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Web\Url;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -24,6 +25,11 @@ use ipl\Web\Widget\TimeAgo;
 class ContainerListItem extends BaseListItem
 {
     use Translation;
+
+    protected function getDetailUrl(): Url
+    {
+        return Links::container($this->item);
+    }
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
@@ -87,7 +93,7 @@ class ContainerListItem extends BaseListItem
                     new Icon('box'),
                     new Text($this->item->name)
                 ),
-                Links::container($this->item),
+                $this->getDetailUrl(),
                 ['class' => 'subject']
             ),
             new HtmlElement(

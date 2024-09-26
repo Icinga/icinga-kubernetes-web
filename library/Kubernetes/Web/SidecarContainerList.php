@@ -4,12 +4,10 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-class InitContainerList extends ContainerList
+class SidecarContainerList extends ContainerList
 {
-    protected $defaultAttributes = ['class' => 'init-container-list'];
-
     protected function getItemClass(): string
     {
-        return InitContainerListItem::class;
+        return SidecarContainerListItem::class;
     }
 }

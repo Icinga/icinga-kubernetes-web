@@ -123,6 +123,12 @@ class PodDetail extends BaseHtmlElement
             new HtmlElement(
                 'section',
                 null,
+                new HtmlElement('h2', null, new Text('Sidecar Containers')),
+                new SidecarContainerList($this->pod->sidecar_container)
+            ),
+            new HtmlElement(
+                'section',
+                null,
                 new HtmlElement('h2', null, new Text('Containers')),
                 new ContainerList($this->pod->container)
             ),

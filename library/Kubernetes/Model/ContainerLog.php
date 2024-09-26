@@ -29,6 +29,8 @@ class ContainerLog extends Model
 
     public function createRelations(Relations $relations): void
     {
+        $relations->belongsTo('sidecar_container', SidecarContainer::class);
+
         $relations->belongsTo('container', Container::class);
 
         $relations->belongsTo('pod', Pod::class);
