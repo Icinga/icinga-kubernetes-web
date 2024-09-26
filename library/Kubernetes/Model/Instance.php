@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
-use Icinga\Module\Icingadb\Model\Behavior\BoolCast;
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
+use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
