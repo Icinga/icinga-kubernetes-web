@@ -21,6 +21,7 @@ use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Model\Service;
+use Icinga\Module\Kubernetes\Model\SidecarContainer;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use ipl\Web\Url;
 use Ramsey\Uuid\Uuid;
@@ -64,7 +65,7 @@ abstract class Links
 
     public static function initContainer(InitContainer $initContainer): Url
     {
-        return Url::fromPath('kubernetes/initcontainer', ['id' => (string) Uuid::fromBytes($initContainer->uuid)]);
+        return Url::fromPath('kubernetes/init-container', ['id' => (string) Uuid::fromBytes($initContainer->uuid)]);
     }
 
     public static function job(Job $job): Url
@@ -116,6 +117,14 @@ abstract class Links
     public static function service(Service $service): Url
     {
         return Url::fromPath('kubernetes/service', ['id' => (string) Uuid::fromBytes($service->uuid)]);
+    }
+
+    public static function sidecarContainer(SidecarContainer $sidecarContainer): Url
+    {
+        return Url::fromPath(
+            'kubernetes/sidecar-container',
+            ['id' => (string) Uuid::fromBytes($sidecarContainer->uuid)]
+        );
     }
 
     public static function statefulSet(StatefulSet $statefulSet): Url
