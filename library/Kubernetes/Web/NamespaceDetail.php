@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Model\Event;
@@ -51,14 +52,16 @@ class NamespaceDetail extends BaseHtmlElement
         );
 
         if (Permissions::getInstance()->canList('event')) {
+            $events = Event::on(Database::connection())
+                ->filter(Filter::equal('referent_uuid', $this->namespace->uuid));
+
+            Auth::getInstance()->applyRestrictions($events);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(Filter::equal('referent_uuid', $this->namespace->uuid))
-                )
+                new EventList($events)
             ));
         }
 

@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use DateInterval;
 use DateTime;
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Metrics;
@@ -116,19 +117,21 @@ class NodeDetail extends BaseHtmlElement
         );
 
         if (Permissions::getInstance()->canList('event')) {
+            $events = Event::on(Database::connection())
+                ->filter(
+                    Filter::all(
+                        Filter::equal('reference_kind', 'Node'),
+                        Filter::equal('reference_name', $this->node->name)
+                    )
+                );
+
+            Auth::getInstance()->applyRestrictions($events);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(
-                            Filter::all(
-                                Filter::equal('reference_kind', 'Node'),
-                                Filter::equal('reference_name', $this->node->name)
-                            )
-                        )
-                )
+                new EventList($events)
             ));
         }
 

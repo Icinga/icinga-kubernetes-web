@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Permissions;
@@ -82,6 +83,8 @@ class JobDetail extends BaseHtmlElement
         );
 
         if (Permissions::getInstance()->canList('pod')) {
+            Auth::getInstance()->applyRestrictions($this->job->pod->with(['node']));
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -91,20 +94,22 @@ class JobDetail extends BaseHtmlElement
         }
 
         if (Permissions::getInstance()->canList('event')) {
+            $events = Event::on(Database::connection())
+                ->filter(
+                    Filter::all(
+                        Filter::equal('reference_kind', 'Job'),
+                        Filter::equal('reference_namespace', $this->job->namespace),
+                        Filter::equal('reference_name', $this->job->name)
+                    )
+                );
+
+            Auth::getInstance()->applyRestrictions($events);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(
-                            Filter::all(
-                                Filter::equal('reference_kind', 'Job'),
-                                Filter::equal('reference_namespace', $this->job->namespace),
-                                Filter::equal('reference_name', $this->job->name)
-                            )
-                        )
-                )
+                new EventList($events)
             ));
         }
 

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Permissions;
@@ -75,6 +76,8 @@ class DeploymentDetail extends BaseHtmlElement
         );
 
         if (Permissions::getInstance()->canList('replica_set')) {
+            Auth::getInstance()->applyRestrictions($this->deployment->replica_set);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -84,14 +87,16 @@ class DeploymentDetail extends BaseHtmlElement
         }
 
         if (Permissions::getInstance()->canList('event')) {
+            $events = Event::on(Database::connection())
+                ->filter(Filter::equal('referent_uuid', $this->deployment->uuid));
+
+            Auth::getInstance()->applyRestrictions($events);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(Filter::equal('referent_uuid', $this->deployment->uuid))
-                )
+                new EventList($events)
             ));
         }
 

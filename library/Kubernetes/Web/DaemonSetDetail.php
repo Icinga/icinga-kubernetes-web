@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Permissions;
@@ -73,6 +74,8 @@ class DaemonSetDetail extends BaseHtmlElement
         );
 
         if (Permissions::getInstance()->canList('pod')) {
+            Auth::getInstance()->applyRestrictions($this->daemonSet->pod->with(['node']));
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -82,14 +85,16 @@ class DaemonSetDetail extends BaseHtmlElement
         }
 
         if (Permissions::getInstance()->canList('event')) {
+            $events = Event::on(Database::connection())
+                ->filter(Filter::equal('referent_uuid', $this->daemonSet->uuid));
+
+            Auth::getInstance()->applyRestrictions($events);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(Filter::equal('referent_uuid', $this->daemonSet->uuid))
-                )
+                new EventList($events)
             ));
         }
 

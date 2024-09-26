@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use DateInterval;
 use DateTime;
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\Permissions;
@@ -136,6 +137,8 @@ class PodDetail extends BaseHtmlElement
         );
 
         if (Permissions::getInstance()->canList('persistent_volume_claim')) {
+            Auth::getInstance()->applyRestrictions($this->pod->pvc);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -145,20 +148,22 @@ class PodDetail extends BaseHtmlElement
         }
 
         if (Permissions::getInstance()->canList('event')) {
+            $events = Event::on(Database::connection())
+                ->filter(
+                    Filter::all(
+                        Filter::equal('reference_kind', 'Pod'),
+                        Filter::equal('reference_namespace', $this->pod->namespace),
+                        Filter::equal('reference_name', $this->pod->name)
+                    )
+                );
+
+            Auth::getInstance()->applyRestrictions($events);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(
-                            Filter::all(
-                                Filter::equal('reference_kind', 'Pod'),
-                                Filter::equal('reference_namespace', $this->pod->namespace),
-                                Filter::equal('reference_name', $this->pod->name)
-                            )
-                        )
-                )
+                new EventList($events)
             ));
         }
 
