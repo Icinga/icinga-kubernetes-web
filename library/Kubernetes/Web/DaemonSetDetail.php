@@ -4,9 +4,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
-use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\DaemonSetCondition;
@@ -72,7 +72,9 @@ class DaemonSetDetail extends BaseHtmlElement
             new ConditionTable($this->daemonSet, (new DaemonSetCondition())->getColumnDefinitions())
         );
 
-        if (Permissions::getInstance()->canList('pod')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {
+            Auth::getInstance()->applyRestrictions($this->daemonSet->pod->with(['node']), Auth::SHOW_PODS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -81,19 +83,21 @@ class DaemonSetDetail extends BaseHtmlElement
             ));
         }
 
-        if (Permissions::getInstance()->canList('event')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $events = Event::on(Database::connection())
+                ->filter(Filter::equal('referent_uuid', $this->daemonSet->uuid));
+
+            Auth::getInstance()->applyRestrictions($events, Auth::SHOW_EVENTS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(Filter::equal('referent_uuid', $this->daemonSet->uuid))
-                )
+                new EventList($events)
             ));
         }
 
-        if (Permissions::getInstance()->canShowYaml()) {
+        if (Auth::getInstance()->canShowYaml()) {
             $this->addHtml(new Yaml($this->daemonSet->yaml));
         }
     }

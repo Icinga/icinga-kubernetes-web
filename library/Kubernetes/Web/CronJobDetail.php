@@ -4,9 +4,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
-use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\Event;
@@ -62,7 +62,7 @@ class CronJobDetail extends BaseHtmlElement
             new Annotations($this->cronJob->annotation)
         );
 
-        if (Permissions::getInstance()->canList('job')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_JOBS)) {
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -71,19 +71,21 @@ class CronJobDetail extends BaseHtmlElement
             ));
         }
 
-        if (Permissions::getInstance()->canList('event')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $events = Event::on(Database::connection())
+                ->filter(Filter::equal('referent_uuid', $this->cronJob->uuid));
+
+            Auth::getInstance()->applyRestrictions($events, Auth::SHOW_EVENTS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(Filter::equal('referent_uuid', $this->cronJob->uuid))
-                )
+                new EventList($events)
             ));
         }
 
-        if (Permissions::getInstance()->canShowYaml()) {
+        if (Auth::getInstance()->canShowYaml()) {
             $this->addHtml(new Yaml($this->cronJob->yaml));
         }
     }

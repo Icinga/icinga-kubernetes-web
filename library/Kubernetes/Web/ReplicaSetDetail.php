@@ -4,9 +4,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
-use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
@@ -65,7 +65,9 @@ class ReplicaSetDetail extends BaseHtmlElement
             new ReplicaSetConditions($this->replicaSet)
         );
 
-        if (Permissions::getInstance()->canList('pod')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {
+            Auth::getInstance()->applyRestrictions($this->replicaSet->pod->with(['node']), Auth::SHOW_PODS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -74,19 +76,21 @@ class ReplicaSetDetail extends BaseHtmlElement
             ));
         }
 
-        if (Permissions::getInstance()->canList('event')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $events = Event::on(Database::connection())
+                ->filter(Filter::equal('referent_uuid', $this->replicaSet->uuid));
+
+            Auth::getInstance()->applyRestrictions($events, Auth::SHOW_EVENTS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(Filter::equal('referent_uuid', $this->replicaSet->uuid))
-                )
+                new EventList($events)
             ));
         }
 
-        if (Permissions::getInstance()->canShowYaml()) {
+        if (Auth::getInstance()->canShowYaml()) {
             $this->addHtml(new Yaml($this->replicaSet->yaml));
         }
     }

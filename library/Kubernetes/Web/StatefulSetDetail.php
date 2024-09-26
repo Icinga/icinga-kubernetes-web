@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Permissions;
@@ -79,7 +80,9 @@ class StatefulSetDetail extends BaseHtmlElement
             new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions())
         );
 
-        if (Permissions::getInstance()->canList('pod')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {
+            Auth::getInstance()->applyRestrictions($this->statefulSet->pod->with(['node']), Auth::SHOW_PODS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -88,7 +91,12 @@ class StatefulSetDetail extends BaseHtmlElement
             ));
         }
 
-        if (Permissions::getInstance()->canList('event')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $events  = Event::on(Database::connection())
+                ->filter(Filter::equal('referent_uuid', $this->statefulSet->uuid));
+
+            Auth::getInstance()->applyRestrictions($events, Auth::SHOW_EVENTS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -100,7 +108,7 @@ class StatefulSetDetail extends BaseHtmlElement
             ));
         }
 
-        if (Permissions::getInstance()->canShowYaml()) {
+        if (Auth::getInstance()->canShowYaml()) {
             $this->addHtml(new Yaml($this->statefulSet->yaml));
         }
     }

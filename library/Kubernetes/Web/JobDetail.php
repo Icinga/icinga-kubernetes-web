@@ -4,9 +4,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
-use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Job;
@@ -81,7 +81,9 @@ class JobDetail extends BaseHtmlElement
             new JobConditions($this->job)
         );
 
-        if (Permissions::getInstance()->canList('pod')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {
+            Auth::getInstance()->applyRestrictions($this->job->pod->with(['node']), Auth::SHOW_PODS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -90,25 +92,27 @@ class JobDetail extends BaseHtmlElement
             ));
         }
 
-        if (Permissions::getInstance()->canList('event')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $events = Event::on(Database::connection())
+                ->filter(
+                    Filter::all(
+                        Filter::equal('reference_kind', 'Job'),
+                        Filter::equal('reference_namespace', $this->job->namespace),
+                        Filter::equal('reference_name', $this->job->name)
+                    )
+                );
+
+            Auth::getInstance()->applyRestrictions($events, Auth::SHOW_EVENTS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(
-                            Filter::all(
-                                Filter::equal('reference_kind', 'Job'),
-                                Filter::equal('reference_namespace', $this->job->namespace),
-                                Filter::equal('reference_name', $this->job->name)
-                            )
-                        )
-                )
+                new EventList($events)
             ));
         }
 
-        if (Permissions::getInstance()->canShowYaml()) {
+        if (Auth::getInstance()->canShowYaml()) {
             $this->addHtml(new Yaml($this->job->yaml));
         }
     }

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Permissions;
@@ -94,6 +95,8 @@ class ServiceDetail extends BaseHtmlElement
             }
 
             if (Permissions::getInstance()->canList('pod')) {
+                Auth::getInstance()->applyRestrictions($pods);
+
                 $this->addHtml((new PodList(
                     $pods
                 ))->setWrapper(new HtmlElement(

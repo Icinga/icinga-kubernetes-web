@@ -6,9 +6,9 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use DateInterval;
 use DateTime;
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Metrics;
-use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Event;
@@ -135,7 +135,9 @@ class PodDetail extends BaseHtmlElement
             )
         );
 
-        if (Permissions::getInstance()->canList('persistent_volume_claim')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_PERSISTENT_VOLUME_CLAIMS)) {
+            Auth::getInstance()->applyRestrictions($this->pod->pvc, Auth::SHOW_PERSISTENT_VOLUME_CLAIMS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
@@ -144,25 +146,27 @@ class PodDetail extends BaseHtmlElement
             ));
         }
 
-        if (Permissions::getInstance()->canList('event')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $events = Event::on(Database::connection())
+                ->filter(
+                    Filter::all(
+                        Filter::equal('reference_kind', 'Pod'),
+                        Filter::equal('reference_namespace', $this->pod->namespace),
+                        Filter::equal('reference_name', $this->pod->name)
+                    )
+                );
+
+            Auth::getInstance()->applyRestrictions($events, AUth::SHOW_EVENTS);
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
-                new EventList(
-                    Event::on(Database::connection())
-                        ->filter(
-                            Filter::all(
-                                Filter::equal('reference_kind', 'Pod'),
-                                Filter::equal('reference_namespace', $this->pod->namespace),
-                                Filter::equal('reference_name', $this->pod->name)
-                            )
-                        )
-                )
+                new EventList($events)
             ));
         }
 
-        if (Permissions::getInstance()->canShowYaml()) {
+        if (Auth::getInstance()->canShowYaml()) {
             $this->addHtml(new Yaml($this->pod->yaml));
         }
     }
