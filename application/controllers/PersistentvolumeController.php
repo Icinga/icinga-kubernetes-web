@@ -6,12 +6,12 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
+use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeDetail;
 use ipl\Stdlib\Filter;
-use ipl\Web\Compat\CompatController;
 use Ramsey\Uuid\Uuid;
 
-class PersistentvolumeController extends CompatController
+class PersistentvolumeController extends Controller
 {
     public function indexAction(): void
     {

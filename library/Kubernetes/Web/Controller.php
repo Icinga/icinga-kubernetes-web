@@ -11,6 +11,36 @@ use ipl\Web\Filter\QueryString;
 abstract class Controller extends CompatController
 {
     /**
+     * Default auto refresh interval in seconds
+     *
+     * Automatically set if {@see $disableDefaultAutoRefresh} is `false` and
+     * the auto-refresh interval has not been directly set via {@see autorefreshInterval} or
+     * {@see setAutorefreshInterval()}.
+     *
+     * @var int
+     */
+    public const DEFAULT_AUTO_REFRESH_INTERVAL = 10;
+
+    /**
+     * Whether to disable default auto refresh
+     *
+     * If the auto-refresh interval is set directly via {@see autorefreshInterval} or {@see setAutorefreshInterval()},
+     * this setting has no effect and does not need to be explicitly set to `true`.
+     *
+     * @var bool
+     */
+    protected bool $disableDefaultAutoRefresh = false;
+
+    public function postDispatchXhr(): void
+    {
+        if ($this->autorefreshInterval === null && ! $this->disableDefaultAutoRefresh) {
+            $this->setAutorefreshInterval(static::DEFAULT_AUTO_REFRESH_INTERVAL);
+        }
+
+        parent::postDispatchXhr();
+    }
+
+    /**
      * Get the filter created from query string parameters
      *
      * @return Filter\Rule
