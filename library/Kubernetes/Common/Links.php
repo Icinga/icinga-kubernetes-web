@@ -36,7 +36,7 @@ abstract class Links
         return Url::fromPath('kubernetes/container', ['id' => (string) Uuid::fromBytes($container->uuid)]);
     }
 
-    public static function cronJob(CronJob $cronjob)
+    public static function cronJob(CronJob $cronjob): Url
     {
         return Url::fromPath('kubernetes/cronjob', ['id' => (string) Uuid::fromBytes($cronjob->uuid)]);
     }

@@ -15,7 +15,7 @@ class NodeCondition extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'node_uuid'
@@ -27,12 +27,12 @@ class NodeCondition extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('node', Node::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'type'            => $this->translate('Type'),
@@ -44,7 +44,7 @@ class NodeCondition extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'status',
@@ -55,17 +55,17 @@ class NodeCondition extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['last_transition desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['node_uuid', 'type'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'node_condition';
     }

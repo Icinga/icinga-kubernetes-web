@@ -14,7 +14,7 @@ class ContainerMount extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'container_uuid',
@@ -22,14 +22,14 @@ class ContainerMount extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('container', Container::class);
 
         $relations->belongsTo('pod', Pod::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'volume_name' => $this->translate('Volume Name'),
@@ -39,7 +39,7 @@ class ContainerMount extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'pod_uuid',
@@ -49,17 +49,17 @@ class ContainerMount extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['volume_name desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['container_uuid', 'volume_name'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'container_mount';
     }

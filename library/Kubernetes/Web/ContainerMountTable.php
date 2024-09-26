@@ -24,9 +24,9 @@ class ContainerMountTable extends Table
         'class' => 'common-table collapsible'
     ];
 
-    protected $mountColumnDefinitions;
+    protected array $mountColumnDefinitions;
 
-    protected $volumeColumnDefinitions;
+    protected array $volumeColumnDefinitions;
 
     public function __construct($container, array $mountColumnDefinitions, array $volumeColumnDefinitions)
     {

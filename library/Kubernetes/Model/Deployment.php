@@ -15,7 +15,7 @@ class Deployment extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'uuid'
@@ -26,7 +26,7 @@ class Deployment extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->hasMany('condition', DeploymentCondition::class);
 
@@ -57,7 +57,7 @@ class Deployment extends Model
             ->through('deployment_annotation');
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'namespace'                 => $this->translate('Namespace'),
@@ -81,7 +81,7 @@ class Deployment extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'namespace',
@@ -105,22 +105,22 @@ class Deployment extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['created desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): string
     {
         return 'uuid';
     }
 
-    public function getSearchColumns()
+    public function getSearchColumns(): array
     {
         return ['name'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'deployment';
     }

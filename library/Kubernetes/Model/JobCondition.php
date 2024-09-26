@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Model;
 
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -16,7 +15,7 @@ class JobCondition extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'job_uuid'
@@ -28,12 +27,12 @@ class JobCondition extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('job', Job::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'type'            => $this->translate('Type'),
@@ -45,7 +44,7 @@ class JobCondition extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'status',
@@ -56,17 +55,17 @@ class JobCondition extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['last_transition desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['job_uuid', 'type'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'job_condition';
     }

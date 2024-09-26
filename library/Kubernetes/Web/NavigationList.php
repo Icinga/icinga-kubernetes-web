@@ -2,9 +2,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
-use ipl\Html\Attributes;
 use ipl\Html\Text;
 
 class NavigationList extends BaseHtmlElement
@@ -12,7 +12,8 @@ class NavigationList extends BaseHtmlElement
     protected $tag = 'ul';
 
     protected $defaultAttributes = ['class' => 'navigation-list'];
-    protected $listItems = [];
+
+    protected array $listItems = [];
 
     public function __construct(array $listItems)
     {

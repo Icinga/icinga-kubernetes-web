@@ -16,7 +16,7 @@ class ConditionTable extends Table
 {
     use Translation;
 
-    protected $columnDefinitions;
+    protected array $columnDefinitions;
 
     protected $defaultAttributes = [
         'class' => 'condition-table collapsible'

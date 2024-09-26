@@ -13,15 +13,13 @@ use ipl\Sql\Adapter\Pgsql;
 use ipl\Stdlib\Filter\Condition;
 use UnexpectedValueException;
 
-use function ipl\Stdlib\get_php_type;
-
 /**
  * Support hex filters for binary columns and PHP resource (in) / bytea hex format (out) transformation for PostgreSQL
  */
 class Uuid extends PropertyBehavior implements QueryAwareBehavior, RewriteFilterBehavior
 {
     /** @var bool Whether the query is using a pgsql adapter */
-    protected $isPostgres = true;
+    protected bool $isPostgres = true;
 
     public function fromDb($value, $key, $_)
     {
@@ -67,14 +65,14 @@ class Uuid extends PropertyBehavior implements QueryAwareBehavior, RewriteFilter
         return sprintf('\\x%s', bin2hex($value));
     }
 
-    public function setQuery(Query $query)
+    public function setQuery(Query $query): static
     {
         $this->isPostgres = $query->getDb()->getAdapter() instanceof Pgsql;
 
         return $this;
     }
 
-    public function rewriteCondition(Condition $condition, $relation = null)
+    public function rewriteCondition(Condition $condition, $relation = null): void
     {
         /**
          * TODO(lippserd): Duplicate code because {@see RewriteFilterBehavior}s come after {@see PropertyBehavior}s.
@@ -97,7 +95,7 @@ class Uuid extends PropertyBehavior implements QueryAwareBehavior, RewriteFilter
             if (ctype_xdigit($value)) {
                 if (! $this->isPostgres) {
                     $condition->setValue(pack("h*", str_replace('-', '', $value)));
-                } elseif (substr($value, 0, 2) !== '\\x') {
+                } elseif (! str_starts_with($value, '\\x')) {
                     $condition->setValue(sprintf('\\x%s', str_replace('-', '', $value)));
                 }
             }

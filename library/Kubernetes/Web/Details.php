@@ -16,7 +16,7 @@ class Details extends BaseHtmlElement
 
     protected $defaultAttributes = ['class' => 'details'];
 
-    protected $details;
+    protected iterable $details;
 
     protected $tag = 'section';
 

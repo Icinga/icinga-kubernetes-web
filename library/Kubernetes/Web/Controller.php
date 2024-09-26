@@ -10,6 +10,8 @@ use ipl\Web\Filter\QueryString;
 
 abstract class Controller extends CompatController
 {
+    protected Filter\Rule $filter;
+
     /**
      * Default auto refresh interval in seconds
      *

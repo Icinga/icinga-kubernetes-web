@@ -15,8 +15,7 @@ class ResourceDetails implements IteratorAggregate
 {
     use Translation;
 
-    /** @var ?iterable */
-    protected $details;
+    protected ?iterable $details;
 
     protected $resource;
 

@@ -4,26 +4,26 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
-use Icinga\Module\Kubernetes\Web\Controller;
-use Icinga\Module\Kubernetes\Web\DoughnutChartStates;
-use Icinga\Module\Kubernetes\Web\LineChartMinified;
-use Icinga\Module\Kubernetes\Web\NavigationList;
-use Icinga\Module\Kubernetes\Web\LineChart;
-use Icinga\Module\Kubernetes\Web\DoughnutChart;
-use Icinga\Module\Kubernetes\Web\DoughnutChartRequestLimit;
+use DateInterval;
+use DateTime;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Metrics;
-use ipl\Html\HtmlElement;
+use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\DoughnutChart;
+use Icinga\Module\Kubernetes\Web\DoughnutChartRequestLimit;
+use Icinga\Module\Kubernetes\Web\DoughnutChartStates;
+use Icinga\Module\Kubernetes\Web\LineChart;
+use Icinga\Module\Kubernetes\Web\LineChartMinified;
+use Icinga\Module\Kubernetes\Web\NavigationList;
 use ipl\Html\Attributes;
+use ipl\Html\HtmlElement;
 use ipl\Html\Text;
-use DateTime;
-use DateInterval;
 
 class ChartsController extends Controller
 {
-    protected $LAST_1_HOUR = 60 * 60 * 1000;
-    protected $LAST_12_HOURS = 60 * 60 * 12 * 1000;
-    protected $LAST_24_HOURS = 60 * 60 * 24 * 1000;
+    protected int $LAST_1_HOUR = 60 * 60 * 1000;
+    protected int $LAST_12_HOURS = 60 * 60 * 12 * 1000;
+    protected int $LAST_24_HOURS = 60 * 60 * 24 * 1000;
 
     public function indexAction(): void
     {

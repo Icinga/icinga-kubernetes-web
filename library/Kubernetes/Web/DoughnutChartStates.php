@@ -2,10 +2,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
-use ipl\Html\Text;
-use ipl\Html\Attributes;
 
 class DoughnutChartStates extends BaseHtmlElement
 {
@@ -13,14 +12,11 @@ class DoughnutChartStates extends BaseHtmlElement
 
     protected $defaultAttributes;
 
-    /** @var string  */
-    protected $value;
+    protected string $value;
 
-    /** @var string  */
-    protected $label;
+    protected string $label;
 
-    /** @var string  */
-    protected $colors;
+    protected string $colors;
 
     public function __construct(string $chartSizeClass, string $value, string $label, string $colors)
     {

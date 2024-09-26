@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\TBD;
 
+use Generator;
 use Icinga\Module\Kubernetes\Common\Database;
 use ipl\I18n\Translation;
 use ipl\Orm\Exception\InvalidColumnException;
@@ -23,10 +24,9 @@ class ObjectSuggestions extends Suggestions
 {
     use Translation;
 
-    /** @var Model */
-    protected $model;
+    protected Model $model;
 
-    protected function createQuickSearchFilter($searchTerm)
+    protected function createQuickSearchFilter($searchTerm): Filter\Chain
     {
         $model = $this->getModel();
         $resolver = $model::on(Database::connection())->getResolver();
@@ -41,7 +41,7 @@ class ObjectSuggestions extends Suggestions
         return $quickFilter;
     }
 
-    protected function fetchColumnSuggestions($searchTerm)
+    protected function fetchColumnSuggestions($searchTerm): Generator
     {
         $model = $this->getModel();
         $query = $model::on(Database::connection());
@@ -52,13 +52,13 @@ class ObjectSuggestions extends Suggestions
         }
     }
 
-    protected function fetchValueSuggestions($column, $searchTerm, Filter\Chain $searchFilter)
+    protected function fetchValueSuggestions($column, $searchTerm, Filter\Chain $searchFilter): ObjectSuggestionsCursor
     {
         $model = $this->getModel();
         $query = $model::on(Database::connection());
         $query->limit(static::DEFAULT_LIMIT);
 
-        if (strpos($column, ' ') !== false) {
+        if (str_contains($column, ' ')) {
             // $column may be a label
             list($path, $_) = Seq::find(
                 self::collectFilterColumns($query->getModel(), $query->getResolver()),
@@ -102,13 +102,13 @@ class ObjectSuggestions extends Suggestions
         }
     }
 
-    protected function matchSuggestion($path, $label, $searchTerm)
+    protected function matchSuggestion($path, $label, $searchTerm): bool
     {
         if (preg_match('/[_.](id)$/', $path)) {
             // Only suggest exotic columns if the user knows about them
             $trimmedSearch = trim($searchTerm, ' *');
 
-            return substr($path, -strlen($trimmedSearch)) === $trimmedSearch;
+            return str_ends_with($path, $trimmedSearch);
         }
 
         return parent::matchSuggestion($path, $label, $searchTerm);
@@ -156,7 +156,6 @@ class ObjectSuggestions extends Suggestions
         self::collectRelations($resolver, $model, $models, []);
 
         foreach ($models as $path => $targetModel) {
-            /** @var Model $targetModel */
             foreach ($resolver->getColumnDefinitions($targetModel) as $columnName => $definition) {
                 yield $path . '.' . $columnName => $definition->getLabel();
             }
@@ -173,7 +172,7 @@ class ObjectSuggestions extends Suggestions
      * @param array $models
      * @param array $path
      */
-    protected static function collectRelations(Resolver $resolver, Model $subject, array &$models, array $path)
+    protected static function collectRelations(Resolver $resolver, Model $subject, array &$models, array $path): void
     {
         foreach ($resolver->getRelations($subject) as $name => $relation) {
             /** @var Relation $relation */
@@ -198,7 +197,7 @@ class ObjectSuggestions extends Suggestions
      *
      * @return $this
      */
-    public function setModel($model): self
+    public function setModel(string|Model $model): static
     {
         if (is_string($model)) {
             $model = new $model();

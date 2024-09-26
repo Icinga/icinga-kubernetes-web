@@ -15,7 +15,7 @@ class ReplicaSetCondition extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'replica_set_uuid'
@@ -26,12 +26,12 @@ class ReplicaSetCondition extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('replica_set', ReplicaSet::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'type'            => $this->translate('Type'),
@@ -42,7 +42,7 @@ class ReplicaSetCondition extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'status',
@@ -52,17 +52,17 @@ class ReplicaSetCondition extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['last_transition desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['replica_set_uuid', 'type'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'replica_set_condition';
     }

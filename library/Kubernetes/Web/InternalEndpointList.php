@@ -14,7 +14,7 @@ class InternalEndpointList extends BaseHtmlElement
 {
     use Translation;
 
-    protected $endpoints;
+    protected iterable $endpoints;
 
     protected $tag = 'ul';
 

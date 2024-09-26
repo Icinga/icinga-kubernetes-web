@@ -2,10 +2,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
-use ipl\Html\Text;
-use ipl\Html\Attributes;
 
 class LineChart extends BaseHtmlElement
 {
@@ -13,17 +12,13 @@ class LineChart extends BaseHtmlElement
 
     protected $defaultAttributes;
 
-    /** @var string  */
-    protected $values;
+    protected string $values;
 
-    /** @var string  */
-    protected $labels;
+    protected string $labels;
 
-    /** @var string  */
-    protected $label;
+    protected string $label;
 
-    /** @var string  */
-    protected $color;
+    protected string $color;
 
     public function __construct(string $chartSizeClass, string $values, string $labels, string $label, string $color)
     {

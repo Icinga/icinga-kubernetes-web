@@ -12,13 +12,13 @@ class AssetsController extends Controller
 
     protected $requiresAuthentication = false;
 
-    public function init()
+    public function init(): void
     {
         $this->_helper->viewRenderer->setNoRender();
         $this->_helper->layout()->disableLayout();
     }
 
-    public function indexAction()
+    public function indexAction(): void
     {
         $asset = $this->findFileInPath(
             $this->params->getRequired('asset'),

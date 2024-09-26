@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Model;
 
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -16,7 +15,7 @@ class StatefulSet extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'uuid'
@@ -27,7 +26,7 @@ class StatefulSet extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->hasMany('condition', StatefulSetCondition::class);
 
@@ -50,7 +49,7 @@ class StatefulSet extends Model
             ->setForeignKey('pod_uuid');
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'namespace'             => $this->translate('Namespace'),
@@ -75,7 +74,7 @@ class StatefulSet extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'namespace',
@@ -100,22 +99,22 @@ class StatefulSet extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['created desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): string
     {
         return 'uuid';
     }
 
-    public function getSearchColumns()
+    public function getSearchColumns(): array
     {
         return ['name'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'stateful_set';
     }

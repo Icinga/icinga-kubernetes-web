@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Model;
 
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
@@ -15,7 +14,7 @@ class IngressBackendResource extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'ingress_uuid',
@@ -24,14 +23,14 @@ class IngressBackendResource extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('ingress', Ingress::class);
 
         $relations->belongsTo('ingress_rule', IngressRule::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'api_group' => $this->translate('API Group'),
@@ -40,7 +39,7 @@ class IngressBackendResource extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'ingress_rule_uuid',
@@ -50,12 +49,12 @@ class IngressBackendResource extends Model
         ];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['ingress_uuid', 'resource_uuid'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'ingress_backend_resource';
     }

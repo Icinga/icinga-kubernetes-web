@@ -14,14 +14,14 @@ class Data extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'uuid'
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations
             ->belongsToMany('config_map', ConfigMap::class)
@@ -32,7 +32,7 @@ class Data extends Model
             ->through('secret_data');
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'name'  => $this->translate('Name'),
@@ -40,7 +40,7 @@ class Data extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'name',
@@ -48,17 +48,17 @@ class Data extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['name'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['uuid'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'data';
     }

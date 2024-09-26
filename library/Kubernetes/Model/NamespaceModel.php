@@ -19,7 +19,7 @@ class NamespaceModel extends Model
 
     public const PHASE_TERMINATING = 'Terminating';
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'uuid'
@@ -30,7 +30,7 @@ class NamespaceModel extends Model
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations
             ->belongsToMany('label', Label::class)
@@ -41,7 +41,7 @@ class NamespaceModel extends Model
             ->through('namespace_annotation');
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'namespace'        => $this->translate('Namespace'),
@@ -54,7 +54,7 @@ class NamespaceModel extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'namespace',
@@ -67,22 +67,22 @@ class NamespaceModel extends Model
         ];
     }
 
-    public function getDefaultSort()
+    public function getDefaultSort(): array
     {
         return ['created desc'];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['uuid'];
     }
 
-    public function getSearchColumns()
+    public function getSearchColumns(): array
     {
         return ['name'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'namespace';
     }

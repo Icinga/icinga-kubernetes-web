@@ -4,10 +4,10 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
-use ipl\Sql\Select;
-use ipl\Sql\Connection;
-use PDO;
 use DateTimeInterface;
+use ipl\Sql\Connection;
+use ipl\Sql\Select;
+use PDO;
 
 class Metrics
 {
@@ -56,8 +56,7 @@ class Metrics
     public const POD_MEMORY_USAGE = 'memory.usage';
 
 
-    /** @var Connection */
-    protected $db;
+    protected Connection $db;
 
     public function __construct(Connection $db)
     {

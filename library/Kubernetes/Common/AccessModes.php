@@ -14,7 +14,7 @@ class AccessModes
 
     public const READ_WRITE_ONCE_POD = 1 << 3;
 
-    public static $names = [
+    public static array $names = [
         self::READ_WRITE_ONCE     => 'ReadWriteOnce',
         self::READ_ONLY_MANY      => 'ReadOnlyMany',
         self::READ_WRITE_MANY     => 'ReadWriteMany',

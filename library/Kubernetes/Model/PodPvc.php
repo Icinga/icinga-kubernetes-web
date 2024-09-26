@@ -14,19 +14,19 @@ class PodPvc extends Model
 {
     use Translation;
 
-    public function createBehaviors(Behaviors $behaviors)
+    public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
             'pod_uuid'
         ]));
     }
 
-    public function createRelations(Relations $relations)
+    public function createRelations(Relations $relations): void
     {
         $relations->belongsTo('pod', Pod::class);
     }
 
-    public function getColumnDefinitions()
+    public function getColumnDefinitions(): array
     {
         return [
             'volume_name' => $this->translate('Volume Name'),
@@ -35,19 +35,19 @@ class PodPvc extends Model
         ];
     }
 
-    public function getColumns()
+    public function getColumns(): array
     {
         return [
             'read_only'
         ];
     }
 
-    public function getKeyName()
+    public function getKeyName(): array
     {
         return ['pod_uuid', 'volume_name', 'claim_name'];
     }
 
-    public function getTableName()
+    public function getTableName(): string
     {
         return 'pod_pvc';
     }
