@@ -1,17 +1,16 @@
 <?php
 
-/* Icinga for Kubernetes Web | (c) 2023 Icinga GmbH | AGPLv3 */
+/* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
 namespace Icinga\Module\Kubernetes\Model;
 
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
-use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
-class Container extends Model
+class InitContainer extends Model
 {
     use Translation;
 
@@ -27,21 +26,10 @@ class Container extends Model
             'uuid',
             'pod_uuid'
         ]));
-
-        $behaviors->add(new BoolCast([
-            'ready',
-            'started'
-        ]));
     }
 
     public function createRelations(Relations $relations): void
     {
-        $relations->hasMany('mount', ContainerMount::class);
-
-        $relations
-            ->hasOne('log', ContainerLog::class)
-            ->setJoinType('LEFT');
-
         $relations->belongsTo('pod', Pod::class);
     }
 
@@ -56,9 +44,6 @@ class Container extends Model
             'memory_limits'       => $this->translate('Memory Limits'),
             'memory_requests'     => $this->translate('Memory Requests'),
             'state'               => $this->translate('State'),
-            'ready'               => $this->translate('Ready'),
-            'started'             => $this->translate('Started At'),
-            'restart_count'       => $this->translate('Restart Count'),
             'icinga_state'        => $this->translate('Icinga State'),
             'icinga_state_reason' => $this->translate('Icinga State Reason')
         ];
@@ -77,9 +62,6 @@ class Container extends Model
             'memory_requests',
             'state',
             'state_details',
-            'ready',
-            'started',
-            'restart_count',
             'icinga_state',
             'icinga_state_reason'
         ];
@@ -97,6 +79,6 @@ class Container extends Model
 
     public function getTableName(): string
     {
-        return 'container';
+        return 'init_container';
     }
 }

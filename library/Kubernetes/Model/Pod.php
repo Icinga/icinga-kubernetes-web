@@ -50,6 +50,10 @@ class Pod extends Model
             ->belongsToMany('annotation', Annotation::class)
             ->through('pod_annotation');
 
+        $relations->hasMany('sidecar_container', SidecarContainer::class);
+
+        $relations->hasMany('init_container', InitContainer::class);
+
         $relations->hasMany('container', Container::class);
 
         $relations->hasMany('container_mount', ContainerMount::class);

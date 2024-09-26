@@ -78,6 +78,22 @@ class ItemCountIndicator extends BaseHtmlElement implements Countable
 
     protected function assemble(): void
     {
+        $priorities = [
+            'ok'       => 0,
+            'pending'  => 1,
+            'unknown'  => 2,
+            'warning'  => 3,
+            'critical' => 4
+        ];
+
+
+        array_multisort(
+            array_map(fn($item) => $priorities[$item], array_keys($this->indicators)),
+            SORT_DESC,
+            array_keys($this->indicators),
+            $this->indicators
+        );
+
         if (count($this) === 0) {
             $this->addAttributes(['class' => 'empty-state']);
             $this->addHtml(new Text($this->translate('None')));

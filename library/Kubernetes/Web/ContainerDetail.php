@@ -7,6 +7,7 @@ namespace Icinga\Module\Kubernetes\Web;
 use DateTime;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Model\Container;
+use Icinga\Module\Kubernetes\Model\ContainerLog;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\FormattedString;
@@ -91,11 +92,14 @@ class ContainerDetail extends BaseHtmlElement
         }
         $this->addHtml($state);
 
-        $this->addHtml(new HtmlElement(
-            'section',
-            new Attributes(['class' => 'logs']),
-            new HtmlElement('h2', null, new Text($this->translate('Logs'))),
-            new HtmlElement('p', null, new Text($this->container->log->logs))
-        ));
+        if ($this->container->log instanceof ContainerLog) {
+            // Does not seem to work for Sidecar and Init containers.
+            $this->addHtml(new HtmlElement(
+                'section',
+                new Attributes(['class' => 'logs']),
+                new HtmlElement('h2', null, new Text($this->translate('Logs'))),
+                new HtmlElement('p', null, new Text($this->container->log->logs))
+            ));
+        }
     }
 }

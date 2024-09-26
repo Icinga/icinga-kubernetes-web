@@ -51,7 +51,9 @@ abstract class BaseItemList extends BaseHtmlElement
         foreach ($this->query as $item) {
             if (! $detailUrlAdded) {
                 $this->addAttributes($this->baseAttributes + [
-                        'data-icinga-detail-url' => Url::fromPath('kubernetes/' . $item->getTableAlias())
+                        'data-icinga-detail-url' => Url::fromPath(
+                            'kubernetes/' . str_replace('_', '-', $item->getTableAlias())
+                        )
                     ]);
                 $detailUrlAdded = true;
             }
