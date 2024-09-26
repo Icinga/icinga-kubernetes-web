@@ -59,8 +59,8 @@ abstract class Conditions extends HtmlDocument
             if (! empty($message)) {
                 $caption = new HtmlElement(
                     'section',
-                    new Attributes(['class' => 'caption']),
-                    new Text($message)
+                    null,
+                    new IcingaStateReason($message)
                 );
                 $main->addHtml($caption);
             }
