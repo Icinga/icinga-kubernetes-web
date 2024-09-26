@@ -168,15 +168,6 @@ $section->add(
     ]
 );
 
-$section->add(
-    N_('Charts'),
-    [
-        'description' => $this->translate('Charts'),
-        'url'         => 'kubernetes/charts',
-        'priority'    => $priority++
-    ]
-);
-
 $this->provideConfigTab(
     'database',
     [
