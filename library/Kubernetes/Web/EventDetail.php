@@ -51,7 +51,7 @@ class EventDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Note'))),
-                new Text($this->event->note)
+                new IcingaStateReason($this->event->note)
             ),
             new HtmlElement(
                 'section',
