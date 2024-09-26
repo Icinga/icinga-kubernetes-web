@@ -6,10 +6,10 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use DateInterval;
 use DateTime;
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Metrics;
-use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\NodeCondition;
@@ -115,24 +115,20 @@ class NodeDetail extends BaseHtmlElement
             new ConditionTable($this->node, (new NodeCondition())->getColumnDefinitions())
         );
 
-        if (Permissions::getInstance()->canList('event')) {
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
+                new EventList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_EVENTS,
                     Event::on(Database::connection())
-                        ->filter(
-                            Filter::all(
-                                Filter::equal('reference_kind', 'Node'),
-                                Filter::equal('reference_name', $this->node->name)
-                            )
-                        )
-                )
+                        ->filter(Filter::equal('referent_uuid', $this->node->uuid))
+                ))
             ));
         }
 
-        if (Permissions::getInstance()->canShowYaml()) {
+        if (Auth::getInstance()->canShowYaml()) {
             $this->addHtml(new Yaml($this->node->yaml));
         }
     }

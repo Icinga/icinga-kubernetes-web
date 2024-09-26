@@ -4,7 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Common\Permissions;
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use ipl\Html\BaseHtmlElement;
@@ -62,7 +62,7 @@ class EventDetail extends BaseHtmlElement
             )
         );
 
-        if (Permissions::getInstance()->canShowYaml()) {
+        if (Auth::getInstance()->canShowYaml()) {
             new Yaml($this->event->yaml);
         }
     }

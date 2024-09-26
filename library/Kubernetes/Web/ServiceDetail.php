@@ -4,9 +4,9 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
-use Icinga\Module\Kubernetes\Common\Permissions;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Endpoint;
 use Icinga\Module\Kubernetes\Model\EndpointSlice;
@@ -80,12 +80,13 @@ class ServiceDetail extends BaseHtmlElement
         );
 
         $selectors = $this->service->selector->execute();
-        if ($selectors->valid()) {
+        if ($selectors->valid() && Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {
             $pods = Pod::on(Database::connection())
                 ->with(['node'])
                 ->filter(Filter::all(
                     Filter::equal('pod.namespace', $this->service->namespace)
                 ));
+
             foreach ($selectors as $selector) {
                 $pods->filter(Filter::all(
                     Filter::equal('pod.label.name', $selector->name),
@@ -93,18 +94,18 @@ class ServiceDetail extends BaseHtmlElement
                 ));
             }
 
-            if (Permissions::getInstance()->canList('pod')) {
-                $this->addHtml((new PodList(
+            $this->addHtml(new HtmlElement(
+                'section',
+                null,
+                new HtmlElement('h2', null, new Text($this->translate('Pods'))),
+                new PodList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_PODS,
                     $pods
-                ))->setWrapper(new HtmlElement(
-                    'section',
-                    null,
-                    new HtmlElement('h2', null, new Text($this->translate('Pods')))
-                )));
-            }
+                ))
+            ));
         }
 
-        if (Permissions::getInstance()->canShowYaml()) {
+        if (Auth::getInstance()->canShowYaml()) {
             $this->addHtml(new Yaml($this->service->yaml));
         }
     }
