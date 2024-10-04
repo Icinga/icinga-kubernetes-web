@@ -33,7 +33,7 @@ class JobController extends Controller
             $this->httpNotFound($this->translate('Job not found'));
         }
 
-        $this->addControl(new JobList([$job]));
+        $this->addControl((new JobList([$job]))->setActionList(false));
 
         $this->addContent(new JobDetail($job));
     }
