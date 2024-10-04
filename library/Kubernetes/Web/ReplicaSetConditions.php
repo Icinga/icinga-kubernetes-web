@@ -6,6 +6,8 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 
+use function Icinga\Module\Kubernetes\yield_iterable;
+
 class ReplicaSetConditions extends Conditions
 {
     protected ReplicaSet $replicaSet;
@@ -17,7 +19,7 @@ class ReplicaSetConditions extends Conditions
 
     protected function getConditions(): iterable
     {
-        return $this->replicaSet->condition;
+        return yield_iterable($this->replicaSet->condition);
     }
 
     protected function getVisual($status, $type): array

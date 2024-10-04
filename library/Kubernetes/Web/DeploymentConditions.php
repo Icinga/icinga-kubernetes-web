@@ -6,6 +6,8 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Model\Deployment;
 
+use function Icinga\Module\Kubernetes\yield_iterable;
+
 class DeploymentConditions extends Conditions
 {
     protected const SORT_ORDER = ['ReplicaFailure', 'Available', 'Progressing'];
@@ -17,7 +19,7 @@ class DeploymentConditions extends Conditions
         $this->deployment = $deployment;
     }
 
-    protected function getConditions(): array
+    protected function getConditions(): \Generator
     {
         $conditions = [];
         foreach ($this->deployment->condition as $condition) {
@@ -28,7 +30,7 @@ class DeploymentConditions extends Conditions
             return array_search($a->type, static::SORT_ORDER) <=> array_search($b->type, static::SORT_ORDER);
         });
 
-        return $conditions;
+        return yield_iterable($conditions);
     }
 
     protected function getVisual($status, $type): array
