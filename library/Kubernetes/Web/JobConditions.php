@@ -6,6 +6,8 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Model\Job;
 
+use function Icinga\Module\Kubernetes\yield_iterable;
+
 class JobConditions extends Conditions
 {
     protected Job $job;
@@ -17,7 +19,7 @@ class JobConditions extends Conditions
 
     protected function getConditions(): iterable
     {
-        return $this->job->condition;
+        return yield_iterable($this->job->condition);
     }
 
     protected function getVisual($status, $type): array

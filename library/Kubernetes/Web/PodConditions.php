@@ -8,6 +8,8 @@ use DateTime;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\PodCondition;
 
+use function Icinga\Module\Kubernetes\yield_iterable;
+
 class PodConditions extends Conditions
 {
     protected const SORT_ORDER = [
@@ -27,7 +29,7 @@ class PodConditions extends Conditions
         $this->pod = $pod;
     }
 
-    protected function getConditions(): array
+    protected function getConditions(): \Generator
     {
         $conditions = iterator_to_array($this->pod->condition);
 
@@ -48,11 +50,11 @@ class PodConditions extends Conditions
                     $condition->last_transition = $conditions[$i - 1]->last_transition;
                 }
 
-                return array_reverse(array_slice($conditions, 0, $i + 1));
+                return yield_iterable(array_reverse(array_slice($conditions, 0, $i + 1)));
             }
         }
 
-        return array_reverse($conditions);
+        return yield_iterable(array_reverse($conditions));
     }
 
     private function createCompletedCondition(): PodCondition
