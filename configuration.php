@@ -188,7 +188,7 @@ if (Module::exists('notifications')) {
     );
 }
 
-if (! \Icinga\Application\Icinga::app()->getModuleManager()->hasEnabled('icingadb')) {
+if (! Module::exists('icingadb')) {
     $this->provideJsFile('action-list.js');
 }
 
