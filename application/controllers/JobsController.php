@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Web\JobList;
@@ -34,5 +35,10 @@ class JobsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Jobs');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_JOBS;
     }
 }

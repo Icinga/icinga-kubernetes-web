@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Web\Controller;
@@ -16,13 +17,15 @@ class ReplicasetController extends Controller
 {
     public function indexAction(): void
     {
+        $this->assertPermission(Auth::SHOW_REPLICA_SETS);
+
         $this->addTitleTab($this->translate('Replica Set'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
 
-        /** @var ReplicaSet $replicaSet */
-        $replicaSet = ReplicaSet::on(Database::connection())
+        $replicaSet = Auth::getInstance()
+            ->withRestrictions(Auth::SHOW_REPLICA_SETS, ReplicaSet::on(Database::connection()))
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 

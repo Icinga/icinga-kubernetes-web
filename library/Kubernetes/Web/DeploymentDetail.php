@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
@@ -70,23 +71,36 @@ class DeploymentDetail extends BaseHtmlElement
             ])),
             new Labels($this->deployment->label),
             new Annotations($this->deployment->annotation),
-            new DeploymentConditions($this->deployment),
-            new HtmlElement(
+            new DeploymentConditions($this->deployment)
+        );
+
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_REPLICA_SETS)) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Replica Sets'))),
-                new ReplicaSetList($this->deployment->replica_set)
-            ),
-            new HtmlElement(
+                new ReplicaSetList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_REPLICA_SETS,
+                    $this->deployment->replica_set
+                ))
+            ));
+        }
+
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
+                new EventList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_EVENTS,
                     Event::on(Database::connection())
                         ->filter(Filter::equal('referent_uuid', $this->deployment->uuid))
-                )
-            ),
-            new Yaml($this->deployment->yaml)
-        );
+                ))
+            ));
+        }
+
+        if (Auth::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->deployment->yaml));
+        }
     }
 }

@@ -5,6 +5,7 @@
 /** @var Module $this */
 
 use Icinga\Application\Modules\Module;
+use Icinga\Module\Kubernetes\Common\Auth;
 
 $section = $this->menuSection(
     'Kubernetes',
@@ -187,6 +188,91 @@ if (Module::exists('notifications')) {
         ]
     );
 }
+
+$this->providePermission(
+    Auth::SHOW_CONFIG_MAPS,
+    $this->translate('Allow to show config maps')
+);
+
+$this->providePermission(
+    Auth::SHOW_CRON_JOBS,
+    $this->translate('Allow to show cron jobs')
+);
+
+$this->providePermission(
+    Auth::SHOW_DAEMON_SETS,
+    $this->translate('Allow to show daemon sets')
+);
+
+$this->providePermission(
+    Auth::SHOW_DEPLOYMENTS,
+    $this->translate('Allow to show deployments')
+);
+
+$this->providePermission(
+    Auth::SHOW_EVENTS,
+    $this->translate('Allow to show events')
+);
+
+$this->providePermission(
+    Auth::SHOW_INGRESSES,
+    $this->translate('Allow to show ingresses')
+);
+
+$this->providePermission(
+    Auth::SHOW_JOBS,
+    $this->translate('Allow to show jobs')
+);
+
+$this->providePermission(
+    Auth::SHOW_NODES,
+    $this->translate('Allow to show nodes')
+);
+
+$this->providePermission(
+    Auth::SHOW_PERSISTENT_VOLUME_CLAIMS,
+    $this->translate('Allow to show persistent volume claims')
+);
+
+$this->providePermission(
+    Auth::SHOW_PERSISTENT_VOLUMES,
+    $this->translate('Allow to show persistent volumes')
+);
+
+$this->providePermission(
+    Auth::SHOW_PODS,
+    $this->translate('Allow to show pods')
+);
+
+$this->providePermission(
+    Auth::SHOW_REPLICA_SETS,
+    $this->translate('Allow to show replica sets')
+);
+
+$this->providePermission(
+    Auth::SHOW_SECRETS,
+    $this->translate('Allow to show secretes')
+);
+
+$this->providePermission(
+    Auth::SHOW_SERVICES,
+    $this->translate('Allow to show services')
+);
+
+$this->providePermission(
+    Auth::SHOW_STATEFUL_SETS,
+    $this->translate('Allow to show stateful sets')
+);
+
+$this->providePermission(
+    'kubernetes/yaml/show',
+    $this->translate('Allow to show yaml')
+);
+
+$this->provideRestriction(
+    'kubernetes/filter/resources',
+    $this->translate('Restrict access to the resources that match the filter')
+);
 
 if (! Module::exists('icingadb')) {
     $this->provideJsFile('action-list.js');

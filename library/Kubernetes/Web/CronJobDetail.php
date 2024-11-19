@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
@@ -50,7 +51,7 @@ class CronJobDetail extends BaseHtmlElement
                     new EmptyState($this->translate('None')),
                 $this->translate('Active')                        => $this->cronJob->active,
                 $this->translate('Starting Deadline Seconds')     => $this->cronJob->starting_deadline_seconds,
-                $this->translate('Concurrency  Policy')           => $this->cronJob->concurrency_policy,
+                $this->translate('Concurrency Policy')            => $this->cronJob->concurrency_policy,
                 $this->translate('Suspend')                       => Icons::ready($this->cronJob->suspend),
                 $this->translate('Successful Jobs History Limit') => $this->cronJob->successful_jobs_history_limit,
                 $this->translate('Failed Jobs History Limit')     => $this->cronJob->failed_jobs_history_limit,
@@ -58,23 +59,36 @@ class CronJobDetail extends BaseHtmlElement
                 $this->translate('Last Schedule Time')            => $lastScheduleTime
             ])),
             new Labels($this->cronJob->label),
-            new Annotations($this->cronJob->annotation),
-            new HtmlElement(
+            new Annotations($this->cronJob->annotation)
+        );
+
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_JOBS)) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Jobs'))),
-                new JobList($this->cronJob->job)
-            ),
-            new HtmlElement(
+                new JobList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_JOBS,
+                    $this->cronJob->job
+                ))
+            ));
+        }
+
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
+                new EventList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_EVENTS,
                     Event::on(Database::connection())
                         ->filter(Filter::equal('referent_uuid', $this->cronJob->uuid))
-                )
-            ),
-            new Yaml($this->cronJob->yaml)
-        );
+                ))
+            ));
+        }
+
+        if (Auth::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->cronJob->yaml));
+        }
     }
 }

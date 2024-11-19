@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\Controller;
@@ -16,13 +17,15 @@ class PodController extends Controller
 {
     public function indexAction(): void
     {
+        $this->assertPermission(Auth::SHOW_PODS);
+
         $this->addTitleTab($this->translate('Pod'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
 
-        /** @var Pod $pod */
-        $pod = Pod::on(Database::connection())
+        $pod = Auth::getInstance()
+            ->withRestrictions(Auth::SHOW_PODS, Pod::on(Database::connection()))
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 

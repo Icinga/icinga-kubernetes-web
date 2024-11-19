@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use DateInterval;
 use DateTime;
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Metrics;
@@ -111,22 +112,24 @@ class NodeDetail extends BaseHtmlElement
             ]),
             new Labels($this->node->label),
             new Annotations($this->node->annotation),
-            new ConditionTable($this->node, (new NodeCondition())->getColumnDefinitions()),
-            new HtmlElement(
+            new ConditionTable($this->node, (new NodeCondition())->getColumnDefinitions())
+        );
+
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
+                new EventList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_EVENTS,
                     Event::on(Database::connection())
-                        ->filter(
-                            Filter::all(
-                                Filter::equal('reference_kind', 'Node'),
-                                Filter::equal('reference_name', $this->node->name)
-                            )
-                        )
-                )
-            ),
-            new Yaml($this->node->yaml)
-        );
+                        ->filter(Filter::equal('referent_uuid', $this->node->uuid))
+                ))
+            ));
+        }
+
+        if (Auth::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->node->yaml));
+        }
     }
 }

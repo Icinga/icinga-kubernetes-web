@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
@@ -46,17 +47,24 @@ class NamespaceDetail extends BaseHtmlElement
                 )
             ]),
             new Labels($this->namespace->label),
-            new Annotations($this->namespace->annotation),
-            new HtmlElement(
+            new Annotations($this->namespace->annotation)
+        );
+
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
+                new EventList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_EVENTS,
                     Event::on(Database::connection())
                         ->filter(Filter::equal('referent_uuid', $this->namespace->uuid))
-                )
-            ),
-            new Yaml($this->namespace->yaml)
-        );
+                ))
+            ));
+        }
+
+        if (Auth::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->namespace->yaml));
+        }
     }
 }

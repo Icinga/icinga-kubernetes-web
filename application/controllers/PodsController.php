@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\ListController;
@@ -36,5 +37,10 @@ class PodsController extends ListController
     protected function getTitle(): string
     {
         return $this->translate('Pods');
+    }
+
+    protected function getPermission(): string
+    {
+        return Auth::SHOW_PODS;
     }
 }

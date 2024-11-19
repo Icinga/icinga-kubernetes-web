@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
@@ -75,23 +76,36 @@ class StatefulSetDetail extends BaseHtmlElement
             ])),
             new Labels($this->statefulSet->label),
             new Annotations($this->statefulSet->annotation),
-            new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions()),
-            new HtmlElement(
+            new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions())
+        );
+
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList($this->statefulSet->pod->with(['node']))
-            ),
-            new HtmlElement(
+                new PodList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_PODS,
+                    $this->statefulSet->pod->with(['node'])
+                ))
+            ));
+        }
+
+        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(
+                new EventList(Auth::getInstance()->withRestrictions(
+                    Auth::SHOW_EVENTS,
                     Event::on(Database::connection())
                         ->filter(Filter::equal('referent_uuid', $this->statefulSet->uuid))
-                )
-            ),
-            new Yaml($this->statefulSet->yaml)
-        );
+                ))
+            ));
+        }
+
+        if (Auth::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->statefulSet->yaml));
+        }
     }
 }

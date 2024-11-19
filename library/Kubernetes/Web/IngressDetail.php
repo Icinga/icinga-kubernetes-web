@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Ingress;
@@ -61,6 +62,8 @@ class IngressDetail extends BaseHtmlElement
             );
         }
 
-        $this->addHtml(new Yaml($this->ingress->yaml));
+        if (Auth::getInstance()->canShowYaml()) {
+            $this->addHtml(new Yaml($this->ingress->yaml));
+        }
     }
 }

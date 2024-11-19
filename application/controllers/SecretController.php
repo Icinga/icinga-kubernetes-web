@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Web\Controller;
@@ -15,13 +16,15 @@ class SecretController extends Controller
 {
     public function indexAction(): void
     {
+        $this->assertPermission(Auth::SHOW_SECRETS);
+
         $this->addTitleTab($this->translate('Secret'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
 
-        /** @var Secret $secret */
-        $secret = Secret::on(Database::connection())
+        $secret = Auth::getInstance()
+            ->withRestrictions(Auth::SHOW_SECRETS, Secret::on(Database::connection()))
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
