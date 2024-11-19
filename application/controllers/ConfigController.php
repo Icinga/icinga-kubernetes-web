@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Application\Config;
 use Icinga\Application\Logger;
@@ -198,77 +199,101 @@ class ConfigController extends Controller
         $data = [];
 
         foreach ($dbConfig as $pair) {
-            switch ($pair->key) {
-                case self::PROMETHEUS_URL:
-                    $data['prometheus_url'] = $pair->value;
-                    break;
-                case self::PROMETHEUS_USERNAME:
-                    $data['prometheus_username'] = $pair->value;
-                    break;
-                case self::PROMETHEUS_PASSWORD:
-                    $data['prometheus_password'] = $pair->value;
-                    break;
-            }
+            $data[str_replace('.', '_', $pair->key)] = $pair->value;
         }
 
         $form = (new PrometheusConfigForm())
             ->populate($data)
-            ->on(PrometheusConfigForm::ON_SUCCESS, function ($form) use ($db, $data) {
+            ->on(PrometheusConfigForm::ON_SUCCESS, function ($form) use ($db, $dbConfig) {
                 if ($form->isLocked()) {
                     Notification::error($this->translate('Prometheus configuration is locked'));
                     return;
                 }
 
-                if (isset($data['prometheus_url'])) {
-                    $db->update('config',
-                        ['value' => $form->getValue('prometheus_url')],
-                        [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_URL]
-                    );
-                } else {
-                    $db->insert('config',
-                        [
-                            $db->quoteIdentifier('key') => self::PROMETHEUS_URL,
-                            'value'                     => $form->getValue('prometheus_url')
-                        ]
-                    );
-                }
+                try {
+                    $db->exec("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE");
+                    $db->beginTransaction();
 
-                if (isset($data['prometheus_username'])) {
-                    $db->update('config',
-                        ['value' => $form->getValue('prometheus_username')],
-                        [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_USERNAME]
-                    );
-                } else {
-                    $db->insert('config',
-                        [
-                            $db->quoteIdentifier('key') => self::PROMETHEUS_USERNAME,
-                            'value'                     => $form->getValue('prometheus_username')
-                        ]
-                    );
-                }
+                    $data = [];
 
-                if (isset($data['prometheus_password'])) {
-                    $db->update('config',
-                        ['value' => $form->getValue('prometheus_password')],
-                        [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_PASSWORD]
-                    );
-                } else {
-                    $db->insert('config',
-                        [
-                            $db->quoteIdentifier('key') => self::PROMETHEUS_PASSWORD,
-                            'value'                     => $form->getValue('prometheus_password')
-                        ]
-                    );
-                }
+                    foreach ($dbConfig as $pair) {
+                        $data[$pair->key] = ['value' => $pair->value, 'locked' => $pair->locked];
+                    }
 
-                $this->redirectNow('__REFRESH__');
+                    if ($data[self::PROMETHEUS_URL]['locked'] !== 'y') {
+                        if (isset($data[self::PROMETHEUS_URL])) {
+                            $db->update('config',
+                                ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))],
+                                [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_URL]
+                            );
+                        } else {
+                            $db->insert('config',
+                                [
+                                    $db->quoteIdentifier('key') => self::PROMETHEUS_URL,
+                                    'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))
+                                ]
+                            );
+                        }
+                    }
+
+                    if ($data[self::PROMETHEUS_USERNAME]['locked'] !== 'y') {
+                        if (isset($data[self::PROMETHEUS_USERNAME])) {
+                            $db->update('config',
+                                ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))],
+                                [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_USERNAME]
+                            );
+                        } else {
+                            $db->insert('config',
+                                [
+                                    $db->quoteIdentifier('key') => self::PROMETHEUS_USERNAME,
+                                    'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))
+                                ]
+                            );
+                        }
+                    }
+
+                    if ($data[self::PROMETHEUS_PASSWORD]['locked'] !== 'y') {
+                        if (isset($data[self::PROMETHEUS_PASSWORD])) {
+                            $db->update('config',
+                                ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))],
+                                [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_PASSWORD]
+                            );
+                        } else {
+                            $db->insert('config',
+                                [
+                                    $db->quoteIdentifier('key') => self::PROMETHEUS_PASSWORD,
+                                    'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))
+                                ]
+                            );
+                        }
+                    }
+
+                    $db->commitTransaction();
+                } catch (Exception $_) {
+                    $db->rollBackTransaction();
+                    Notification::error($this->translate('Failed to store new configuration'));
+                    return;
+                }
 
                 Notification::success($this->translate('New configuration has successfully been stored'));
+                $this->redirectNow('__REFRESH__');
             })->handleRequest($this->getServerRequest());
 
         $this->mergeTabs($this->Module()->getConfigTabs()->activate('prometheus'));
 
         $this->addContent($form);
+    }
+
+    /**
+     * Convert database field name to form field name
+     *
+     * @param string $field
+     *
+     * @return string
+     */
+    protected function fieldForForm(string $field): string
+    {
+        return str_replace('.', '_', $field);
     }
 
     /**
