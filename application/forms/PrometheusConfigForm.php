@@ -4,15 +4,13 @@
 
 namespace Icinga\Module\Kubernetes\Forms;
 
-use Icinga\Data\ResourceFactory;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Controllers\ConfigController;
+use Icinga\Module\Kubernetes\Model\Config;
 use ipl\Html\Attributes;
 use ipl\Html\Html;
-use ipl\Html\HtmlElement;
-use ipl\Web\Compat\CompatForm;
-use Icinga\Module\Kubernetes\Model\Config;
 use ipl\Stdlib\Filter;
-use Icinga\Module\Kubernetes\Common\Database;
+use ipl\Web\Compat\CompatForm;
 
 class PrometheusConfigForm extends CompatForm
 {
@@ -22,7 +20,7 @@ class PrometheusConfigForm extends CompatForm
             $this->addHtml(
                 Html::tag('div', Attributes::create(['class' => 'control-group']), [
                     Html::tag(
-                      'div',
+                        'div',
                         Attributes::create(['class' => 'control-label-group']),
                     ),
                     Html::tag(
@@ -41,7 +39,6 @@ class PrometheusConfigForm extends CompatForm
                 'label'    => $this->translate('URL'),
                 'required' => true,
                 'disabled' => $this->isLocked(),
-                'value'    => ''
             ]
         );
 
@@ -51,7 +48,6 @@ class PrometheusConfigForm extends CompatForm
             [
                 'label'    => $this->translate('Username'),
                 'disabled' => $this->isLocked(),
-                'value'    => ''
             ]
         );
 
@@ -61,7 +57,6 @@ class PrometheusConfigForm extends CompatForm
             [
                 'label'    => $this->translate('Password'),
                 'disabled' => $this->isLocked(),
-                'value'    => ''
             ]
         );
 
@@ -69,7 +64,7 @@ class PrometheusConfigForm extends CompatForm
             'submit',
             'submit',
             [
-                'label' => $this->translate('Save Changes'),
+                'label'    => $this->translate('Save Changes'),
                 'disabled' => $this->isLocked()
             ]
         );
