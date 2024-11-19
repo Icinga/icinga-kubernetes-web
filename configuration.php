@@ -177,7 +177,18 @@ $this->provideConfigTab(
     ]
 );
 
-if (! \Icinga\Application\Icinga::app()->getModuleManager()->hasEnabled('icingadb')) {
+if (Module::exists('notifications')) {
+    $this->provideConfigTab(
+        'notifications',
+        [
+            'title' => $this->translate('Notifications'),
+            'label' => $this->translate('Notifications'),
+            'url'   => 'config/notifications'
+        ]
+    );
+}
+
+if (! Module::exists('icingadb')) {
     $this->provideJsFile('action-list.js');
 }
 
