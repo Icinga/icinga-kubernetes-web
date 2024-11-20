@@ -220,52 +220,52 @@ class ConfigController extends Controller
                         $data[$pair->key] = ['value' => $pair->value, 'locked' => $pair->locked];
                     }
 
-                    if ($data[self::PROMETHEUS_URL]['locked'] !== 'y') {
-                        if (isset($data[self::PROMETHEUS_URL])) {
-                            $db->update('config',
-                                ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))],
-                                [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_URL]
-                            );
-                        } else {
-                            $db->insert('config',
-                                [
-                                    $db->quoteIdentifier('key') => self::PROMETHEUS_URL,
-                                    'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))
-                                ]
-                            );
-                        }
+                    if (isset($data[self::PROMETHEUS_URL]) && $data[self::PROMETHEUS_URL]['locked'] !== 'y') {
+                        $db->update(
+                            'config',
+                            ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))],
+                            [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_URL]
+                        );
+                    } elseif (! isset($data[self::PROMETHEUS_URL])) {
+                        $db->insert(
+                            'config',
+                            [
+                                $db->quoteIdentifier('key') => self::PROMETHEUS_URL,
+                                'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))
+                            ]
+                        );
                     }
 
-                    if ($data[self::PROMETHEUS_USERNAME]['locked'] !== 'y') {
-                        if (isset($data[self::PROMETHEUS_USERNAME])) {
-                            $db->update('config',
-                                ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))],
-                                [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_USERNAME]
-                            );
-                        } else {
-                            $db->insert('config',
-                                [
-                                    $db->quoteIdentifier('key') => self::PROMETHEUS_USERNAME,
-                                    'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))
-                                ]
-                            );
-                        }
+                    if (isset($data[self::PROMETHEUS_USERNAME]) && $data[self::PROMETHEUS_USERNAME]['locked'] !== 'y') {
+                        $db->update(
+                            'config',
+                            ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))],
+                            [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_USERNAME]
+                        );
+                    } elseif (! isset($data[self::PROMETHEUS_USERNAME])) {
+                        $db->insert(
+                            'config',
+                            [
+                                $db->quoteIdentifier('key') => self::PROMETHEUS_USERNAME,
+                                'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))
+                            ]
+                        );
                     }
 
-                    if ($data[self::PROMETHEUS_PASSWORD]['locked'] !== 'y') {
-                        if (isset($data[self::PROMETHEUS_PASSWORD])) {
-                            $db->update('config',
-                                ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))],
-                                [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_PASSWORD]
-                            );
-                        } else {
-                            $db->insert('config',
-                                [
-                                    $db->quoteIdentifier('key') => self::PROMETHEUS_PASSWORD,
-                                    'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))
-                                ]
-                            );
-                        }
+                    if (isset($data[self::PROMETHEUS_PASSWORD]) && $data[self::PROMETHEUS_PASSWORD]['locked'] !== 'y') {
+                        $db->update(
+                            'config',
+                            ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))],
+                            [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_PASSWORD]
+                        );
+                    } elseif (! isset($data[self::PROMETHEUS_PASSWORD])) {
+                        $db->insert(
+                            'config',
+                            [
+                                $db->quoteIdentifier('key') => self::PROMETHEUS_PASSWORD,
+                                'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))
+                            ]
+                        );
                     }
 
                     $db->commitTransaction();
