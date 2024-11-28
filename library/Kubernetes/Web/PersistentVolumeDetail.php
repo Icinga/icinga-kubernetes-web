@@ -57,6 +57,7 @@ class PersistentVolumeDetail extends BaseHtmlElement
                 ),
                 $this->translate('Capacity')           => Format::bytes($this->persistentVolume->capacity / 1000),
             ]),
+            new Labels($this->persistentVolume->label),
             new Annotations($this->persistentVolume->annotation),
         );
 

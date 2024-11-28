@@ -82,6 +82,10 @@ class Label extends Model
         $relations
             ->belongsToMany('ingress', Ingress::class)
             ->through('ingress_label');
+
+        $relations
+            ->belongsToMany('persistent_volume', PersistentVolume::class)
+            ->through('persistent_volume_label');
     }
 
     public function getColumnDefinitions(): array

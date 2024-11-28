@@ -47,6 +47,10 @@ class PersistentVolume extends Model
             ->setForeignKey('persistent_volume_uuid');
 
         $relations
+            ->belongsToMany('label', Label::class)
+            ->through('persistent_volume_label');
+
+        $relations
             ->belongsToMany('annotation', Annotation::class)
             ->through('persistent_volume_annotation');
     }
