@@ -56,7 +56,8 @@ class PersistentVolumeDetail extends BaseHtmlElement
                     AccessModes::asNames($this->persistentVolume->access_modes)
                 ),
                 $this->translate('Capacity')           => Format::bytes($this->persistentVolume->capacity / 1000),
-            ])
+            ]),
+            new Annotations($this->persistentVolume->annotation),
         );
 
         if (Auth::getInstance()->hasPermission(Auth::SHOW_PERSISTENT_VOLUME_CLAIMS)) {

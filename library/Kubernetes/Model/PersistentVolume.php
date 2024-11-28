@@ -45,6 +45,10 @@ class PersistentVolume extends Model
             ->setTargetForeignKey('name')
             ->setCandidateKey('uuid')
             ->setForeignKey('persistent_volume_uuid');
+
+        $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('persistent_volume_annotation');
     }
 
     public function getColumnDefinitions(): array

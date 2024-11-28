@@ -78,6 +78,10 @@ class Annotation extends Model
         $relations
             ->belongsToMany('ingress', Ingress::class)
             ->through('ingress_annotation');
+
+        $relations
+            ->belongsToMany('persistent_volume', PersistentVolume::class)
+            ->through('persistent_volume_annotation');
     }
 
     public function getColumnDefinitions(): array
