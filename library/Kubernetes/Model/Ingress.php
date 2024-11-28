@@ -37,6 +37,10 @@ class Ingress extends Model
         $relations->hasMany('ingress_tls', IngressTls::class);
 
         $relations
+            ->belongsToMany('label', Label::class)
+            ->through('ingress_label');
+
+        $relations
             ->belongsToMany('annotation', Annotation::class)
             ->through('ingress_annotation');
     }
