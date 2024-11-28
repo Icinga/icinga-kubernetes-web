@@ -28,7 +28,10 @@ class IngressDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $this->addHtml(new Details(new ResourceDetails($this->ingress)));
+        $this->addHtml(
+            new Details(new ResourceDetails($this->ingress)),
+            new Annotations($this->ingress->annotation)
+        );
 
         $backendServices = IngressBackendService::on(Database::connection())
             ->filter(Filter::all(
