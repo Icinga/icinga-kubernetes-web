@@ -78,6 +78,14 @@ class Label extends Model
         $relations
             ->belongsToMany('stateful_set', StatefulSet::class)
             ->through('stateful_set_label');
+
+        $relations
+            ->belongsToMany('ingress', Ingress::class)
+            ->through('ingress_label');
+
+        $relations
+            ->belongsToMany('persistent_volume', PersistentVolume::class)
+            ->through('persistent_volume_label');
     }
 
     public function getColumnDefinitions(): array

@@ -12,6 +12,7 @@ use Icinga\Module\Kubernetes\Model\IngressBackendResource;
 use Icinga\Module\Kubernetes\Model\IngressBackendService;
 use Icinga\Module\Kubernetes\Model\IngressRule;
 use Icinga\Module\Kubernetes\Model\IngressTls;
+use Icinga\Module\Kubernetes\Model\Label;
 use ipl\Html\BaseHtmlElement;
 use ipl\Stdlib\Filter;
 
@@ -28,7 +29,11 @@ class IngressDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $this->addHtml(new Details(new ResourceDetails($this->ingress)));
+        $this->addHtml(
+            new Details(new ResourceDetails($this->ingress)),
+            new Labels($this->ingress->label),
+            new Annotations($this->ingress->annotation)
+        );
 
         $backendServices = IngressBackendService::on(Database::connection())
             ->filter(Filter::all(
