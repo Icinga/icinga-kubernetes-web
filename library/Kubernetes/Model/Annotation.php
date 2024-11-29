@@ -24,6 +24,13 @@ class Annotation extends Model
     public function createRelations(Relations $relations): void
     {
         $relations
+            ->belongsToMany('event', Event::class)
+            ->through('resource_annotation')
+            ->setTargetCandidateKey('referent_uuid')
+            ->setTargetForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
+
+        $relations
             ->belongsToMany('pod', Pod::class)
             ->through('pod_annotation');
 

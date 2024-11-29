@@ -31,6 +31,12 @@ class Event extends Model
 
     public function createRelations(Relations $relations)
     {
+        $relations
+            ->belongsToMany('annotation', Annotation::class)
+            ->through('resource_annotation')
+            ->setCandidateKey('referent_uuid')
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array
