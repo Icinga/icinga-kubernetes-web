@@ -179,8 +179,12 @@ class Auth
     protected function parseRestriction(string $table, string $queryString, string $restriction): Filter\Rule
     {
         $allowedColumns = [
+            'annotation.name',
+            'annotation.value',
+            'label.name',
+            'label.value',
             'name',
-            'namespace'
+            'namespace',
         ];
 
         return QueryString::fromString("internal=internal&$queryString")
