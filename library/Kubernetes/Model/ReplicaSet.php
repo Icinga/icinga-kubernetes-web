@@ -43,16 +43,16 @@ class ReplicaSet extends Model
         $relations
             ->belongsToMany('pod', Pod::class)
             ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('deployment', Deployment::class)
             ->through('replica_set_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('replica_set_uuid');
     }
