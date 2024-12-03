@@ -59,6 +59,7 @@ class PersistentVolumeDetail extends BaseHtmlElement
             ]),
             new Labels($this->persistentVolume->label),
             new Annotations($this->persistentVolume->annotation),
+            new PersistentVolumeEnvironment($this->persistentVolume),
         );
 
         if (Auth::getInstance()->hasPermission(Auth::SHOW_PERSISTENT_VOLUME_CLAIMS)) {
