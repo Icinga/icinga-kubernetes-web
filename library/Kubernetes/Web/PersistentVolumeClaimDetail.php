@@ -64,7 +64,8 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
             ])),
             new Labels($this->pvc->label),
             new Annotations($this->pvc->annotation),
-            new ConditionTable($this->pvc, (new PersistentVolumeClaimCondition())->getColumnDefinitions())
+            new ConditionTable($this->pvc, (new PersistentVolumeClaimCondition())->getColumnDefinitions()),
+            new PersistentVolumeClaimEnvironment($this->pvc),
         );
 
         if (Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {

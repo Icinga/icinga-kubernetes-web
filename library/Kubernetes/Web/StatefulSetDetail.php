@@ -87,7 +87,8 @@ class StatefulSetDetail extends BaseHtmlElement
             ])),
             new Labels($this->statefulSet->label),
             new Annotations($this->statefulSet->annotation),
-            new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions())
+            new ConditionTable($this->statefulSet, (new StatefulSetCondition())->getColumnDefinitions()),
+            new StatefulSetEnvironment($this->statefulSet),
         );
 
         if (Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {

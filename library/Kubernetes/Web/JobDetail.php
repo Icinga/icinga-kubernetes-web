@@ -78,7 +78,8 @@ class JobDetail extends BaseHtmlElement
             ])),
             new Labels($this->job->label),
             new Annotations($this->job->annotation),
-            new JobConditions($this->job)
+            new JobConditions($this->job),
+            new JobEnvironment($this->job),
         );
 
         if (Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {

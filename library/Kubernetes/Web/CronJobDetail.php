@@ -59,7 +59,8 @@ class CronJobDetail extends BaseHtmlElement
                 $this->translate('Last Schedule Time')            => $lastScheduleTime
             ])),
             new Labels($this->cronJob->label),
-            new Annotations($this->cronJob->annotation)
+            new Annotations($this->cronJob->annotation),
+            new CronJobEnvironment($this->cronJob),
         );
 
         if (Auth::getInstance()->hasPermission(Auth::SHOW_JOBS)) {

@@ -131,7 +131,7 @@ class Environment extends BaseHtmlElement
 
         foreach ($query as $node) {
             $kind = Factory::getKindFromModel($node);
-            $url = Factory::createUrl($kind);
+            $url = Factory::createDetailUrl($kind);
             $url->addParams(['id' => (string) Uuid::fromBytes($node->uuid)]);
 
             $list->addHtml(
