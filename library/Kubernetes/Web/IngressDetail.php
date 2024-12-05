@@ -12,7 +12,6 @@ use Icinga\Module\Kubernetes\Model\IngressBackendResource;
 use Icinga\Module\Kubernetes\Model\IngressBackendService;
 use Icinga\Module\Kubernetes\Model\IngressRule;
 use Icinga\Module\Kubernetes\Model\IngressTls;
-use Icinga\Module\Kubernetes\Model\Label;
 use ipl\Html\BaseHtmlElement;
 use ipl\Stdlib\Filter;
 
