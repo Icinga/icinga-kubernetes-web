@@ -152,11 +152,8 @@ class PodDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
-                new EventList(Auth::getInstance()->withRestrictions(
-                    Auth::SHOW_EVENTS,
-                    Event::on(Database::connection())
-                        ->filter(Filter::equal('reference_uuid', $this->pod->uuid))
-                ))
+                new EventList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->pod->uuid)))
             ));
         }
 

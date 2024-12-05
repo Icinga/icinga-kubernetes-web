@@ -61,7 +61,14 @@ Filters limit users to a specific set of results.
 `kubernetes/filter/resources` will only allow users to access matching Kubernetes resources. This applies to all
 resources.
 
-Allowed columns are namespace and name.
+Allowed columns are:
+
+* annotation.name
+* annotation.value
+* label.name
+* label.value
+* namespace
+* name
 
 > **Note:**
 >
