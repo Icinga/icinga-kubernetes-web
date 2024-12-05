@@ -49,6 +49,10 @@ class Service extends Model
         $relations
             ->belongsToMany('annotation', Annotation::class)
             ->through('service_annotation');
+
+        $relations
+            ->belongsToMany('pod', Pod::class)
+            ->through('service_pod');
     }
 
     public function getColumnDefinitions(): array

@@ -58,6 +58,9 @@ class Pod extends Model
 
         $relations->hasMany('container_mount', ContainerMount::class);
 
+        $relations->belongsToMany('service', Service::class)
+            ->through('service_pod');
+
         $relations
             ->belongsToMany('deployment', Deployment::class)
             ->through('pod_owner')
