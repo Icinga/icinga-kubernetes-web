@@ -61,6 +61,8 @@ class Job extends Model
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
 
+        $relations->hasOne('owner', JobOwner::class)->setJoinType('LEFT');
+
         $relations
             ->belongsToMany('cron_job', CronJob::class)
             ->through('job_owner')
