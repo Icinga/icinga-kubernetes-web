@@ -58,7 +58,7 @@ class EventDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Referent'))),
-                Factory::createList($this->event->reference_kind, Filter::equal('uuid', $this->event->referent_uuid))
+                Factory::createList($this->event->reference_kind, Filter::equal('uuid', $this->event->reference_uuid))
             )
         );
 

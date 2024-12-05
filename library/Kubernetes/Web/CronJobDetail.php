@@ -82,7 +82,7 @@ class CronJobDetail extends BaseHtmlElement
                 new EventList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_EVENTS,
                     Event::on(Database::connection())
-                        ->filter(Filter::equal('referent_uuid', $this->cronJob->uuid))
+                        ->filter(Filter::equal('reference_uuid', $this->cronJob->uuid))
                 ))
             ));
         }
