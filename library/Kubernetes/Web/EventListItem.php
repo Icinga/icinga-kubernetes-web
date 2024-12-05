@@ -62,7 +62,7 @@ class EventListItem extends BaseListItem
 
             $referent = new Link(
                 $content,
-                $url->addParams(['id' => (string) Uuid::fromBytes($this->item->referent_uuid)]),
+                $url->addParams(['id' => (string) Uuid::fromBytes($this->item->reference_uuid)]),
                 new Attributes(['class' => 'subject'])
             );
         } else {

@@ -101,7 +101,7 @@ class JobDetail extends BaseHtmlElement
                 new EventList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_EVENTS,
                     Event::on(Database::connection())
-                        ->filter(Filter::equal('referent_uuid', $this->job->uuid))
+                        ->filter(Filter::equal('reference_uuid', $this->job->uuid))
                 ))
             ));
         }

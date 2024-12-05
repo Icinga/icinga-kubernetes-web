@@ -26,7 +26,7 @@ class Label extends Model
         $relations
             ->belongsToMany('event', Event::class)
             ->through('resource_label')
-            ->setTargetCandidateKey('referent_uuid')
+            ->setTargetCandidateKey('reference_uuid')
             ->setTargetForeignKey('resource_uuid')
             ->setJoinType('LEFT');
 
