@@ -6,8 +6,6 @@ namespace Icinga\Module\Kubernetes\Forms;
 
 use Icinga\Application\Icinga;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
-use ipl\Html\Attributes;
-use ipl\Html\Html;
 use ipl\Stdlib\Str;
 use ipl\Validator\CallbackValidator;
 use ipl\Web\Compat\CompatForm;
@@ -121,14 +119,15 @@ class NotificationsConfigForm extends CompatForm
         ]);
 
         $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL), [
-            'label'      => $this->translate('Kubernetes Web URL'),
-            'required'   => true,
-            'disabled'   => $this->kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->locked ?? false,
-            'value'      => $this->kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->value ?? $this->getKubernetesWebUrl(),
+            'label'       => $this->translate('Kubernetes Web URL'),
+            'required'    => true,
+            'disabled'    => $this->kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->locked ?? false,
+            'value'       => $this->kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->value ??
+                $this->getKubernetesWebUrl(),
             'description' => $this->translate(
                 'Icinga Kubernetes Web URL.'
             ),
-            'validators' => [
+            'validators'  => [
                 'Callback' => function ($value, CallbackValidator $validator) {
                     if (! $this->isValidUri($value)) {
                         $validator->addMessage($this->translate(
