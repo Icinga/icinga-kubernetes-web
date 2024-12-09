@@ -64,40 +64,40 @@ class Pod extends Model
         $relations
             ->belongsToMany('deployment', Deployment::class)
             ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('replica_set', ReplicaSet::class)
             ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('daemon_set', DaemonSet::class)
             ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('stateful_set', StatefulSet::class)
             ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
 
         $relations
             ->belongsToMany('job', Job::class)
             ->through('pod_owner')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
+            ->setTargetCandidateKey('uuid')
+            ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
 
