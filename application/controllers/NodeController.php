@@ -33,7 +33,7 @@ class NodeController extends Controller
             $this->httpNotFound($this->translate('Node not found'));
         }
 
-        $this->addControl(new NodeList([$node]));
+        $this->addControl((new NodeList([$node]))->setActionList(false));
 
         $this->addContent(new NodeDetail($node));
     }
