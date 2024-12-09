@@ -87,16 +87,17 @@ class Uuid extends PropertyBehavior implements QueryAwareBehavior, RewriteFilter
             }
 
             // ctype_xdigit expects strings.
-            $value = (string) $value;
+            $value = str_replace('-', '', (string) $value);
+
             /**
              * Although this code path is also affected by the duplicate behavior evaluation stated in {@see toDb()},
              * no further adjustments are needed as ctype_xdigit returns false for binary and bytea hex strings.
              */
             if (ctype_xdigit($value)) {
                 if (! $this->isPostgres) {
-                    $condition->setValue(pack('H*', str_replace('-', '', $value)));
+                    $condition->setValue(pack('H*', $value));
                 } elseif (! str_starts_with($value, '\\x')) {
-                    $condition->setValue(sprintf('\\x%s', str_replace('-', '', $value)));
+                    $condition->setValue(sprintf('\\x%s', $value));
                 }
             }
         }
