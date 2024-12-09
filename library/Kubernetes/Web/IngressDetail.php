@@ -31,7 +31,8 @@ class IngressDetail extends BaseHtmlElement
         $this->addHtml(
             new Details(new ResourceDetails($this->ingress)),
             new Labels($this->ingress->label),
-            new Annotations($this->ingress->annotation)
+            new Annotations($this->ingress->annotation),
+            new IngressEnvironment($this->ingress)
         );
 
         $backendServices = IngressBackendService::on(Database::connection())

@@ -1,0 +1,175 @@
+.environment-widget {
+  display: grid;
+  grid-template:
+    "parents-label . children-label"
+      "parents current children"
+      / 8fr minmax(2.5em, 4fr) 8fr;
+
+  border: 1px solid @gray-lighter;
+  .rounded-corners(.5em);
+  padding: 0.5em;
+
+  .parents {
+    grid-area: parents;
+  }
+
+  .children {
+    grid-area: children;
+  }
+
+  .current {
+    grid-area: current;
+  }
+
+  @object-node-height: 2.5em;
+  @svg-edge-length: @object-node-height * 4; // 4 = max node list items
+  @max-node-width: 40em;
+
+  .parents-label {
+    grid-area: parents-label;
+    padding-right: @svg-edge-length;
+
+    .label {
+      margin-left: auto;
+    }
+  }
+
+  .children-label {
+    grid-area: children-label;
+    padding-left: @svg-edge-length;
+
+    .label {
+      margin-right: auto;
+    }
+  }
+
+  .label {
+    max-width: @max-node-width;
+    padding-left: 2em + 0.5em + 2em + 0.5em; // state-ball + margin-right + icon-image + margin-right
+    text-align: center;
+    color: @text-color-light;
+  }
+
+  .parents, .children {
+    display: flex;
+    align-items: center;
+
+    .svg-lines {
+      width: @svg-edge-length;
+      height: @svg-edge-length;
+    }
+  }
+
+  .parents {
+    justify-content: end;
+  }
+
+  .node-list, .current {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .icon-image {
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-image, .object-statistics-total {
+      height: 2em;
+      width: 2em;
+      line-height: 2;
+      flex-shrink: 0;
+    }
+
+    .icon-image img {
+      max-height: 100%;
+      max-width: 100%;
+      height: auto;
+      width: auto;
+    }
+  }
+
+  .node-list {
+    width: 0;
+    min-width: 5em;
+    max-width: @max-node-width;
+    flex: 1 1 auto;
+    height: 15em;
+    gap: 0.8333em;
+
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+
+    .summary .object-statistics {
+      width: 100%;
+
+      & > li {
+        &:not(:last-child) {
+          margin-right: 0.5em;
+        }
+
+        &:last-child {
+          margin: auto;
+        }
+      }
+
+      .object-statistics-total {
+        text-align: left; // less gap from donut AND align it with icon-image
+      }
+    }
+  }
+
+  .node-list, .current {
+    .node, .summary, .self {
+      display: flex;
+      align-items: center;
+      padding: 0.25em;
+      height: @object-node-height;
+      background-color: @gray-lighter;
+      .rounded-corners();
+
+      & > :not(:last-child) {
+        margin-right: 0.5em;
+      }
+    }
+
+    .node, .self {
+      & > .state-ball {
+        flex-shrink: 0;
+      }
+
+      .subject {
+        margin: auto;
+        .text-ellipsis();
+      }
+    }
+
+    .node:hover, .summary:hover {
+      background-color: @gray-light;
+      text-decoration: none;
+    }
+
+    .self {
+      cursor: default;
+    }
+
+    .summary .dependency-node-state-badges {
+      pointer-events: none;
+    }
+
+    .summary, .self {
+      .text-ellipsis();
+    }
+  }
+}
+
+#layout {
+  &.minimal-layout,
+  &.poor-layout:not(.sidebar-collapsed),
+  &.compact-layout.twocols:not(.sidebar-collapsed) {
+    .environment-widget-title, .environment-widget {
+      display: none;
+    }
+  }
+}
