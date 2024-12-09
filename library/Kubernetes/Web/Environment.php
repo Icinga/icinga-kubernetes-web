@@ -130,7 +130,7 @@ class Environment extends BaseHtmlElement
         $query = $forParents ? $this->parents : $this->children;
 
         foreach ($query as $node) {
-            $kind = Factory::getModelKind($node);
+            $kind = Factory::getKindFromModel($node);
             $url = Factory::createUrl($kind);
             $url->addParams(['id' => (string) Uuid::fromBytes($node->uuid)]);
 
@@ -167,7 +167,7 @@ class Environment extends BaseHtmlElement
             ->setHtmlContent(Text::create($node->name))
             ->addAttributes(['title' => $node->name]);
 
-        $kind = Factory::getModelKind($node);
+        $kind = Factory::getKindFromModel($node);
 
         $icon = Factory::createIcon($kind);
 
@@ -302,7 +302,7 @@ class Environment extends BaseHtmlElement
      */
     private function createSummary(Model $node, HtmlElement $list, bool $forParents = false): void
     {
-        $kind = Factory::getModelKind($node);
+        $kind = Factory::getKindFromModel($node);
 
         $kindPlural = $kind === 'ingress' ? $kind . 'es' : $kind . 's';
 

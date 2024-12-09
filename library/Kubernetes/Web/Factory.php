@@ -221,4 +221,26 @@ abstract class Factory
 
         return null;
     }
+
+    public static function getKindFromModel(Model $model): string
+    {
+        $kind = match (true) {
+            $model instanceof ConfigMap,
+            $model instanceof CronJob,
+            $model instanceof DaemonSet,
+            $model instanceof Deployment,
+            $model instanceof Ingress,
+            $model instanceof Job,
+            $model instanceof PersistentVolume,
+            $model instanceof PersistentVolumeClaim,
+            $model instanceof Pod,
+            $model instanceof ReplicaSet,
+            $model instanceof Secret,
+            $model instanceof Service,
+            $model instanceof StatefulSet => basename(str_replace('\\', '/', get_class($model))),
+            default                       => null
+        };
+
+        return strtolower(str_replace(['_', '-'], '', $kind));
+    }
 }
