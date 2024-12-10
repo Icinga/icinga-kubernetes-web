@@ -18,13 +18,20 @@ abstract class BaseItemList extends BaseHtmlElement
     use BaseFilter;
     use Translation;
 
+    /**
+     * Indicates whether the item list should be treated as an action list.
+     *
+     * @var bool $actionList
+     */
+    protected bool $actionList = true;
+
+    protected iterable $query;
+
     protected array $baseAttributes = [
-        'class'                         => 'item-list action-list',
+        'class'                         => 'item-list',
         'data-base-target'              => '_next',
         'data-pdfexport-page-breaks-at' => '.list-item'
     ];
-
-    protected iterable $query;
 
     protected $tag = 'ul';
 
@@ -33,6 +40,20 @@ abstract class BaseItemList extends BaseHtmlElement
         $this->query = $query;
 
         $this->init();
+    }
+
+    /**
+     * Enable or disable the action list functionality by setting the $actionList
+     * property.
+     *
+     * @param bool $actionList
+     * @return static
+     */
+    public function setActionList(bool $actionList): static
+    {
+        $this->actionList = $actionList;
+
+        return $this;
     }
 
     /**
@@ -45,12 +66,13 @@ abstract class BaseItemList extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $detailUrlAdded = false;
+        $detailUrlAdded = ! $this->actionList;
         $itemClass = $this->getItemClass();
 
+        $this->addAttributes($this->baseAttributes);
         foreach ($this->query as $item) {
             if (! $detailUrlAdded) {
-                $this->addAttributes($this->baseAttributes + [
+                $this->addAttributes(['class' => 'action-list'] + [
                         'data-icinga-detail-url' => Url::fromPath(
                             'kubernetes/' . str_replace('_', '-', $item->getTableAlias())
                         )
