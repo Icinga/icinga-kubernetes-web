@@ -10,7 +10,8 @@ use Icinga\Module\Kubernetes\Common\Auth;
 $section = $this->menuSection(
     'Kubernetes',
     [
-        'icon' => 'globe'
+        'icon' => 'globe',
+        'url'  => 'kubernetes/dashboard',
     ]
 );
 
