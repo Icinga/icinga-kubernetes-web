@@ -473,6 +473,48 @@ class Metrics
         return $data;
     }
 
+    public function getDeploymentMetrics(
+        DateTimeInterface $startDateTime,
+        string $deploymentId,
+        string ...$metricCategories
+    ): array {
+        $data = [];
+
+        foreach ($metricCategories as $category) {
+            $depl = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
+                    ->from('prometheus_pod_metric AS pm')
+                    ->join('pod AS p', 'pm.pod_uuid = p.uuid')
+                    ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
+                    ->join('replica_set AS rs', 'rs.uuid = po.owner_uuid')
+                    ->join('replica_set_owner AS rso', 'rs.uuid = rso.replica_set_uuid')
+                    ->join('deployment AS d', 'd.uuid = rso.owner_uuid')
+                    ->where(
+                        'd.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
+                        $deploymentId,
+                        $category,
+                        $startDateTime->getTimestamp() * 1000
+                    )
+                    ->groupBy("pm.timestamp"),
+                PDO::FETCH_ASSOC
+            );
+
+            foreach ($depl as $row) {
+                $data[$category][$row['timestamp']] = $row['value'];
+            }
+
+            if (! isset($data[$category])) {
+                continue;
+            }
+
+            $this->fillGaps($data[$category]);
+            ksort($data[$category]);
+        }
+
+        return $data;
+    }
+
     public static function mergeMetrics(array ...$arrays): array
     {
         $merged = [];
