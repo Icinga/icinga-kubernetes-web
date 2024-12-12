@@ -393,6 +393,46 @@ class Metrics
         return $data;
     }
 
+    public function getDaemonSetMetrics(
+        DateTimeInterface $startDateTime,
+        string $daemonSetId,
+        string ...$metricCategories
+    ): array {
+        $data = [];
+
+        foreach ($metricCategories as $category) {
+            $ds = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
+                    ->from('prometheus_pod_metric AS pm')
+                    ->join('pod AS p', 'pm.pod_uuid = p.uuid')
+                    ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
+                    ->join('daemon_set AS ds', 'po.owner_uuid = ds.uuid')
+                    ->where(
+                        'ds.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
+                        $daemonSetId,
+                        $category,
+                        $startDateTime->getTimestamp() * 1000
+                    )
+                    ->groupBy("pm.timestamp"),
+                PDO::FETCH_ASSOC
+            );
+
+            foreach ($ds as $row) {
+                $data[$category][$row['timestamp']] = $row['value'];
+            }
+
+            if (! isset($data[$category])) {
+                continue;
+            }
+
+            $this->fillGaps($data[$category]);
+            ksort($data[$category]);
+        }
+
+        return $data;
+    }
+
     public static function mergeMetrics(array ...$arrays): array
     {
         $merged = [];
