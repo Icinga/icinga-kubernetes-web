@@ -433,6 +433,46 @@ class Metrics
         return $data;
     }
 
+    public function getStatefulSetMetrics(
+        DateTimeInterface $startDateTime,
+        string $statefulSetId,
+        string ...$metricCategories
+    ): array {
+        $data = [];
+
+        foreach ($metricCategories as $category) {
+            $ss = $this->db->YieldAll(
+                (new Select())
+                    ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
+                    ->from('prometheus_pod_metric AS pm')
+                    ->join('pod AS p', 'pm.pod_uuid = p.uuid')
+                    ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
+                    ->join('stateful_set AS ss', 'po.owner_uuid = ss.uuid')
+                    ->where(
+                        'ss.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
+                        $statefulSetId,
+                        $category,
+                        $startDateTime->getTimestamp() * 1000
+                    )
+                    ->groupBy("pm.timestamp"),
+                PDO::FETCH_ASSOC
+            );
+
+            foreach ($ss as $row) {
+                $data[$category][$row['timestamp']] = $row['value'];
+            }
+
+            if (! isset($data[$category])) {
+                continue;
+            }
+
+            $this->fillGaps($data[$category]);
+            ksort($data[$category]);
+        }
+
+        return $data;
+    }
+
     public static function mergeMetrics(array ...$arrays): array
     {
         $merged = [];
