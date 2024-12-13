@@ -18,7 +18,8 @@ class Ingress extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'uuid'
+            'uuid',
+            'cluster_uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -28,6 +29,8 @@ class Ingress extends Model
 
     public function createRelations(Relations $relations): void
     {
+        $relations->belongsToOne('cluster', Cluster::class);
+
         $relations->hasMany('backend_resource', IngressBackendResource::class);
 
         $relations->hasMany('backend_service', IngressBackendService::class);
@@ -60,6 +63,7 @@ class Ingress extends Model
     public function getColumns(): array
     {
         return [
+            'cluster_uuid',
             'namespace',
             'name',
             'uid',

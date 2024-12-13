@@ -19,6 +19,7 @@ class Event extends Model
     {
         $behaviors->add(new Uuid([
             'uuid',
+            'cluster_uuid',
             'reference_uuid'
         ]));
 
@@ -31,6 +32,8 @@ class Event extends Model
 
     public function createRelations(Relations $relations)
     {
+        $relations->belongsToOne('cluster', Cluster::class);
+
         $relations
             ->belongsToMany('label', Label::class)
             ->through('resource_label')
@@ -72,6 +75,7 @@ class Event extends Model
     public function getColumns(): array
     {
         return [
+            'cluster_uuid',
             'reference_uuid',
             'namespace',
             'name',
