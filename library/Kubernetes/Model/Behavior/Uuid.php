@@ -94,7 +94,7 @@ class Uuid extends PropertyBehavior implements QueryAwareBehavior, RewriteFilter
              */
             if (ctype_xdigit($value)) {
                 if (! $this->isPostgres) {
-                    $condition->setValue(pack("h*", str_replace('-', '', $value)));
+                    $condition->setValue(pack('H*', str_replace('-', '', $value)));
                 } elseif (! str_starts_with($value, '\\x')) {
                     $condition->setValue(sprintf('\\x%s', str_replace('-', '', $value)));
                 }
