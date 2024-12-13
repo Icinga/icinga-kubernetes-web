@@ -28,7 +28,8 @@ class PersistentVolume extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'uuid'
+            'uuid',
+            'cluster_uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -38,6 +39,8 @@ class PersistentVolume extends Model
 
     public function createRelations(Relations $relations): void
     {
+        $relations->belongsToOne('cluster', Cluster::class);
+
         $relations
             ->belongsToMany('pvc', PersistentVolumeClaim::class)
             ->through('persistent_volume_claim_ref')
@@ -77,6 +80,7 @@ class PersistentVolume extends Model
     public function getColumns(): array
     {
         return [
+            'cluster_uuid',
             'namespace',
             'name',
             'uid',

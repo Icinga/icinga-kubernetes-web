@@ -18,7 +18,8 @@ class ConfigMap extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'uuid'
+            'uuid',
+            'cluster_uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -28,6 +29,8 @@ class ConfigMap extends Model
 
     public function createRelations(Relations $relations): void
     {
+        $relations->belongsToOne('cluster', Cluster::class);
+
         $relations
             ->belongsToMany('label', Label::class)
             ->through('config_map_label');
@@ -53,6 +56,7 @@ class ConfigMap extends Model
     {
         return [
             'uuid',
+            'cluster_uuid',
             'namespace',
             'name',
             'uid',

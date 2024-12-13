@@ -15,7 +15,8 @@ class Secret extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'uuid'
+            'uuid',
+            'cluster_uuid'
         ]));
 
         $behaviors->add(new MillisecondTimestamp([
@@ -25,6 +26,8 @@ class Secret extends Model
 
     public function createRelations(Relations $relations): void
     {
+        $relations->belongsToOne('cluster', Cluster::class);
+
         $relations
             ->belongsToMany('label', Label::class)
             ->through('secret_label');
@@ -37,6 +40,7 @@ class Secret extends Model
     public function getColumns(): array
     {
         return [
+            'cluster_uuid',
             'namespace',
             'name',
             'uid',
