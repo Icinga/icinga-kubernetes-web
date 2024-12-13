@@ -181,6 +181,7 @@ class Auth
         $allowedColumns = [
             'annotation.name',
             'annotation.value',
+            'cluster_uuid',
             'label.name',
             'label.value',
             'name',
