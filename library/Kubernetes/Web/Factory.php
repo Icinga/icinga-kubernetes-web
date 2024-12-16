@@ -164,4 +164,36 @@ abstract class Factory
             default       => null
         };
     }
+
+    public static function createListUrl(string $kind): ?Url
+    {
+        $kind = strtolower(str_replace(['_', '-'], '', $kind));
+
+        $controller = match ($kind) {
+            'configmap',
+            'container',
+            'cronjob',
+            'daemonset',
+            'deployment',
+            'event',
+            'job',
+            'namespace',
+            'node',
+            'persistentvolume',
+            'persistentvolumeclaim',
+            'pod',
+            'replicaset',
+            'secret',
+            'service',
+            'statefulset' => "{$kind}s",
+            'ingress'     => 'ingresses',
+            default       => null
+        };
+
+        if ($controller !== null) {
+            return Url::fromPath("kubernetes/$controller");
+        }
+
+        return null;
+    }
 }
