@@ -4,72 +4,47 @@
 
 namespace Icinga\Module\Kubernetes\Dashboard;
 
-use ipl\Html\Attributes;
+use Icinga\Module\Kubernetes\Common\BeforeAssemble;
+use Icinga\Module\Kubernetes\Common\FormatString;
+use Icinga\Module\Kubernetes\Web\Factory;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\Link;
 
-abstract class Dashlet extends BaseHtmlElement
+class Dashlet extends BaseHtmlElement
 {
+    use BeforeAssemble;
     use Translation;
 
     protected $tag = 'li';
 
-    /**
-     * @param $name
-     *
-     * @return mixed
-     */
-    public static function loadByName($name)
-    {
-        /** @var Dashlet */
-        $class = __NAMESPACE__ . '\\' . $name . 'Dashlet';
+    protected FormatString $summary;
 
-        return new $class();
+    public function __construct(
+        protected string $kind,
+        protected string $title,
+        string $summary,
+        protected ?string $url = null
+    ) {
+        $this->url = $url !== null ? $url : Factory::createListUrl($kind);
+        $this->summary = new FormatString($summary);
     }
 
-    public static function loadByNames(array $names)
+    protected function assemble(): void
     {
-        $dashlets = [];
-        foreach ($names as $name) {
-            $dashlet = static::loadByName($name);
-
-            $dashlets[] = $dashlet;
-        }
-
-        return $dashlets;
-    }
-
-    public function getIconName()
-    {
-        return $this->icon;
-    }
-
-    abstract public function getTitle();
-
-    abstract public function getUrl();
-
-    protected function assemble()
-    {
-        $this->addHtml((
-            new Link(
-                [
-                    $this->getTitle(),
-                    new HtmlElement(
-                        'i',
-                        new Attributes(['class' => $this->getIconName()])
-                    ),
-                    new HtmlElement(
-                        'p',
-                        null,
-                        new Text($this->getSummary())
-                    )
-                ],
-                $this->getUrl(),
-            )
+        $this->addHtml(new Link(
+            [
+                $this->title,
+                Factory::createIcon($this->kind),
+                new HtmlElement(
+                    'p',
+                    null,
+                    new Text($this->summary)
+                )
+            ],
+            $this->url
         ));
     }
 }
