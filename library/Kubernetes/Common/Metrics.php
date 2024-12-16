@@ -63,12 +63,12 @@ class Metrics
         $this->db = $db;
     }
 
-    public function getClusterMetrics(DateTimeInterface $startDateTime, string ...$metricCategories): array
+    public static function clusterMetrics(DateTimeInterface $startDateTime, string ...$categories): array
     {
         $data = [];
 
-        foreach ($metricCategories as $category) {
-            $rs = $this->db->YieldAll(
+        foreach ($categories as $category) {
+            $rs = Database::connection()->YieldAll(
                 (new Select())
                     ->columns(['timestamp', 'value'])
                     ->from('prometheus_cluster_metric')
@@ -89,19 +89,19 @@ class Metrics
                 continue;
             }
 
-            $this->fillGaps($data[$category]);
+            Metrics::fillGaps($data[$category]);
             ksort($data[$category]);
         }
 
         return $data;
     }
 
-    public function getNumberOfPodsByState(string ...$states): array
+    public static function numberOfPodsByState(string ...$states): array
     {
         $out = [];
 
         foreach ($states as $state) {
-            $dbData = $this->db->prepexec(
+            $dbData = Database::connection()->prepexec(
                 (new Select())
                     ->columns(['value'])
                     ->from('prometheus_cluster_metric')
@@ -116,94 +116,70 @@ class Metrics
         return $out;
     }
 
-    public function getNodesMetrics(DateTimeInterface $startDataTime, string ...$metricCategories): array
+    protected static function nodeMetricsCurrentQuery(string $nodeId, string $category): Select
     {
-        $data = [];
-
-        foreach ($metricCategories as $category) {
-            $rs = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['node.uuid', 'node.name', 'node_metric.timestamp', 'node_metric.value'])
-                    ->from('prometheus_node_metric AS node_metric')
-                    ->join('node', 'node_metric.node_uuid = node.uuid')
-                    ->where(
-                        'node_metric.category = ? AND node_metric.timestamp > ?',
-                        $category,
-                        $startDataTime->getTimestamp() * 1000
-                    ),
-                PDO::FETCH_ASSOC
-            );
-
-            foreach ($rs as $row) {
-                $id = $row['uuid'];
-                $ts = $row['timestamp'];
-                $data[$id]['name'] = $row['name'];
-                $data[$id][$category][$ts] = $row['value'];
-            }
-
-            foreach ($data as &$pod) {
-                $this->fillGaps($pod[$category]);
-                ksort($pod[$category]);
-            }
-        }
-
-        return $data;
+        return (new Select())
+            ->columns(['node_metric.value'])
+            ->from('prometheus_node_metric AS node_metric')
+            ->join('node', 'node_metric.node_uuid = node.uuid')
+            ->join(
+                [
+                    'latest_metrics' => (new Select())
+                        ->columns(['MAX(timestamp) AS latest_timestamp'])
+                        ->from('prometheus_node_metric')
+                        ->where('node_uuid = ? AND category = ?', $nodeId, $category)
+                ],
+                'node_metric.timestamp = latest_metrics.latest_timestamp'
+            )
+            ->where('node_uuid = ? AND node_metric.category = ?', $nodeId, $category);
     }
 
-    public function getNodeMetrics(DateTimeInterface $startDataTime, string $nodeId, string ...$metricCategories): array
+    protected static function podMetricsCurrentQuery(string $podId, string $category): Select
     {
-        $data = [];
-
-        foreach ($metricCategories as $category) {
-            $rs = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['node_metric.timestamp', 'node_metric.value'])
-                    ->from('prometheus_node_metric AS node_metric')
-                    ->join('node', 'node_metric.node_uuid = node.uuid')
-                    ->where(
-                        'node_uuid = ? AND node_metric.category = ? AND node_metric.timestamp > ?',
-                        $nodeId,
-                        $category,
-                        $startDataTime->getTimestamp() * 1000
-                    ),
-                PDO::FETCH_ASSOC
-            );
-
-            foreach ($rs as $row) {
-                $data[$category][$row['timestamp']] = $row['value'];
-            }
-
-            if (! isset($data[$category])) {
-                continue;
-            }
-
-            $this->fillGaps($data[$category]);
-            ksort($data[$category]);
-        }
-
-        return $data;
+        return (new Select())
+            ->columns(['pod_metric.value'])
+            ->from('prometheus_pod_metric AS pod_metric')
+            ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
+            ->join(
+                [
+                    'latest_metrics' => (new Select())
+                        ->columns(['MAX(timestamp) AS latest_timestamp'])
+                        ->from('prometheus_pod_metric')
+                        ->where('pod_uuid = ? AND category = ?', $podId, $category)
+                ],
+                'pod_metric.timestamp = latest_metrics.latest_timestamp'
+            )
+            ->where('pod_uuid = ? AND pod_metric.category = ?', $podId, $category);
     }
 
-    public function getNodeMetricsCurrent(string $nodeId, string ...$metricCategories): array
+    public static function nodeMetricsCurrent(string $uuid, string ...$categories): array
     {
+        return Metrics::getCurrentMetricsForUuid(
+            fn($uuid, $category) => Metrics::nodeMetricsCurrentQuery($uuid, $category),
+            $uuid,
+            ...$categories
+        );
+    }
+
+    public static function podMetricsCurrent(string $uuid, string ...$categories): array
+    {
+        return Metrics::getCurrentMetricsForUuid(
+            fn($uuid, $category) => Metrics::podMetricsCurrentQuery($uuid, $category),
+            $uuid,
+            ...$categories
+        );
+    }
+
+    protected static function getCurrentMetricsForUuid(
+        callable $queryFunction,
+        string $uuid,
+        string ...$categories
+    ): array {
         $data = [];
 
-        foreach ($metricCategories as $category) {
-            $rs = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['node_metric.value'])
-                    ->from('prometheus_node_metric AS node_metric')
-                    ->join('node', 'node_metric.node_uuid = node.uuid')
-                    ->join(
-                        [
-                            'latest_metrics' => (new Select())
-                                ->columns(['MAX(timestamp) AS latest_timestamp'])
-                                ->from('prometheus_node_metric')
-                                ->where('node_uuid = ? AND category = ?', $nodeId, $category)
-                        ],
-                        'node_metric.timestamp = latest_metrics.latest_timestamp'
-                    )
-                    ->where('node_uuid = ? AND node_metric.category = ?', $nodeId, $category),
+        foreach ($categories as $category) {
+            $rs = Database::connection()->YieldAll(
+                $queryFunction($uuid, $category),
                 PDO::FETCH_ASSOC
             );
 
@@ -215,292 +191,215 @@ class Metrics
         return $data;
     }
 
-    public function getPodsMetricsCurrent(string ...$metricCategories): array
-    {
-        $data = [];
-
-        foreach ($metricCategories as $category) {
-            $rs = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['pod.uuid', 'pod.name', 'pod_metric.value'])
-                    ->from('prometheus_pod_metric AS pod_metric')
-                    ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
-                    ->join(
-                        [
-                            'latest_metrics' => (new Select())
-                                ->columns(['pod_uuid', 'MAX(timestamp) AS latest_timestamp'])
-                                ->from('prometheus_pod_metric')
-                                ->where('category = ?', $category)
-                                ->groupBy('pod_uuid')
-                        ],
-                        'pod_metric.pod_uuid = latest_metrics.pod_uuid'
-                        . ' AND pod_metric.timestamp = latest_metrics.latest_timestamp'
-                    )
-                    ->where('pod_metric.category = ?', $category),
-                PDO::FETCH_ASSOC
+    protected static function nodeMetricsQuery(
+        DateTimeInterface $startDataTime,
+        string $nodeId,
+        string $category
+    ): Select {
+        return (new Select())
+            ->columns(['node_metric.timestamp', 'node_metric.value'])
+            ->from('prometheus_node_metric AS node_metric')
+            ->join('node', 'node_metric.node_uuid = node.uuid')
+            ->where(
+                'node_uuid = ? AND node_metric.category = ? AND node_metric.timestamp > ?',
+                $nodeId,
+                $category,
+                $startDataTime->getTimestamp() * 1000
             );
-
-            foreach ($rs as $row) {
-                $id = $row['uuid'];
-                $data[$id]['name'] = $row['name'];
-                $data[$id][$category] = $row['value'];
-            }
-        }
-
-        return $data;
     }
 
-    public function getPodMetricsCurrent(string $podId, string ...$metricCategories): array
-    {
-        $data = [];
-
-        foreach ($metricCategories as $category) {
-            $rs = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['pod_metric.value'])
-                    ->from('prometheus_pod_metric AS pod_metric')
-                    ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
-                    ->join(
-                        [
-                            'latest_metrics' => (new Select())
-                                ->columns(['MAX(timestamp) AS latest_timestamp'])
-                                ->from('prometheus_pod_metric')
-                                ->where('pod_uuid = ? AND category = ?', $podId, $category)
-                        ],
-                        'pod_metric.timestamp = latest_metrics.latest_timestamp'
-                    )
-                    ->where('pod_uuid = ? AND pod_metric.category = ?', $podId, $category),
-                PDO::FETCH_ASSOC
+    protected static function podMetricsQuery(
+        DateTimeInterface $startDataTime,
+        string $podId,
+        string $category
+    ): Select {
+        return (new Select())
+            ->columns(['pod_metric.timestamp', 'pod_metric.value'])
+            ->from('prometheus_pod_metric AS pod_metric')
+            ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
+            ->where(
+                'pod.uuid = ? AND pod_metric.category = ? AND pod_metric.timestamp > ?',
+                $podId,
+                $category,
+                $startDataTime->getTimestamp() * 1000
             );
-
-            foreach ($rs as $row) {
-                $data[$category] = $row['value'];
-            }
-        }
-
-        return $data;
     }
 
-    public function getPodsMetrics(DateTimeInterface $startDateTime, string ...$metricCategories): array
-    {
-        $data = [];
-
-        foreach ($metricCategories as $category) {
-            $rs = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['pod.uuid', 'pod.name', 'pod_metric.timestamp', 'pod_metric.value'])
-                    ->from('prometheus_pod_metric AS pod_metric')
-                    ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
-                    ->where(
-                        'pod_metric.category = ? AND pod_metric.timestamp > ?',
-                        $category,
-                        $startDateTime->getTimestamp() * 1000
-                    ),
-                PDO::FETCH_ASSOC
-            );
-
-            foreach ($rs as $row) {
-                $id = $row['uuid'];
-                $ts = $row['timestamp'];
-
-                $data[$id]['name'] = $row['name'];
-                $data[$id][$category][$ts] = $row['value'];
-            }
-
-            foreach ($data as &$pod) {
-                if (! isset($pod[$category])) {
-                    continue;
-                }
-                $this->fillGaps($pod[$category]);
-                ksort($pod[$category]);
-            }
-        }
-
-        return $data;
-    }
-
-    public function getPodMetrics(DateTimeInterface $startDateTime, string $podId, string ...$metricCategories): array
-    {
-        $data = [];
-
-        foreach ($metricCategories as $category) {
-            $rs = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['pod_metric.timestamp', 'pod_metric.value'])
-                    ->from('prometheus_pod_metric AS pod_metric')
-                    ->join('pod', 'pod_metric.pod_uuid = pod.uuid')
-                    ->where(
-                        'pod.uuid = ? AND pod_metric.category = ? AND pod_metric.timestamp > ?',
-                        $podId,
-                        $category,
-                        $startDateTime->getTimestamp() * 1000
-                    ),
-                PDO::FETCH_ASSOC
-            );
-
-            foreach ($rs as $row) {
-                $data[$category][$row['timestamp']] = $row['value'];
-            }
-
-            if (! isset($data[$category])) {
-                continue;
-            }
-
-            $this->fillGaps($data[$category]);
-            ksort($data[$category]);
-        }
-
-        return $data;
-    }
-
-    public function getReplicaSetMetrics(
-        DateTimeInterface $startDateTime,
+    protected static function replicaSetMetricsQuery(
+        DateTimeInterface $startDataTime,
         string $replicaSetId,
-        string ...$metricCategories
-    ): array {
-        $data = [];
-
-        foreach ($metricCategories as $category) {
-            $rs = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
-                    ->from('prometheus_pod_metric AS pm')
-                    ->join('pod AS p', 'pm.pod_uuid = p.uuid')
-                    ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
-                    ->join('replica_set AS rs', 'po.owner_uuid = rs.uuid')
-                    ->where(
-                        'rs.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
-                        $replicaSetId,
-                        $category,
-                        $startDateTime->getTimestamp() * 1000
-                    )
-                    ->groupBy("pm.timestamp"),
-                PDO::FETCH_ASSOC
-            );
-
-            foreach ($rs as $row) {
-                $data[$category][$row['timestamp']] = $row['value'];
-            }
-
-            if (! isset($data[$category])) {
-                continue;
-            }
-
-            $this->fillGaps($data[$category]);
-            ksort($data[$category]);
-        }
-
-        return $data;
+        string $category
+    ): Select {
+        return (new Select())
+            ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
+            ->from('prometheus_pod_metric AS pm')
+            ->join('pod AS p', 'pm.pod_uuid = p.uuid')
+            ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
+            ->join('replica_set AS rs', 'po.owner_uuid = rs.uuid')
+            ->where(
+                'rs.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
+                $replicaSetId,
+                $category,
+                $startDataTime->getTimestamp() * 1000
+            )
+            ->groupBy("pm.timestamp");
     }
 
-    public function getDaemonSetMetrics(
-        DateTimeInterface $startDateTime,
+    protected static function daemonSetMetricsQuery(
+        DateTimeInterface $startDataTime,
         string $daemonSetId,
-        string ...$metricCategories
-    ): array {
-        $data = [];
-
-        foreach ($metricCategories as $category) {
-            $ds = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
-                    ->from('prometheus_pod_metric AS pm')
-                    ->join('pod AS p', 'pm.pod_uuid = p.uuid')
-                    ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
-                    ->join('daemon_set AS ds', 'po.owner_uuid = ds.uuid')
-                    ->where(
-                        'ds.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
-                        $daemonSetId,
-                        $category,
-                        $startDateTime->getTimestamp() * 1000
-                    )
-                    ->groupBy("pm.timestamp"),
-                PDO::FETCH_ASSOC
-            );
-
-            foreach ($ds as $row) {
-                $data[$category][$row['timestamp']] = $row['value'];
-            }
-
-            if (! isset($data[$category])) {
-                continue;
-            }
-
-            $this->fillGaps($data[$category]);
-            ksort($data[$category]);
-        }
-
-        return $data;
+        string $category
+    ): Select {
+        return (new Select())
+            ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
+            ->from('prometheus_pod_metric AS pm')
+            ->join('pod AS p', 'pm.pod_uuid = p.uuid')
+            ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
+            ->join('daemon_set AS ds', 'po.owner_uuid = ds.uuid')
+            ->where(
+                'ds.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
+                $daemonSetId,
+                $category,
+                $startDataTime->getTimestamp() * 1000
+            )
+            ->groupBy("pm.timestamp");
     }
 
-    public function getStatefulSetMetrics(
-        DateTimeInterface $startDateTime,
+    protected static function statefulSetMetricsQuery(
+        DateTimeInterface $startDataTime,
         string $statefulSetId,
-        string ...$metricCategories
-    ): array {
-        $data = [];
-
-        foreach ($metricCategories as $category) {
-            $ss = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
-                    ->from('prometheus_pod_metric AS pm')
-                    ->join('pod AS p', 'pm.pod_uuid = p.uuid')
-                    ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
-                    ->join('stateful_set AS ss', 'po.owner_uuid = ss.uuid')
-                    ->where(
-                        'ss.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
-                        $statefulSetId,
-                        $category,
-                        $startDateTime->getTimestamp() * 1000
-                    )
-                    ->groupBy("pm.timestamp"),
-                PDO::FETCH_ASSOC
-            );
-
-            foreach ($ss as $row) {
-                $data[$category][$row['timestamp']] = $row['value'];
-            }
-
-            if (! isset($data[$category])) {
-                continue;
-            }
-
-            $this->fillGaps($data[$category]);
-            ksort($data[$category]);
-        }
-
-        return $data;
+        string $category
+    ): Select {
+        return (new Select())
+            ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
+            ->from('prometheus_pod_metric AS pm')
+            ->join('pod AS p', 'pm.pod_uuid = p.uuid')
+            ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
+            ->join('stateful_set AS ss', 'po.owner_uuid = ss.uuid')
+            ->where(
+                'ss.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
+                $statefulSetId,
+                $category,
+                $startDataTime->getTimestamp() * 1000
+            )
+            ->groupBy("pm.timestamp");
     }
 
-    public function getDeploymentMetrics(
-        DateTimeInterface $startDateTime,
+    protected static function deploymentMetricsQuery(
+        DateTimeInterface $startDataTime,
         string $deploymentId,
+        string $category
+    ): Select {
+        return (new Select())
+            ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
+            ->from('prometheus_pod_metric AS pm')
+            ->join('pod AS p', 'pm.pod_uuid = p.uuid')
+            ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
+            ->join('replica_set AS rs', 'rs.uuid = po.owner_uuid')
+            ->join('replica_set_owner AS rso', 'rs.uuid = rso.replica_set_uuid')
+            ->join('deployment AS d', 'd.uuid = rso.owner_uuid')
+            ->where(
+                'd.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
+                $deploymentId,
+                $category,
+                $startDataTime->getTimestamp() * 1000
+            )
+            ->groupBy("pm.timestamp");
+    }
+
+    public static function nodeMetrics(
+        DateTimeInterface $startDataTime,
+        string $uuid,
         string ...$metricCategories
+    ): array {
+        return Metrics::getMetricsForUuid(
+            fn($start, $id, $category) => Metrics::nodeMetricsQuery($start, $id, $category),
+            $startDataTime,
+            $uuid,
+            ...$metricCategories
+        );
+    }
+
+    public static function podMetrics(
+        DateTimeInterface $startDataTime,
+        string $uuid,
+        string ...$metricCategories
+    ): array {
+        return Metrics::getMetricsForUuid(
+            fn($start, $uuid, $category) => Metrics::podMetricsQuery($start, $uuid, $category),
+            $startDataTime,
+            $uuid,
+            ...$metricCategories
+        );
+    }
+
+    public static function replicaSetMetrics(
+        DateTimeInterface $startDataTime,
+        string $uuid,
+        string ...$metricCategories
+    ): array {
+        return Metrics::getMetricsForUuid(
+            fn($start, $uuid, $category) => Metrics::replicaSetMetricsQuery($start, $uuid, $category),
+            $startDataTime,
+            $uuid,
+            ...$metricCategories
+        );
+    }
+
+    public static function daemonSetMetrics(
+        DateTimeInterface $startDataTime,
+        string $uuid,
+        string ...$metricCategories
+    ): array {
+        return Metrics::getMetricsForUuid(
+            fn($start, $uuid, $category) => Metrics::daemonSetMetricsQuery($start, $uuid, $category),
+            $startDataTime,
+            $uuid,
+            ...$metricCategories
+        );
+    }
+
+    public static function statefulSetMetrics(
+        DateTimeInterface $startDataTime,
+        string $uuid,
+        string ...$metricCategories
+    ): array {
+        return Metrics::getMetricsForUuid(
+            fn($start, $uuid, $category) => Metrics::statefulSetMetricsQuery($start, $uuid, $category),
+            $startDataTime,
+            $uuid,
+            ...$metricCategories
+        );
+    }
+
+    public static function deploymentMetrics(
+        DateTimeInterface $startDataTime,
+        string $uuid,
+        string ...$metricCategories
+    ): array {
+        return Metrics::getMetricsForUuid(
+            fn($start, $uuid, $category) => Metrics::deploymentMetricsQuery($start, $uuid, $category),
+            $startDataTime,
+            $uuid,
+            ...$metricCategories
+        );
+    }
+
+    protected static function getMetricsForUuid(
+        callable $queryFunction,
+        DateTimeInterface $startDataTime,
+        string $uuid,
+        string ...$categories
     ): array {
         $data = [];
 
-        foreach ($metricCategories as $category) {
-            $depl = $this->db->YieldAll(
-                (new Select())
-                    ->columns(['pm.timestamp', 'SUM(pm.value) AS value'])
-                    ->from('prometheus_pod_metric AS pm')
-                    ->join('pod AS p', 'pm.pod_uuid = p.uuid')
-                    ->join('pod_owner AS po', 'p.uuid = po.pod_uuid')
-                    ->join('replica_set AS rs', 'rs.uuid = po.owner_uuid')
-                    ->join('replica_set_owner AS rso', 'rs.uuid = rso.replica_set_uuid')
-                    ->join('deployment AS d', 'd.uuid = rso.owner_uuid')
-                    ->where(
-                        'd.uuid = ? AND pm.category = ? AND pm.timestamp > ?',
-                        $deploymentId,
-                        $category,
-                        $startDateTime->getTimestamp() * 1000
-                    )
-                    ->groupBy("pm.timestamp"),
+        foreach ($categories as $category) {
+            $rows = Database::connection()->YieldAll(
+                $queryFunction($startDataTime, $uuid, $category),
                 PDO::FETCH_ASSOC
             );
 
-            foreach ($depl as $row) {
+            foreach ($rows as $row) {
                 $data[$category][$row['timestamp']] = $row['value'];
             }
 
@@ -508,12 +407,13 @@ class Metrics
                 continue;
             }
 
-            $this->fillGaps($data[$category]);
+            Metrics::fillGaps($data[$category]);
             ksort($data[$category]);
         }
 
         return $data;
     }
+
 
     public static function mergeMetrics(array ...$arrays): array
     {
@@ -532,7 +432,7 @@ class Metrics
         return $merged;
     }
 
-    protected function fillGaps(array &$data): void
+    protected static function fillGaps(array &$data): void
     {
         $firstTs = min(array_keys($data));
         $lastTs = max(array_keys($data));

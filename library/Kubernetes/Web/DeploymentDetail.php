@@ -40,35 +40,15 @@ class DeploymentDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $metrics = new Metrics(Database::connection());
-        $deploymentMetricsPeriod = $metrics->getDeploymentMetrics(
-            (new DateTime())->sub(new DateInterval('PT12H')),
-            $this->deployment->uuid,
-            Metrics::POD_CPU_USAGE,
-            Metrics::POD_MEMORY_USAGE,
-        );
-        $metricRow = [];
-        if (isset($deploymentMetricsPeriod[Metrics::POD_CPU_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $deploymentMetricsPeriod[Metrics::POD_CPU_USAGE]),
-                implode(', ', array_keys($deploymentMetricsPeriod[Metrics::POD_CPU_USAGE])),
-                'CPU Usage',
-                Metrics::COLOR_CPU
-            );
-        }
-        if (isset($deploymentMetricsPeriod[Metrics::POD_MEMORY_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $deploymentMetricsPeriod[Metrics::POD_MEMORY_USAGE]),
-                implode(', ', array_keys($deploymentMetricsPeriod[Metrics::POD_MEMORY_USAGE])),
-                'Memory Usage',
-                Metrics::COLOR_MEMORY
-            );
-        }
-
         $this->addHtml(
-//            new MetricCharts($metricRow),
+            new DetailMetricCharts(
+                Metrics::deploymentMetrics(
+                    (new DateTime())->sub(new DateInterval('PT12H')),
+                    $this->deployment->uuid,
+                    Metrics::POD_CPU_USAGE,
+                    Metrics::POD_MEMORY_USAGE,
+                )
+            ),
             new Details(new ResourceDetails($this->deployment, [
                 $this->translate('Min Ready Duration')   => (new HtmlDocument())->addHtml(
                     new Icon('stopwatch'),

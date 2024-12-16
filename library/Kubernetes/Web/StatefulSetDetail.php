@@ -41,34 +41,15 @@ class StatefulSetDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $metrics = new Metrics(Database::connection());
-        $statefulSetMetricsPeriod = $metrics->getStatefulSetMetrics(
-            (new DateTime())->sub(new DateInterval('PT12H')),
-            $this->statefulSet->uuid,
-            Metrics::POD_CPU_USAGE,
-            Metrics::POD_MEMORY_USAGE,
-        );
-        $metricRow = [];
-        if (isset($statefulSetMetricsPeriod[Metrics::POD_CPU_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $statefulSetMetricsPeriod[Metrics::POD_CPU_USAGE]),
-                implode(', ', array_keys($statefulSetMetricsPeriod[Metrics::POD_CPU_USAGE])),
-                'CPU Usage',
-                Metrics::COLOR_CPU
-            );
-        }
-        if (isset($statefulSetMetricsPeriod[Metrics::POD_MEMORY_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $statefulSetMetricsPeriod[Metrics::POD_MEMORY_USAGE]),
-                implode(', ', array_keys($statefulSetMetricsPeriod[Metrics::POD_MEMORY_USAGE])),
-                'Memory Usage',
-                Metrics::COLOR_MEMORY
-            );
-        }
         $this->addHtml(
-            new MetricCharts($metricRow),
+            new DetailMetricCharts(
+                Metrics::statefulSetMetrics(
+                    (new DateTime())->sub(new DateInterval('PT12H')),
+                    $this->statefulSet->uuid,
+                    Metrics::POD_CPU_USAGE,
+                    Metrics::POD_MEMORY_USAGE,
+                )
+            ),
             new Details(new ResourceDetails($this->statefulSet, [
                 $this->translate('Min Ready Duration')    => (new HtmlDocument())->addHtml(
                     new Icon('stopwatch'),

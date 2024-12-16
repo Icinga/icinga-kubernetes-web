@@ -40,35 +40,15 @@ class ReplicaSetDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $metrics = new Metrics(Database::connection());
-        $replicaSetMetricsPeriod = $metrics->getReplicaSetMetrics(
-            (new DateTime())->sub(new DateInterval('PT12H')),
-            $this->replicaSet->uuid,
-            Metrics::POD_CPU_USAGE,
-            Metrics::POD_MEMORY_USAGE,
-        );
-        $metricRow = [];
-        if (isset($replicaSetMetricsPeriod[Metrics::POD_CPU_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $replicaSetMetricsPeriod[Metrics::POD_CPU_USAGE]),
-                implode(', ', array_keys($replicaSetMetricsPeriod[Metrics::POD_CPU_USAGE])),
-                'CPU Usage',
-                Metrics::COLOR_CPU
-            );
-        }
-        if (isset($replicaSetMetricsPeriod[Metrics::POD_MEMORY_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $replicaSetMetricsPeriod[Metrics::POD_MEMORY_USAGE]),
-                implode(', ', array_keys($replicaSetMetricsPeriod[Metrics::POD_MEMORY_USAGE])),
-                'Memory Usage',
-                Metrics::COLOR_MEMORY
-            );
-        }
-
         $this->addHtml(
-            new MetricCharts($metricRow),
+            new DetailMetricCharts(
+                Metrics::replicaSetMetrics(
+                    (new DateTime())->sub(new DateInterval('PT12H')),
+                    $this->replicaSet->uuid,
+                    Metrics::POD_CPU_USAGE,
+                    Metrics::POD_MEMORY_USAGE,
+                )
+            ),
             new Details(new ResourceDetails($this->replicaSet, [
                 $this->translate('Min Ready Duration')     => (new HtmlDocument())->addHtml(
                     new Icon('stopwatch'),
