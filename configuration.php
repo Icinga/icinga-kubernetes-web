@@ -251,7 +251,7 @@ $this->providePermission(
 
 $this->providePermission(
     Auth::SHOW_SECRETS,
-    $this->translate('Allow to show secretes')
+    $this->translate('Allow to show secrets')
 );
 
 $this->providePermission(
