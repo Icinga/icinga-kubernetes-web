@@ -6,13 +6,19 @@ namespace Icinga\Module\Kubernetes\Dashboard;
 
 class ObservabilityDashboard extends Dashboard
 {
-    protected $dashletNames = [
-        'Event',
-        // TODO: Metrics
-    ];
-
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->translate('Observability');
+    }
+
+    protected function assemble(): void
+    {
+        $this->addHtml(
+            new Dashlet(
+                'event',
+                $this->translate('Events'),
+                $this->translate('Record changes and issues within the cluster.')
+            )
+        );
     }
 }
