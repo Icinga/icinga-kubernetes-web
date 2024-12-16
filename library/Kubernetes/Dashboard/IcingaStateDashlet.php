@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Dashboard;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Web\Factory;
 use Icinga\Web\Session;
@@ -15,7 +16,11 @@ class IcingaStateDashlet extends Dashlet
 {
     protected function getIcingaStateCounts(): array
     {
-        $q = (Factory::createModel($this->kind)::on(Database::connection()));
+        $q = Auth::getInstance()
+            ->withRestrictions(
+                Auth::PERMISSIONS[$this->kind],
+                Factory::createModel($this->kind)::on(Database::connection())
+            );
 
         $clusterUuid = Session::getSession()->getNamespace('kubernetes')->get('cluster_uuid');
         if ($clusterUuid !== null) {
