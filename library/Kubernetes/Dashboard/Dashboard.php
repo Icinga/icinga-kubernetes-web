@@ -4,92 +4,28 @@
 
 namespace Icinga\Module\Kubernetes\Dashboard;
 
-use Icinga\Module\Kubernetes\Common\Database;
-use ipl\Html\Html;
-use ipl\Html\HtmlDocument;
+use Icinga\Module\Kubernetes\Common\BeforeAssemble;
+use ipl\Html\Attributes;
+use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlElement;
+use ipl\Html\Text;
 use ipl\I18n\Translation;
 
-abstract class Dashboard extends HtmlDocument
+abstract class Dashboard extends BaseHtmlElement
 {
+    use BeforeAssemble;
     use Translation;
 
-    /** @var string */
-    protected $name;
+    protected $tag = 'ul';
 
-    /** @var  Dashlet[] */
-    protected $dashlets;
+    abstract protected function getTitle(): string;
 
-    protected $dashletNames;
-
-    /**
-     * @param string $name
-     *
-     * @return self
-     */
-    public static function loadByName(string $name)
+    protected function beforeAssemble(): void
     {
-        $class = __NAMESPACE__ . '\\' . ucfirst($name) . 'Dashboard';
-        $dashboard = new $class();
-        $dashboard->name = $name;
-
-        return $dashboard;
-    }
-
-    public static function exists($name)
-    {
-        return class_exists(__NAMESPACE__ . '\\' . ucfirst($name) . 'Dashboard');
-    }
-
-    public function render()
-    {
-        $this
-            ->setSeparator("\n")
-            ->add(Html::tag('h1', null, $this->getTitle()))
-            ->add($this->renderDashlets());
-
-        return parent::render();
-    }
-
-    public function renderDashlets()
-    {
-        $ul = Html::tag('ul', [
-            'class' => 'main-actions',
-            'data-base-target' => '_self'
-        ]);
-
-        foreach ($this->dashlets() as $dashlet) {
-            $ul->add($dashlet);
-        }
-
-        return $ul;
-    }
-
-    abstract public function getTitle();
-
-    public function dashlets()
-    {
-        if ($this->dashlets === null) {
-            $this->loadDashlets();
-        }
-
-        return $this->dashlets;
-    }
-
-    public function loadDashlets()
-    {
-        $names = $this->getDashletNames();
-
-        if (empty($names)) {
-            $this->dashlets = array();
-        } else {
-            $this->dashlets = Dashlet::loadByNames(
-                $this->dashletNames,
-            );
-        }
-    }
-
-    public function getDashletNames()
-    {
-        return $this->dashletNames;
+        $this->setWrapper(new HtmlElement(
+            'section',
+            new Attributes(['class' => 'kubernetes-dashboard']),
+            new HtmlElement('h2', null, new Text($this->getTitle()))
+        ));
     }
 }
