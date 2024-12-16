@@ -49,7 +49,7 @@ class EventListItem extends BaseListItem
         $kind = strtolower($this->item->reference_kind);
 
         $icon = Factory::createIcon($kind);
-        $url = Factory::createUrl($kind);
+        $url = Factory::createDetailUrl($kind);
 
         if ($url !== null) {
             $content = new HtmlDocument();

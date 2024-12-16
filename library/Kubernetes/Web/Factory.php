@@ -25,6 +25,7 @@ use Icinga\Module\Kubernetes\Model\StatefulSet;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\ValidHtml;
+use ipl\Orm\Model;
 use ipl\Stdlib\Filter\Rule;
 use ipl\Web\Url;
 use ipl\Web\Widget\EmptyState;
@@ -138,7 +139,7 @@ abstract class Factory
         }
     }
 
-    public static function createUrl(string $kind): ?Url
+    public static function createDetailUrl(string $kind): ?Url
     {
         $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
