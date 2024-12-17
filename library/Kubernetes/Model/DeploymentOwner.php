@@ -17,7 +17,8 @@ class DeploymentOwner extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'deployment_uuid'
+            'deployment_uuid',
+            'owner_uuid'
         ]));
     }
 

@@ -17,7 +17,8 @@ class JobOwner extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'job_uuid'
+            'job_uuid',
+            'owner_uuid'
         ]));
     }
 
