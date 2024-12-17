@@ -21,16 +21,12 @@
   width: 6em;
 
   li {
-    margin-right: 1px;
+    height: 0.6em;
+    width: 0.6em;
 
     &:last-child {
       margin-right: 0;
     }
-  }
-
-  li {
-    height: 7px;
-    width: 7px;
 
     &.critical {
       --state-color: @state-critical
@@ -64,10 +60,11 @@
   &.ball li {
     background-color: var(--state-color);
     border-radius: 50%;
-    margin-left: -4px;
+
+    margin-left: -0.26em;
 
     &:nth-child(2n) {
-      margin-top: 7px;
+      margin-top: 0.6em;
     }
 
     &:first-child {
