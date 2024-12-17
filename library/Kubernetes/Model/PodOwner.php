@@ -17,7 +17,8 @@ class PodOwner extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'pod_uuid'
+            'pod_uuid',
+            'owner_uuid',
         ]));
     }
 

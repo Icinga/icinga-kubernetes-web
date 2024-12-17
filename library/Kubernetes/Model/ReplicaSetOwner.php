@@ -17,7 +17,8 @@ class ReplicaSetOwner extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'replica_set_uuid'
+            'replica_set_uuid',
+            'owner_uuid'
         ]));
     }
 

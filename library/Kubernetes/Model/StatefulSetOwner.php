@@ -17,7 +17,8 @@ class StatefulSetOwner extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'stateful_set_uuid'
+            'stateful_set_uuid',
+            'owner_uuid'
         ]));
     }
 

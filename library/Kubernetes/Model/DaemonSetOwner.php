@@ -17,7 +17,8 @@ class DaemonSetOwner extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'daemon_set_uuid'
+            'daemon_set_uuid',
+            'owner_uuid'
         ]));
     }
 
