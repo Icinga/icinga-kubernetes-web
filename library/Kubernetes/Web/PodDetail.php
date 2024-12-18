@@ -47,35 +47,15 @@ class PodDetail extends BaseHtmlElement
             $containerRestarts += $container->restart_count;
         }
 
-        $metrics = new Metrics(Database::connection());
-        $podMetricsPeriod = $metrics->getPodMetrics(
-            (new DateTime())->sub(new DateInterval('PT12H')),
-            $this->pod->uuid,
-            Metrics::POD_CPU_USAGE,
-            Metrics::POD_MEMORY_USAGE
-        );
-        $metricRow = [];
-        if (isset($podMetricsPeriod[Metrics::POD_CPU_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $podMetricsPeriod[Metrics::POD_CPU_USAGE]),
-                implode(', ', array_keys($podMetricsPeriod[Metrics::POD_CPU_USAGE])),
-                'CPU Usage',
-                Metrics::COLOR_CPU
-            );
-        }
-        if (isset($podMetricsPeriod[Metrics::POD_MEMORY_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $podMetricsPeriod[Metrics::POD_MEMORY_USAGE]),
-                implode(', ', array_keys($podMetricsPeriod[Metrics::POD_MEMORY_USAGE])),
-                'Memory Usage',
-                Metrics::COLOR_MEMORY
-            );
-        }
-
         $this->addHtml(
-            new MetricCharts($metricRow),
+            new DetailMetricCharts(
+                Metrics::podMetrics(
+                    (new DateTime())->sub(new DateInterval('PT12H')),
+                    $this->pod->uuid,
+                    Metrics::POD_CPU_USAGE,
+                    Metrics::POD_MEMORY_USAGE
+                )
+            ),
             new Details(new ResourceDetails($this->pod, [
                 $this->translate('IP')                  => $this->pod->ip ??
                     new EmptyState($this->translate('None')),
@@ -93,7 +73,7 @@ class PodDetail extends BaseHtmlElement
                     new Icon('recycle'),
                     new Text($this->pod->restart_policy)
                 ),
-                $this->translate('Quality of Service')           => (new HtmlDocument())->addHtml(
+                $this->translate('Quality of Service')  => (new HtmlDocument())->addHtml(
                     new Icon('life-ring'),
                     new Text($this->pod->qos)
                 ),

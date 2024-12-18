@@ -40,34 +40,15 @@ class NodeDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $metrics = new Metrics(Database::connection());
-        $nodeMetricsPeriod = $metrics->getNodeMetrics(
-            (new DateTime())->sub(new DateInterval('PT12H')),
-            $this->node->uuid,
-            Metrics::NODE_CPU_USAGE,
-            Metrics::NODE_MEMORY_USAGE
-        );
-        $metricRow = [];
-        if (isset($nodeMetricsPeriod[Metrics::NODE_CPU_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $nodeMetricsPeriod[Metrics::NODE_CPU_USAGE]),
-                implode(', ', array_keys($nodeMetricsPeriod[Metrics::NODE_CPU_USAGE])),
-                'CPU Usage',
-                Metrics::COLOR_CPU
-            );
-        }
-        if (isset($nodeMetricsPeriod[Metrics::NODE_MEMORY_USAGE])) {
-            $metricRow[] = new LineChart(
-                'chart-medium',
-                implode(', ', $nodeMetricsPeriod[Metrics::NODE_MEMORY_USAGE]),
-                implode(', ', array_keys($nodeMetricsPeriod[Metrics::NODE_MEMORY_USAGE])),
-                'Memory Usage',
-                Metrics::COLOR_MEMORY
-            );
-        }
         $this->addHtml(
-            new MetricCharts($metricRow),
+            new DetailMetricCharts(
+                Metrics::nodeMetrics(
+                    (new DateTime())->sub(new DateInterval('PT12H')),
+                    $this->node->uuid,
+                    Metrics::NODE_CPU_USAGE,
+                    Metrics::NODE_MEMORY_USAGE
+                )
+            ),
             new Details([
                 $this->translate('Name')                      => $this->node->name,
                 $this->translate('UID')                       => $this->node->uid,

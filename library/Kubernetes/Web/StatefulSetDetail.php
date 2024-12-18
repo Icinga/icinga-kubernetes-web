@@ -4,9 +4,12 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use DateInterval;
+use DateTime;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
+use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
@@ -39,6 +42,14 @@ class StatefulSetDetail extends BaseHtmlElement
     protected function assemble(): void
     {
         $this->addHtml(
+            new DetailMetricCharts(
+                Metrics::statefulSetMetrics(
+                    (new DateTime())->sub(new DateInterval('PT12H')),
+                    $this->statefulSet->uuid,
+                    Metrics::POD_CPU_USAGE,
+                    Metrics::POD_MEMORY_USAGE,
+                )
+            ),
             new Details(new ResourceDetails($this->statefulSet, [
                 $this->translate('Min Ready Duration')    => (new HtmlDocument())->addHtml(
                     new Icon('stopwatch'),
