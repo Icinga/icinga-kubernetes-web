@@ -15,7 +15,6 @@ use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -23,7 +22,6 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Icon;
-use ipl\Web\Widget\StateBall;
 
 class DeploymentDetail extends BaseHtmlElement
 {
@@ -81,14 +79,7 @@ class DeploymentDetail extends BaseHtmlElement
                 $this->translate('Ready Replicas')       => $this->deployment->ready_replicas,
                 $this->translate('Available Replicas')   => $this->deployment->available_replicas,
                 $this->translate('Unavailable Replicas') => $this->deployment->unavailable_replicas,
-                $this->translate('Icinga State')         => (new HtmlDocument())->addHtml(
-                    new StateBall($this->deployment->icinga_state, StateBall::SIZE_MEDIUM),
-                    new HtmlElement(
-                        'span',
-                        new Attributes(['class' => 'icinga-state-text']),
-                        new Text($this->deployment->icinga_state)
-                    )
-                )
+                $this->translate('Icinga State')         => new DetailState($this->deployment->icinga_state)
             ])),
             new Labels($this->deployment->label),
             new Annotations($this->deployment->annotation),

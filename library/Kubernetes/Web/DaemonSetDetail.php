@@ -16,7 +16,6 @@ use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\DaemonSetCondition;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -24,7 +23,6 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Icon;
-use ipl\Web\Widget\StateBall;
 
 class DaemonSetDetail extends BaseHtmlElement
 {
@@ -79,14 +77,7 @@ class DaemonSetDetail extends BaseHtmlElement
                 $this->translate('Number Ready')             => $this->daemonSet->number_ready,
                 $this->translate('Number Available')         => $this->daemonSet->number_available,
                 $this->translate('Number Unavailable')       => $this->daemonSet->number_unavailable,
-                $this->translate('Icinga State')             => (new HtmlDocument())->addHtml(
-                    new StateBall($this->daemonSet->icinga_state, StateBall::SIZE_MEDIUM),
-                    new HtmlElement(
-                        'span',
-                        new Attributes(['class' => 'icinga-state-text']),
-                        new Text($this->daemonSet->icinga_state)
-                    )
-                )
+                $this->translate('Icinga State')             => new DetailState($this->daemonSet->icinga_state)
             ])),
             new Labels($this->daemonSet->label),
             new Annotations($this->daemonSet->annotation),

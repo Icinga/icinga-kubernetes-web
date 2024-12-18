@@ -15,7 +15,6 @@ use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -24,7 +23,6 @@ use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\Icon;
-use ipl\Web\Widget\StateBall;
 
 class PodDetail extends BaseHtmlElement
 {
@@ -95,14 +93,7 @@ class PodDetail extends BaseHtmlElement
                     new EmptyState($this->translate('None')),
                 $this->translate('Message')            => $this->pod->message ??
                     new EmptyState($this->translate('None')),
-                $this->translate('Icinga State')       => (new HtmlDocument())->addHtml(
-                    new StateBall($this->pod->icinga_state, StateBall::SIZE_MEDIUM),
-                    new HtmlElement(
-                        'span',
-                        new Attributes(['class' => 'icinga-state-text']),
-                        new Text($this->pod->icinga_state)
-                    )
-                )
+                $this->translate('Icinga State')        => new DetailState($this->pod->icinga_state)
             ])),
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),
