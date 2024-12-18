@@ -23,6 +23,7 @@ use Icinga\Web\Widget\Tabs;
 use ipl\Sql\Connection;
 use ipl\Stdlib\Filter;
 use LogicException;
+use Ramsey\Uuid\Uuid;
 use Throwable;
 
 class ConfigController extends Controller
@@ -187,32 +188,29 @@ class ConfigController extends Controller
 
     public function prometheusAction()
     {
-        $db = Database::connection();
-        $dbConfig = KConfig::on($db)->filter(
-            Filter::any(
-                Filter::equal('key', self::PROMETHEUS_URL),
-                Filter::equal('key', self::PROMETHEUS_USERNAME),
-                Filter::equal('key', self::PROMETHEUS_PASSWORD)
-            )
-        );
-
-        $data = [];
-
-        foreach ($dbConfig as $pair) {
-            $data[str_replace('.', '_', $pair->key)] = $pair->value;
-        }
-
         $form = (new PrometheusConfigForm())
-            ->populate($data)
-            ->on(PrometheusConfigForm::ON_SUCCESS, function ($form) use ($db, $dbConfig) {
-                if ($form->isLocked()) {
+            ->on(PrometheusConfigForm::ON_SUCCESS, function (PrometheusConfigForm $form) {
+                $clusterUuid = $form->getValue('cluster_uuid');
+                if ($form->isLocked($clusterUuid)) {
                     Notification::error($this->translate('Prometheus configuration is locked'));
                     return;
                 }
 
                 try {
+                    $db = Database::connection();
                     $db->exec("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE");
                     $db->beginTransaction();
+
+                    $dbConfig = KConfig::on($db)->filter(
+                        Filter::all(
+                            Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()),
+                            Filter::any(
+                                Filter::equal('key', self::PROMETHEUS_URL),
+                                Filter::equal('key', self::PROMETHEUS_USERNAME),
+                                Filter::equal('key', self::PROMETHEUS_PASSWORD)
+                            )
+                        )
+                    );
 
                     $data = [];
 
@@ -223,15 +221,23 @@ class ConfigController extends Controller
                     if (isset($data[self::PROMETHEUS_URL]) && $data[self::PROMETHEUS_URL]['locked'] !== 'y') {
                         $db->update(
                             'config',
-                            ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))],
-                            [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_URL]
+                            [
+                                'value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))
+                            ],
+                            [
+                                'cluster_uuid = ?'                   => Uuid::fromString($clusterUuid)->getBytes(),
+                                $db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_URL,
+                            ]
                         );
                     } elseif (! isset($data[self::PROMETHEUS_URL])) {
                         $db->insert(
                             'config',
                             [
+                                'cluster_uuid'              => Uuid::fromString($clusterUuid)->getBytes(),
                                 $db->quoteIdentifier('key') => self::PROMETHEUS_URL,
-                                'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))
+                                'value'                     => $form->getValue(
+                                    $this->fieldForForm(self::PROMETHEUS_URL)
+                                )
                             ]
                         );
                     }
@@ -239,15 +245,23 @@ class ConfigController extends Controller
                     if (isset($data[self::PROMETHEUS_USERNAME]) && $data[self::PROMETHEUS_USERNAME]['locked'] !== 'y') {
                         $db->update(
                             'config',
-                            ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))],
-                            [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_USERNAME]
+                            [
+                                'value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))
+                            ],
+                            [
+                                'cluster_uuid = ?'                   => Uuid::fromString($clusterUuid)->getBytes(),
+                                $db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_USERNAME
+                            ]
                         );
                     } elseif (! isset($data[self::PROMETHEUS_USERNAME])) {
                         $db->insert(
                             'config',
                             [
+                                'cluster_uuid'              => Uuid::fromString($clusterUuid)->getBytes(),
                                 $db->quoteIdentifier('key') => self::PROMETHEUS_USERNAME,
-                                'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))
+                                'value'                     => $form->getValue(
+                                    $this->fieldForForm(self::PROMETHEUS_USERNAME)
+                                )
                             ]
                         );
                     }
@@ -255,23 +269,33 @@ class ConfigController extends Controller
                     if (isset($data[self::PROMETHEUS_PASSWORD]) && $data[self::PROMETHEUS_PASSWORD]['locked'] !== 'y') {
                         $db->update(
                             'config',
-                            ['value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))],
-                            [$db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_PASSWORD]
+                            [
+                                'value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))
+                            ],
+                            [
+                                'cluster_uuid = ?'                   => Uuid::fromString($clusterUuid)->getBytes(),
+                                $db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_PASSWORD
+                            ]
                         );
                     } elseif (! isset($data[self::PROMETHEUS_PASSWORD])) {
                         $db->insert(
                             'config',
                             [
+                                'cluster_uuid'              => Uuid::fromString($clusterUuid)->getBytes(),
                                 $db->quoteIdentifier('key') => self::PROMETHEUS_PASSWORD,
-                                'value'                     => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))
+                                'value'                     => $form->getValue(
+                                    $this->fieldForForm(self::PROMETHEUS_PASSWORD)
+                                )
                             ]
                         );
                     }
 
                     $db->commitTransaction();
-                } catch (Exception $_) {
+                } catch (Exception $e) {
                     $db->rollBackTransaction();
-                    Notification::error($this->translate('Failed to store new configuration'));
+                    Notification::error(
+                        $this->translate('Failed to store new configuration') . ': ' . $e->getMessage()
+                    );
                     return;
                 }
 
