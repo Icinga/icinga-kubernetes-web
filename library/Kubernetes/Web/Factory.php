@@ -25,6 +25,7 @@ use Icinga\Module\Kubernetes\Model\StatefulSet;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\ValidHtml;
+use ipl\Orm\Model;
 use ipl\Stdlib\Filter\Rule;
 use ipl\Web\Url;
 use ipl\Web\Widget\EmptyState;
@@ -138,7 +139,32 @@ abstract class Factory
         }
     }
 
-    public static function createUrl(string $kind): ?Url
+    public static function createModel(string $kind): ?Model
+    {
+        $kind = strtolower(str_replace(['_', '-'], '', $kind));
+
+        return match ($kind) {
+            'configmap'             => new ConfigMap(),
+            'cronjob'               => new CronJob(),
+            'daemonset'             => new DaemonSet(),
+            'deployment'            => new Deployment(),
+            'event'                 => new Event(),
+            'ingress'               => new Ingress(),
+            'job'                   => new Job(),
+            'namespace'             => new NamespaceModel(),
+            'node'                  => new Node(),
+            'persistentvolume'      => new PersistentVolume(),
+            'persistentvolumeclaim' => new PersistentVolumeClaim(),
+            'pod'                   => new Pod(),
+            'replicaset'            => new ReplicaSet(),
+            'secret'                => new Secret(),
+            'service'               => new Service(),
+            'statefulset'           => new StatefulSet(),
+            default                 => null,
+        };
+    }
+
+    public static function createDetailUrl(string $kind): ?Url
     {
         $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
@@ -162,5 +188,37 @@ abstract class Factory
             'statefulset' => Url::fromPath("kubernetes/$kind"),
             default       => null
         };
+    }
+
+    public static function createListUrl(string $kind): ?Url
+    {
+        $kind = strtolower(str_replace(['_', '-'], '', $kind));
+
+        $controller = match ($kind) {
+            'configmap',
+            'container',
+            'cronjob',
+            'daemonset',
+            'deployment',
+            'event',
+            'job',
+            'namespace',
+            'node',
+            'persistentvolume',
+            'persistentvolumeclaim',
+            'pod',
+            'replicaset',
+            'secret',
+            'service',
+            'statefulset' => "{$kind}s",
+            'ingress'     => 'ingresses',
+            default       => null
+        };
+
+        if ($controller !== null) {
+            return Url::fromPath("kubernetes/$controller");
+        }
+
+        return null;
     }
 }

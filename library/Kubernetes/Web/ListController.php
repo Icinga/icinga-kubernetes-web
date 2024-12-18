@@ -6,10 +6,13 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
+use Icinga\Web\Session;
 use ipl\Orm\Query;
+use ipl\Stdlib\Filter;
 use ipl\Web\Compat\SearchControls;
 use ipl\Web\Control\LimitControl;
 use ipl\Web\Control\SortControl;
+use Ramsey\Uuid\Uuid;
 
 abstract class ListController extends Controller
 {
@@ -38,6 +41,13 @@ abstract class ListController extends Controller
         $this->addTitleTab($this->getTitle());
 
         $q = Auth::getInstance()->withRestrictions($this->getPermission(), $this->getQuery());
+
+        $clusterUuid = Session::getSession()
+            ->getNamespace('kubernetes')
+            ->get('cluster_uuid');
+        if ($clusterUuid !== null) {
+            $q->filter(Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()));
+        }
 
         $limitControl = $this->createLimitControl();
         $sortControl = $this->createSortControl($q, $this->getSortColumns());

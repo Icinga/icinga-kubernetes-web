@@ -32,22 +32,22 @@ class Auth
     public const SHOW_STATEFUL_SETS = 'kubernetes/stateful-sets/show';
 
     public const PERMISSIONS = [
-        'ConfigMap'             => self::SHOW_CONFIG_MAPS,
-        'CronJob'               => self::SHOW_CRON_JOBS,
-        'DaemonSet'             => self::SHOW_DAEMON_SETS,
-        'Deployment'            => self::SHOW_DEPLOYMENTS,
-        'Event'                 => self::SHOW_EVENTS,
-        'Ingress'               => self::SHOW_INGRESSES,
-        'Job'                   => self::SHOW_JOBS,
-        'Namespace'             => self::SHOW_NAMESPACES,
-        'Node'                  => self::SHOW_NODES,
-        'PersistentVolume'      => self::SHOW_PERSISTENT_VOLUMES,
-        'PersistentVolumeClaim' => self::SHOW_PERSISTENT_VOLUME_CLAIMS,
-        'Pod'                   => self::SHOW_PODS,
-        'ReplicaSet'            => self::SHOW_REPLICA_SETS,
-        'Secret'                => self::SHOW_SECRETS,
-        'Service'               => self::SHOW_SERVICES,
-        'StatefulSet'           => self::SHOW_STATEFUL_SETS,
+        'configmap'             => self::SHOW_CONFIG_MAPS,
+        'cronjob'               => self::SHOW_CRON_JOBS,
+        'daemonset'             => self::SHOW_DAEMON_SETS,
+        'deployment'            => self::SHOW_DEPLOYMENTS,
+        'event'                 => self::SHOW_EVENTS,
+        'ingress'               => self::SHOW_INGRESSES,
+        'job'                   => self::SHOW_JOBS,
+        'namespace'             => self::SHOW_NAMESPACES,
+        'node'                  => self::SHOW_NODES,
+        'persistentvolume'      => self::SHOW_PERSISTENT_VOLUMES,
+        'persistentvolumeclaim' => self::SHOW_PERSISTENT_VOLUME_CLAIMS,
+        'pod'                   => self::SHOW_PODS,
+        'replicaset'            => self::SHOW_REPLICA_SETS,
+        'secret'                => self::SHOW_SECRETS,
+        'service'               => self::SHOW_SERVICES,
+        'statefulset'           => self::SHOW_STATEFUL_SETS,
     ];
 
     protected IcingaAuth $auth;
