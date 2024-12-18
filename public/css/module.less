@@ -113,13 +113,18 @@
   }
 }
 
-.control-label-group {
-  flex-direction: row;
-  font-size: 1.2em;
-  text-align: left;
-  width: 5em;
+.cluster-form {
+  .control-label-group {
+    flex-direction: row;
+    font-size: 1.2em;
+    text-align: left;
+    width: 5em;
+  }
+
+  .icinga-controls {
+    select {
+      max-width: 280px;
+    }
+  }
 }
 
-.icinga-controls select {
-  max-width: 280px;
-}

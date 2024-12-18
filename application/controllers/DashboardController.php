@@ -16,6 +16,7 @@ use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Web\ClusterForm;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Web\Session;
+use ipl\Html\Attributes;
 
 class DashboardController extends Controller
 {
@@ -24,6 +25,7 @@ class DashboardController extends Controller
         $this->addTitleTab($this->translate('Kubernetes'));
 
         $cluster = (new ClusterForm())
+            ->addAttributes(new Attributes(['class' => 'cluster-form']))
             ->populate(
                 [
                     'cluster_uuid' => Session::getSession()
