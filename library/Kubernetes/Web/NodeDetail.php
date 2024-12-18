@@ -15,14 +15,11 @@ use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\NodeCondition;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Util\Format;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
-use ipl\Web\Widget\StateBall;
 
 class NodeDetail extends BaseHtmlElement
 {
@@ -81,13 +78,7 @@ class NodeDetail extends BaseHtmlElement
                 $this->translate('Container Runtime Version') => $this->node->container_runtime_version,
                 $this->translate('Kubelet Version')           => $this->node->kubelet_version,
                 $this->translate('Kube Proxy Version')        => $this->node->kube_proxy_version,
-                $this->translate('Icinga State')              => (new HtmlDocument())
-                    ->addHtml(new StateBall($this->node->icinga_state, StateBall::SIZE_MEDIUM))
-                    ->addHtml(new HtmlElement(
-                        'span',
-                        new Attributes(['class' => 'icinga-state-text']),
-                        Text::create($this->node->icinga_state)
-                    )),
+                $this->translate('Icinga State')              => new DetailState($this->node->icinga_state),
                 $this->translate('Icinga State Reason')       => new IcingaStateReason(
                     $this->node->icinga_state_reason
                 )
