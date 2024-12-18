@@ -32,14 +32,15 @@ class Config extends Model
         return 'config';
     }
 
-    public function getKeyName(): string
+    public function getKeyName(): array
     {
-        return 'key';
+        return ['cluster_uuid', 'key'];
     }
 
     public function getColumns(): array
     {
         return [
+            'cluster_uuid',
             'key',
             'value',
             'locked'
