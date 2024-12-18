@@ -12,16 +12,16 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class ServiceEnvironment implements ValidHtml
 {
-    protected Service $service;
+    use Translation;
 
-    public function __construct(Service $service)
+    public function __construct(protected Service $service)
     {
-        $this->service = $service;
     }
 
     public function render(): ValidHtml
@@ -49,15 +49,15 @@ class ServiceEnvironment implements ValidHtml
 
         $childrenFilter = Filter::all(
             Filter::equal('namespace', $this->service->namespace),
-            Filter::equal('pod.service.uuid', Uuid::fromBytes($this->service->uuid)->toString())
+            Filter::equal('pod.service.uuid', (string) Uuid::fromBytes($this->service->uuid))
         );
 
         return (new HtmlDocument())
             ->addHtml(
                 new HtmlElement(
                     'h2',
-                    Attributes::create(['class' => 'environment-widget-title']),
-                    Text::create(t('Environment'))
+                    new Attributes(['class' => 'environment-widget-title']),
+                    new Text($this->translate('Environment'))
                 ),
                 new Environment($this->service, $ingresses, $pods, $parentsFilter, $childrenFilter)
             );

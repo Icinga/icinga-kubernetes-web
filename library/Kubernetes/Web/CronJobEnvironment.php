@@ -10,23 +10,23 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class CronJobEnvironment implements ValidHtml
 {
-    private CronJob $cronJob;
+    use Translation;
 
-    public function __construct($cronJob)
+    public function __construct(protected CronJob $cronJob)
     {
-        $this->cronJob = $cronJob;
     }
 
     public function render(): ValidHtml
     {
         $childrenFilter = Filter::all(
             Filter::equal('namespace', $this->cronJob->namespace),
-            Filter::equal('job.owner.owner_uuid', Uuid::fromBytes($this->cronJob->uuid)->toString()),
+            Filter::equal('job.owner.owner_uuid', (string) Uuid::fromBytes($this->cronJob->uuid))
         );
 
         $jobs = $this->cronJob->job
@@ -37,8 +37,8 @@ class CronJobEnvironment implements ValidHtml
             ->addHtml(
                 new HtmlElement(
                     'h2',
-                    Attributes::create(['class' => 'environment-widget-title']),
-                    Text::create(t('Environment'))
+                    new Attributes(['class' => 'environment-widget-title']),
+                    new Text($this->translate('Environment'))
                 ),
                 new Environment($this->cronJob, null, $jobs, null, $childrenFilter)
             );

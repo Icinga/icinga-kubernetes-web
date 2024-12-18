@@ -12,23 +12,23 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class DaemonSetEnvironment implements ValidHtml
 {
-    private DaemonSet $daemonSet;
+    use Translation;
 
-    public function __construct($daemonSet)
+    public function __construct(protected DaemonSet $daemonSet)
     {
-        $this->daemonSet = $daemonSet;
     }
 
     public function render(): ValidHtml
     {
         $childrenFilter = Filter::all(
             Filter::equal('namespace', $this->daemonSet->namespace),
-            Filter::equal('pod.owner.owner_uuid', Uuid::fromBytes($this->daemonSet->uuid)->toString())
+            Filter::equal('pod.owner.owner_uuid', (string) Uuid::fromBytes($this->daemonSet->uuid))
         );
 
         $pods = Pod::on(Database::connection())
@@ -39,8 +39,8 @@ class DaemonSetEnvironment implements ValidHtml
             ->addHtml(
                 new HtmlElement(
                     'h2',
-                    Attributes::create(['class' => 'environment-widget-title']),
-                    Text::create(t('Environment'))
+                    new Attributes(['class' => 'environment-widget-title']),
+                    new Text($this->translate('Environment'))
                 ),
                 new Environment($this->daemonSet, null, $pods, null, $childrenFilter)
             );

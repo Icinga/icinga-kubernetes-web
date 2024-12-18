@@ -10,15 +10,15 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 
 class PersistentVolumeClaimEnvironment implements ValidHtml
 {
-    private PersistentVolumeClaim $pvc;
+    use Translation;
 
-    public function __construct($pvc)
+    public function __construct(protected PersistentVolumeClaim $pvc)
     {
-        $this->pvc = $pvc;
     }
 
     public function render(): ValidHtml
@@ -33,8 +33,8 @@ class PersistentVolumeClaimEnvironment implements ValidHtml
             ->addHtml(
                 new HtmlElement(
                     'h2',
-                    Attributes::create(['class' => 'environment-widget-title']),
-                    Text::create(t('Environment'))
+                    new Attributes(['class' => 'environment-widget-title']),
+                    new Text($this->translate('Environment'))
                 ),
                 new Environment($this->pvc, $this->pvc->persistent_volume, $pods, null, $childrenFilter)
             );

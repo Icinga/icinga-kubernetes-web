@@ -12,15 +12,15 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 
 class IngressEnvironment implements ValidHtml
 {
-    private Ingress $ingress;
+    use Translation;
 
-    public function __construct($ingress)
+    public function __construct(protected Ingress $ingress)
     {
-        $this->ingress = $ingress;
     }
 
     public function render(): ValidHtml
@@ -36,15 +36,16 @@ class IngressEnvironment implements ValidHtml
             );
         }
 
-        $services->filter(Filter::any(...$filters))
+        $services
+            ->filter(Filter::any(...$filters))
             ->limit(3);
 
         return (new HtmlDocument())
             ->addHtml(
                 new HtmlElement(
                     'h2',
-                    Attributes::create(['class' => 'environment-widget-title']),
-                    Text::create(t('Environment'))
+                    new Attributes(['class' => 'environment-widget-title']),
+                    new Text($this->translate('Environment'))
                 ),
                 new Environment($this->ingress, null, $services, null, Filter::any(...$filters))
             );

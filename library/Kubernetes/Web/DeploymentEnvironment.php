@@ -12,23 +12,23 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class DeploymentEnvironment implements ValidHtml
 {
-    private Deployment $deployment;
+    use Translation;
 
-    public function __construct($deployment)
+    public function __construct(protected Deployment $deployment)
     {
-        $this->deployment = $deployment;
     }
 
     public function render(): ValidHtml
     {
         $childrenFilter = Filter::all(
             Filter::equal('namespace', $this->deployment->namespace),
-            Filter::equal('replica_set.owner.owner_uuid', Uuid::fromBytes($this->deployment->uuid)->toString())
+            Filter::equal('replica_set.owner.owner_uuid', (string) Uuid::fromBytes($this->deployment->uuid))
         );
 
         $replicaSets = ReplicaSet::on(Database::connection())
@@ -39,8 +39,8 @@ class DeploymentEnvironment implements ValidHtml
             ->addHtml(
                 new HtmlElement(
                     'h2',
-                    Attributes::create(['class' => 'environment-widget-title']),
-                    Text::create(t('Environment'))
+                    new Attributes(['class' => 'environment-widget-title']),
+                    new Text($this->translate('Environment'))
                 ),
                 new Environment($this->deployment, null, $replicaSets, $childrenFilter)
             );

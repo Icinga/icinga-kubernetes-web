@@ -12,23 +12,23 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
+use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class StatefulSetEnvironment implements ValidHtml
 {
-    private StatefulSet $statefulSet;
+    use Translation;
 
-    public function __construct($statefulSet)
+    public function __construct(protected StatefulSet $statefulSet)
     {
-        $this->statefulSet = $statefulSet;
     }
 
     public function render(): ValidHtml
     {
         $childrenFilter = Filter::all(
             Filter::equal('namespace', $this->statefulSet->namespace),
-            Filter::equal('pod.owner.owner_uuid', Uuid::fromBytes($this->statefulSet->uuid)->toString())
+            Filter::equal('pod.owner.owner_uuid', (string) Uuid::fromBytes($this->statefulSet->uuid))
         );
 
         $pods = Pod::on(Database::connection())
@@ -39,8 +39,8 @@ class StatefulSetEnvironment implements ValidHtml
             ->addHtml(
                 new HtmlElement(
                     'h2',
-                    Attributes::create(['class' => 'environment-widget-title']),
-                    Text::create(t('Environment'))
+                    new Attributes(['class' => 'environment-widget-title']),
+                    new Text($this->translate('Environment'))
                 ),
                 new Environment($this->statefulSet, null, $pods, null, $childrenFilter)
             );
