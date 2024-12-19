@@ -76,6 +76,7 @@ class ServiceDetail extends BaseHtmlElement
             ])),
             new Labels($this->service->label),
             new Annotations($this->service->annotation),
+            new Selectors($this->service->selector),
             new PortTable($this->service->port, (new ServicePort())->getColumnDefinitions()),
             new EndpointTable($endpointSlices->endpoint, (new Endpoint())->getColumnDefinitions()),
             new ServiceEnvironment($this->service)
