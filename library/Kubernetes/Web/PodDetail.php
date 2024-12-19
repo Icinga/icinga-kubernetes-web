@@ -13,6 +13,7 @@ use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
+use Icinga\Module\Kubernetes\Model\PodOwner;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -23,6 +24,7 @@ use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
+use Ramsey\Uuid\Uuid;
 
 class PodDetail extends BaseHtmlElement
 {
@@ -95,6 +97,7 @@ class PodDetail extends BaseHtmlElement
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),
             new PodConditions($this->pod),
+            new PodEnvironment($this->pod),
             new HtmlElement(
                 'section',
                 null,

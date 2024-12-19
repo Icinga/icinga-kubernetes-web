@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Endpoint;
 use Icinga\Module\Kubernetes\Model\EndpointSlice;
+use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\ServicePort;
@@ -76,7 +77,8 @@ class ServiceDetail extends BaseHtmlElement
             new Labels($this->service->label),
             new Annotations($this->service->annotation),
             new PortTable($this->service->port, (new ServicePort())->getColumnDefinitions()),
-            new EndpointTable($endpointSlices->endpoint, (new Endpoint())->getColumnDefinitions())
+            new EndpointTable($endpointSlices->endpoint, (new Endpoint())->getColumnDefinitions()),
+            new ServiceEnvironment($this->service)
         );
 
         $selectors = $this->service->selector->execute();

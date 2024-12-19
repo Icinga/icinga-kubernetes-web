@@ -26,6 +26,7 @@ use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\ValidHtml;
 use ipl\Orm\Model;
+use ipl\Orm\Query;
 use ipl\Stdlib\Filter\Rule;
 use ipl\Web\Url;
 use ipl\Web\Widget\EmptyState;
@@ -220,5 +221,59 @@ abstract class Factory
         }
 
         return null;
+    }
+
+    public static function getKindFromModel(Model $model): string
+    {
+        $kind = match (true) {
+            $model instanceof ConfigMap,
+            $model instanceof CronJob,
+            $model instanceof DaemonSet,
+            $model instanceof Deployment,
+            $model instanceof Ingress,
+            $model instanceof Job,
+            $model instanceof PersistentVolume,
+            $model instanceof PersistentVolumeClaim,
+            $model instanceof Pod,
+            $model instanceof ReplicaSet,
+            $model instanceof Secret,
+            $model instanceof Service,
+            $model instanceof StatefulSet => basename(str_replace('\\', '/', get_class($model))),
+            default                       => null
+        };
+
+        return strtolower(str_replace(['_', '-'], '', $kind));
+    }
+
+    /**
+     * Retrieves a resource by its kind.
+     *
+     * @param string $kind The kind of the resource
+     *
+     * @return Query|null
+     */
+    public static function fetchResource(string $kind): ?Query
+    {
+        $kind = strtolower(str_replace(['_', '-'], '', $kind));
+
+        $database = Database::connection();
+
+        $query = match ($kind) {
+            'configmap'             => ConfigMap::on($database),
+            'container'             => Container::on($database),
+            'cronjob'               => CronJob::on($database),
+            'daemonset'             => DaemonSet::on($database),
+            'deployment'            => Deployment::on($database),
+            'ingress'               => Ingress::on($database),
+            'job'                   => Job::on($database),
+            'persistentvolumeclaim' => PersistentVolumeClaim::on($database),
+            'pod'                   => Pod::on($database),
+            'replicaset'            => ReplicaSet::on($database),
+            'service'               => Service::on($database),
+            'statefulset'           => StatefulSet::on($database),
+            default                 => null,
+        };
+
+        return $query;
     }
 }
