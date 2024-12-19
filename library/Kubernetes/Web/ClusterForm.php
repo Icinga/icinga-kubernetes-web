@@ -14,7 +14,7 @@ class ClusterForm extends CompatForm
 {
     public const ALL_CLUSTERS = '-';
 
-    protected function yieldClusters(): Generator
+    public static function yieldClusters(): Generator
     {
         $clusters = Cluster::on(Database::connection())
             ->columns(['uuid', 'name']);
@@ -37,7 +37,7 @@ class ClusterForm extends CompatForm
                 'label'    => $this->translate('Cluster'),
                 'options'  => [
                         static::ALL_CLUSTERS => $this->translate('All clusters'),
-                    ] + iterator_to_array($this->yieldClusters()),
+                    ] + iterator_to_array(ClusterForm::yieldClusters()),
             ],
         );
     }
