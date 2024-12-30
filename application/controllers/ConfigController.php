@@ -30,12 +30,6 @@ class ConfigController extends Controller
 {
     protected bool $disableDefaultAutoRefresh = true;
 
-    public const PROMETHEUS_URL = 'prometheus.url';
-
-    public const PROMETHEUS_USERNAME = 'prometheus.username';
-
-    public const PROMETHEUS_PASSWORD = 'prometheus.password';
-
     public function init()
     {
         $this->assertPermission('config/modules');
@@ -62,19 +56,9 @@ class ConfigController extends Controller
 
     public function notificationsAction()
     {
+        // Check sources in use, maybe list them, delete unused automatically with a checkbox or something.
+        // Add cluster uuid to username.
         $this->mergeTabs($this->Module()->getConfigTabs()->activate('notifications'));
-
-        $kconfig = [];
-        $q = KConfig::on(Database::connection())
-            ->filter(Filter::equal('key', [
-                KConfig::NOTIFICATIONS_URL,
-                KConfig::NOTIFICATIONS_USERNAME,
-                KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL
-            ]));
-
-        foreach ($q as $r) {
-            $kconfig[$r['key']] = $r;
-        }
 
         $sourceForm = new class (NotificationsDatabase::get()) extends SourceForm {
             public function hasBeenSent(): bool
@@ -88,25 +72,72 @@ class ConfigController extends Controller
             }
         };
 
-        $form = (new NotificationsConfigForm())
-            ->setKConfig($kconfig)
-            ->on(
-                NotificationsConfigForm::ON_SUCCESS,
-                function (NotificationsConfigForm $form) use ($kconfig, $sourceForm) {
-                    if ($form->isLocked()) {
-                        $form->addMessage($this->translate('Notifications configuration is locked.'));
+        try {
 
-                        return;
-                    }
+            $form = (new NotificationsConfigForm())
+                ->on(
+                    NotificationsConfigForm::ON_SUCCESS,
+                    function (NotificationsConfigForm $form) use ($sourceForm) {
+                        if ($form->isLocked()) {
+                            $form->addMessage($this->translate('Notifications configuration is locked.'));
 
-                    $values = $form->getValues();
+                            return;
+                        }
 
-                    if (
-                        ! ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->locked ?? false)
-                        && ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->value ?? '') === ''
-                    ) {
+                        $clusterUuid = $form->getClusterUuid();
+                        $kconfig = $form->getKConfig($clusterUuid);
+                        $values = $form->getValues();
+
+                        if (
+                            ! ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->locked ?? false)
+                            && ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->value ?? '') === ''
+                        ) {
+                            try {
+                                $values[KConfig::NOTIFICATIONS_PASSWORD] = $this->createSource($sourceForm, $clusterUuid);
+                            } catch (Throwable $e) {
+                                Logger::error($e);
+                                Logger::error($e->getTraceAsString());
+
+                                $form->addMessage($e->getMessage());
+
+                                return;
+                            }
+
+                            /** @var ?Source $source */
+                            $source = Source::on(NotificationsDatabase::get())
+                                ->filter(Filter::all(
+                                    Filter::equal('name', KConfig::DEFAULT_NOTIFICATIONS_NAME . "($clusterUuid)"),
+                                    Filter::equal('type', KConfig::DEFAULT_NOTIFICATIONS_TYPE)
+                                ))
+                                ->first();
+
+                            if ($source === null) {
+                                throw new LogicException($this->translate('Source not found'));
+                            }
+
+                            $values[KConfig::NOTIFICATIONS_USERNAME] = "source-$source->id";
+                        }
+
                         try {
-                            $values[KConfig::NOTIFICATIONS_PASSWORD] = $this->createSource($sourceForm);
+                            Database::connection()->transaction(function (Connection $db) use ($values, $clusterUuid) {
+                                $db->delete((new KConfig())->getTableName(), [
+                                    'cluster_uuid = ?'                                => Uuid::fromString($clusterUuid)->getBytes(),
+                                    sprintf('%s IN (?)', $db->quoteIdentifier('key')) => array_keys($values),
+                                    'locked = ?'                                      => 'n'
+                                ]);
+
+                                foreach ($values as $k => $v) {
+                                    if (empty($v)) {
+                                        continue;
+                                    }
+
+                                    $db->insert((new KConfig())->getTableName(), [
+                                        'cluster_uuid'              => Uuid::fromString($clusterUuid)->getBytes(),
+                                        $db->quoteIdentifier('key') => $k,
+                                        'value'                     => $v
+                                    ]);
+                                }
+                            });
                         } catch (Throwable $e) {
                             Logger::error($e);
                             Logger::error($e->getTraceAsString());
@@ -116,71 +147,33 @@ class ConfigController extends Controller
                             return;
                         }
 
-                        /** @var ?Source $source */
-                        $source = Source::on(NotificationsDatabase::get())
-                            ->filter(Filter::all(
-                                Filter::equal('name', KConfig::DEFAULT_NOTIFICATIONS_NAME),
-                                Filter::equal('type', KConfig::DEFAULT_NOTIFICATIONS_TYPE)
-                            ))
-                            ->first();
+                        Notification::success(
+                            $this->translate('New configuration has successfully been stored.')
+                        );
 
-                        if ($source === null) {
-                            throw new LogicException($this->translate('Source not found'));
-                        }
-
-                        $values[KConfig::NOTIFICATIONS_USERNAME] = "source-$source->id";
+                        $this->redirectNow('__REFRESH__');
                     }
+                )->handleRequest($this->getServerRequest());
 
-                    try {
-                        Database::connection()->transaction(function (Connection $db) use ($values) {
-                            $db->delete((new KConfig())->getTableName(), [
-                                sprintf('%s IN (?)', $db->quoteIdentifier('key')) => array_keys($values),
-                                'locked = ?'                                      => 'n'
-                            ]);
+            if (
+                preg_match(
+                    '/source-(\d+)/',
+                    $kconfig[KConfig::NOTIFICATIONS_USERNAME]->value ?? '',
+                    $matches
+                ) !== false
+                && ! empty($matches)
+            ) {
+                try {
+                    $sourceForm->loadSource($matches[1]);
 
-                            foreach ($values as $k => $v) {
-                                if (empty($v)) {
-                                    continue;
-                                }
-
-                                $db->insert((new KConfig())->getTableName(), [
-                                    $db->quoteIdentifier('key') => $k,
-                                    'value'                     => $v,
-                                ]);
-                            }
-                        });
-                    } catch (Throwable $e) {
-                        Logger::error($e);
-                        Logger::error($e->getTraceAsString());
-
-                        $form->addMessage($e->getMessage());
-
-                        return;
-                    }
-
-                    Notification::success(
-                        $this->translate('New configuration has successfully been stored.')
-                    );
-
-                    $this->redirectNow('__REFRESH__');
+                    // TODO(el): Check password mismatch.
+                } catch (HttpNotFoundException $e) {
+                    // TODO(el): Add error box.
                 }
-            )->handleRequest($this->getServerRequest());
-
-        if (
-            preg_match(
-                '/source-(\d+)/',
-                $kconfig[KConfig::NOTIFICATIONS_USERNAME]->value ?? '',
-                $matches
-            ) !== false
-            && ! empty($matches)
-        ) {
-            try {
-                $sourceForm->loadSource($matches[1]);
-
-                // TODO(el): Check password mismatch.
-            } catch (HttpNotFoundException $e) {
-                // TODO(el): Add error box.
             }
+        } catch (Throwable $e) {
+            echo $e->getTraceAsString();
+            die;
         }
 
         $this->addContent($form);
@@ -190,112 +183,41 @@ class ConfigController extends Controller
     {
         $form = (new PrometheusConfigForm())
             ->on(PrometheusConfigForm::ON_SUCCESS, function (PrometheusConfigForm $form) {
-                $clusterUuid = $form->getValue('cluster_uuid');
-                if ($form->isLocked($clusterUuid)) {
-                    Notification::error($this->translate('Prometheus configuration is locked'));
+                if ($form->isLocked()) {
+                    $form->addMessage($this->translate('Prometheus configuration is locked.'));
+
                     return;
                 }
 
+                $clusterUuid = $form->getClusterUuid();
+                $values = $form->getValues();
+
                 try {
-                    $db = Database::connection();
-                    $db->exec("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE");
-                    $db->beginTransaction();
+                    Database::connection()->transaction(function (Connection $db) use ($values, $clusterUuid) {
+                        $db->delete((new KConfig())->getTableName(), [
+                            'cluster_uuid = ?'                                => Uuid::fromString($clusterUuid)->getBytes(),
+                            sprintf('%s IN (?)', $db->quoteIdentifier('key')) => array_keys($values),
+                            'locked = ?'                                      => 'n'
+                        ]);
 
-                    $dbConfig = KConfig::on($db)->filter(
-                        Filter::all(
-                            Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()),
-                            Filter::any(
-                                Filter::equal('key', self::PROMETHEUS_URL),
-                                Filter::equal('key', self::PROMETHEUS_USERNAME),
-                                Filter::equal('key', self::PROMETHEUS_PASSWORD)
-                            )
-                        )
-                    );
+                        foreach ($values as $k => $v) {
+                            if (empty($v)) {
+                                continue;
+                            }
 
-                    $data = [];
-
-                    foreach ($dbConfig as $pair) {
-                        $data[$pair->key] = ['value' => $pair->value, 'locked' => $pair->locked];
-                    }
-
-                    if (isset($data[self::PROMETHEUS_URL]) && $data[self::PROMETHEUS_URL]['locked'] !== 'y') {
-                        $db->update(
-                            'config',
-                            [
-                                'value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_URL))
-                            ],
-                            [
-                                'cluster_uuid = ?'                   => Uuid::fromString($clusterUuid)->getBytes(),
-                                $db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_URL,
-                            ]
-                        );
-                    } elseif (! isset($data[self::PROMETHEUS_URL])) {
-                        $db->insert(
-                            'config',
-                            [
+                            $db->insert((new KConfig())->getTableName(), [
                                 'cluster_uuid'              => Uuid::fromString($clusterUuid)->getBytes(),
-                                $db->quoteIdentifier('key') => self::PROMETHEUS_URL,
-                                'value'                     => $form->getValue(
-                                    $this->fieldForForm(self::PROMETHEUS_URL)
-                                )
-                            ]
-                        );
-                    }
+                                $db->quoteIdentifier('key') => $k,
+                                'value'                     => $v
+                            ]);
+                        }
+                    });
+                } catch (Throwable $e) {
+                    Logger::error($e);
+                    Logger::error($e->getTraceAsString());
 
-                    if (isset($data[self::PROMETHEUS_USERNAME]) && $data[self::PROMETHEUS_USERNAME]['locked'] !== 'y') {
-                        $db->update(
-                            'config',
-                            [
-                                'value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_USERNAME))
-                            ],
-                            [
-                                'cluster_uuid = ?'                   => Uuid::fromString($clusterUuid)->getBytes(),
-                                $db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_USERNAME
-                            ]
-                        );
-                    } elseif (! isset($data[self::PROMETHEUS_USERNAME])) {
-                        $db->insert(
-                            'config',
-                            [
-                                'cluster_uuid'              => Uuid::fromString($clusterUuid)->getBytes(),
-                                $db->quoteIdentifier('key') => self::PROMETHEUS_USERNAME,
-                                'value'                     => $form->getValue(
-                                    $this->fieldForForm(self::PROMETHEUS_USERNAME)
-                                )
-                            ]
-                        );
-                    }
+                    $form->addMessage($e->getMessage());
 
-                    if (isset($data[self::PROMETHEUS_PASSWORD]) && $data[self::PROMETHEUS_PASSWORD]['locked'] !== 'y') {
-                        $db->update(
-                            'config',
-                            [
-                                'value' => $form->getValue($this->fieldForForm(self::PROMETHEUS_PASSWORD))
-                            ],
-                            [
-                                'cluster_uuid = ?'                   => Uuid::fromString($clusterUuid)->getBytes(),
-                                $db->quoteIdentifier('key') . ' = ?' => self::PROMETHEUS_PASSWORD
-                            ]
-                        );
-                    } elseif (! isset($data[self::PROMETHEUS_PASSWORD])) {
-                        $db->insert(
-                            'config',
-                            [
-                                'cluster_uuid'              => Uuid::fromString($clusterUuid)->getBytes(),
-                                $db->quoteIdentifier('key') => self::PROMETHEUS_PASSWORD,
-                                'value'                     => $form->getValue(
-                                    $this->fieldForForm(self::PROMETHEUS_PASSWORD)
-                                )
-                            ]
-                        );
-                    }
-
-                    $db->commitTransaction();
-                } catch (Exception $e) {
-                    $db->rollBackTransaction();
-                    Notification::error(
-                        $this->translate('Failed to store new configuration') . ': ' . $e->getMessage()
-                    );
                     return;
                 }
 
@@ -306,18 +228,6 @@ class ConfigController extends Controller
         $this->mergeTabs($this->Module()->getConfigTabs()->activate('prometheus'));
 
         $this->addContent($form);
-    }
-
-    /**
-     * Convert database field name to form field name
-     *
-     * @param string $field
-     *
-     * @return string
-     */
-    protected function fieldForForm(string $field): string
-    {
-        return str_replace('.', '_', $field);
     }
 
     /**
@@ -332,14 +242,14 @@ class ConfigController extends Controller
         }
     }
 
-    protected function createSource(SourceForm $sourceForm): string
+    protected function createSource(SourceForm $sourceForm, string $clusterUuid): string
     {
         $password = sha1(openssl_random_pseudo_bytes(16));
 
         $formData = [
             'listener_password'      => $password,
             'listener_password_dupe' => $password,
-            'name'                   => KConfig::DEFAULT_NOTIFICATIONS_NAME,
+            'name'                   => KConfig::DEFAULT_NOTIFICATIONS_NAME . "($clusterUuid)",
             'type'                   => KConfig::DEFAULT_NOTIFICATIONS_TYPE,
             // TODO(el): Why?
             'icinga2_insecure_tls'   => 'n'

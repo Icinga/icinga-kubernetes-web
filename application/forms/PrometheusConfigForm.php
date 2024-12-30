@@ -5,9 +5,8 @@
 namespace Icinga\Module\Kubernetes\Forms;
 
 use Icinga\Module\Kubernetes\Common\Database;
-use Icinga\Module\Kubernetes\Controllers\ConfigController;
 use Icinga\Module\Kubernetes\Model\Cluster;
-use Icinga\Module\Kubernetes\Model\Config;
+use Icinga\Module\Kubernetes\Model\Config as KConfig;
 use Icinga\Module\Kubernetes\Web\ClusterForm;
 use ipl\Html\Attributes;
 use ipl\Html\Html;
@@ -17,33 +16,69 @@ use Ramsey\Uuid\Uuid;
 
 class PrometheusConfigForm extends CompatForm
 {
+    public function getClusterUuid(): string
+    {
+        return $this->getPopulatedValue('cluster_uuid') ??
+            (string) Uuid::fromBytes(Cluster::on(Database::connection())->orderBy('uuid')->first()->uuid);
+    }
+
+    public function getKConfig(string $clusterUuid): array
+    {
+        $kconfig = [];
+        $q = KConfig::on(Database::connection())
+            ->filter(Filter::equal('key', [
+                KConfig::PROMETHEUS_URL,
+                KConfig::PROMETHEUS_USERNAME,
+                KConfig::PROMETHEUS_PASSWORD
+            ]))
+            ->filter(Filter::equal('cluster_uuid', $clusterUuid));
+
+        foreach ($q as $r) {
+            $kconfig[$r['key']] = $r;
+        }
+
+        return $kconfig;
+    }
+
+    public function isLocked(): bool
+    {
+        $this->ensureAssembled();
+
+        return array_reduce(
+            array_map(
+                fn($element) => $element->getAttributes()->get('disabled')->getValue(),
+                array_filter($this->getElements(), fn($element) => ! $element->isIgnored())
+            ),
+            fn(bool $carry, bool $item) => $carry && $item,
+            true
+        );
+    }
+
+    public function getValue($name, $default = null)
+    {
+        return parent::getValue(KConfig::transformKeyForForm($name), $default);
+    }
+
+    public function getValues(): array
+    {
+        $values = parent::getValues();
+
+        return array_combine(array_map([KConfig::class, 'transformKeyForDb'], array_keys($values)), $values);
+    }
+
     protected function assemble(): void
     {
         $clusterUuid = $this->getPopulatedValue('cluster_uuid') ??
             (string) Uuid::fromBytes(Cluster::on(Database::connection())->orderBy('uuid')->first()->uuid);
 
-        $this->addElement('hidden', 'old_cluster_uuid', ['value' => $clusterUuid]);
-
         if ($clusterUuid !== $this->getPopulatedValue('old_cluster_uuid', $clusterUuid)) {
+            $this->clearPopulatedValue('old_cluster_uuid');
             $this->clearPopulatedValue('prometheus_url');
+            $this->clearPopulatedValue('prometheus_username');
+            $this->clearPopulatedValue('prometheus_password');
         }
 
-        $dbConfig = Config::on(Database::connection())->filter(
-            Filter::all(
-                Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()),
-                Filter::any(
-                    Filter::equal('key', ConfigController::PROMETHEUS_URL),
-                    Filter::equal('key', ConfigController::PROMETHEUS_USERNAME),
-                    Filter::equal('key', ConfigController::PROMETHEUS_PASSWORD)
-                )
-            )
-        );
-
-        $data = [];
-
-        foreach ($dbConfig as $pair) {
-            $data[$pair->key] = ['value' => $pair->value, 'locked' => $pair->locked];
-        }
+        $this->addElement('hidden', 'old_cluster_uuid', ['value' => $clusterUuid, 'ignore' => true]);
 
         $this->addElement(
             'select',
@@ -54,77 +89,66 @@ class PrometheusConfigForm extends CompatForm
                 'label'    => $this->translate('Cluster'),
                 'options'  => iterator_to_array(ClusterForm::yieldClusters()),
                 'value'    => $clusterUuid,
+                'ignore'   => true
             ],
         );
 
-        if ($this->isLocked($clusterUuid)) {
+        $kconfig = $this->getKConfig($clusterUuid);
+
+        $this->addElement(
+            'text',
+            KConfig::transformKeyForForm(KConfig::PROMETHEUS_URL),
+            [
+                'label'    => $this->translate('URL'),
+                'required' => true,
+                'value'    => $kconfig[KConfig::PROMETHEUS_URL]->value ?? null,
+                'disabled' => $kconfig[KConfig::PROMETHEUS_URL]->locked ?? false
+            ]
+        );
+
+        $this->addElement(
+            'text',
+            KConfig::transformKeyForForm(KConfig::PROMETHEUS_USERNAME),
+            [
+                'label'    => $this->translate('Username'),
+                'value'    => $kconfig[KConfig::PROMETHEUS_USERNAME]->value ?? null,
+                'disabled' => $kconfig[KConfig::PROMETHEUS_USERNAME]->locked ?? false
+            ]
+        );
+
+        $this->addElement(
+            'password',
+            KConfig::transformKeyForForm(KConfig::PROMETHEUS_PASSWORD),
+            [
+                'label'    => $this->translate('Password'),
+                'value'    => $kconfig[KConfig::PROMETHEUS_PASSWORD]->value ?? null,
+                'disabled' => $kconfig[KConfig::PROMETHEUS_PASSWORD]->locked ?? false
+            ]
+        );
+
+        if ($this->isLocked()) {
             $this->addHtml(
                 Html::tag('div', Attributes::create(['class' => 'control-group']), [
                     Html::tag(
                         'div',
-                        Attributes::create(['class' => 'control-label-group']),
+                        new Attributes(['class' => 'control-label-group']),
                     ),
                     Html::tag(
                         'p',
-                        Attributes::create(),
-                        "Prometheus configuration is provided via YAML."
+                        null,
+                        'Prometheus configuration is provided via YAML.'
                     )
                 ])
             );
         }
 
         $this->addElement(
-            'text',
-            'prometheus_url',
-            [
-                'label'    => $this->translate('URL'),
-                'required' => true,
-                'value'    => $data[ConfigController::PROMETHEUS_URL]['value'] ?? '',
-                'disabled' => $this->isLocked($clusterUuid),
-            ]
-        );
-
-        $this->addElement(
-            'text',
-            'prometheus_username',
-            [
-                'label'    => $this->translate('Username'),
-                'value'    => $data[ConfigController::PROMETHEUS_USERNAME]['value'] ?? '',
-                'disabled' => $this->isLocked($clusterUuid),
-            ]
-        );
-
-        $this->addElement(
-            'password',
-            'prometheus_password',
-            [
-                'label'    => $this->translate('Password'),
-                'value'    => $data[ConfigController::PROMETHEUS_PASSWORD]['value'] ?? '',
-                'disabled' => $this->isLocked($clusterUuid),
-            ]
-        );
-
-        $this->addElement(
             'submit',
             'submit',
             [
                 'label'    => $this->translate('Save Changes'),
-                'disabled' => $this->isLocked($clusterUuid),
+                'disabled' => $this->isLocked(),
             ]
         );
-    }
-
-    public function isLocked(string $clusterUuid): bool
-    {
-        $config = Config::on(Database::connection())
-            ->filter(
-                Filter::all(
-                    Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()),
-                    Filter::equal('key', ConfigController::PROMETHEUS_URL),
-                )
-            )
-            ->first();
-
-        return $config->locked ?? false;
     }
 }

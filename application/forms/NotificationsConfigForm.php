@@ -5,16 +5,19 @@
 namespace Icinga\Module\Kubernetes\Forms;
 
 use Icinga\Application\Icinga;
+use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
+use Icinga\Module\Kubernetes\Web\ClusterForm;
+use ipl\Stdlib\Filter;
 use ipl\Stdlib\Str;
 use ipl\Validator\CallbackValidator;
 use ipl\Web\Compat\CompatForm;
 use ipl\Web\Url;
+use Ramsey\Uuid\Uuid;
 
 class NotificationsConfigForm extends CompatForm
 {
-    protected array $kconfig = [];
-
     public static function transformKeyForForm(string $key): string
     {
         return strtr($key, ['notifications.' => 'notifications_']);
@@ -25,16 +28,28 @@ class NotificationsConfigForm extends CompatForm
         return strtr($key, ['notifications_' => 'notifications.']);
     }
 
-    public function getKConfig(): array
+    public function getClusterUuid(): string
     {
-        return $this->kconfig;
+        return $this->getPopulatedValue('cluster_uuid') ??
+            (string) Uuid::fromBytes(Cluster::on(Database::connection())->orderBy('uuid')->first()->uuid);
     }
 
-    public function setKConfig(array $kconfig)
+    public function getKConfig(string $clusterUuid): array
     {
-        $this->kconfig = $kconfig;
+        $kconfig = [];
+        $q = KConfig::on(Database::connection())
+            ->filter(Filter::equal('key', [
+                KConfig::NOTIFICATIONS_URL,
+                KConfig::NOTIFICATIONS_USERNAME,
+                KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL
+            ]))
+            ->filter(Filter::equal('cluster_uuid', $clusterUuid));
 
-        return $this;
+        foreach ($q as $r) {
+            $kconfig[$r['key']] = $r;
+        }
+
+        return $kconfig;
     }
 
     public function isLocked(): bool
@@ -44,7 +59,7 @@ class NotificationsConfigForm extends CompatForm
         return array_reduce(
             array_map(
                 fn($element) => $element->getAttributes()->get('disabled')->getValue(),
-                $this->getElements()
+                array_filter($this->getElements(), fn($element) => ! $element->isIgnored())
             ),
             fn(bool $carry, bool $item) => $carry && $item,
             true
@@ -95,10 +110,35 @@ class NotificationsConfigForm extends CompatForm
 
     protected function assemble(): void
     {
+        $clusterUuid = $this->getClusterUuid();
+
+        if ($clusterUuid !== $this->getPopulatedValue('old_cluster_uuid', $clusterUuid)) {
+            $this->clearPopulatedValue('old_cluster_uuid');
+            $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_URL));
+            $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL));
+        }
+
+        $this->addElement('hidden', 'old_cluster_uuid', ['value' => $clusterUuid, 'ignore' => true]);
+
+        $this->addElement(
+            'select',
+            'cluster_uuid',
+            [
+                'required' => true,
+                'class'    => 'autosubmit',
+                'label'    => $this->translate('Cluster'),
+                'options'  => iterator_to_array(ClusterForm::yieldClusters()),
+                'value'    => $clusterUuid,
+                'ignore'   => true
+            ],
+        );
+
+        $kconfig = $this->getKConfig($clusterUuid);
+
         $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_URL), [
             'label'       => $this->translate('Icinga Notifications URL'),
-            'disabled'    => $this->kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false,
-            'value'       => $this->kconfig[KConfig::NOTIFICATIONS_URL]->value ?? null,
+            'disabled'    => $kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false,
+            'value'       => $kconfig[KConfig::NOTIFICATIONS_URL]->value ?? null,
             'placeholder' => 'http://localhost:5680',
             'description' => $this->translate(
                 'Icinga Notifications URL. Leave/set blank to turn off notifications.'
@@ -121,8 +161,8 @@ class NotificationsConfigForm extends CompatForm
         $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL), [
             'label'       => $this->translate('Kubernetes Web URL'),
             'required'    => true,
-            'disabled'    => $this->kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->locked ?? false,
-            'value'       => $this->kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->value ??
+            'disabled'    => $kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->locked ?? false,
+            'value'       => $kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->value ??
                 $this->getKubernetesWebUrl(),
             'description' => $this->translate(
                 'Icinga Kubernetes Web URL.'
