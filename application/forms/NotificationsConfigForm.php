@@ -34,6 +34,11 @@ class NotificationsConfigForm extends CompatForm
             (string) Uuid::fromBytes(Cluster::on(Database::connection())->orderBy('uuid')->first()->uuid);
     }
 
+    public function getOldClusterUuid(): string
+    {
+        return $this->getPopulatedValue('old_cluster_uuid', $this->getClusterUuid());
+    }
+
     public function getKConfig(string $clusterUuid): array
     {
         $kconfig = [];
@@ -112,7 +117,7 @@ class NotificationsConfigForm extends CompatForm
     {
         $clusterUuid = $this->getClusterUuid();
 
-        if ($clusterUuid !== $this->getPopulatedValue('old_cluster_uuid', $clusterUuid)) {
+        if ($clusterUuid !== $this->getOldClusterUuid()) {
             $this->clearPopulatedValue('old_cluster_uuid');
             $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_URL));
             $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL));

@@ -8,8 +8,6 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
 use Icinga\Module\Kubernetes\Web\ClusterForm;
-use ipl\Html\Attributes;
-use ipl\Html\Html;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatForm;
 use Ramsey\Uuid\Uuid;
@@ -102,7 +100,8 @@ class PrometheusConfigForm extends CompatForm
                 'label'    => $this->translate('URL'),
                 'required' => true,
                 'value'    => $kconfig[KConfig::PROMETHEUS_URL]->value ?? null,
-                'disabled' => $kconfig[KConfig::PROMETHEUS_URL]->locked ?? false
+                'disabled' => $kconfig[KConfig::PROMETHEUS_URL]->locked ?? false,
+                'ignore'   => $kconfig[KConfig::PROMETHEUS_URL]->locked ?? false,
             ]
         );
 
@@ -112,7 +111,8 @@ class PrometheusConfigForm extends CompatForm
             [
                 'label'    => $this->translate('Username'),
                 'value'    => $kconfig[KConfig::PROMETHEUS_USERNAME]->value ?? null,
-                'disabled' => $kconfig[KConfig::PROMETHEUS_USERNAME]->locked ?? false
+                'disabled' => $kconfig[KConfig::PROMETHEUS_USERNAME]->locked ?? false,
+                'ignore'   => $kconfig[KConfig::PROMETHEUS_USERNAME]->locked ?? false,
             ]
         );
 
@@ -122,25 +122,10 @@ class PrometheusConfigForm extends CompatForm
             [
                 'label'    => $this->translate('Password'),
                 'value'    => $kconfig[KConfig::PROMETHEUS_PASSWORD]->value ?? null,
-                'disabled' => $kconfig[KConfig::PROMETHEUS_PASSWORD]->locked ?? false
+                'disabled' => $kconfig[KConfig::PROMETHEUS_PASSWORD]->locked ?? false,
+                'ignore'   => $kconfig[KConfig::PROMETHEUS_PASSWORD]->locked ?? false,
             ]
         );
-
-        if ($this->isLocked()) {
-            $this->addHtml(
-                Html::tag('div', Attributes::create(['class' => 'control-group']), [
-                    Html::tag(
-                        'div',
-                        new Attributes(['class' => 'control-label-group']),
-                    ),
-                    Html::tag(
-                        'p',
-                        null,
-                        'Prometheus configuration is provided via YAML.'
-                    )
-                ])
-            );
-        }
 
         $this->addElement(
             'submit',

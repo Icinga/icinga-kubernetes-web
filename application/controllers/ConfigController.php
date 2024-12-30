@@ -4,7 +4,6 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
-use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Application\Config;
 use Icinga\Application\Logger;
@@ -22,6 +21,7 @@ use Icinga\Web\Notification;
 use Icinga\Web\Widget\Tabs;
 use ipl\Sql\Connection;
 use ipl\Stdlib\Filter;
+use ipl\Web\Url;
 use LogicException;
 use Ramsey\Uuid\Uuid;
 use Throwable;
@@ -73,8 +73,8 @@ class ConfigController extends Controller
         };
 
         try {
-
             $form = (new NotificationsConfigForm())
+                ->populate(['cluster_uuid' => $this->getRequest()->get('id')])
                 ->on(
                     NotificationsConfigForm::ON_SUCCESS,
                     function (NotificationsConfigForm $form) use ($sourceForm) {
@@ -151,7 +151,7 @@ class ConfigController extends Controller
                             $this->translate('New configuration has successfully been stored.')
                         );
 
-                        $this->redirectNow('__REFRESH__');
+                        $this->redirectNow(Url::fromPath('kubernetes/config/notifications', ['id' => $clusterUuid]));
                     }
                 )->handleRequest($this->getServerRequest());
 
@@ -182,6 +182,7 @@ class ConfigController extends Controller
     public function prometheusAction()
     {
         $form = (new PrometheusConfigForm())
+            ->populate(['cluster_uuid' => $this->getRequest()->get('id')])
             ->on(PrometheusConfigForm::ON_SUCCESS, function (PrometheusConfigForm $form) {
                 if ($form->isLocked()) {
                     $form->addMessage($this->translate('Prometheus configuration is locked.'));
@@ -222,7 +223,7 @@ class ConfigController extends Controller
                 }
 
                 Notification::success($this->translate('New configuration has successfully been stored'));
-                $this->redirectNow('__REFRESH__');
+                $this->redirectNow(Url::fromPath('kubernetes/config/prometheus', ['id' => $clusterUuid]));
             })->handleRequest($this->getServerRequest());
 
         $this->mergeTabs($this->Module()->getConfigTabs()->activate('prometheus'));
