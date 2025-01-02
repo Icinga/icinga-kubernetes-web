@@ -98,9 +98,7 @@ class ConfigController extends Controller
                                 Logger::error($e);
                                 Logger::error($e->getTraceAsString());
 
-                                $form->addMessage($e->getMessage());
-
-                                return;
+                                throw $e;
                             }
 
                             /** @var ?Source $source */
@@ -142,9 +140,7 @@ class ConfigController extends Controller
                             Logger::error($e);
                             Logger::error($e->getTraceAsString());
 
-                            $form->addMessage($e->getMessage());
-
-                            return;
+                            throw $e;
                         }
 
                         Notification::success(
@@ -217,9 +213,7 @@ class ConfigController extends Controller
                     Logger::error($e);
                     Logger::error($e->getTraceAsString());
 
-                    $form->addMessage($e->getMessage());
-
-                    return;
+                    throw $e;
                 }
 
                 Notification::success($this->translate('New configuration has successfully been stored'));
