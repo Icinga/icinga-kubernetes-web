@@ -11,11 +11,14 @@ use Icinga\Application\Logger;
 use Icinga\Data\ConfigObject;
 use Icinga\Exception\Json\JsonDecodeException;
 use Icinga\Module\Kubernetes\Common\Auth;
+use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
 use Icinga\User\Preferences;
 use Icinga\User\Preferences\PreferencesStore;
 use Icinga\Util\Json;
 use Icinga\Web\Session;
+use ipl\Html\Html;
 use ipl\Orm\Query;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\SearchControls;
@@ -94,7 +97,38 @@ abstract class ListController extends Controller
         $this->addControl($viewModeSwitcher);
         $this->addControl($searchBar);
 
+        $favorites = Favorite::on(Database::connection())->execute();
+
+        $favoriteFilter = [];
+
+        foreach ($favorites as $favorite) {
+            $favoriteFilter[] = Filter::equal('uuid', $favorite->resource_uuid);
+        }
+
+        $modelClass = $this->getModelClass();
+
+        if (! empty($favoriteFilter)) {
+            $favoriteResources = $modelClass::on(Database::connection())
+                ->filter(
+                    Filter::all(
+                        $filter,
+                        Filter::any(...$favoriteFilter)
+                    )
+                )
+                ->execute();
+        } else {
+            // Get empty ResultSet, otherwise all resources would be displayed as favorites
+            $favoriteResources = $modelClass::on(Database::connection())->filter(Filter::equal('uuid', 0))->execute();
+        }
+
         $contentClass = $this->getContentClass();
+
+        $this->addContent(Html::h2('Favorites'));
+        $this->addContent(Html::hr());
+        $this->addContent((new $contentClass($favoriteResources))->addAttributes(['class' => 'collapsible'])->setViewMode($viewModeSwitcher->getViewMode()));
+
+        $this->addContent(Html::h2('All'));
+        $this->addContent(Html::hr());
         $this->addContent((new $contentClass($q))->setViewMode($viewModeSwitcher->getViewMode()));
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
