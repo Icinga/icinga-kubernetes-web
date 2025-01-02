@@ -122,3 +122,75 @@
 .kicon-volume:before {
   content: "\e90f";
 }
+
+@keyframes shake {
+  0% {
+    rotate: 0deg;
+  }
+
+  33% {
+    rotate: 10deg;
+  }
+
+  66% {
+    rotate: -10deg;
+  }
+
+  100% {
+    rotate: 10deg;
+  }
+}
+
+.fa-star {
+  content: "\f005";
+  font-style: normal;
+  font-family: "Font Awesome 6 Free";
+}
+
+.fa-regular {
+  font-weight: 400;
+}
+
+.fa-solid {
+  font-weight: 900;
+}
+
+.favorite-toggle {
+  input {
+    display: none;
+
+    &:checked + label {
+      &:before {
+        .fa-solid();
+      }
+
+      &:hover {
+        animation: shake 0.2s;
+      }
+    }
+  }
+
+  label {
+    position: relative;
+    display: block;
+    cursor: pointer;
+    width: 0.675em;
+    height: 0.9em;
+
+    &:before {
+      position: absolute;
+      left: 0;
+      top: 0;
+
+      .fa-star();
+      .fa-regular();
+      font-size: 0.6em;
+      color: @base-primary-color;
+    }
+
+    &:hover {
+      filter: brightness(0.8);
+      animation: shake 0.2s;
+    }
+  }
+}
