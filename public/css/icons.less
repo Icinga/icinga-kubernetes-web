@@ -155,7 +155,15 @@
   font-weight: 900;
 }
 
+.list-item {
+  &:hover .favorite-toggle {
+    display: inline;
+  }
+}
+
 .favorite-toggle {
+  display: none;
+
   input {
     display: none;
 
