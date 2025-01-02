@@ -56,6 +56,10 @@ class Service extends Model
         $relations
             ->belongsToMany('pod', Pod::class)
             ->through('service_pod');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array
