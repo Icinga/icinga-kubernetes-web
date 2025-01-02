@@ -51,6 +51,10 @@ class Node extends Model
             ->hasMany('pod', Pod::class)
             ->setCandidateKey('name')
             ->setForeignKey('node_name');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array
