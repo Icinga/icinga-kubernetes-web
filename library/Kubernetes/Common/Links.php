@@ -131,4 +131,9 @@ abstract class Links
     {
         return Url::fromPath('kubernetes/statefulset', ['id' => (string) Uuid::fromBytes($statefulSet->uuid)]);
     }
+
+    public static function toggleFavorite($uuid): Url
+    {
+        return Url::fromPath('kubernetes/favorite/toggle', ['uuid' => (string) Uuid::fromBytes($uuid)]);
+    }
 }
