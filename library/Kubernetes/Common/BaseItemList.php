@@ -29,7 +29,7 @@ abstract class BaseItemList extends BaseHtmlElement
     protected iterable $query;
 
     protected array $baseAttributes = [
-        'class'                         => 'item-list',
+        'class'                         => 'item-list action-list-kubernetes',
         'data-base-target'              => '_next',
         'data-pdfexport-page-breaks-at' => '.list-item'
     ];

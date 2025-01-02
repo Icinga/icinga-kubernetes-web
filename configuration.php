@@ -275,10 +275,7 @@ $this->provideRestriction(
     $this->translate('Restrict access to the resources that match the filter')
 );
 
-if (! Module::exists('icingadb')) {
-    $this->provideJsFile('action-list.js');
-}
-
+$this->provideJsFile('action-list.js');
 $this->provideJsFile('vendor/chart.umd.js');
 
 $this->provideCssFile('action-list.less');

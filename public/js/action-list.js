@@ -17,7 +17,7 @@
         constructor(icinga) {
             super(icinga);
 
-            this.on('click', '.action-list [data-action-item]:not(.page-separator), .action-list [data-action-item] a[href]', this.onClick, this);
+            this.on('click', '.action-list-kubernetes [data-action-item]:not(.page-separator), .action-list-kubernetes [data-action-item] a[href]', this.onClick, this);
             this.on('close-column', '#main > #col2', this.onColumnClose, this);
             this.on('column-moved', this.onColumnMoved, this);
 
@@ -71,6 +71,10 @@
             let _this = event.data.self;
             let target = event.currentTarget;
 
+            if (event.target.matches('.favorite-checkbox') || event.target.matches('.favorite-checkbox-label')) {
+                return true
+            }
+
             if (target.matches('a') && (! target.matches('.subject') || event.ctrlKey || event.metaKey)) {
                 return true;
             }
@@ -80,7 +84,7 @@
             event.stopPropagation();
 
             let item = target.closest('[data-action-item]');
-            let list = target.closest('.action-list');
+            let list = target.closest('.action-list-kubernetes');
             let activeItems = _this.getActiveItems(list);
             let toActiveItems = [],
                 toDeactivateItems = [];
@@ -101,7 +105,7 @@
                     let allItems = _this.getAllItems(list);
 
                     let startIndex = allItems.indexOf(item);
-                    if(startIndex < 0) {
+                    if (startIndex < 0) {
                         startIndex = 0;
                     }
 
@@ -169,8 +173,8 @@
             if (footer === null) {
                 footer = notjQuery.render(
                     '<div class="footer" data-action-list-automatically-added>' +
-                            '<div class="selection-count"><span class="selected-items"></span></div>' +
-                        '</div>'
+                    '<div class="selection-count"><span class="selected-items"></span></div>' +
+                    '</div>'
                 )
 
                 list.closest('.container').appendChild(footer);
@@ -198,7 +202,7 @@
         }
 
         /**
-         * Key navigation for .action-list
+         * Key navigation for .action-list-kubernetes
          *
          * Only for primary lists (dashboard or lists in detail view are not taken into account)
          *
@@ -228,15 +232,15 @@
                 || focusedElement.matches('#body'))
             ) {
                 let activeItem = document.querySelector(
-                    '#main > .container > .content > .action-list [data-action-item].active'
+                    '#main > .container > .content > .action-list-kubernetes [data-action-item].active'
                 );
                 if (activeItem) {
-                    list = activeItem.closest('.action-list');
+                    list = activeItem.closest('.action-list-kubernetes');
                 } else {
-                    list = focusedElement.querySelector('#main > .container > .content > .action-list');
+                    list = focusedElement.querySelector('#main > .container > .content > .action-list-kubernetes');
                 }
             } else if (focusedElement) {
-                list = focusedElement.closest('.content > .action-list');
+                list = focusedElement.closest('.content > .action-list-kubernetes');
             }
 
             if (! list) {
@@ -259,7 +263,7 @@
 
             let allItems = _this.getAllItems(list);
             let firstListItem = allItems[0];
-            let lastListItem = allItems[allItems.length -1];
+            let lastListItem = allItems[allItems.length - 1];
             let activeItems = _this.getActiveItems(list);
             let markAsLastActive = null; // initialized only if it is different from toActiveItem
             let toActiveItem = null;
@@ -396,7 +400,7 @@
             let allItems = this.getAllItems(list);
             let activeItems = this.getActiveItems(list);
             this.setActive(allItems.filter(item => ! activeItems.includes(item)));
-            this.setLastActivatedItemUrl(allItems[allItems.length -1].dataset.icingaDetailFilter);
+            this.setLastActivatedItemUrl(allItems[allItems.length - 1].dataset.icingaDetailFilter);
             this.addSelectionCountToFooter(list);
             this.loadDetailUrl(list);
         }
@@ -415,7 +419,7 @@
          *
          * @param url
          */
-        setLastActivatedItemUrl (url) {
+        setLastActivatedItemUrl(url) {
             this.lastActivatedItemUrl = url;
         }
 
@@ -441,7 +445,7 @@
         }
 
         clearDashboardSelections(dashboard, currentList) {
-            dashboard.querySelectorAll('.action-list').forEach(otherList => {
+            dashboard.querySelectorAll('.action-list-kubernetes').forEach(otherList => {
                 if (otherList !== currentList) {
                     this.clearSelection(this.getActiveItems(otherList));
                 }
@@ -514,8 +518,7 @@
          *
          * @return array
          */
-        getActiveItems(list)
-        {
+        getActiveItems(list) {
             let items;
             if (list.tagName.toLowerCase() === 'table') {
                 items = list.querySelectorAll(':scope > tbody > [data-action-item].active');
@@ -533,8 +536,7 @@
          *
          * @return array
          */
-        getAllItems(list)
-        {
+        getAllItems(list) {
             let items;
             if (list.tagName.toLowerCase() === 'table') {
                 items = list.querySelectorAll(':scope > tbody > [data-action-item]');
@@ -667,7 +669,7 @@
             let url = '?' + filters.join('|');
 
             if (withBaseUrl) {
-                return items[0].closest('.action-list').getAttribute('data-icinga-multiselect-url') + url;
+                return items[0].closest('.action-list-kubernetes').getAttribute('data-icinga-multiselect-url') + url;
             }
 
             return url;
@@ -714,7 +716,7 @@
             let _this = event.data.self;
 
             if (event.target.id === 'col2' && sourceId === 'col1') { // only for browser-back (col1 shifted to col2)
-                _this.clearSelection(event.target.querySelectorAll('.action-list .active'));
+                _this.clearSelection(event.target.querySelectorAll('.action-list-kubernetes .active'));
             } else if (event.target.id === 'col1' && sourceId === 'col2') {
                 for (const requestNo of Object.keys(_this.activeRequests)) {
                     if (_this.activeRequests[requestNo] === sourceId) {
@@ -749,7 +751,7 @@
                 // no detail view || ignore when already set
                 let actionLists = null;
                 if (! list) {
-                    actionLists = document.querySelectorAll('.action-list');
+                    actionLists = document.querySelectorAll('.action-list-kubernetes');
                 } else {
                     actionLists = [list];
                 }
@@ -799,12 +801,12 @@
                     _this.clearDashboardSelections(dashboard, list);
                 }
 
-                _this.clearSelection(_this.getAllItems(list).filter(item => !toActiveItems.includes(item)));
+                _this.clearSelection(_this.getAllItems(list).filter(item => ! toActiveItems.includes(item)));
                 _this.setActive(toActiveItems);
             }
 
             if (isTopLevelContainer) {
-                let footerList = list ?? container.querySelector('.content > .action-list');
+                let footerList = list ?? container.querySelector('.content > .action-list-kubernetes');
                 if (footerList) {
                     _this.addSelectionCountToFooter(footerList);
                 }
