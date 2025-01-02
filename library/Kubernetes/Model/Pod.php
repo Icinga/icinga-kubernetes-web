@@ -109,6 +109,10 @@ class Pod extends Model
             ->setCandidateKey('node_name')
             ->setForeignKey('name')
             ->setJoinType('LEFT');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array

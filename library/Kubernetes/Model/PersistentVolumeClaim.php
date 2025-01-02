@@ -62,6 +62,10 @@ class PersistentVolumeClaim extends Model
             ->setTargetForeignKey('pod_uuid')
             ->setCandidateKey('name')
             ->setForeignKey('claim_name');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array
