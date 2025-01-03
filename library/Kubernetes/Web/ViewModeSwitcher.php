@@ -28,7 +28,7 @@ class ViewModeSwitcher extends Form
     public const DEFAULT_VIEW_MODE = ViewMode::Common;
 
     /** @var string Default view mode param */
-    const DEFAULT_VIEW_MODE_PARAM = 'view';
+    public const DEFAULT_VIEW_MODE_PARAM = 'view';
 
     /** @var array<string, string> View mode-icon pairs */
     public static array $viewModes = [
