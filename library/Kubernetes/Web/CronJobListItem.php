@@ -81,7 +81,7 @@ class CronJobListItem extends BaseListItem
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
         // TODO add icinga state then replace function by DefaultListItemVisual trait
-        $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
+        $visual->addHtml(new StateBall('none', 'sm'));
 
         $rs = Favorite::on(Database::connection())
             ->filter(Filter::all(
@@ -92,7 +92,7 @@ class CronJobListItem extends BaseListItem
 
         $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
             ->setAction(Links::toggleFavorite($this->item->uuid)->getAbsoluteUrl())
-            ->setAttribute('class', 'favorite-toggle')
+            ->setAttribute('class', 'favorite-toggle favorite-toggle-sm')
             ->setAttribute('data-base-target', '_self')
         );
     }

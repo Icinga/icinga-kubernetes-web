@@ -68,9 +68,19 @@ pre {
   color: @state-ok;
 }
 
-.pv-phase,
-.pvc-phase {
+.phase-size-sm {
   font-size: .75em;
+}
+
+.phase-size-m {
+  font-size: 1em;
+}
+
+.phase-size-sm,
+.phase-size-m {
+  &:before {
+    margin-right: 0;
+  }
 }
 
 .pv-phase-pending {

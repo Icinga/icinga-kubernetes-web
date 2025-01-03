@@ -66,7 +66,7 @@ class ConfigMapListItem extends BaseListItem
 
         $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
             ->setAction(Links::toggleFavorite($this->item->uuid)->getAbsoluteUrl())
-            ->setAttribute('class', 'favorite-toggle')
+            ->setAttribute('class', 'favorite-toggle favorite-toggle-m')
             ->setAttribute('data-base-target', '_self')
         );
     }
