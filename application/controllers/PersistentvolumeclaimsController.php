@@ -41,4 +41,9 @@ class PersistentvolumeclaimsController extends ListController
     {
         return [ViewMode::Detailed];
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
 }

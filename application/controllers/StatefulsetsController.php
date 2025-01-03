@@ -35,4 +35,9 @@ class StatefulsetsController extends ListController
     {
         return Auth::SHOW_STATEFUL_SETS;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
 }

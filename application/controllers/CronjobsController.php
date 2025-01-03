@@ -35,4 +35,9 @@ class CronjobsController extends ListController
     {
         return Auth::SHOW_CRON_JOBS;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
 }

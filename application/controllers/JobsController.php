@@ -35,4 +35,9 @@ class JobsController extends ListController
     {
         return Auth::SHOW_JOBS;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
 }
