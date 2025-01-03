@@ -86,10 +86,7 @@ footer {
 }
 
 .config-map-list,
-.cronjob-list,
-.ingress-list,
-.secret-list,
-.service-list {
+.secret-list {
   > .list-item > .visual {
     // The specified lists have no indicator for their state, therefore visual is hidden so that no space is occupied.
     display: none;
@@ -100,4 +97,10 @@ footer {
   list-style-type: none;
   margin: 0;
   padding: 0;
+}
+
+.header-minimal {
+  display: flex;
+  overflow: hidden;
+  padding-right: 1em;
 }
