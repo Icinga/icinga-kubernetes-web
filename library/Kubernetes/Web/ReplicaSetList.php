@@ -5,13 +5,20 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseItemList;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 
 class ReplicaSetList extends BaseItemList
 {
+    use ViewMode;
+
     protected $defaultAttributes = ['class' => 'replica-set-list'];
 
     protected function getItemClass(): string
     {
-        return ReplicaSetListItem::class;
+        return match ($this->getViewMode()) {
+            'minimal'  => ReplicaSetListItemMinimal::class,
+            'detailed' => ReplicaSetListItemDetailed::class,
+            default    => ReplicaSetListItem::class,
+        };
     }
 }
