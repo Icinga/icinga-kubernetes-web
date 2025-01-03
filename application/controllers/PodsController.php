@@ -43,4 +43,9 @@ class PodsController extends ListController
     {
         return Auth::SHOW_PODS;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
 }
