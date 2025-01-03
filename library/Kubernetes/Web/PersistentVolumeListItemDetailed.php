@@ -22,7 +22,7 @@ use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 
-class PersistentVolumeListItem extends BaseListItem
+class PersistentVolumeListItemDetailed extends BaseListItem
 {
     use Translation;
 
@@ -41,14 +41,8 @@ class PersistentVolumeListItem extends BaseListItem
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            Html::tag('span',
-                Attributes::create(['class' => 'header-minimal']),
-                [
-                    $this->createTitle(),
-                    $this->createCaption()
-                ]
-            ),
-            (new TimeAgo($this->item->created->getTimestamp()))
+            $this->createTitle(),
+            new TimeAgo($this->item->created->getTimestamp())
         );
     }
 
@@ -61,6 +55,7 @@ class PersistentVolumeListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
+            $this->createCaption(),
             $this->createFooter()
         );
     }

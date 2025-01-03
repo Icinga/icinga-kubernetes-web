@@ -25,12 +25,11 @@ use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
-use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
-class NamespaceListItem extends BaseListItem
+class NamespaceListItemMinimal extends BaseListItem
 {
     use Translation;
 
@@ -66,85 +65,7 @@ class NamespaceListItem extends BaseListItem
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->addHtml(
-            $this->createHeader(),
-            $this->createFooter()
-        );
-    }
-
-    protected function assembleFooter(BaseHtmlElement $footer): void
-    {
-        $resourceCount = DaemonSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-daemonset'])),
-            $resourceCount
-        ));
-
-        $resourceCount = Deployment::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-deployment'])),
-            $resourceCount
-        ));
-
-        $resourceCount = Ingress::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-ingress'])),
-            $resourceCount
-        ));
-
-        $resourceCount = PersistentVolume::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-persistentvolume'])),
-            $resourceCount
-        ));
-
-        $resourceCount = PersistentVolumeClaim::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-persistentvolumeclaim'])),
-            $resourceCount
-        ));
-
-        $resourceCount = Pod::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
-            $resourceCount
-        ));
-
-        $resourceCount = ReplicaSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-replicaset'])),
-            $resourceCount
-        ));
-
-        $resourceCount = Service::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-service'])),
-            $resourceCount
-        ));
-
-        $resourceCount = StateFulSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-statefulset'])),
-            $resourceCount
-        ));
+        $main->addHtml($this->createHeader());
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void

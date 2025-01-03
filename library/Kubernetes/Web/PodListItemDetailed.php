@@ -22,7 +22,7 @@ use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
-class PodListItem extends BaseListItem
+class PodListItemDetailed extends BaseListItem
 {
     use Translation;
 
@@ -35,13 +35,7 @@ class PodListItem extends BaseListItem
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            Html::tag('span',
-                Attributes::create(['class' => 'header-minimal']),
-                [
-                    $this->createTitle(),
-                    $this->createCaption()
-                ]
-            ),
+            $this->createTitle(),
             new TimeAgo($this->item->created->getTimestamp())
         );
     }
@@ -55,6 +49,7 @@ class PodListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
+            $this->createCaption(),
             $this->createFooter()
         );
     }
@@ -107,8 +102,7 @@ class PodListItem extends BaseListItem
                 $this->item->restart_policy
             ),
             new HorizontalKeyValue(
-                (new Icon(self::QOS_ICONS[$this->item->qos]))
-                    ->addAttributes(['title' => $this->translate('Quality of Service')]),
+                (new Icon('life-ring'))->addAttributes(['title' => $this->translate('Quality of Service')]),
                 $this->item->qos
             ),
             (new HorizontalKeyValue(
