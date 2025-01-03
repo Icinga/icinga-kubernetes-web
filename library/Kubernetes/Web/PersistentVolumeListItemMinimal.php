@@ -4,12 +4,10 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Common\AccessModes;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
-use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -17,12 +15,11 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 
-class PersistentVolumeListItem extends BaseListItem
+class PersistentVolumeListItemMinimal extends BaseListItem
 {
     use Translation;
 
@@ -61,30 +58,6 @@ class PersistentVolumeListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
-            $this->createFooter()
-        );
-    }
-
-    protected function assembleFooter(BaseHtmlElement $footer): void
-    {
-        $footer->addHtml(
-            new HorizontalKeyValue(
-                $this->translate('Storage Class'),
-                $this->item->storage_class
-            ),
-            new HorizontalKeyValue(
-                $this->translate('Volume Mode'),
-                $this->item->volume_mode
-            ),
-            new HorizontalKeyValue(
-                $this->translate('Access Mode'),
-                implode(', ', AccessModes::asNames((int) $this->item->access_modes))
-            ),
-            (new HorizontalKeyValue(
-                $this->translate('Capacity'),
-                Format::bytes($this->item->capacity / 1000)
-            ))
-                ->addAttributes(new Attributes(['class' => 'push-left']))
         );
     }
 

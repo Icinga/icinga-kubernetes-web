@@ -8,12 +8,14 @@ use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
+use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
 class ServiceListItem extends BaseListItem
@@ -23,9 +25,21 @@ class ServiceListItem extends BaseListItem
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            $this->createTitle(),
+            Html::tag('span',
+                Attributes::create(['class' => 'header-minimal']),
+                [
+                    $this->createTitle(),
+                    $this->createCaption()
+                ]
+            ),
             new TimeAgo($this->item->created->getTimestamp())
         );
+    }
+
+    protected function assembleCaption(BaseHtmlElement $caption): void
+    {
+        // TODO add state reason
+        $caption->addHtml(new Text('Placeholder for Icinga State Reason'));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
@@ -63,5 +77,10 @@ class ServiceListItem extends BaseListItem
                 new Attributes(['class' => 'subject'])
             )
         );
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
     }
 }

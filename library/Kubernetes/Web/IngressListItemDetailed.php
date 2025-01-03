@@ -5,11 +5,9 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -19,20 +17,14 @@ use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
-class CronJobListItem extends BaseListItem
+class IngressListItemDetailed extends BaseListItem
 {
     use Translation;
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            Html::tag('span',
-                Attributes::create(['class' => 'header-minimal']),
-                [
-                    $this->createTitle(),
-                    $this->createCaption()
-                ]
-            ),
+            $this->createTitle(),
             new TimeAgo($this->item->created->getTimestamp())
         );
     }
@@ -47,30 +39,25 @@ class CronJobListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
+            $this->createCaption(),
             $this->createFooter()
         );
     }
 
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
-        if (isset($this->item->last_schedule_time)) {
-            $lastScheduleTime = $this->item->last_schedule_time->format('Y-m-d H:i:s');
-        } else {
-            $lastScheduleTime = $this->translate('None');
-        }
-
-        if (isset($this->item->last_successful_time)) {
-            $lastSuccessfulTime = $this->item->last_successful_time->format('Y-m-d H:i:s');
-        } else {
-            $lastSuccessfulTime = $this->translate('None');
+        $hosts = [];
+        foreach ($this->item->ingress_rule as $rule) {
+            if ($rule->host !== null) {
+                $hosts[] = $rule->host;
+            }
         }
 
         $footer->addHtml(
-            new HorizontalKeyValue($this->translate('Active'), $this->item->active),
-            new HorizontalKeyValue($this->translate('Suspend'), Icons::ready($this->item->suspend)),
-            (new HorizontalKeyValue($this->translate('Last Successful'), $lastSuccessfulTime))
-                ->addAttributes(['class' => 'push-left']),
-            new HorizontalKeyValue($this->translate('Last Scheduled'), $lastScheduleTime)
+            new HorizontalKeyValue(
+                $this->translate('Host'),
+                ! empty($hosts) ? implode(', ', $hosts) : '-'
+            )
         );
     }
 
@@ -85,10 +72,10 @@ class CronJobListItem extends BaseListItem
             ),
             new Link(
                 (new HtmlDocument())->addHtml(
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-cronjob'])),
+                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-ingress'])),
                     new Text($this->item->name)
                 ),
-                Links::cronJob($this->item),
+                Links::ingress($this->item),
                 new Attributes(['class' => 'subject'])
             )
         );

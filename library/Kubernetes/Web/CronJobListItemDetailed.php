@@ -9,7 +9,6 @@ use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -19,20 +18,14 @@ use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
-class CronJobListItem extends BaseListItem
+class CronJobListItemDetailed extends BaseListItem
 {
     use Translation;
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            Html::tag('span',
-                Attributes::create(['class' => 'header-minimal']),
-                [
-                    $this->createTitle(),
-                    $this->createCaption()
-                ]
-            ),
+            $this->createTitle(),
             new TimeAgo($this->item->created->getTimestamp())
         );
     }
@@ -47,6 +40,7 @@ class CronJobListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
+            $this->createCaption(),
             $this->createFooter()
         );
     }

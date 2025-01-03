@@ -20,20 +20,14 @@ use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
-class DaemonSetListItem extends BaseListItem
+class JobListItemDetailed extends BaseListItem
 {
     use Translation;
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            Html::tag('span',
-                Attributes::create(['class' => 'header-minimal']),
-                [
-                    $this->createTitle(),
-                    $this->createCaption()
-                ]
-            ),
+            $this->createTitle(),
             new TimeAgo($this->item->created->getTimestamp())
         );
     }
@@ -47,6 +41,7 @@ class DaemonSetListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
+            $this->createCaption(),
             $this->createFooter()
         );
     }
@@ -54,9 +49,9 @@ class DaemonSetListItem extends BaseListItem
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
         $pods = (new ItemCountIndicator())
-            ->addIndicator('critical', $this->item->number_unavailable)
-            ->addIndicator('pending', $this->item->desired_number_scheduled - $this->item->current_number_scheduled)
-            ->addIndicator('ok', $this->item->number_available);
+            ->addIndicator('critical', $this->item->failed)
+            ->addIndicator('pending', $this->item->active)
+            ->addIndicator('ok', $this->item->succeeded);
 
         $footer->addHtml(
             (new HorizontalKeyValue(
@@ -66,22 +61,33 @@ class DaemonSetListItem extends BaseListItem
                 ->addAttributes([
                     'title' => sprintf(
                         $this->translate(
-                            '%d %s available (%d unavailable)',
-                            '%d:num_of_available_daemon_pods %s:daemon_pods_translation'
-                            . ' (%d:num_of_unavailable_daemon_pods)'
+                            '%d %s available (%d not available)',
+                            '%d:num_of_available_pods %s:pods_translation (%d:num_of_unavailable_pods)'
                         ),
                         $pods->getIndicator('ok'),
-                        $this->translatePlural('daemon pod', 'daemon pods', $pods->getIndicator('ok')),
+                        $this->translatePlural('pod', 'pods', $pods->getIndicator('ok')),
                         $pods->getIndicator('critical')
                     )
                 ]),
             new HorizontalKeyValue(
-                new Icon('stopwatch', ['title' => $this->translate('Min Ready Duration')]),
-                Format::seconds($this->item->min_ready_seconds, $this->translate('None'))
+                new Icon('grip-lines', ['title' => $this->translate('Parallelism')]),
+                $this->item->parallelism
             ),
             new HorizontalKeyValue(
-                new Icon('retweet', ['title' => $this->translate('Update Strategy')]),
-                $this->item->update_strategy
+                new Icon('check-double', ['title' => $this->translate('Completions')]),
+                $this->item->getCompletions()
+            ),
+            new HorizontalKeyValue(
+                new Icon('circle-exclamation', ['title' => $this->translate('Back-off Limit')]),
+                $this->item->backoff_limit
+            ),
+            new HorizontalKeyValue(
+                new Icon('skull-crossbones', ['title' => $this->translate('Active Deadline Duration')]),
+                Format::seconds($this->item->active_deadline_seconds) ?? $this->translate('None')
+            ),
+            new HorizontalKeyValue(
+                new Icon('hourglass-start', ['title' => $this->translate('TTL Duration After Finished')]),
+                new Text(Format::seconds($this->item->ttl_seconds_after_finished) ?? $this->translate('None'))
             )
         );
     }
@@ -89,7 +95,7 @@ class DaemonSetListItem extends BaseListItem
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<daemon_set> is <icinga_state>'),
+            $this->translate('%s is %s', '<job> is <icinga_state>'),
             [
                 new HtmlElement(
                     'span',
@@ -99,10 +105,10 @@ class DaemonSetListItem extends BaseListItem
                 ),
                 new Link(
                     (new HtmlDocument())->addHtml(
-                        new HtmlElement('i', new Attributes(['class' => 'icon kicon-daemon-set'])),
+                        new HtmlElement('i', new Attributes(['class' => 'icon kicon-job'])),
                         new Text($this->item->name)
                     ),
-                    Links::daemonSet($this->item),
+                    Links::job($this->item),
                     new Attributes(['class' => 'subject'])
                 )
             ],

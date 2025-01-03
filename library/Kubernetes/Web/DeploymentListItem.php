@@ -27,7 +27,13 @@ class DeploymentListItem extends BaseListItem
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            $this->createTitle(),
+            Html::tag('span',
+                Attributes::create(['class' => 'header-minimal']),
+                [
+                    $this->createTitle(),
+                    $this->createCaption()
+                ]
+            ),
             new TimeAgo($this->item->created->getTimestamp())
         );
     }
@@ -41,7 +47,6 @@ class DeploymentListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
-            $this->createCaption(),
             $this->createFooter()
         );
     }

@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -18,14 +19,20 @@ use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 use Ramsey\Uuid\Uuid;
 
-class EventListItem extends BaseListItem
+class EventListItemMinimal extends BaseListItem
 {
     use Translation;
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            $this->createTitle(),
+            Html::tag('span',
+                Attributes::create(['class' => 'header-minimal']),
+                [
+                    $this->createTitle(),
+                    $this->createCaption()
+                ]
+            ),
             new TimeAgo($this->item->last_seen->getTimestamp())
         );
     }
@@ -39,7 +46,6 @@ class EventListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
-            $this->createCaption()
         );
     }
 

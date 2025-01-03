@@ -13,12 +13,11 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Web\Widget\HorizontalKeyValue;
+use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
-use ipl\Web\Widget\TimeAgo;
 
-class IngressListItem extends BaseListItem
+class NodeListItemMinimal extends BaseListItem
 {
     use Translation;
 
@@ -31,64 +30,44 @@ class IngressListItem extends BaseListItem
                     $this->createTitle(),
                     $this->createCaption()
                 ]
-            ),
-            new TimeAgo($this->item->created->getTimestamp())
+            )
         );
     }
 
     protected function assembleCaption(BaseHtmlElement $caption): void
     {
-        // TODO add state reason
-        $caption->addHtml(new Text('Placeholder for Icinga State Reason'));
+        $caption->addHtml(new Text($this->item->icinga_state_reason));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml(
             $this->createHeader(),
-            $this->createFooter()
-        );
-    }
-
-    protected function assembleFooter(BaseHtmlElement $footer): void
-    {
-        $hosts = [];
-        foreach ($this->item->ingress_rule as $rule) {
-            if ($rule->host !== null) {
-                $hosts[] = $rule->host;
-            }
-        }
-
-        $footer->addHtml(
-            new HorizontalKeyValue(
-                $this->translate('Host'),
-                ! empty($hosts) ? implode(', ', $hosts) : '-'
-            )
         );
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
-        $title->addHtml(
-            new HtmlElement(
-                'span',
-                new Attributes(['class' => 'namespace-badge']),
-                new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
-                new Text($this->item->namespace)
-            ),
+        $title->addHtml(Html::sprintf(
+            $this->translate('%s is %s', '<node> is <icinga_state>'),
             new Link(
                 (new HtmlDocument())->addHtml(
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-ingress'])),
+                    new Icon('share-nodes'),
                     new Text($this->item->name)
                 ),
-                Links::ingress($this->item),
+                Links::node($this->item),
                 new Attributes(['class' => 'subject'])
+            ),
+            new HtmlElement(
+                'span',
+                new Attributes(['class' => 'icinga-state-text']),
+                new Text($this->item->icinga_state)
             )
-        );
+        ));
     }
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
+        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }
