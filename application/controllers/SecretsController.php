@@ -41,4 +41,9 @@ class SecretsController extends ListController
     {
         return Auth::SHOW_SECRETS;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return ['detailed'];
+    }
 }
