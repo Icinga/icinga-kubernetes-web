@@ -41,4 +41,9 @@ class ConfigmapsController extends ListController
     {
         return AUTH::SHOW_CONFIG_MAPS;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return ['common', 'detailed'];
+    }
 }
