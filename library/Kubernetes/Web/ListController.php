@@ -165,7 +165,7 @@ abstract class ListController extends Controller
         } else {
             if (! in_array('detailed', $ignoredViewModes)) {
                 $viewModeSwitcher->setDefaultViewMode('detailed');
-            } else if (! in_array('common', $ignoredViewModes)) {
+            } elseif (! in_array('common', $ignoredViewModes)) {
                 $viewModeSwitcher->setDefaultViewMode('common');
             } else {
                 $viewModeSwitcher->setDefaultViewMode('minimal');

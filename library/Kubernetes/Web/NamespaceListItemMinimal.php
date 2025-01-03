@@ -36,7 +36,8 @@ class NamespaceListItemMinimal extends BaseListItem
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            Html::tag('span',
+            Html::tag(
+                'span',
                 Attributes::create(['class' => 'header-minimal']),
                 [
                     $this->createTitle(),
@@ -49,18 +50,38 @@ class NamespaceListItemMinimal extends BaseListItem
 
     protected function assembleCaption(BaseHtmlElement $caption): void
     {
-        $resourceCount = DaemonSet::on(Database::connection())->filter(Filter::equal('namespace', $this->item->name))->count();
-        $resourceCount += Deployment::on(Database::connection())->filter(Filter::equal('namespace', $this->item->name))->count();
-        $resourceCount += Ingress::on(Database::connection())->filter(Filter::equal('namespace', $this->item->name))->count();
-        $resourceCount += PersistentVolume::on(Database::connection())->filter(Filter::equal('namespace', $this->item->name))->count();
-        $resourceCount += PersistentVolumeClaim::on(Database::connection())->filter(Filter::equal('namespace', $this->item->name))->count();
-        $resourceCount += Pod::on(Database::connection())->filter(Filter::equal('namespace', $this->item->name))->count();
-        $resourceCount += ReplicaSet::on(Database::connection())->filter(Filter::equal('namespace', $this->item->name))->count();
-        $resourceCount += Service::on(Database::connection())->filter(Filter::equal('namespace', $this->item->name))->count();
-        $resourceCount += StateFulSet::on(Database::connection())->filter(Filter::equal('namespace', $this->item->name))->count();
+        $resourceCount = DaemonSet::on(Database::connection())
+            ->filter(Filter::equal('namespace', $this->item->name))->count();
 
-        $caption->addHtml(Html::sprintf($this->translate('Namespace %s has %s resources'), $this->item->name, $resourceCount));
+        $resourceCount += Deployment::on(Database::connection())
+            ->filter(Filter::equal('namespace', $this->item->name))->count();
 
+        $resourceCount += Ingress::on(Database::connection())
+            ->filter(Filter::equal('namespace', $this->item->name))->count();
+
+        $resourceCount += PersistentVolume::on(Database::connection())
+            ->filter(Filter::equal('namespace', $this->item->name))->count();
+
+        $resourceCount += PersistentVolumeClaim::on(Database::connection())
+            ->filter(Filter::equal('namespace', $this->item->name))->count();
+
+        $resourceCount += Pod::on(Database::connection())
+            ->filter(Filter::equal('namespace', $this->item->name))->count();
+
+        $resourceCount += ReplicaSet::on(Database::connection())
+            ->filter(Filter::equal('namespace', $this->item->name))->count();
+
+        $resourceCount += Service::on(Database::connection())
+            ->filter(Filter::equal('namespace', $this->item->name))->count();
+
+        $resourceCount += StateFulSet::on(Database::connection())
+            ->filter(Filter::equal('namespace', $this->item->name))->count();
+
+        $caption->addHtml(Html::sprintf(
+            $this->translate('Namespace %s has %s resources'),
+            $this->item->name,
+            $resourceCount
+        ));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void

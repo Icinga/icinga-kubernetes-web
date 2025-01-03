@@ -26,7 +26,8 @@ class CronJobListItem extends BaseListItem
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            Html::tag('span',
+            Html::tag(
+                'span',
                 Attributes::create(['class' => 'header-minimal']),
                 [
                     $this->createTitle(),
