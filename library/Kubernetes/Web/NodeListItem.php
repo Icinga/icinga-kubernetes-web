@@ -25,7 +25,15 @@ class NodeListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml($this->createTitle());
+        $header->addHtml(
+            Html::tag('span',
+                Attributes::create(['class' => 'header-minimal']),
+                [
+                    $this->createTitle(),
+                    $this->createCaption()
+                ]
+            ),
+        );
     }
 
     protected function assembleCaption(BaseHtmlElement $caption): void
@@ -37,7 +45,6 @@ class NodeListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
-            $this->createCaption(),
             $this->createFooter()
         );
     }

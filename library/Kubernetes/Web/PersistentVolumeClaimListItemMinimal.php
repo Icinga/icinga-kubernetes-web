@@ -4,12 +4,10 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use Icinga\Module\Kubernetes\Common\AccessModes;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
-use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -17,13 +15,11 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Web\Widget\EmptyState;
-use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\TimeAgo;
 
-class PersistentVolumeClaimListItem extends BaseListItem
+class PersistentVolumeClaimListItemMinimal extends BaseListItem
 {
     use Translation;
 
@@ -58,37 +54,7 @@ class PersistentVolumeClaimListItem extends BaseListItem
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->addHtml(
-            $this->createHeader(),
-            $this->createFooter()
-        );
-    }
-
-    protected function assembleFooter(BaseHtmlElement $footer): void
-    {
-        $footer->addHtml(
-            new HorizontalKeyValue(
-                $this->translate('Storage Class'),
-                $this->item->storage_class
-            ),
-            new HorizontalKeyValue(
-                $this->translate('Volume Mode'),
-                $this->item->volume_mode
-            ),
-            new HorizontalKeyValue(
-                $this->translate('Access Modes'),
-                $this->item->actual_access_modes !== null ?
-                    implode(', ', AccessModes::asNames($this->item->actual_access_modes)) :
-                    new EmptyState($this->translate('None'))
-            ),
-            (new HorizontalKeyValue(
-                $this->translate('Capacity'),
-                $this->item->actual_capacity !== null ?
-                    Format::bytes($this->item->actual_capacity / 1000) :
-                    new EmptyState($this->translate('None'))
-            ))
-                ->addAttributes(new Attributes(['class' => 'push-left']))
-        );
+        $main->addHtml($this->createHeader());
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
