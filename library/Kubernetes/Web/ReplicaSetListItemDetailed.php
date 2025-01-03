@@ -20,20 +20,14 @@ use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
-class DaemonSetListItem extends BaseListItem
+class ReplicaSetListItemDetailed extends BaseListItem
 {
     use Translation;
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
         $header->addHtml(
-            Html::tag('span',
-                Attributes::create(['class' => 'header-minimal']),
-                [
-                    $this->createTitle(),
-                    $this->createCaption()
-                ]
-            ),
+            $this->createTitle(),
             new TimeAgo($this->item->created->getTimestamp())
         );
     }
@@ -47,6 +41,7 @@ class DaemonSetListItem extends BaseListItem
     {
         $main->addHtml(
             $this->createHeader(),
+            $this->createCaption(),
             $this->createFooter()
         );
     }
@@ -54,9 +49,9 @@ class DaemonSetListItem extends BaseListItem
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
         $pods = (new ItemCountIndicator())
-            ->addIndicator('critical', $this->item->number_unavailable)
-            ->addIndicator('pending', $this->item->desired_number_scheduled - $this->item->current_number_scheduled)
-            ->addIndicator('ok', $this->item->number_available);
+            ->addIndicator('critical', $this->item->actual_replicas - $this->item->available_replicas)
+            ->addIndicator('pending', $this->item->desired_replicas - $this->item->actual_replicas)
+            ->addIndicator('ok', $this->item->available_replicas);
 
         $footer->addHtml(
             (new HorizontalKeyValue(
@@ -67,11 +62,10 @@ class DaemonSetListItem extends BaseListItem
                     'title' => sprintf(
                         $this->translate(
                             '%d %s available (%d unavailable)',
-                            '%d:num_of_available_daemon_pods %s:daemon_pods_translation'
-                            . ' (%d:num_of_unavailable_daemon_pods)'
+                            '%d:num_of_available_replicas %s:replicas_translation (%d:num_of_unavailable_replicas)'
                         ),
                         $pods->getIndicator('ok'),
-                        $this->translatePlural('daemon pod', 'daemon pods', $pods->getIndicator('ok')),
+                        $this->translatePlural('replica', 'replicas', $pods->getIndicator('ok')),
                         $pods->getIndicator('critical')
                     )
                 ]),
@@ -79,17 +73,13 @@ class DaemonSetListItem extends BaseListItem
                 new Icon('stopwatch', ['title' => $this->translate('Min Ready Duration')]),
                 Format::seconds($this->item->min_ready_seconds, $this->translate('None'))
             ),
-            new HorizontalKeyValue(
-                new Icon('retweet', ['title' => $this->translate('Update Strategy')]),
-                $this->item->update_strategy
-            )
         );
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
     {
         $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<daemon_set> is <icinga_state>'),
+            $this->translate('%s is %s', '<replica_set> is <icinga_state>'),
             [
                 new HtmlElement(
                     'span',
@@ -99,10 +89,10 @@ class DaemonSetListItem extends BaseListItem
                 ),
                 new Link(
                     (new HtmlDocument())->addHtml(
-                        new HtmlElement('i', new Attributes(['class' => 'icon kicon-daemon-set'])),
+                        new HtmlElement('i', new Attributes(['class' => 'icon kicon-replica-set'])),
                         new Text($this->item->name)
                     ),
-                    Links::daemonSet($this->item),
+                    Links::replicaSet($this->item),
                     new Attributes(['class' => 'subject'])
                 )
             ],
