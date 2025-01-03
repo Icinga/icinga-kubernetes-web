@@ -51,4 +51,9 @@ class EventsController extends ListController
     {
         return Auth::SHOW_EVENTS;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return ['detailed'];
+    }
 }

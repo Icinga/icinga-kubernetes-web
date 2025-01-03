@@ -41,4 +41,9 @@ class ServicesController extends ListController
     {
         return Auth::SHOW_SERVICES;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
 }

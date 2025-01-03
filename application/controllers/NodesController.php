@@ -40,4 +40,9 @@ class NodesController extends ListController
     {
         return Auth::SHOW_NODES;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
 }
