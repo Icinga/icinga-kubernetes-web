@@ -41,4 +41,9 @@ class DeploymentsController extends ListController
     {
         return Auth::SHOW_DEPLOYMENTS;
     }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
 }

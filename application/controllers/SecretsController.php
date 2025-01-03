@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Web\ListController;
 use Icinga\Module\Kubernetes\Web\SecretList;
@@ -40,5 +41,10 @@ class SecretsController extends ListController
     protected function getPermission(): string
     {
         return Auth::SHOW_SECRETS;
+    }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [ViewMode::Detailed];
     }
 }
