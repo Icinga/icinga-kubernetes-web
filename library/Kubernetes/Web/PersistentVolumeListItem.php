@@ -5,11 +5,14 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\AccessModes;
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\DefaultListItemHeader;
 use Icinga\Module\Kubernetes\Common\DefaultListItemMain;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
@@ -19,6 +22,7 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Stdlib\Filter;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
@@ -93,7 +97,20 @@ class PersistentVolumeListItem extends BaseListItem
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
         $visual->addHtml(
-            new Icon($this->getPhaseIcon(), ['class' => ['pv-phase-' . strtolower($this->item->phase)]])
+            new Icon($this->getPhaseIcon(), ['class' => ['pv-phase', 'pv-phase-' . strtolower($this->item->phase)]])
+        );
+
+        $rs = Favorite::on(Database::connection())
+            ->filter(Filter::all(
+                Filter::equal('resource_uuid', $this->item->uuid),
+                Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+            ))
+            ->execute();
+
+        $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
+            ->setAction(Links::toggleFavorite($this->item->uuid)->getAbsoluteUrl())
+            ->setAttribute('class', 'favorite-toggle')
+            ->setAttribute('data-base-target', '_self')
         );
     }
 }
