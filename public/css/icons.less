@@ -161,6 +161,39 @@
   }
 }
 
+.ball-size-sm {
+  &:not(.state-none) {
+    font-size: 1.75em;
+  }
+
+  &:is(.state-none) {
+    width: 0.58333em;
+    height: 0.58333em;
+  }
+}
+
+.favorite-toggle-sm {
+  label {
+    width: 0.65625em;
+    height: 0.875em;
+
+    &:before {
+      font-size: 0.58333em;
+    }
+  }
+}
+
+.favorite-toggle-m {
+  label {
+    width: 0.84333em;
+    height: 1.125em;
+
+    &:before {
+      font-size: 0.75em;
+    }
+  }
+}
+
 .favorite-toggle {
   display: none;
 
@@ -182,17 +215,13 @@
     position: relative;
     display: block;
     cursor: pointer;
-    width: 0.675em;
-    height: 0.9em;
 
     &:before {
       position: absolute;
-      left: 0;
       top: 0;
 
       .fa-star();
       .fa-regular();
-      font-size: 0.6em;
       color: @base-primary-color;
     }
 

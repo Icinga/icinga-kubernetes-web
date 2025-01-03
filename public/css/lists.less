@@ -83,7 +83,15 @@ footer {
 .visual {
   font-size: 1.5em;
   justify-content: flex-start;
-  row-gap: .5em;
+
+  &:has(.favorite-toggle-sm) {
+    row-gap: 0.3em;
+    padding-bottom: 0.25em;
+  }
+
+  &:has(.favorite-toggle-m) {
+    row-gap: 0.35em;
+  }
 }
 
 .config-map-list,

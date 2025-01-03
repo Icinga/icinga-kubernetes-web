@@ -81,9 +81,9 @@ class NamespaceListItem extends BaseListItem
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
         if ($this->item->phase === NamespaceModel::PHASE_ACTIVE) {
-            $visual->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
+            $visual->addHtml(new StateBall('ok', 'sm'));
         } else {
-            $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
+            $visual->addHtml(new StateBall('none', 'sm'));
         }
 
         $rs = Favorite::on(Database::connection())
@@ -95,7 +95,7 @@ class NamespaceListItem extends BaseListItem
 
         $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
             ->setAction(Links::toggleFavorite($this->item->uuid)->getAbsoluteUrl())
-            ->setAttribute('class', 'favorite-toggle')
+            ->setAttribute('class', 'favorite-toggle favorite-toggle-sm')
             ->setAttribute('data-base-target', '_self')
         );
     }

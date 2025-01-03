@@ -97,7 +97,7 @@ class PersistentVolumeListItem extends BaseListItem
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
         $visual->addHtml(
-            new Icon($this->getPhaseIcon(), ['class' => ['pv-phase', 'pv-phase-' . strtolower($this->item->phase)]])
+            new Icon($this->getPhaseIcon(), ['class' => ['phase-size-sm', 'pv-phase-' . strtolower($this->item->phase)]])
         );
 
         $rs = Favorite::on(Database::connection())
@@ -109,7 +109,7 @@ class PersistentVolumeListItem extends BaseListItem
 
         $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
             ->setAction(Links::toggleFavorite($this->item->uuid)->getAbsoluteUrl())
-            ->setAttribute('class', 'favorite-toggle')
+            ->setAttribute('class', 'favorite-toggle favorite-toggle-sm')
             ->setAttribute('data-base-target', '_self')
         );
     }
