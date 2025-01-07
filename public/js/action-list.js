@@ -85,6 +85,7 @@
 
             let item = target.closest('[data-action-item]');
             let list = target.closest('.action-list-kubernetes');
+            let groupLists = Array.from(document.querySelectorAll(`.action-list-kubernetes[data-list-group=${ list.getAttribute('data-list-group') }]`)).filter(item => item !== list);
             let activeItems = _this.getActiveItems(list);
             let toActiveItems = [],
                 toDeactivateItems = [];
@@ -123,6 +124,15 @@
             } else {
                 toDeactivateItems = activeItems;
                 toActiveItems.push(item);
+
+                for (let groupList of groupLists) {
+                    toDeactivateItems.push(..._this.getActiveItems(groupList));
+
+                    let groupListItem = groupList.querySelector(`[data-action-item][data-icinga-detail-filter='${ item.getAttribute('data-icinga-detail-filter') }']`);
+                    if (groupListItem !== null) {
+                        toActiveItems.push(groupListItem);
+                    }
+                }
             }
 
             if (activeItems.length === 1
@@ -148,6 +158,9 @@
                     ? activeItems[activeItems.length - 2].dataset.icingaDetailFilter
                     : activeItems[activeItems.length - 1].dataset.icingaDetailFilter;
             }
+
+            sessionStorage.setItem('active-column', _this.icinga.utils.getCSSPath(list.parentElement.parentElement));
+            sessionStorage.setItem('active-list', _this.icinga.utils.getCSSPath(list));
 
             _this.clearSelection(toDeactivateItems);
             _this.setActive(toActiveItems);
@@ -227,25 +240,31 @@
                 return;
             }
 
-            if (focusedElement && (
-                focusedElement.matches('#main > :scope')
-                || focusedElement.matches('#body'))
-            ) {
-                let activeItem = document.querySelector(
-                    '#main > .container > .content > .action-list-kubernetes [data-action-item].active'
-                );
-                if (activeItem) {
-                    list = activeItem.closest('.action-list-kubernetes');
-                } else {
-                    list = focusedElement.querySelector('#main > .container > .content > .action-list-kubernetes');
+            list = document.querySelector(sessionStorage.getItem('active-list'));
+
+            if (! list) {
+                if (focusedElement && (
+                    focusedElement.matches('#main > :scope')
+                    || focusedElement.matches('#body'))
+                ) {
+                    let activeItem = document.querySelector(
+                        '#main > .container > .content > .action-list-kubernetes [data-action-item].active'
+                    );
+                    if (activeItem) {
+                        list = activeItem.closest('.action-list-kubernetes');
+                    } else {
+                        list = focusedElement.querySelector('#main > .container > .content > .action-list-kubernetes');
+                    }
+                } else if (focusedElement) {
+                    list = focusedElement.closest('.content > .action-list-kubernetes');
                 }
-            } else if (focusedElement) {
-                list = focusedElement.closest('.content > .action-list-kubernetes');
             }
 
             if (! list) {
                 return;
             }
+
+            let groupLists = Array.from(document.querySelectorAll(`.action-list-kubernetes[data-list-group=${ list.getAttribute('data-list-group') }]`)).filter(item => item !== list);
 
             let isMultiSelectableList = list.matches('[data-icinga-multiselect-url]');
 
@@ -267,6 +286,8 @@
             let activeItems = _this.getActiveItems(list);
             let markAsLastActive = null; // initialized only if it is different from toActiveItem
             let toActiveItem = null;
+            let toActiveItems = [];
+            let toDeactivateItems = [];
             let wasAllSelected = activeItems.length === allItems.length;
             let lastActivatedItem = list.querySelector(
                 `[data-icinga-detail-filter="${ _this.lastActivatedItemUrl }"]`
@@ -330,7 +351,19 @@
                 return;
             }
 
-            _this.setActive(toActiveItem);
+            toActiveItems.push(toActiveItem);
+
+            for (let groupList of groupLists) {
+                toDeactivateItems.push(..._this.getActiveItems(groupList));
+
+                let groupListItem = groupList.querySelector(`[data-action-item][data-icinga-detail-filter='${ toActiveItem.getAttribute('data-icinga-detail-filter') }']`);
+                if (groupListItem !== null) {
+                    toActiveItems.push(groupListItem);
+                }
+            }
+
+            _this.clearSelection(toDeactivateItems);
+            _this.setActive(toActiveItems);
             _this.setLastActivatedItemUrl(
                 markAsLastActive ? markAsLastActive.dataset.icingaDetailFilter : toActiveItem.dataset.icingaDetailFilter
             );
@@ -733,6 +766,7 @@
             let isTopLevelContainer = container.matches('#main > :scope');
 
             let list;
+            let groupLists;
             if (event.currentTarget !== container || Object.keys(_this.activeRequests).length) {
                 // Nested containers are not processed multiple times || still processing selection/navigation request
                 return;
@@ -769,6 +803,17 @@
                         actionList.dataset.isDisplayContents = "";
                     }
                 }
+                groupLists = Array.from(document.querySelectorAll(`.action-list-kubernetes[data-list-group=${ actionLists[0].getAttribute('data-list-group') }]`)).filter(item => item !== actionLists[0]);
+            } else {
+                groupLists = Array.from(document.querySelectorAll(`.action-list-kubernetes[data-list-group=${ list.getAttribute('data-list-group') }]`)).filter(item => item !== list);
+            }
+
+            if (sessionStorage.getItem('active-column') === '#' + event.target.id) {
+                let contentId = document.querySelector(_this.icinga.utils.getCSSPath(event.target) + ' > .content')?.id
+
+                if (contentId !== undefined) {
+                    sessionStorage.setItem('active-list', '#' + contentId + ' >' + sessionStorage.getItem('active-list').split('>')[1])
+                }
             }
 
             if (list && list.matches('[data-icinga-multiselect-url], [data-icinga-detail-url]')) {
@@ -781,18 +826,30 @@
                         let item = list.querySelector(
                             '[data-icinga-multiselect-filter="' + filter + '"]'
                         );
-
                         if (item) {
+
                             toActiveItems.push(item);
+                            for (let groupList of groupLists) {
+
+                                let groupListItem = groupList.querySelector(`[data-action-item][data-icinga-detail-filter='${ item.getAttribute('data-icinga-detail-filter') }']`);
+                                if (groupListItem !== null) {
+                                    toActiveItems.push(groupListItem);
+                                }
+                            }
                         }
                     }
                 } else if (_this.matchesDetailUrl(list.dataset.icingaDetailUrl, detailUrl.path)) {
                     let item = list.querySelector(
                         '[data-icinga-detail-filter="' + detailUrl.query.slice(1) + '"]'
                     );
-
                     if (item) {
                         toActiveItems.push(item);
+                        for (let groupList of groupLists) {
+                            let groupListItem = groupList.querySelector(`[data-action-item][data-icinga-detail-filter='${ item.getAttribute('data-icinga-detail-filter') }']`)
+                            if (groupListItem !== null) {
+                                toActiveItems.push(groupListItem)
+                            }
+                        }
                     }
                 }
 
@@ -803,6 +860,16 @@
 
                 _this.clearSelection(_this.getAllItems(list).filter(item => ! toActiveItems.includes(item)));
                 _this.setActive(toActiveItems);
+            }
+
+            let lastLocation = sessionStorage.getItem('location');
+            let currentLocation = window.location.href.split('?')[0];
+
+            sessionStorage.setItem('location', currentLocation);
+
+            if (currentLocation !== lastLocation) {
+                sessionStorage.removeItem('active-column')
+                sessionStorage.removeItem('active-list')
             }
 
             if (isTopLevelContainer) {

@@ -124,13 +124,13 @@ abstract class ListController extends Controller
         $contentClass = $this->getContentClass();
 
         $this->addContent(
-            (new $contentClass($favoriteResources, ['favorite-list' => '']))
+            (new $contentClass($favoriteResources, ['data-list-group' => 'fav', 'favorite-list' => '']))
                 ->addAttributes(['class' => 'collapsible'])
                 ->setViewMode($viewModeSwitcher->getViewMode())
         );
         $this->addContent(Html::hr());
         $this->addContent(
-            (new $contentClass($q))
+            (new $contentClass($q, ['data-list-group' => 'fav']))
                 ->setViewMode($viewModeSwitcher->getViewMode())
         );
 
