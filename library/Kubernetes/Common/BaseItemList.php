@@ -78,7 +78,7 @@ abstract class BaseItemList extends BaseHtmlElement
             if (! $detailUrlAdded) {
                 $this->addAttributes(['class' => 'action-list-kubernetes'] + [
                         'data-icinga-detail-url' => Url::fromPath(
-                            'kubernetes/' . str_replace('_', '-', $item->getTableAlias())
+                            'kubernetes/' . str_replace('_', '', $item->getTableAlias())
                         )
                     ]);
                 $detailUrlAdded = true;
