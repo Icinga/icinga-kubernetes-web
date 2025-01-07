@@ -123,13 +123,16 @@ abstract class ListController extends Controller
 
         $contentClass = $this->getContentClass();
 
-        $this->addContent(Html::h2('Favorites'));
+        $this->addContent(
+            (new $contentClass($favoriteResources))
+                ->addAttributes(['class' => 'collapsible'])
+                ->setViewMode($viewModeSwitcher->getViewMode())
+        );
         $this->addContent(Html::hr());
-        $this->addContent((new $contentClass($favoriteResources))->addAttributes(['class' => 'collapsible'])->setViewMode($viewModeSwitcher->getViewMode()));
-
-        $this->addContent(Html::h2('All'));
-        $this->addContent(Html::hr());
-        $this->addContent((new $contentClass($q))->setViewMode($viewModeSwitcher->getViewMode()));
+        $this->addContent(
+            (new $contentClass($q))
+                ->setViewMode($viewModeSwitcher->getViewMode())
+        );
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();
