@@ -155,12 +155,6 @@
   font-weight: 900;
 }
 
-.list-item {
-  &:hover .favorite-toggle {
-    display: inline;
-  }
-}
-
 .ball-size-sm {
   &:not(.state-none) {
     font-size: 1.75em;
@@ -191,6 +185,13 @@
     &:before {
       font-size: 0.75em;
     }
+  }
+}
+
+.action-list-kubernetes {
+  &[favorite-list] .favorite-toggle,
+  .list-item:hover .favorite-toggle {
+    display: inline;
   }
 }
 

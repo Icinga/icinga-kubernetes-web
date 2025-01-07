@@ -124,7 +124,7 @@ abstract class ListController extends Controller
         $contentClass = $this->getContentClass();
 
         $this->addContent(
-            (new $contentClass($favoriteResources))
+            (new $contentClass($favoriteResources, ['favorite-list' => '']))
                 ->addAttributes(['class' => 'collapsible'])
                 ->setViewMode($viewModeSwitcher->getViewMode())
         );

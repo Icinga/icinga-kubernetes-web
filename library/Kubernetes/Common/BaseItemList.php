@@ -36,9 +36,13 @@ abstract class BaseItemList extends BaseHtmlElement
 
     protected $tag = 'ul';
 
-    public function __construct(iterable $query)
+    public function __construct(iterable $query, array $additionalAttributes = [])
     {
         $this->query = $query;
+
+        foreach ($additionalAttributes as $key => $value) {
+            $this->setAttribute($key, $value);
+        }
 
         $this->init();
     }
