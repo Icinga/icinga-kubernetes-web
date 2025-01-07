@@ -93,7 +93,7 @@ class NamespaceListItemDetailed extends BaseListItem
             ->filter(Filter::equal('namespace', $this->item->name))->count();
 
         $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-daemonset'])),
+            new HtmlElement('i', new Attributes(['class' => 'icon kicon-daemonset', 'title' => 'Daemon Sets'])),
             $resourceCount
         ));
 
@@ -101,7 +101,7 @@ class NamespaceListItemDetailed extends BaseListItem
             ->filter(Filter::equal('namespace', $this->item->name))->count();
 
         $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-deployment'])),
+            new HtmlElement('i', new Attributes(['class' => 'icon kicon-deployment', 'title' => 'Deployments'])),
             $resourceCount
         ));
 
@@ -109,7 +109,7 @@ class NamespaceListItemDetailed extends BaseListItem
             ->filter(Filter::equal('namespace', $this->item->name))->count();
 
         $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-ingress'])),
+            new HtmlElement('i', new Attributes(['class' => 'icon kicon-ingress', 'title' => 'Ingresses'])),
             $resourceCount
         ));
 
@@ -117,7 +117,10 @@ class NamespaceListItemDetailed extends BaseListItem
             ->filter(Filter::equal('namespace', $this->item->name))->count();
 
         $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-persistentvolume'])),
+            new HtmlElement(
+                'i',
+                new Attributes(['class' => 'icon kicon-persistentvolume', 'title' => 'Persistent Volumes'])
+            ),
             $resourceCount
         ));
 
@@ -125,7 +128,10 @@ class NamespaceListItemDetailed extends BaseListItem
             ->filter(Filter::equal('namespace', $this->item->name))->count();
 
         $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-persistentvolumeclaim'])),
+            new HtmlElement(
+                'i',
+                new Attributes(['class' => 'icon kicon-persistentvolumeclaim', 'title' => 'Persistent Volume Claims'])
+            ),
             $resourceCount
         ));
 
@@ -133,7 +139,7 @@ class NamespaceListItemDetailed extends BaseListItem
             ->filter(Filter::equal('namespace', $this->item->name))->count();
 
         $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+            new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod', 'title' => 'Pods'])),
             $resourceCount
         ));
 
@@ -141,7 +147,7 @@ class NamespaceListItemDetailed extends BaseListItem
             ->filter(Filter::equal('namespace', $this->item->name))->count();
 
         $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-replicaset'])),
+            new HtmlElement('i', new Attributes(['class' => 'icon kicon-replicaset', 'title' => 'Replica Sets'])),
             $resourceCount
         ));
 
@@ -149,7 +155,7 @@ class NamespaceListItemDetailed extends BaseListItem
             ->filter(Filter::equal('namespace', $this->item->name))->count();
 
         $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-service'])),
+            new HtmlElement('i', new Attributes(['class' => 'icon kicon-service', 'title' => 'Services'])),
             $resourceCount
         ));
 
@@ -157,7 +163,7 @@ class NamespaceListItemDetailed extends BaseListItem
             ->filter(Filter::equal('namespace', $this->item->name))->count();
 
         $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-statefulset'])),
+            new HtmlElement('i', new Attributes(['class' => 'icon kicon-statefulset', 'title' => 'Stateful Sets'])),
             $resourceCount
         ));
     }
