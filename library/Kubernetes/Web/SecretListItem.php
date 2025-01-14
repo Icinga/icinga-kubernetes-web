@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -22,18 +23,31 @@ class SecretListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml(
-            $this->createTitle(),
-            new TimeAgo($this->item->created->getTimestamp())
-        );
+        if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_MINIMAL) {
+            $header->addHtml(
+                Html::tag(
+                    'span',
+                    Attributes::create(['class' => 'header-minimal']),
+                    [
+                        $this->createTitle(),
+                        $this->createCaption()
+                    ]
+                )
+            );
+        } else if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_COMMON) {
+            $header->addHtml($this->createTitle());
+        }
+
+        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->addHtml(
-            $this->createHeader(),
-            $this->createFooter()
-        );
+        $main->addHtml($this->createHeader());
+
+        if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_COMMON) {
+            $main->addHtml($this->createFooter());
+        }
     }
 
     protected function assembleFooter(BaseHtmlElement $footer): void
