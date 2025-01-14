@@ -46,6 +46,7 @@ class NotificationsConfigForm extends CompatForm
             ->filter(Filter::equal('key', [
                 KConfig::NOTIFICATIONS_URL,
                 KConfig::NOTIFICATIONS_USERNAME,
+                KConfig::NOTIFICATIONS_PASSWORD,
                 KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL
             ]))
             ->filter(Filter::equal('cluster_uuid', $clusterUuid));
