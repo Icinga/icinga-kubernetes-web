@@ -21,6 +21,15 @@ class ViewModeSwitcher extends Form
         'name'  => 'view-mode-switcher'
     ];
 
+    /** @var string Minimal view mode */
+    const VIEW_MODE_MINIMAL = 'minimal';
+
+    /** @var string Common view mode */
+    const VIEW_MODE_COMMON = 'common';
+
+    /** @var string Detailed view mode */
+    const VIEW_MODE_DETAILED = 'detailed';
+
     /** @var string Default view mode */
     public const DEFAULT_VIEW_MODE = 'common';
 
