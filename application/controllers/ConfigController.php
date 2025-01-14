@@ -17,6 +17,7 @@ use Icinga\Module\Notifications\Common\Database as NotificationsDatabase;
 use Icinga\Module\Notifications\Forms\SourceForm;
 use Icinga\Module\Notifications\Model\Source;
 use Icinga\Web\Notification;
+use Icinga\Web\Session;
 use Icinga\Web\Widget\Tabs;
 use ipl\Sql\Connection;
 use ipl\Stdlib\Filter;
@@ -70,7 +71,13 @@ class ConfigController extends Controller
         };
 
         $form = (new NotificationsConfigForm())
-            ->populate(['cluster_uuid' => $this->getRequest()->get('id')])
+            ->populate([
+                'cluster_uuid' =>
+                    $this->getRequest()->get('cluster_uuid') ??
+                    Session::getSession()
+                        ->getNamespace('kubernetes')
+                        ->get('cluster_uuid')
+            ])
             ->on(
                 NotificationsConfigForm::ON_SUCCESS,
                 function (NotificationsConfigForm $form) use ($sourceForm) {
@@ -158,7 +165,9 @@ class ConfigController extends Controller
                         $this->translate('New configuration has successfully been stored.')
                     );
 
-                    $this->redirectNow(Url::fromPath('kubernetes/config/notifications', ['id' => $clusterUuid]));
+                    $this->redirectNow(
+                        Url::fromPath('kubernetes/config/notifications', ['cluster_uuid' => $clusterUuid])
+                    );
                 }
             )->handleRequest($this->getServerRequest());
 
@@ -168,7 +177,13 @@ class ConfigController extends Controller
     public function prometheusAction()
     {
         $form = (new PrometheusConfigForm())
-            ->populate(['cluster_uuid' => $this->getRequest()->get('id')])
+            ->populate([
+                'cluster_uuid' =>
+                    $this->getRequest()->get('cluster_uuid') ??
+                    Session::getSession()
+                        ->getNamespace('kubernetes')
+                        ->get('cluster_uuid')
+            ])
             ->on(PrometheusConfigForm::ON_SUCCESS, function (PrometheusConfigForm $form) {
                 if ($form->isLocked()) {
                     $form->addMessage($this->translate('Prometheus configuration is locked.'));
@@ -209,7 +224,7 @@ class ConfigController extends Controller
                 }
 
                 Notification::success($this->translate('New configuration has successfully been stored'));
-                $this->redirectNow(Url::fromPath('kubernetes/config/prometheus', ['id' => $clusterUuid]));
+                $this->redirectNow(Url::fromPath('kubernetes/config/prometheus', ['cluster_uuid' => $clusterUuid]));
             })->handleRequest($this->getServerRequest());
 
         $this->mergeTabs($this->Module()->getConfigTabs()->activate('prometheus'));
