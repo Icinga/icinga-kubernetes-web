@@ -33,7 +33,7 @@ class ReplicasetController extends Controller
             $this->httpNotFound($this->translate('Replica Set not found'));
         }
 
-        $this->addControl(new ReplicaSetList([$replicaSet]));
+        $this->addControl((new ReplicaSetList([$replicaSet]))->setActionList(false));
 
         $this->addContent(new ReplicaSetDetail($replicaSet));
     }

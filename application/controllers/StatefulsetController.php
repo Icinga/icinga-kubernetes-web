@@ -33,7 +33,7 @@ class StatefulsetController extends Controller
             $this->httpNotFound($this->translate('Stateful Set not found'));
         }
 
-        $this->addControl(new StatefulSetList([$statefulSet]));
+        $this->addControl((new StatefulSetList([$statefulSet]))->setActionList(false));
 
         $this->addContent(new StatefulSetDetail($statefulSet));
     }

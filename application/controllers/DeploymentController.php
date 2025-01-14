@@ -33,7 +33,7 @@ class DeploymentController extends Controller
             $this->httpNotFound($this->translate('Deployment not found'));
         }
 
-        $this->addControl(new DeploymentList([$deployment]));
+        $this->addControl((new DeploymentList([$deployment]))->setActionList(false));
 
         $this->addContent(new DeploymentDetail($deployment));
     }

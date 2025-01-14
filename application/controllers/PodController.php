@@ -33,7 +33,7 @@ class PodController extends Controller
             $this->httpNotFound($this->translate('Pod not found'));
         }
 
-        $this->addControl(new PodList([$pod]));
+        $this->addControl((new PodList([$pod]))->setActionList(false));
 
         $this->addContent(new PodDetail($pod));
     }
