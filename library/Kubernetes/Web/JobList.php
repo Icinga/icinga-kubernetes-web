@@ -5,20 +5,13 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseItemList;
-use Icinga\Module\Kubernetes\Common\ViewMode;
 
 class JobList extends BaseItemList
 {
-    use ViewMode;
-
     protected $defaultAttributes = ['class' => 'job-list'];
 
     protected function getItemClass(): string
     {
-        return match ($this->getViewMode()) {
-            'minimal'  => JobListItemMinimal::class,
-            'detailed' => JobListItemDetailed::class,
-            default    => JobListItem::class,
-        };
+        return JobListItem::class;
     }
 }

@@ -26,17 +26,22 @@ class DeploymentListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        $header->addHtml(
-            Html::tag(
-                'span',
-                Attributes::create(['class' => 'header-minimal']),
-                [
-                    $this->createTitle(),
-                    $this->createCaption()
-                ]
-            ),
-            new TimeAgo($this->item->created->getTimestamp())
-        );
+        if (in_array($this->getViewMode(), [ViewModeSwitcher::VIEW_MODE_MINIMAL, ViewModeSwitcher::VIEW_MODE_COMMON])) {
+            $header->addHtml(
+                Html::tag(
+                    'span',
+                    Attributes::create(['class' => 'header-minimal']),
+                    [
+                        $this->createTitle(),
+                        $this->createCaption()
+                    ]
+                )
+            );
+        } else if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_DETAILED) {
+            $header->addHtml($this->createTitle());
+        }
+
+        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
 
     protected function assembleCaption(BaseHtmlElement $caption): void
@@ -46,10 +51,15 @@ class DeploymentListItem extends BaseListItem
 
     protected function assembleMain(BaseHtmlElement $main): void
     {
-        $main->addHtml(
-            $this->createHeader(),
-            $this->createFooter()
-        );
+        $main->addHtml($this->createHeader());
+
+        if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_DETAILED) {
+            $main->addHtml($this->createCaption());
+        }
+
+        if ($this->getViewMode() !== ViewModeSwitcher::VIEW_MODE_MINIMAL) {
+            $main->addHtml($this->createFooter());
+        }
     }
 
     protected function assembleFooter(BaseHtmlElement $footer): void
