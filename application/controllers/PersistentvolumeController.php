@@ -9,6 +9,8 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeDetail;
+use Icinga\Module\Kubernetes\Web\PersistentVolumeList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -31,6 +33,12 @@ class PersistentvolumeController extends Controller
         if ($persistentVolume === null) {
             $this->httpNotFound($this->translate('Persistent Volume not found'));
         }
+
+        $this->addControl(
+            (new PersistentVolumeList([$persistentVolume]))
+                ->setActionList(false)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new PersistentVolumeDetail($persistentVolume));
     }
