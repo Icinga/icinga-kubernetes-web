@@ -36,7 +36,7 @@ class EventListItem extends BaseListItem
                     ]
                 )
             );
-        } else if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_COMMON) {
+        } elseif ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_COMMON) {
             $header->addHtml($this->createTitle());
         }
 
