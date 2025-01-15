@@ -4,6 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
+use ipl\Orm\Behavior\Binary;
 use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
@@ -27,19 +29,36 @@ class Config extends Model
 
     public const NOTIFICATIONS_KUBERNETES_WEB_URL = 'notifications.kubernetes_web_url';
 
+    public const PROMETHEUS_URL = 'prometheus.url';
+
+    public const PROMETHEUS_USERNAME = 'prometheus.username';
+
+    public const PROMETHEUS_PASSWORD = 'prometheus.password';
+
+    public static function transformKeyForForm(string $key): string
+    {
+        return strtr($key, ['notifications.' => 'notifications_', 'prometheus.' => 'prometheus_']);
+    }
+
+    public static function transformKeyForDb(string $key): string
+    {
+        return strtr($key, ['notifications_' => 'notifications.', 'prometheus_' => 'prometheus.']);
+    }
+
     public function getTableName(): string
     {
         return 'config';
     }
 
-    public function getKeyName(): string
+    public function getKeyName(): array
     {
-        return 'key';
+        return ['cluster_uuid', 'key'];
     }
 
     public function getColumns(): array
     {
         return [
+            'cluster_uuid',
             'key',
             'value',
             'locked'
@@ -48,6 +67,10 @@ class Config extends Model
 
     public function createBehaviors(Behaviors $behaviors): void
     {
+        $behaviors->add(new Uuid([
+            'cluster_uuid'
+        ]));
+
         $behaviors->add(new BoolCast([
             'locked'
         ]));
