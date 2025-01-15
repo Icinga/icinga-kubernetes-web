@@ -55,8 +55,9 @@ class NamespaceDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->namespace->uuid)))
+                (new EventList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->namespace->uuid))))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 
