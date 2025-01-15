@@ -60,7 +60,7 @@ abstract class Factory
         };
     }
 
-    public static function createList(string $kind, Rule $filter): ValidHtml
+    public static function createList(string $kind, Rule $filter, $viewMode = null): ValidHtml
     {
         $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
@@ -70,71 +70,156 @@ abstract class Factory
             case 'configmap':
                 $q = ConfigMap::on($database)->filter($filter);
 
-                return new ConfigMapList($q);
+                $list = new ConfigMapList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'container':
                 $q = Container::on($database)->filter($filter);
 
-                return new ContainerList($q);
+                $list = new ContainerList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'cronjob':
                 $q = CronJob::on($database)->filter($filter);
 
-                return new CronJobList($q);
+                $list = new CronJobList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'daemonset':
                 $q = DaemonSet::on($database)->filter($filter);
 
-                return new DaemonSetList($q);
+                $list = new DaemonSetList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'deployment':
                 $q = Deployment::on($database)->filter($filter);
 
-                return new DeploymentList($q);
+                $list = new DeploymentList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'event':
                 $q = Event::on($database)->filter($filter);
 
-                return new EventList($q);
+                $list = new EventList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'ingress':
                 $q = Ingress::on($database)->filter($filter);
 
-                return new IngressList($q);
+                $list = new IngressList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'job':
                 $q = Job::on($database)->filter($filter);
 
-                return new JobList($q);
+                $list = new JobList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'namespace':
                 $q = NamespaceModel::on($database)->filter($filter);
 
-                return new NamespaceList($q);
+                $list = new NamespaceList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'node':
                 $q = Node::on($database)->filter($filter);
 
-                return new NodeList($q);
+                $list = new NodeList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'persistentvolume':
                 $q = PersistentVolume::on($database)->filter($filter);
 
-                return new PersistentVolumeList($q);
+                $list = new PersistentVolumeList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'persistentvolumeclaim':
                 $q = PersistentVolumeClaim::on($database)->filter($filter);
 
-                return new PersistentVolumeClaimList($q);
+                $list = new PersistentVolumeClaimList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'pod':
                 $q = Pod::on($database)->filter($filter);
 
-                return new PodList($q);
+                $list = new PodList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'replicaset':
                 $q = ReplicaSet::on($database)->filter($filter);
 
-                return new ReplicaSetList($q);
+                $list = new ReplicaSetList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'secret':
                 $q = Secret::on($database)->filter($filter);
 
-                return new SecretList($q);
+                $list = new SecretList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'service':
                 $q = Service::on($database)->filter($filter);
 
-                return new ServiceList($q);
+                $list = new ServiceList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             case 'statefulset':
                 $q = StatefulSet::on($database)->filter($filter);
 
-                return new StatefulSetList($q);
+                $list = new StatefulSetList($q);
+                if (isset($viewMode)) {
+                    $list->setViewMode($viewMode);
+                }
+
+                return $list;
             default:
                 return new EmptyState("No items to display. $kind seems to be a custom resource.");
         }
