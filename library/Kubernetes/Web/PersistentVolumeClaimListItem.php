@@ -107,9 +107,18 @@ class PersistentVolumeClaimListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
+        $size = match ($this->getViewMode()) {
+            ViewModeSwitcher::VIEW_MODE_MINIMAL, ViewModeSwitcher::VIEW_MODE_COMMON => 'sm',
+            ViewModeSwitcher::VIEW_MODE_DETAILED                                    => 'm',
+        };
+
         $visual->addHtml(
-            new Icon($this->getPhaseIcon(), ['class' => ['phase-size-sm', 'pvc-phase-' . strtolower($this->item->phase)]])
+            new Icon($this->getPhaseIcon(), ['class' => ["phase-size-$size", 'pvc-phase-' . strtolower($this->item->phase)]])
         );
+
+        if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_MINIMAL) {
+            return;
+        }
 
         $rs = Favorite::on(Database::connection())
             ->filter(Filter::all(
@@ -120,7 +129,7 @@ class PersistentVolumeClaimListItem extends BaseListItem
 
         $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
             ->setAction(Links::toggleFavorite($this->item->uuid)->getAbsoluteUrl())
-            ->setAttribute('class', 'favorite-toggle favorite-toggle-sm')
+            ->setAttribute('class', sprintf("favorite-toggle favorite-toggle-$size"))
             ->setAttribute('data-base-target', '_self')
         );
     }
