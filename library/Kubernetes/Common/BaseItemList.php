@@ -48,6 +48,7 @@ abstract class BaseItemList extends BaseHtmlElement
      * property.
      *
      * @param bool $actionList
+     *
      * @return static
      */
     public function setActionList(bool $actionList): static
@@ -88,7 +89,10 @@ abstract class BaseItemList extends BaseHtmlElement
                         Filter::equal('id', Uuid::fromBytes($item->uuid)->toString())
                     )
                 ]);
-            $listItem->setViewMode($this->getViewMode());
+
+            if ($this->getViewMode() !== null) {
+                $listItem->setViewMode($this->getViewMode());
+            }
 
             $this->addHtml(
                 $listItem

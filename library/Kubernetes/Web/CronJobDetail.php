@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\Event;
 use ipl\Html\BaseHtmlElement;
@@ -68,10 +69,11 @@ class CronJobDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Jobs'))),
-                new JobList(Auth::getInstance()->withRestrictions(
+                (new JobList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_JOBS,
                     $this->cronJob->job
-                ))
+                )))
+                    ->setViewMode(ViewMode::Detailed)
             ));
         }
 
@@ -80,8 +82,9 @@ class CronJobDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->cronJob->uuid)))
+                (new EventList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->cronJob->uuid))))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 

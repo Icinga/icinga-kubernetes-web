@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DeploymentDetail;
 use Icinga\Module\Kubernetes\Web\DeploymentList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +34,11 @@ class DeploymentController extends Controller
             $this->httpNotFound($this->translate('Deployment not found'));
         }
 
-        $this->addControl((new DeploymentList([$deployment]))->setActionList(false));
+        $this->addControl(
+            (new DeploymentList([$deployment]))
+                ->setActionList(false)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new DeploymentDetail($deployment));
     }

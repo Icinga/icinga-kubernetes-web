@@ -7,6 +7,7 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\AccessModes;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Util\Format;
@@ -67,10 +68,11 @@ class PersistentVolumeDetail extends BaseHtmlElement
                 'section',
                 new Attributes(['class' => 'persistent-volume-claims']),
                 new HtmlElement('h2', null, new Text($this->translate('Claims'))),
-                new PersistentVolumeClaimList(Auth::getInstance()->withRestrictions(
+                (new PersistentVolumeClaimList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PERSISTENT_VOLUME_CLAIMS,
                     $this->persistentVolume->pvc
-                ))
+                )))
+                    ->setViewMode(ViewMode::Detailed)
             ));
         }
 
@@ -79,8 +81,9 @@ class PersistentVolumeDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->persistentVolume->uuid)))
+                (new EventList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->persistentVolume->uuid))))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 
