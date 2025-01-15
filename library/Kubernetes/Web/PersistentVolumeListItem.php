@@ -51,7 +51,7 @@ class PersistentVolumeListItem extends BaseListItem
                     ]
                 )
             );
-        } else if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_DETAILED) {
+        } elseif ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_DETAILED) {
             $header->addHtml($this->createTitle());
         }
 
