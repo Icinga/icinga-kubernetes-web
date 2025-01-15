@@ -29,7 +29,7 @@ abstract class BaseItemList extends BaseHtmlElement
     protected iterable $query;
 
     protected array $baseAttributes = [
-        'class'                         => 'item-list action-list-kubernetes',
+        'class'                         => 'item-list',
         'data-base-target'              => '_next',
         'data-pdfexport-page-breaks-at' => '.list-item'
     ];
@@ -78,7 +78,7 @@ abstract class BaseItemList extends BaseHtmlElement
         $this->addAttributes($this->baseAttributes);
         foreach ($this->query as $item) {
             if (! $detailUrlAdded) {
-                $this->addAttributes(['class' => 'action-list'] + [
+                $this->addAttributes(['class' => 'action-list-kubernetes'] + [
                         'data-icinga-detail-url' => Url::fromPath(
                             'kubernetes/' . str_replace('_', '', $item->getTableAlias())
                         )
