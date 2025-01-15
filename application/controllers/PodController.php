@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\PodDetail;
 use Icinga\Module\Kubernetes\Web\PodList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +34,11 @@ class PodController extends Controller
             $this->httpNotFound($this->translate('Pod not found'));
         }
 
-        $this->addControl((new PodList([$pod]))->setActionList(false));
+        $this->addControl(
+            (new PodList([$pod]))
+                ->setActionList(false)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new PodDetail($pod));
     }

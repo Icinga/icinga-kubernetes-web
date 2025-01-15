@@ -9,6 +9,8 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeClaimDetail;
+use Icinga\Module\Kubernetes\Web\PersistentVolumeClaimList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -31,6 +33,12 @@ class PersistentvolumeclaimController extends Controller
         if ($pvc === null) {
             $this->httpNotFound($this->translate('Persistent Volume Claim not found'));
         }
+
+        $this->addControl(
+            (new PersistentVolumeClaimList([$pvc]))
+                ->setActionList(false)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new PersistentVolumeClaimDetail($pvc));
     }

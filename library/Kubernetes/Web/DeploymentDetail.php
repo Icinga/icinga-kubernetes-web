@@ -91,10 +91,11 @@ class DeploymentDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Replica Sets'))),
-                new ReplicaSetList(Auth::getInstance()->withRestrictions(
+                (new ReplicaSetList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_REPLICA_SETS,
                     $this->deployment->replica_set
-                ))
+                )))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
             ));
         }
 
@@ -103,8 +104,9 @@ class DeploymentDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->deployment->uuid)))
+                (new EventList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->deployment->uuid))))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 
