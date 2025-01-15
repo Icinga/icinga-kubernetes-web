@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\NodeDetail;
 use Icinga\Module\Kubernetes\Web\NodeList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +34,11 @@ class NodeController extends Controller
             $this->httpNotFound($this->translate('Node not found'));
         }
 
-        $this->addControl((new NodeList([$node]))->setActionList(false));
+        $this->addControl(
+            (new NodeList([$node]))
+                ->setActionList(false)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new NodeDetail($node));
     }
