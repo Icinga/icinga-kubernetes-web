@@ -80,8 +80,16 @@ class CronJobListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        // TODO add icinga state then replace function by DefaultListItemVisual trait
-        $visual->addHtml(new StateBall('none', 'sm'));
+        $size = match ($this->getViewMode()) {
+            ViewModeSwitcher::VIEW_MODE_MINIMAL, ViewModeSwitcher::VIEW_MODE_COMMON => 'sm',
+            ViewModeSwitcher::VIEW_MODE_DETAILED                                    => 'm',
+        };
+
+        $visual->addHtml(new StateBall('none', $size));
+
+        if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_MINIMAL) {
+            return;
+        }
 
         $rs = Favorite::on(Database::connection())
             ->filter(Filter::all(
@@ -92,7 +100,7 @@ class CronJobListItem extends BaseListItem
 
         $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
             ->setAction(Links::toggleFavorite($this->item->uuid)->getAbsoluteUrl())
-            ->setAttribute('class', 'favorite-toggle favorite-toggle-sm')
+            ->setAttribute('class', sprintf("favorite-toggle favorite-toggle-$size"))
             ->setAttribute('data-base-target', '_self')
         );
     }
