@@ -62,6 +62,7 @@ class EventDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Referent'))),
+                // TODO fix with restrictions?
                 (new ResourceList(
                     Factory::fetchResource($this->event->reference_kind)
                         ->filter(Filter::equal('uuid', $this->event->reference_uuid))
