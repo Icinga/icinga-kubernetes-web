@@ -129,8 +129,8 @@ abstract class ListController extends Controller
      * This automatically shifts the view mode URL parameter from {@link $params}.
      *
      * @param PaginationControl $paginationControl
-     * @param LimitControl $limitControl
-     * @param bool $verticalPagination
+     * @param LimitControl      $limitControl
+     * @param bool              $verticalPagination
      *
      * @return ViewModeSwitcher
      */
