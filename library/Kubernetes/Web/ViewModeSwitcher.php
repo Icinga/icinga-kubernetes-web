@@ -31,17 +31,17 @@ class ViewModeSwitcher extends Form
     public const VIEW_MODE_DETAILED = 'detailed';
 
     /** @var string Default view mode */
-    public const DEFAULT_VIEW_MODE = 'common';
+    public const DEFAULT_VIEW_MODE = self::VIEW_MODE_COMMON;
 
     /** @var string Default view mode param */
     public const DEFAULT_VIEW_MODE_PARAM = 'view';
 
     /** @var array View mode-icon pairs */
     public static $viewModes = [
-        'minimal'  => 'minimal',
-        'common'   => 'default',
-        'detailed' => 'detailed',
-        'tabular'  => 'tabular'
+        self::VIEW_MODE_MINIMAL  => 'minimal',
+        self::VIEW_MODE_COMMON   => 'default',
+        self::VIEW_MODE_DETAILED => 'detailed',
+        'tabular'                => 'tabular'
     ];
 
     /** @var string */
