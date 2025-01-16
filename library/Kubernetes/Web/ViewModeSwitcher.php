@@ -144,7 +144,7 @@ class ViewModeSwitcher extends Form
         return $this;
     }
 
-    private function protectId($id)
+    private function protectId(string $id): string
     {
         if (is_callable($this->protector)) {
             return call_user_func($this->protector, $id);
