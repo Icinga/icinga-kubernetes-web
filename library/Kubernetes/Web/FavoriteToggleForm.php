@@ -1,6 +1,6 @@
 <?php
 
-/* Icinga Kubernetes Web | (c) 2024 Icinga GmbH | GPLv2 */
+/* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
 namespace Icinga\Module\Kubernetes\Web;
 
