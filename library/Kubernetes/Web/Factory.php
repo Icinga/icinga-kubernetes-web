@@ -319,6 +319,7 @@ abstract class Factory
             'ingress'               => Ingress::on($database),
             'job'                   => Job::on($database),
             'node'                  => Node::on($database),
+            'persistentvolume'      => PersistentVolume::on($database),
             'persistentvolumeclaim' => PersistentVolumeClaim::on($database),
             'pod'                   => Pod::on($database),
             'replicaset'            => ReplicaSet::on($database),
