@@ -23,7 +23,8 @@ class SecretListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_MINIMAL) {
+        match ($this->getViewMode()) {
+            ViewModeSwitcher::VIEW_MODE_MINIMAL =>
             $header->addHtml(
                 Html::tag(
                     'span',
@@ -33,10 +34,11 @@ class SecretListItem extends BaseListItem
                         $this->createCaption()
                     ]
                 )
-            );
-        } elseif ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_COMMON) {
-            $header->addHtml($this->createTitle());
-        }
+            ),
+            ViewModeSwitcher::VIEW_MODE_COMMON  =>
+            $header->addHtml($this->createTitle()),
+            default                             => null
+        };
 
         $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
