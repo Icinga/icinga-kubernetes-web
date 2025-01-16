@@ -317,6 +317,7 @@ abstract class Factory
             'deployment'            => Deployment::on($database),
             'ingress'               => Ingress::on($database),
             'job'                   => Job::on($database),
+            'persistentvolume'      => PersistentVolume::on($database),
             'persistentvolumeclaim' => PersistentVolumeClaim::on($database),
             'pod'                   => Pod::on($database),
             'replicaset'            => ReplicaSet::on($database),
