@@ -90,8 +90,8 @@ abstract class BaseItemList extends BaseHtmlElement
                     )
                 ]);
 
-            if ($this->getViewMode() !== null) {
-                $listItem->setViewMode($this->getViewMode());
+            if ($this->viewMode !== null) {
+                $listItem->setViewMode($this->viewMode);
             }
 
             $this->addHtml(
