@@ -159,6 +159,13 @@ class ViewModeSwitcher extends Form
         return $id;
     }
 
+    /**
+     * Add view modes to be ignored
+     *
+     * @param string ...$viewModes
+     *
+     * @return $this
+     */
     public function addIgnoredViewModes(string ...$viewModes): self
     {
         array_push($this->ignoredViewModes, ...$viewModes);
