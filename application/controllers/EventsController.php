@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Web\EventList;
 use Icinga\Module\Kubernetes\Web\ListController;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Orm\Query;
 use ipl\Stdlib\Filter;
 
@@ -54,6 +55,6 @@ class EventsController extends ListController
 
     protected function getIgnoredViewModes(): array
     {
-        return ['detailed'];
+        return [ViewModeSwitcher::VIEW_MODE_DETAILED];
     }
 }
