@@ -169,6 +169,7 @@ class ViewModeSwitcher extends Form
     public function addIgnoredViewModes(string ...$viewModes): self
     {
         array_push($this->ignoredViewModes, ...$viewModes);
+        $this->ignoredViewModes = array_values(array_unique($this->ignoredViewModes));
 
         return $this;
     }

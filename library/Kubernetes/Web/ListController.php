@@ -138,11 +138,18 @@ abstract class ListController extends Controller
         LimitControl $limitControl,
         bool $verticalPagination = false
     ): ViewModeSwitcher {
-        $ignoredViewModes = $this->getIgnoredViewModes();
-
         $viewModeSwitcher = new ViewModeSwitcher();
         $viewModeSwitcher->setIdProtector([$this->getRequest(), 'protectId']);
-        $viewModeSwitcher->addIgnoredViewModes(...$ignoredViewModes);
+
+        $ignoredViewModes = $this->getIgnoredViewModes();
+
+        // Check if only one or no view mode should be selectable. If so don't show view mode switcher in the Web UI.
+        // This is the case if all view modes are ignored or only one view mode is not ignored.
+        if (count($ignoredViewModes) >= count(ViewModeSwitcher::$viewModes) - 1) {
+            $viewModeSwitcher->addIgnoredViewModes(...array_keys(ViewModeSwitcher::$viewModes));
+        } else {
+            $viewModeSwitcher->addIgnoredViewModes(...$ignoredViewModes);
+        }
 
         $user = $this->Auth()->getUser();
         if (($preferredModes = $user->getAdditional('kubernetes.view_modes')) === null) {
