@@ -34,7 +34,9 @@ class PodListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        if (in_array($this->getViewMode(), [ViewModeSwitcher::VIEW_MODE_MINIMAL, ViewModeSwitcher::VIEW_MODE_COMMON])) {
+        match ($this->getViewMode()) {
+            ViewModeSwitcher::VIEW_MODE_MINIMAL,
+            ViewModeSwitcher::VIEW_MODE_COMMON   =>
             $header->addHtml(
                 Html::tag(
                     'span',
@@ -44,10 +46,11 @@ class PodListItem extends BaseListItem
                         $this->createCaption()
                     ]
                 )
-            );
-        } elseif ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_DETAILED) {
-            $header->addHtml($this->createTitle());
-        }
+            ),
+            ViewModeSwitcher::VIEW_MODE_DETAILED =>
+            $header->addHtml($this->createTitle()),
+            default                              => null
+        };
 
         $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
     }
