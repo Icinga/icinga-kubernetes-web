@@ -5,18 +5,8 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
-use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\DaemonSet;
-use Icinga\Module\Kubernetes\Model\Deployment;
-use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
-use Icinga\Module\Kubernetes\Model\PersistentVolume;
-use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
-use Icinga\Module\Kubernetes\Model\Pod;
-use Icinga\Module\Kubernetes\Model\ReplicaSet;
-use Icinga\Module\Kubernetes\Model\Service;
-use Icinga\Module\Kubernetes\Model\StatefulSet;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -59,32 +49,13 @@ class NamespaceListItem extends BaseListItem
 
     protected function assembleCaption(BaseHtmlElement $caption): void
     {
-        $resourceCount = DaemonSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
+        $filter = $this->getResourceFilter();
+        $resources = $this->getResourcesToCheck();
+        $resourceCount = 0;
 
-        $resourceCount += Deployment::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $resourceCount += Ingress::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $resourceCount += PersistentVolume::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $resourceCount += PersistentVolumeClaim::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $resourceCount += Pod::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $resourceCount += ReplicaSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $resourceCount += Service::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $resourceCount += StateFulSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
+        foreach ($resources as $resource => $_) {
+            $resourceCount += Factory::fetchResource($resource)->filter($filter)->count();
+        }
 
         $caption->addHtml(Html::sprintf(
             $this->translate('Namespace %s has %s resources'),
@@ -108,83 +79,16 @@ class NamespaceListItem extends BaseListItem
 
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
-        $resourceCount = DaemonSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
+        $filter = $this->getResourceFilter();
+        $resources = $this->getResourcesToCheck();
 
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-daemonset', 'title' => 'Daemon Sets'])),
-            $resourceCount
-        ));
-
-        $resourceCount = Deployment::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-deployment', 'title' => 'Deployments'])),
-            $resourceCount
-        ));
-
-        $resourceCount = Ingress::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-ingress', 'title' => 'Ingresses'])),
-            $resourceCount
-        ));
-
-        $resourceCount = PersistentVolume::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement(
-                'i',
-                new Attributes(['class' => 'icon kicon-persistentvolume', 'title' => 'Persistent Volumes'])
-            ),
-            $resourceCount
-        ));
-
-        $resourceCount = PersistentVolumeClaim::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement(
-                'i',
-                new Attributes(['class' => 'icon kicon-persistentvolumeclaim', 'title' => 'Persistent Volume Claims'])
-            ),
-            $resourceCount
-        ));
-
-        $resourceCount = Pod::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod', 'title' => 'Pods'])),
-            $resourceCount
-        ));
-
-        $resourceCount = ReplicaSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-replicaset', 'title' => 'Replica Sets'])),
-            $resourceCount
-        ));
-
-        $resourceCount = Service::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-service', 'title' => 'Services'])),
-            $resourceCount
-        ));
-
-        $resourceCount = StateFulSet::on(Database::connection())
-            ->filter(Filter::equal('namespace', $this->item->name))->count();
-
-        $footer->addHtml(new HorizontalKeyValue(
-            new HtmlElement('i', new Attributes(['class' => 'icon kicon-statefulset', 'title' => 'Stateful Sets'])),
-            $resourceCount
-        ));
+        foreach ($resources as $resource => $title) {
+            $resourceCount = Factory::fetchResource($resource)->filter($filter)->count();
+            $footer->addHtml(new HorizontalKeyValue(
+                new HtmlElement('i', new Attributes(['class' => "icon kicon-$resource", 'title' => $title])),
+                $resourceCount
+            ));
+        }
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
@@ -210,5 +114,35 @@ class NamespaceListItem extends BaseListItem
         } else {
             $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
         }
+    }
+
+    /**
+     * Get the filter to use for the resources
+     *
+     * @return Filter\Condition
+     */
+    protected function getResourceFilter(): Filter\Condition
+    {
+        return Filter::equal('namespace', $this->item->name);
+    }
+
+    /**
+     * Get the resources to check for the namespace
+     *
+     * @return string[]
+     */
+    protected function getResourcesToCheck(): array
+    {
+        return [
+            'daemonset'             => 'Daemon Sets',
+            'deployment'            => 'Deployments',
+            'ingress'               => 'Ingresses',
+            'persistentvolume'      => 'Persistent Volumes',
+            'persistentvolumeclaim' => 'Persistent Volume Claims',
+            'pod'                   => 'Pods',
+            'replicaset'            => 'Replica Sets',
+            'service'               => 'Services',
+            'statefulset'           => 'Stateful Sets'
+        ];
     }
 }
