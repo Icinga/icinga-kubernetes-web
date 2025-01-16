@@ -34,7 +34,6 @@ class DaemonsetController extends Controller
             $this->httpNotFound($this->translate('Daemon Set not found'));
         }
 
-        $this->addControl((new DaemonSetList([$daemonSet])));
         $this->addControl(
             (new DaemonSetList([$daemonSet]))
                 ->setActionList(false)
