@@ -25,7 +25,9 @@ class NodeListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        if (in_array($this->getViewMode(), [ViewModeSwitcher::VIEW_MODE_MINIMAL, ViewModeSwitcher::VIEW_MODE_COMMON])) {
+        match ($this->getViewMode()) {
+            ViewModeSwitcher::VIEW_MODE_MINIMAL,
+            ViewModeSwitcher::VIEW_MODE_COMMON   =>
             $header->addHtml(
                 Html::tag(
                     'span',
@@ -35,10 +37,11 @@ class NodeListItem extends BaseListItem
                         $this->createCaption()
                     ]
                 )
-            );
-        } elseif ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_DETAILED) {
-            $header->addHtml($this->createTitle());
-        }
+            ),
+            ViewModeSwitcher::VIEW_MODE_DETAILED =>
+            $header->addHtml($this->createTitle()),
+            default                              => null
+        };
     }
 
     protected function assembleCaption(BaseHtmlElement $caption): void
