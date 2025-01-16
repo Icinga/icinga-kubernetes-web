@@ -36,7 +36,7 @@ class StatefulSetListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        match ($this->getViewMode()) {
+        match ($this->viewMode) {
             ViewModeSwitcher::VIEW_MODE_MINIMAL,
             ViewModeSwitcher::VIEW_MODE_COMMON   =>
             $header->addHtml(
@@ -66,11 +66,11 @@ class StatefulSetListItem extends BaseListItem
     {
         $main->addHtml($this->createHeader());
 
-        if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_DETAILED) {
+        if ($this->viewMode === ViewModeSwitcher::VIEW_MODE_DETAILED) {
             $main->addHtml($this->createCaption());
         }
 
-        if ($this->getViewMode() !== ViewModeSwitcher::VIEW_MODE_MINIMAL) {
+        if ($this->viewMode !== ViewModeSwitcher::VIEW_MODE_MINIMAL) {
             $main->addHtml($this->createFooter());
         }
     }
