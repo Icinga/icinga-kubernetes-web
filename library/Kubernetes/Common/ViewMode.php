@@ -14,7 +14,7 @@ trait ViewMode
      *
      * @return ?string
      */
-    public function getViewMode()
+    public function getViewMode(): string|null
     {
         return $this->viewMode;
     }

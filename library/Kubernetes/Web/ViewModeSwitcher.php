@@ -130,7 +130,7 @@ class ViewModeSwitcher extends Form
      *
      * @return $this
      */
-    public function setViewMode(string $name)
+    public function setViewMode(string $name): self
     {
         $this->populate([$this->getViewModeParam() => $name]);
 
@@ -151,7 +151,7 @@ class ViewModeSwitcher extends Form
         return $this;
     }
 
-    private function protectId($id)
+    private function protectId(string $id): string
     {
         if (is_callable($this->protector)) {
             return call_user_func($this->protector, $id);
