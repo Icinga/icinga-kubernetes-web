@@ -41,7 +41,6 @@ class ViewModeSwitcher extends Form
         self::VIEW_MODE_MINIMAL  => 'minimal',
         self::VIEW_MODE_COMMON   => 'default',
         self::VIEW_MODE_DETAILED => 'detailed',
-        'tabular'                => 'tabular'
     ];
 
     /** @var string */
@@ -57,7 +56,7 @@ class ViewModeSwitcher extends Form
     protected $viewModeParam = self::DEFAULT_VIEW_MODE_PARAM;
 
     /** @var array */
-    protected $ignoredViewModes = ['tabular'];
+    protected $ignoredViewModes = [];
 
     /**
      * Get the default mode
