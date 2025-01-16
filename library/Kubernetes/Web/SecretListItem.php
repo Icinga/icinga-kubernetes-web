@@ -23,7 +23,7 @@ class SecretListItem extends BaseListItem
 
     protected function assembleHeader(BaseHtmlElement $header): void
     {
-        match ($this->getViewMode()) {
+        match ($this->viewMode) {
             ViewModeSwitcher::VIEW_MODE_MINIMAL =>
             $header->addHtml(
                 Html::tag(
@@ -47,7 +47,7 @@ class SecretListItem extends BaseListItem
     {
         $main->addHtml($this->createHeader());
 
-        if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_COMMON) {
+        if ($this->viewMode === ViewModeSwitcher::VIEW_MODE_COMMON) {
             $main->addHtml($this->createFooter());
         }
     }
