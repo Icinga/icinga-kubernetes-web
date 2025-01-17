@@ -13,13 +13,12 @@ use ipl\Web\Widget\StateBall;
 
 class DetailState extends BaseHtmlElement
 {
-    protected string $state;
-
     protected $tag = 'span';
 
-    public function __construct(string $state)
-    {
-        $this->state = $state;
+    public function __construct(
+        /** @var string $state The icinga state to show */
+        protected string $state
+    ) {
     }
 
     protected function assemble(): void
