@@ -44,8 +44,10 @@ class FavoriteController extends Controller
 
                     throw $e;
                 }
-                $this->getResponse()->setHeader('X-Icinga-Container', 'ignore', true)->sendResponse();
-                $this->_helper->layout->disableLayout();
+
+                // Suppress handling XHR response and disable view rendering,
+                // so we can use the form in the list without the page reloading.
+                $this->getResponse()->setHeader('X-Icinga-Container', 'ignore', true);
                 $this->_helper->viewRenderer->setNoRender();
             })->handleRequest($this->getServerRequest());
     }
