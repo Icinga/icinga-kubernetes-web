@@ -8,7 +8,6 @@ use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
-use ipl\Orm\Relations;
 
 class Favorite extends Model
 {
@@ -19,11 +18,6 @@ class Favorite extends Model
         $behaviors->add(new Uuid([
             'resource_uuid'
         ]));
-    }
-
-    public function createRelations(Relations $relations)
-    {
-
     }
 
     public function getColumnDefinitions(): array
