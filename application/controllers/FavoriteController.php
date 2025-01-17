@@ -4,11 +4,13 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Icinga\Application\Logger;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\FavoriteToggleForm;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class FavoriteController extends Controller
 {
@@ -36,8 +38,11 @@ class FavoriteController extends Controller
                             ]
                         );
                     }
-                } catch (\Exception $e) {
-                    die($e->getMessage());
+                } catch (Throwable $e) {
+                    Logger::error($e);
+                    Logger::error($e->getTraceAsString());
+
+                    throw $e;
                 }
                 $this->getResponse()->setHeader('X-Icinga-Container', 'ignore', true)->sendResponse();
                 $this->_helper->layout->disableLayout();
