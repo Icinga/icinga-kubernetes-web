@@ -108,6 +108,7 @@ abstract class ListController extends Controller
         }
 
         $modelClass = $this->getModelClass();
+        $contentClass = $this->getContentClass();
 
         if (! empty($favoriteFilter)) {
             $favoriteResources = $modelClass::on(Database::connection())
@@ -118,19 +119,15 @@ abstract class ListController extends Controller
                     )
                 )
                 ->execute();
-        } else {
-            // Get empty ResultSet, otherwise all resources would be displayed as favorites
-            $favoriteResources = $modelClass::on(Database::connection())->filter(Filter::equal('uuid', 0))->execute();
+
+            $this->addContent(
+                (new $contentClass($favoriteResources, ['data-list-group' => 'fav', 'favorite-list' => '']))
+                    ->addAttributes(['class' => 'collapsible'])
+                    ->setViewMode($viewModeSwitcher->getViewMode())
+            );
+            $this->addContent(Html::hr());
         }
 
-        $contentClass = $this->getContentClass();
-
-        $this->addContent(
-            (new $contentClass($favoriteResources, ['data-list-group' => 'fav', 'favorite-list' => '']))
-                ->addAttributes(['class' => 'collapsible'])
-                ->setViewMode($viewModeSwitcher->getViewMode())
-        );
-        $this->addContent(Html::hr());
         $this->addContent(
             (new $contentClass($q, ['data-list-group' => 'fav']))
                 ->setViewMode($viewModeSwitcher->getViewMode())
