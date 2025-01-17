@@ -97,7 +97,9 @@ abstract class ListController extends Controller
         $this->addControl($viewModeSwitcher);
         $this->addControl($searchBar);
 
-        $favorites = Favorite::on(Database::connection())->execute();
+        $favorites = Favorite::on(Database::connection())
+            ->filter(Filter::equal('username', Auth::getInstance()->getUser()->getUsername()))
+            ->execute();
 
         $favoriteFilter = [];
 
