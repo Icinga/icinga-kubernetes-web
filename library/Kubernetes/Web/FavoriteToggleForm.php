@@ -11,11 +11,10 @@ use ipl\Web\Compat\CompatForm;
 
 class FavoriteToggleForm extends CompatForm
 {
-    protected bool $checked;
-
-    public function __construct(bool $checked)
-    {
-        $this->checked = $checked;
+    public function __construct(
+        /** @var bool $checked Indicates whether the form should be checked on creation */
+        protected bool $checked
+    ) {
     }
 
     protected function assemble(): void
