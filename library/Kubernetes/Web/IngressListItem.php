@@ -74,8 +74,9 @@ class IngressListItem extends BaseListItem
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
         $size = match ($this->getViewMode()) {
-            ViewModeSwitcher::VIEW_MODE_MINIMAL, ViewModeSwitcher::VIEW_MODE_COMMON => 'sm',
-            ViewModeSwitcher::VIEW_MODE_DETAILED                                    => 'm',
+            ViewModeSwitcher::VIEW_MODE_MINIMAL,
+            ViewModeSwitcher::VIEW_MODE_COMMON   => 'sm',
+            ViewModeSwitcher::VIEW_MODE_DETAILED => 'm',
         };
 
         $visual->addHtml(new StateBall('none', $size));
