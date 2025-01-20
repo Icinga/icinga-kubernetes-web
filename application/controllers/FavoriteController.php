@@ -19,6 +19,7 @@ class FavoriteController extends Controller
         (new FavoriteToggleForm(true))
             ->on(FavoriteToggleForm::ON_SUCCESS, function (FavoriteToggleForm $form) {
                 $uuid = $this->params->get('uuid');
+                $kind = $this->params->get('kind');
                 $checked = $form->getValue('favorite-checkbox');
                 try {
                     if ($checked) {
@@ -26,6 +27,7 @@ class FavoriteController extends Controller
                             'favorite',
                             [
                                 'resource_uuid' => Uuid::fromString($uuid)->getBytes(),
+                                'kind'          => $kind,
                                 'username'      => Auth::getInstance()->getUser()->getUsername(),
                             ]
                         );
