@@ -98,8 +98,7 @@ abstract class ListController extends Controller
         $this->addControl($searchBar);
 
         $favorites = Favorite::on(Database::connection())
-            ->filter(Filter::equal('username', Auth::getInstance()->getUser()->getUsername()))
-            ->execute();
+            ->filter(Filter::equal('username', Auth::getInstance()->getUser()->getUsername()));
 
         $favoriteFilter = [];
 
@@ -117,8 +116,7 @@ abstract class ListController extends Controller
                         $filter,
                         Filter::any(...$favoriteFilter)
                     )
-                )
-                ->execute();
+                );
 
             $this->addContent(
                 (new $contentClass($favoriteResources, ['data-list-group' => 'fav', 'favorite-list' => '']))
