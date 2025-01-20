@@ -11,6 +11,9 @@ use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Web\Widget\StateBall;
 
+/**
+ * A html element that shows the state as a state ball and the state text.
+ */
 class DetailState extends BaseHtmlElement
 {
     protected $tag = 'span';

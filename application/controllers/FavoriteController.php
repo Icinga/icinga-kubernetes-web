@@ -14,6 +14,13 @@ use Throwable;
 
 class FavoriteController extends Controller
 {
+    /**
+     * Toggles the favorite status of a resource. If the resource is already a favorite,
+     * it will be removed from the favorites list. If it is not a favorite yet, it will be
+     * added to the favorites list. Throws an exception if the database operation fails.
+     *
+     * @return void
+     */
     public function toggleAction(): void
     {
         (new FavoriteToggleForm(true))
