@@ -97,8 +97,11 @@ abstract class ListController extends Controller
         $this->addControl($viewModeSwitcher);
         $this->addControl($searchBar);
 
+        $modelClass = $this->getModelClass();
+
         $favorites = Favorite::on(Database::connection())
-            ->filter(Filter::equal('username', Auth::getInstance()->getUser()->getUsername()));
+            ->filter(Filter::equal('username', Auth::getInstance()->getUser()->getUsername()))
+            ->filter(Filter::equal('kind', Factory::canonicalizeKind((new $modelClass)->getTableName())));
 
         $favoriteFilter = [];
 
@@ -106,7 +109,6 @@ abstract class ListController extends Controller
             $favoriteFilter[] = Filter::equal('uuid', $favorite->resource_uuid);
         }
 
-        $modelClass = $this->getModelClass();
         $contentClass = $this->getContentClass();
 
         if (! empty($favoriteFilter)) {

@@ -24,6 +24,7 @@ class Favorite extends Model
     {
         return [
             'resource_uuid' => $this->translate('Resource UUID'),
+            'kind'          => $this->translate('Resource Kind'),
             'username'      => $this->translate('Username'),
         ];
     }
@@ -32,6 +33,7 @@ class Favorite extends Model
     {
         return [
             'resource_uuid',
+            'kind',
             'username',
         ];
     }

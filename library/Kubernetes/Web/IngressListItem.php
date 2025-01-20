@@ -93,7 +93,7 @@ class IngressListItem extends BaseListItem
             ->execute();
 
         $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
-            ->setAction(Links::toggleFavorite($this->item->uuid)->getAbsoluteUrl())
+            ->setAction(Links::toggleFavorite($this->item->uuid, 'ingress')->getAbsoluteUrl())
             ->setAttribute('class', sprintf("favorite-toggle favorite-toggle-$size"))
             ->setAttribute('data-base-target', '_self')
         );
