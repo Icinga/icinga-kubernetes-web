@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use ipl\Html\Attributes;
@@ -81,9 +82,10 @@ class NamespaceListItem extends BaseListItem
     {
         $filter = $this->getResourceFilter();
         $resources = $this->getResourcesToCheck();
+        $db = Database::connection();
 
         foreach ($resources as $resource => $title) {
-            $resourceCount = Factory::fetchResource($resource)->filter($filter)->count();
+            $resourceCount = Factory::fetchResource($resource, $db)->filter($filter)->count();
             $footer->addHtml(new HorizontalKeyValue(
                 new HtmlElement('i', new Attributes(['class' => "icon kicon-$resource", 'title' => $title])),
                 $resourceCount

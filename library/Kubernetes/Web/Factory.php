@@ -27,6 +27,7 @@ use ipl\Html\HtmlElement;
 use ipl\Html\ValidHtml;
 use ipl\Orm\Model;
 use ipl\Orm\Query;
+use ipl\Sql\Connection;
 use ipl\Stdlib\Filter\Rule;
 use ipl\Web\Url;
 use ipl\Web\Widget\EmptyState;
@@ -303,11 +304,11 @@ abstract class Factory
      *
      * @return Query|null
      */
-    public static function fetchResource(string $kind): ?Query
+    public static function fetchResource(string $kind, Connection $db = null): ?Query
     {
         $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
-        $database = Database::connection();
+        $database = $db ?? Database::connection();
 
         $query = match ($kind) {
             'configmap'             => ConfigMap::on($database),
