@@ -118,7 +118,10 @@ class PersistentVolumeListItem extends BaseListItem
             ->execute();
 
         $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
-            ->setAction(Links::toggleFavorite($this->item->uuid, 'persistentvolume')->getAbsoluteUrl())
+            ->setAction(Links::toggleFavorite(
+                $this->item->uuid,
+                Factory::canonicalizeKind($this->item->getTableAlias())
+            )->getAbsoluteUrl())
             ->setAttribute('class', sprintf("favorite-toggle favorite-toggle-$size"))
             ->setAttribute('data-base-target', '_self')
         );
