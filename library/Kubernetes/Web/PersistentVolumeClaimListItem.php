@@ -27,6 +27,7 @@ use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
+use ipl\Web\Widget\StateBall;
 
 class PersistentVolumeClaimListItem extends BaseListItem
 {
@@ -110,7 +111,7 @@ class PersistentVolumeClaimListItem extends BaseListItem
         $size = match ($this->getViewMode()) {
             ViewModeSwitcher::VIEW_MODE_MINIMAL,
             ViewModeSwitcher::VIEW_MODE_COMMON   => 'sm',
-            ViewModeSwitcher::VIEW_MODE_DETAILED => 'm',
+            ViewModeSwitcher::VIEW_MODE_DETAILED => StateBall::SIZE_MEDIUM,
         };
 
         $visual->addHtml(
