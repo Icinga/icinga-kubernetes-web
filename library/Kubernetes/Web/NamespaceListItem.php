@@ -6,6 +6,8 @@ namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\DefaultListItemHeader;
+use Icinga\Module\Kubernetes\Common\DefaultListItemMain;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use ipl\Html\Attributes;
@@ -19,34 +21,12 @@ use ipl\Stdlib\Filter;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
-use ipl\Web\Widget\TimeAgo;
 
 class NamespaceListItem extends BaseListItem
 {
     use Translation;
-
-    protected function assembleHeader(BaseHtmlElement $header): void
-    {
-        match ($this->viewMode) {
-            ViewModeSwitcher::VIEW_MODE_MINIMAL,
-            ViewModeSwitcher::VIEW_MODE_COMMON   =>
-            $header->addHtml(
-                Html::tag(
-                    'span',
-                    Attributes::create(['class' => 'header-minimal']),
-                    [
-                        $this->createTitle(),
-                        $this->createCaption()
-                    ]
-                )
-            ),
-            ViewModeSwitcher::VIEW_MODE_DETAILED =>
-            $header->addHtml($this->createTitle()),
-            default                              => null
-        };
-
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
-    }
+    use DefaultListItemHeader;
+    use DefaultListItemMain;
 
     protected function assembleCaption(BaseHtmlElement $caption): void
     {
@@ -63,19 +43,6 @@ class NamespaceListItem extends BaseListItem
             $this->item->name,
             $resourceCount
         ));
-    }
-
-    protected function assembleMain(BaseHtmlElement $main): void
-    {
-        $main->addHtml($this->createHeader());
-
-        if ($this->viewMode === ViewModeSwitcher::VIEW_MODE_DETAILED) {
-            $main->addHtml($this->createCaption());
-        }
-
-        if ($this->viewMode !== ViewModeSwitcher::VIEW_MODE_MINIMAL) {
-            $main->addHtml($this->createFooter());
-        }
     }
 
     protected function assembleFooter(BaseHtmlElement $footer): void

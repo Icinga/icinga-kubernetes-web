@@ -5,10 +5,11 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\DefaultListItemHeader;
+use Icinga\Module\Kubernetes\Common\DefaultListItemMain;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -16,52 +17,17 @@ use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
-use ipl\Web\Widget\TimeAgo;
 
 class IngressListItem extends BaseListItem
 {
     use Translation;
-
-    protected function assembleHeader(BaseHtmlElement $header): void
-    {
-        match ($this->viewMode) {
-            ViewModeSwitcher::VIEW_MODE_MINIMAL,
-            ViewModeSwitcher::VIEW_MODE_COMMON   =>
-            $header->addHtml(
-                Html::tag(
-                    'span',
-                    Attributes::create(['class' => 'header-minimal']),
-                    [
-                        $this->createTitle(),
-                        $this->createCaption()
-                    ]
-                )
-            ),
-            ViewModeSwitcher::VIEW_MODE_DETAILED =>
-            $header->addHtml($this->createTitle()),
-            default                              => null
-        };
-
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
-    }
+    use DefaultListItemHeader;
+    use DefaultListItemMain;
 
     protected function assembleCaption(BaseHtmlElement $caption): void
     {
-        // TODO add state reason
+        // TODO add state reason then replace function by DefaultListItemCaption trait
         $caption->addHtml(new Text('Placeholder for Icinga State Reason'));
-    }
-
-    protected function assembleMain(BaseHtmlElement $main): void
-    {
-        $main->addHtml($this->createHeader());
-
-        if ($this->viewMode === ViewModeSwitcher::VIEW_MODE_DETAILED) {
-            $main->addHtml($this->createCaption());
-        }
-
-        if ($this->viewMode !== ViewModeSwitcher::VIEW_MODE_MINIMAL) {
-            $main->addHtml($this->createFooter());
-        }
     }
 
     protected function assembleFooter(BaseHtmlElement $footer): void
