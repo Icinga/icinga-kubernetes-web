@@ -5,6 +5,10 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\DefaultListItemCaption;
+use Icinga\Module\Kubernetes\Common\DefaultListItemHeader;
+use Icinga\Module\Kubernetes\Common\DefaultListItemMain;
+use Icinga\Module\Kubernetes\Common\DefaultListItemVisual;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
@@ -17,50 +21,14 @@ use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
-use ipl\Web\Widget\StateBall;
 
 class NodeListItem extends BaseListItem
 {
     use Translation;
-
-    protected function assembleHeader(BaseHtmlElement $header): void
-    {
-        match ($this->viewMode) {
-            ViewModeSwitcher::VIEW_MODE_MINIMAL,
-            ViewModeSwitcher::VIEW_MODE_COMMON   =>
-            $header->addHtml(
-                Html::tag(
-                    'span',
-                    Attributes::create(['class' => 'header-minimal']),
-                    [
-                        $this->createTitle(),
-                        $this->createCaption()
-                    ]
-                )
-            ),
-            ViewModeSwitcher::VIEW_MODE_DETAILED =>
-            $header->addHtml($this->createTitle()),
-            default                              => null
-        };
-    }
-
-    protected function assembleCaption(BaseHtmlElement $caption): void
-    {
-        $caption->addHtml(new Text($this->item->icinga_state_reason));
-    }
-
-    protected function assembleMain(BaseHtmlElement $main): void
-    {
-        $main->addHtml($this->createHeader());
-
-        if ($this->viewMode === ViewModeSwitcher::VIEW_MODE_DETAILED) {
-            $main->addHtml($this->createCaption());
-        }
-
-        if ($this->viewMode !== ViewModeSwitcher::VIEW_MODE_MINIMAL) {
-            $main->addHtml($this->createFooter());
-        }
-    }
+    use DefaultListItemHeader;
+    use DefaultListItemCaption;
+    use DefaultListItemMain;
+    use DefaultListItemVisual;
 
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
@@ -95,10 +63,5 @@ class NodeListItem extends BaseListItem
                 new Text($this->item->icinga_state)
             )
         ));
-    }
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }
