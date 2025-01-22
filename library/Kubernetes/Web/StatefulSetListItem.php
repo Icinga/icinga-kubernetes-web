@@ -5,24 +5,27 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\DefaultListItemCaption;
+use Icinga\Module\Kubernetes\Common\DefaultListItemHeader;
+use Icinga\Module\Kubernetes\Common\DefaultListItemMain;
+use Icinga\Module\Kubernetes\Common\DefaultListItemTitle;
+use Icinga\Module\Kubernetes\Common\DefaultListItemVisual;
 use Icinga\Module\Kubernetes\Common\Format;
-use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\Html;
-use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
-use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
-use ipl\Web\Widget\Link;
-use ipl\Web\Widget\StateBall;
-use ipl\Web\Widget\TimeAgo;
 
 class StatefulSetListItem extends BaseListItem
 {
     use Translation;
+    use DefaultListItemHeader;
+    use DefaultListItemCaption;
+    use DefaultListItemMain;
+    use DefaultListItemTitle;
+    use DefaultListItemVisual;
 
     public const UPDATE_STRATEGY_ICONS = [
         'RollingUpdate' => 'repeat',
@@ -33,47 +36,6 @@ class StatefulSetListItem extends BaseListItem
         'OrderedReady' => 'shuffle',
         'Parallel'     => 'grip-lines'
     ];
-
-    protected function assembleHeader(BaseHtmlElement $header): void
-    {
-        match ($this->viewMode) {
-            ViewModeSwitcher::VIEW_MODE_MINIMAL,
-            ViewModeSwitcher::VIEW_MODE_COMMON   =>
-            $header->addHtml(
-                Html::tag(
-                    'span',
-                    Attributes::create(['class' => 'header-minimal']),
-                    [
-                        $this->createTitle(),
-                        $this->createCaption()
-                    ]
-                )
-            ),
-            ViewModeSwitcher::VIEW_MODE_DETAILED =>
-            $header->addHtml($this->createTitle()),
-            default                              => null
-        };
-
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
-    }
-
-    protected function assembleCaption(BaseHtmlElement $caption): void
-    {
-        $caption->addHtml(new Text($this->item->icinga_state_reason));
-    }
-
-    protected function assembleMain(BaseHtmlElement $main): void
-    {
-        $main->addHtml($this->createHeader());
-
-        if ($this->viewMode === ViewModeSwitcher::VIEW_MODE_DETAILED) {
-            $main->addHtml($this->createCaption());
-        }
-
-        if ($this->viewMode !== ViewModeSwitcher::VIEW_MODE_MINIMAL) {
-            $main->addHtml($this->createFooter());
-        }
-    }
 
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
@@ -119,38 +81,5 @@ class StatefulSetListItem extends BaseListItem
                     'title' => $this->translate('Service Name'),
                 ])
         );
-    }
-
-    protected function assembleTitle(BaseHtmlElement $title): void
-    {
-        $title->addHtml(Html::sprintf(
-            $this->translate('%s is %s', '<stateful_set> is <icinga_state>'),
-            [
-                new HtmlElement(
-                    'span',
-                    new Attributes(['class' => 'namespace-badge']),
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
-                    new Text($this->item->namespace)
-                ),
-                new Link(
-                    (new HtmlDocument())->addHtml(
-                        new HtmlElement('i', new Attributes(['class' => 'icon kicon-stateful-set'])),
-                        new Text($this->item->name)
-                    ),
-                    Links::statefulset($this->item),
-                    new Attributes(['class' => 'subject'])
-                )
-            ],
-            new HtmlElement(
-                'span',
-                new Attributes(['class' => 'icinga-state-text']),
-                new Text($this->item->icinga_state)
-            )
-        ));
-    }
-
-    protected function assembleVisual(BaseHtmlElement $visual): void
-    {
-        $visual->addHtml(new StateBall($this->item->icinga_state, StateBall::SIZE_MEDIUM));
     }
 }
