@@ -35,9 +35,17 @@ use ipl\Web\Widget\Icon;
 
 abstract class Factory
 {
+    public static function canonicalizeKind(string $kind): string
+    {
+        if ($kind === 'pvc') {
+            return 'persistentvolumeclaim';
+        }
+        return strtolower(str_replace(['_', '-'], '', $kind));
+    }
+
     public static function createIcon(string $kind): ?ValidHtml
     {
-        $kind = strtolower(str_replace(['_', '-'], '', $kind));
+        $kind = self::canonicalizeKind($kind);
 
         return match ($kind) {
             'configmap',
