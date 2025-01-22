@@ -41,9 +41,4 @@ class IngressesController extends ListController
     {
         return Auth::SHOW_INGRESSES;
     }
-
-    protected function getIgnoredViewModes(): array
-    {
-        return [];
-    }
 }
