@@ -111,7 +111,7 @@ class PersistentVolumeListItem extends BaseListItem
                     new HtmlElement('i', new Attributes(['class' => 'icon kicon-persistent-volume'])),
                     new Text($this->item->name)
                 ),
-                Links::persistentVolume($this->item),
+                Links::persistentvolume($this->item),
                 new Attributes(['class' => 'subject'])
             ),
             new HtmlElement(
