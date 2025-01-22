@@ -28,7 +28,7 @@ use Ramsey\Uuid\Uuid;
 
 abstract class Links
 {
-    public static function configMap(ConfigMap $configMap): Url
+    public static function configmap(ConfigMap $configMap): Url
     {
         return Url::fromPath('kubernetes/configmap', ['id' => (string) Uuid::fromBytes($configMap->uuid)]);
     }
@@ -38,12 +38,12 @@ abstract class Links
         return Url::fromPath('kubernetes/container', ['id' => (string) Uuid::fromBytes($container->uuid)]);
     }
 
-    public static function cronJob(CronJob $cronjob): Url
+    public static function cronjob(CronJob $cronjob): Url
     {
         return Url::fromPath('kubernetes/cronjob', ['id' => (string) Uuid::fromBytes($cronjob->uuid)]);
     }
 
-    public static function daemonSet(DaemonSet $daemonSet): Url
+    public static function daemonset(DaemonSet $daemonSet): Url
     {
         return Url::fromPath('kubernetes/daemonset', ['id' => (string) Uuid::fromBytes($daemonSet->uuid)]);
     }
@@ -83,7 +83,7 @@ abstract class Links
         return Url::fromPath('kubernetes/node', ['id' => (string) Uuid::fromBytes($node->uuid)]);
     }
 
-    public static function persistentVolume(PersistentVolume $persistentVolume): Url
+    public static function persistentvolume(PersistentVolume $persistentVolume): Url
     {
         return Url::fromPath(
             'kubernetes/persistentvolume',
@@ -96,7 +96,7 @@ abstract class Links
         return Url::fromPath('kubernetes/pod', ['id' => (string) Uuid::fromBytes($pod->uuid)]);
     }
 
-    public static function pvc(PersistentVolumeClaim $persistentVolumeClaim): Url
+    public static function persistentvolumeclaim(PersistentVolumeClaim $persistentVolumeClaim): Url
     {
         return Url::fromPath(
             'kubernetes/persistentvolumeclaim',
@@ -104,7 +104,7 @@ abstract class Links
         );
     }
 
-    public static function replicaSet(ReplicaSet $replicaSet): Url
+    public static function replicaset(ReplicaSet $replicaSet): Url
     {
         return Url::fromPath('kubernetes/replicaset', ['id' => (string) Uuid::fromBytes($replicaSet->uuid)]);
     }
@@ -127,7 +127,7 @@ abstract class Links
         );
     }
 
-    public static function statefulSet(StatefulSet $statefulSet): Url
+    public static function statefulset(StatefulSet $statefulSet): Url
     {
         return Url::fromPath('kubernetes/statefulset', ['id' => (string) Uuid::fromBytes($statefulSet->uuid)]);
     }

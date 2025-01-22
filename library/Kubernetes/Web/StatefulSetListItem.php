@@ -137,7 +137,7 @@ class StatefulSetListItem extends BaseListItem
                         new HtmlElement('i', new Attributes(['class' => 'icon kicon-stateful-set'])),
                         new Text($this->item->name)
                     ),
-                    Links::statefulSet($this->item),
+                    Links::statefulset($this->item),
                     new Attributes(['class' => 'subject'])
                 )
             ],
