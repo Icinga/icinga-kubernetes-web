@@ -17,7 +17,7 @@ trait DefaultListItemVisual
         $size = match ($this->getViewMode()) {
             ViewModeSwitcher::VIEW_MODE_MINIMAL,
             ViewModeSwitcher::VIEW_MODE_COMMON   => 'sm',
-            ViewModeSwitcher::VIEW_MODE_DETAILED => 'm',
+            ViewModeSwitcher::VIEW_MODE_DETAILED => StateBall::SIZE_MEDIUM,
         };
 
         $visual->addHtml(new StateBall($this->item->icinga_state, $size));
