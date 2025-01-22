@@ -110,7 +110,10 @@ abstract class ListController extends Controller
 
     abstract protected function getPermission(): string;
 
-    abstract protected function getIgnoredViewModes(): array;
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
 
     public function searchEditorAction(): void
     {
