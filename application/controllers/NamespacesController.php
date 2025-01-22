@@ -40,9 +40,4 @@ class NamespacesController extends ListController
     {
         return Auth::SHOW_NAMESPACES;
     }
-
-    protected function getIgnoredViewModes(): array
-    {
-        return [];
-    }
 }
