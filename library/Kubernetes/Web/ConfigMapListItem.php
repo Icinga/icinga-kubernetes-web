@@ -43,7 +43,7 @@ class ConfigMapListItem extends BaseListItem
                     new HtmlElement('i', new Attributes(['class' => 'icon kicon-config-map'])),
                     new Text($this->item->name)
                 ),
-                Links::configMap($this->item),
+                Links::configmap($this->item),
                 new Attributes(['class' => 'subject'])
             )
         );
