@@ -116,7 +116,7 @@ class DaemonSetListItem extends BaseListItem
                         new HtmlElement('i', new Attributes(['class' => 'icon kicon-daemon-set'])),
                         new Text($this->item->name)
                     ),
-                    Links::daemonSet($this->item),
+                    Links::daemonset($this->item),
                     new Attributes(['class' => 'subject'])
                 )
             ],

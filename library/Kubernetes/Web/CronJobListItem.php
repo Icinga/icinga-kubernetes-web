@@ -102,7 +102,7 @@ class CronJobListItem extends BaseListItem
                     new HtmlElement('i', new Attributes(['class' => 'icon kicon-cronjob'])),
                     new Text($this->item->name)
                 ),
-                Links::cronJob($this->item),
+                Links::cronjob($this->item),
                 new Attributes(['class' => 'subject'])
             )
         );

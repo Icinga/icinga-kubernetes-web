@@ -111,7 +111,7 @@ class ReplicaSetListItem extends BaseListItem
                         new HtmlElement('i', new Attributes(['class' => 'icon kicon-replica-set'])),
                         new Text($this->item->name)
                     ),
-                    Links::replicaSet($this->item),
+                    Links::replicaset($this->item),
                     new Attributes(['class' => 'subject'])
                 )
             ],
