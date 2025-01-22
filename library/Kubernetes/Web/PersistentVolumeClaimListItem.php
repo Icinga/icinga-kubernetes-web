@@ -121,7 +121,7 @@ class PersistentVolumeClaimListItem extends BaseListItem
                         new HtmlElement('i', new Attributes(['class' => 'icon kicon-pvc'])),
                         new Text($this->item->name)
                     ),
-                    Links::pvc($this->item),
+                    Links::persistentvolumeclaim($this->item),
                     new Attributes(['class' => 'subject'])
                 )
             ],

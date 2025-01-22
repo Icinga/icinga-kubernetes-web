@@ -72,7 +72,7 @@ class ContainerMountTable extends Table
                     if ($column === 'source') {
                         $content = new Link(
                             $podPvc->claim_name,
-                            Links::pvc($pvc),
+                            Links::persistentvolumeclaim($pvc),
                             ['class' => 'subject']
                         );
                     } else {
