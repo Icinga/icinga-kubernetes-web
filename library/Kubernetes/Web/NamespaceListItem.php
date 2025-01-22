@@ -85,6 +85,7 @@ class NamespaceListItem extends BaseListItem
             ViewModeSwitcher::VIEW_MODE_DETAILED => 'm',
         };
 
+        // TODO add icinga state then replace function by DefaultListItemVisual trait
         $visual->addHtml(new StateBall('none', $size));
 
         if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_MINIMAL) {
@@ -99,7 +100,10 @@ class NamespaceListItem extends BaseListItem
             ->execute();
 
         $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
-            ->setAction(Links::toggleFavorite($this->item->uuid, 'namespace')->getAbsoluteUrl())
+            ->setAction(Links::toggleFavorite(
+                $this->item->uuid,
+                Factory::canonicalizeKind($this->item->getTableAlias())
+            )->getAbsoluteUrl())
             ->setAttribute('class', sprintf("favorite-toggle favorite-toggle-$size"))
             ->setAttribute('data-base-target', '_self')
         );

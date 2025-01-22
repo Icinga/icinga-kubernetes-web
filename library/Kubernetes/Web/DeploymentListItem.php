@@ -29,7 +29,6 @@ class DeploymentListItem extends BaseListItem
 
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
-
         $pods = (new ItemCountIndicator())
             ->addIndicator('critical', $this->item->unavailable_replicas)
             ->addIndicator('pending', $this->item->desired_replicas - $this->item->actual_replicas)
