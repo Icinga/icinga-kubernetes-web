@@ -41,9 +41,4 @@ class DaemonsetsController extends ListController
     {
         return Auth::SHOW_DAEMON_SETS;
     }
-
-    protected function getIgnoredViewModes(): array
-    {
-        return [];
-    }
 }
