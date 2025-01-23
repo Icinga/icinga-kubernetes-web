@@ -1,4 +1,4 @@
-/* Icinga DB Web | (c) 2020 Icinga GmbH | GPLv2 */
+/* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
 ;(function (Icinga) {
 
