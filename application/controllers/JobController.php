@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\JobDetail;
 use Icinga\Module\Kubernetes\Web\JobList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +34,11 @@ class JobController extends Controller
             $this->httpNotFound($this->translate('Job not found'));
         }
 
-        $this->addControl((new JobList([$job]))->setActionList(false));
+        $this->addControl(
+            (new JobList([$job]))
+                ->setActionList(false)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new JobDetail($job));
     }

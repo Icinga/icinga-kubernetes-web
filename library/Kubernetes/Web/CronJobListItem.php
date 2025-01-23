@@ -5,6 +5,8 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\DefaultListItemHeader;
+use Icinga\Module\Kubernetes\Common\DefaultListItemMain;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
@@ -15,26 +17,18 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
-use ipl\Web\Widget\TimeAgo;
+use ipl\Web\Widget\StateBall;
 
 class CronJobListItem extends BaseListItem
 {
     use Translation;
+    use DefaultListItemHeader;
+    use DefaultListItemMain;
 
-    protected function assembleHeader(BaseHtmlElement $header): void
+    protected function assembleCaption(BaseHtmlElement $caption): void
     {
-        $header->addHtml(
-            $this->createTitle(),
-            new TimeAgo($this->item->created->getTimestamp())
-        );
-    }
-
-    protected function assembleMain(BaseHtmlElement $main): void
-    {
-        $main->addHtml(
-            $this->createHeader(),
-            $this->createFooter()
-        );
+        // TODO add state reason then replace function by DefaultListItemCaption trait
+        $caption->addHtml(new Text('Placeholder for Icinga State Reason'));
     }
 
     protected function assembleFooter(BaseHtmlElement $footer): void
@@ -74,9 +68,15 @@ class CronJobListItem extends BaseListItem
                     new HtmlElement('i', new Attributes(['class' => 'icon kicon-cronjob'])),
                     new Text($this->item->name)
                 ),
-                Links::cronJob($this->item),
+                Links::cronjob($this->item),
                 new Attributes(['class' => 'subject'])
             )
         );
+    }
+
+    protected function assembleVisual(BaseHtmlElement $visual): void
+    {
+        // TODO add icinga state then replace function by DefaultListItemVisual trait
+        $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
     }
 }

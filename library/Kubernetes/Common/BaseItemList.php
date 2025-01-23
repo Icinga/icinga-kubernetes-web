@@ -17,6 +17,7 @@ abstract class BaseItemList extends BaseHtmlElement
 {
     use BaseFilter;
     use Translation;
+    use ViewMode;
 
     /**
      * Indicates whether the item list should be treated as an action list.
@@ -47,6 +48,7 @@ abstract class BaseItemList extends BaseHtmlElement
      * property.
      *
      * @param bool $actionList
+     *
      * @return static
      */
     public function setActionList(bool $actionList): static
@@ -80,14 +82,20 @@ abstract class BaseItemList extends BaseHtmlElement
                 $detailUrlAdded = true;
             }
 
+            $listItem = (new $itemClass($item, $this))
+                ->addAttributes([
+                    'data-action-item'          => true,
+                    'data-icinga-detail-filter' => QueryString::render(
+                        Filter::equal('id', Uuid::fromBytes($item->uuid)->toString())
+                    )
+                ]);
+
+            if ($this->viewMode !== null) {
+                $listItem->setViewMode($this->viewMode);
+            }
+
             $this->addHtml(
-                (new $itemClass($item, $this))
-                    ->addAttributes([
-                        'data-action-item'          => true,
-                        'data-icinga-detail-filter' => QueryString::render(
-                            Filter::equal('id', Uuid::fromBytes($item->uuid)->toString())
-                        )
-                    ])
+                $listItem
             );
         }
 
