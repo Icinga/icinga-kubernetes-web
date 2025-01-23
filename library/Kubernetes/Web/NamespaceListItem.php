@@ -4,12 +4,13 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\DefaultListItemHeader;
 use Icinga\Module\Kubernetes\Common\DefaultListItemMain;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\NamespaceModel;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
@@ -78,11 +79,34 @@ class NamespaceListItem extends BaseListItem
 
     protected function assembleVisual(BaseHtmlElement $visual): void
     {
-        if ($this->item->phase === NamespaceModel::PHASE_ACTIVE) {
-            $visual->addHtml(new StateBall('ok', StateBall::SIZE_MEDIUM));
-        } else {
-            $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
+        $size = match ($this->getViewMode()) {
+            ViewModeSwitcher::VIEW_MODE_MINIMAL,
+            ViewModeSwitcher::VIEW_MODE_COMMON   => 'sm',
+            ViewModeSwitcher::VIEW_MODE_DETAILED => StateBall::SIZE_MEDIUM,
+        };
+
+        // TODO add icinga state then replace function by DefaultListItemVisual trait
+        $visual->addHtml(new StateBall('none', $size));
+
+        if ($this->getViewMode() === ViewModeSwitcher::VIEW_MODE_MINIMAL) {
+            return;
         }
+
+        $rs = Favorite::on(Database::connection())
+            ->filter(Filter::all(
+                Filter::equal('resource_uuid', $this->item->uuid),
+                Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+            ))
+            ->execute();
+
+        $visual->addHtml((new FavoriteToggleForm($rs->hasResult()))
+            ->setAction(Links::toggleFavorite(
+                $this->item->uuid,
+                Factory::canonicalizeKind($this->item->getTableAlias())
+            )->getAbsoluteUrl())
+            ->setAttribute('class', sprintf("favorite-toggle favorite-toggle-$size"))
+            ->setAttribute('data-base-target', '_self')
+        );
     }
 
     /**

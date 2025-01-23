@@ -17,7 +17,7 @@
         constructor(icinga) {
             super(icinga);
 
-            this.on('click', '.action-list [data-action-item]:not(.page-separator), .action-list [data-action-item] a[href]', this.onClick, this);
+            this.on('click', '.action-list-kubernetes [data-action-item]:not(.page-separator), .action-list-kubernetes [data-action-item] a[href]', this.onClick, this);
             this.on('close-column', '#main > #col2', this.onColumnClose, this);
             this.on('column-moved', this.onColumnMoved, this);
 
@@ -71,6 +71,10 @@
             let _this = event.data.self;
             let target = event.currentTarget;
 
+            if (event.target.matches('.favorite-checkbox') || event.target.matches('.favorite-checkbox-label')) {
+                return true
+            }
+
             if (target.matches('a') && (! target.matches('.subject') || event.ctrlKey || event.metaKey)) {
                 return true;
             }
@@ -80,45 +84,19 @@
             event.stopPropagation();
 
             let item = target.closest('[data-action-item]');
-            let list = target.closest('.action-list');
+            let list = target.closest('.action-list-kubernetes');
+            let groupLists = Array.from(document.querySelectorAll(`.action-list-kubernetes[data-list-group=${ list.getAttribute('data-list-group') }]`)).filter(item => item !== list);
             let activeItems = _this.getActiveItems(list);
-            let toActiveItems = [],
-                toDeactivateItems = [];
+            let toActiveItems = [item];
+            let toDeactivateItems = activeItems;
 
-            const isBeingMultiSelected = list.matches('[data-icinga-multiselect-url]')
-                && (event.ctrlKey || event.metaKey || event.shiftKey);
+            for (let groupList of groupLists) {
+                toDeactivateItems.push(..._this.getActiveItems(groupList));
 
-            if (isBeingMultiSelected) {
-                if (event.ctrlKey || event.metaKey) {
-                    if (item.classList.contains('active')) {
-                        toDeactivateItems.push(item);
-                    } else {
-                        toActiveItems.push(item);
-                    }
-                } else {
-                    document.getSelection().removeAllRanges();
-
-                    let allItems = _this.getAllItems(list);
-
-                    let startIndex = allItems.indexOf(item);
-                    if(startIndex < 0) {
-                        startIndex = 0;
-                    }
-
-                    let endIndex = activeItems.length ? allItems.indexOf(activeItems[0]) : 0;
-                    if (startIndex > endIndex) {
-                        toActiveItems = allItems.slice(endIndex, startIndex + 1);
-                    } else {
-                        endIndex = activeItems.length ? allItems.indexOf(activeItems[activeItems.length - 1]) : 0;
-                        toActiveItems = allItems.slice(startIndex, endIndex + 1);
-                    }
-
-                    toDeactivateItems = activeItems.filter(item => ! toActiveItems.includes(item));
-                    toActiveItems = toActiveItems.filter(item => ! activeItems.includes(item));
+                let groupListItem = groupList.querySelector(`[data-action-item][data-icinga-detail-filter='${ item.getAttribute('data-icinga-detail-filter') }']`);
+                if (groupListItem !== null) {
+                    toActiveItems.push(groupListItem);
                 }
-            } else {
-                toDeactivateItems = activeItems;
-                toActiveItems.push(item);
             }
 
             if (activeItems.length === 1
@@ -145,64 +123,20 @@
                     : activeItems[activeItems.length - 1].dataset.icingaDetailFilter;
             }
 
+            sessionStorage.setItem('active-column', _this.icinga.utils.getCSSPath(list.parentElement.parentElement));
+            sessionStorage.setItem('active-list', _this.icinga.utils.getCSSPath(list));
+
             _this.clearSelection(toDeactivateItems);
             _this.setActive(toActiveItems);
-            _this.addSelectionCountToFooter(list);
             _this.setLastActivatedItemUrl(lastActivatedUrl);
             _this.loadDetailUrl(list, target.matches('a') ? target.getAttribute('href') : null);
         }
 
         /**
-         * Add the selection count to footer if list allow multi selection
-         *
-         * @param list
-         */
-        addSelectionCountToFooter(list) {
-            if (! list.matches('[data-icinga-multiselect-url]') || list.closest('.dashboard')) {
-                return;
-            }
-
-            let activeItemCount = this.getActiveItems(list).length;
-            let footer = list.closest('.container').querySelector('.footer');
-
-            // For items that do not have a bottom status bar like Downtimes, Comments...
-            if (footer === null) {
-                footer = notjQuery.render(
-                    '<div class="footer" data-action-list-automatically-added>' +
-                            '<div class="selection-count"><span class="selected-items"></span></div>' +
-                        '</div>'
-                )
-
-                list.closest('.container').appendChild(footer);
-            }
-
-            let selectionCount = footer.querySelector('.selection-count');
-            if (selectionCount === null) {
-                selectionCount = notjQuery.render(
-                    '<div class="selection-count"><span class="selected-items"></span></div>'
-                );
-
-                footer.prepend(selectionCount);
-            }
-
-            let selectedItems = selectionCount.querySelector('.selected-items');
-            selectedItems.innerText = activeItemCount
-                ? list.dataset.icingaMultiselectCountLabel.replace('%d', activeItemCount)
-                : list.dataset.icingaMultiselectHintLabel;
-
-            if (activeItemCount === 0) {
-                selectedItems.classList.add('hint');
-            } else {
-                selectedItems.classList.remove('hint');
-            }
-        }
-
-        /**
-         * Key navigation for .action-list
+         * Key navigation for .action-list-kubernetes
          *
          * Only for primary lists (dashboard or lists in detail view are not taken into account)
          *
-         * - `Shift + ArrowUp|ArrowDown` = Multiselect
          * - `ArrowUp|ArrowDown` = Select next/previous
          * - `Ctrl|cmd + A` = Select all on currect page
          *
@@ -223,46 +157,42 @@
                 return;
             }
 
-            if (focusedElement && (
-                focusedElement.matches('#main > :scope')
-                || focusedElement.matches('#body'))
-            ) {
-                let activeItem = document.querySelector(
-                    '#main > .container > .content > .action-list [data-action-item].active'
-                );
-                if (activeItem) {
-                    list = activeItem.closest('.action-list');
-                } else {
-                    list = focusedElement.querySelector('#main > .container > .content > .action-list');
+            list = document.querySelector(sessionStorage.getItem('active-list'));
+
+            if (! list) {
+                if (focusedElement && (
+                    focusedElement.matches('#main > :scope')
+                    || focusedElement.matches('#body'))
+                ) {
+                    let activeItem = document.querySelector(
+                        '#main > .container > .content > .action-list-kubernetes [data-action-item].active'
+                    );
+                    if (activeItem) {
+                        list = activeItem.closest('.action-list-kubernetes');
+                    } else {
+                        list = focusedElement.querySelector('#main > .container > .content > .action-list-kubernetes');
+                    }
+                } else if (focusedElement) {
+                    list = focusedElement.closest('.content > .action-list-kubernetes');
                 }
-            } else if (focusedElement) {
-                list = focusedElement.closest('.content > .action-list');
             }
 
             if (! list) {
                 return;
             }
 
-            let isMultiSelectableList = list.matches('[data-icinga-multiselect-url]');
-
-            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
-                if (! isMultiSelectableList) {
-                    return;
-                }
-
-                event.preventDefault();
-                _this.selectAll(list);
-                return;
-            }
+            let groupLists = Array.from(document.querySelectorAll(`.action-list-kubernetes[data-list-group=${ list.getAttribute('data-list-group') }]`)).filter(item => item !== list);
 
             event.preventDefault();
 
             let allItems = _this.getAllItems(list);
             let firstListItem = allItems[0];
-            let lastListItem = allItems[allItems.length -1];
+            let lastListItem = allItems[allItems.length - 1];
             let activeItems = _this.getActiveItems(list);
             let markAsLastActive = null; // initialized only if it is different from toActiveItem
             let toActiveItem = null;
+            let toActiveItems = [];
+            let toDeactivateItems = [];
             let wasAllSelected = activeItems.length === allItems.length;
             let lastActivatedItem = list.querySelector(
                 `[data-icinga-detail-filter="${ _this.lastActivatedItemUrl }"]`
@@ -280,30 +210,6 @@
                 _this.clearSelection(activeItems);
                 if (toActiveItem.classList.contains('load-more')) {
                     toActiveItem = toActiveItem.previousElementSibling;
-                }
-            } else if (isMultiSelectableList && event.shiftKey) {
-                if (activeItems.length === 1) {
-                    toActiveItem = directionalNextItem;
-                } else if (wasAllSelected && (
-                    (lastActivatedItem !== firstListItem && pressedArrowDownKey)
-                    || (lastActivatedItem !== lastListItem && pressedArrowUpKey)
-                )) {
-                    if (pressedArrowDownKey) {
-                        toActiveItem = lastActivatedItem === lastListItem ? null : lastListItem;
-                    } else {
-                        toActiveItem = lastActivatedItem === firstListItem ? null : lastListItem;
-                    }
-
-                } else if (directionalNextItem && directionalNextItem.classList.contains('active')) {
-                    // deactivate last activated by down to up select
-                    _this.clearSelection([lastActivatedItem]);
-                    if (wasAllSelected) {
-                        _this.scrollItemIntoView(lastActivatedItem, event.key);
-                    }
-
-                    toActiveItem = directionalNextItem;
-                } else {
-                    [toActiveItem, markAsLastActive] = _this.findToActiveItem(lastActivatedItem, event.key);
                 }
             } else {
                 toActiveItem = directionalNextItem ?? lastActivatedItem;
@@ -326,12 +232,23 @@
                 return;
             }
 
-            _this.setActive(toActiveItem);
+            toActiveItems.push(toActiveItem);
+
+            for (let groupList of groupLists) {
+                toDeactivateItems.push(..._this.getActiveItems(groupList));
+
+                let groupListItem = groupList.querySelector(`[data-action-item][data-icinga-detail-filter='${ toActiveItem.getAttribute('data-icinga-detail-filter') }']`);
+                if (groupListItem !== null) {
+                    toActiveItems.push(groupListItem);
+                }
+            }
+
+            _this.clearSelection(toDeactivateItems);
+            _this.setActive(toActiveItems);
             _this.setLastActivatedItemUrl(
                 markAsLastActive ? markAsLastActive.dataset.icingaDetailFilter : toActiveItem.dataset.icingaDetailFilter
             );
             _this.scrollItemIntoView(toActiveItem, event.key);
-            _this.addSelectionCountToFooter(list);
             _this.loadDetailUrl(list);
         }
 
@@ -396,8 +313,7 @@
             let allItems = this.getAllItems(list);
             let activeItems = this.getActiveItems(list);
             this.setActive(allItems.filter(item => ! activeItems.includes(item)));
-            this.setLastActivatedItemUrl(allItems[allItems.length -1].dataset.icingaDetailFilter);
-            this.addSelectionCountToFooter(list);
+            this.setLastActivatedItemUrl(allItems[allItems.length - 1].dataset.icingaDetailFilter);
             this.loadDetailUrl(list);
         }
 
@@ -415,7 +331,7 @@
          *
          * @param url
          */
-        setLastActivatedItemUrl (url) {
+        setLastActivatedItemUrl(url) {
             this.lastActivatedItemUrl = url;
         }
 
@@ -441,7 +357,7 @@
         }
 
         clearDashboardSelections(dashboard, currentList) {
-            dashboard.querySelectorAll('.action-list').forEach(otherList => {
+            dashboard.querySelectorAll('.action-list-kubernetes').forEach(otherList => {
                 if (otherList !== currentList) {
                     this.clearSelection(this.getActiveItems(otherList));
                 }
@@ -459,12 +375,8 @@
             let activeItems = this.getActiveItems(list);
 
             if (url === null) {
-                if (activeItems.length > 1) {
-                    url = this.createMultiSelectUrl(activeItems);
-                } else {
-                    let anchor = activeItems[0].querySelector('[href]');
-                    url = anchor ? anchor.getAttribute('href') : null;
-                }
+                let anchor = activeItems[0].querySelector('[href]');
+                url = anchor ? anchor.getAttribute('href') : null;
             }
 
             if (url === null) {
@@ -514,8 +426,7 @@
          *
          * @return array
          */
-        getActiveItems(list)
-        {
+        getActiveItems(list) {
             let items;
             if (list.tagName.toLowerCase() === 'table') {
                 items = list.querySelectorAll(':scope > tbody > [data-action-item].active');
@@ -533,8 +444,7 @@
          *
          * @return array
          */
-        getAllItems(list)
-        {
+        getAllItems(list) {
             let items;
             if (list.tagName.toLowerCase() === 'table') {
                 items = list.querySelectorAll(':scope > tbody > [data-action-item]');
@@ -565,7 +475,6 @@
                         this.setActive(toActiveItem);
                         this.setLastActivatedItemUrl(toActiveItem.dataset.icingaDetailFilter);
                         this.scrollItemIntoView(toActiveItem, pressedKey);
-                        this.addSelectionCountToFooter(toActiveItem.parentElement);
                         this.loadDetailUrl(toActiveItem.parentElement);
                         return;
                     }
@@ -650,35 +559,11 @@
             return req;
         }
 
-        /**
-         * Create the detail url for multi selectable list
-         *
-         * @param items List items
-         * @param withBaseUrl Default to true
-         *
-         * @returns {string} The url
-         */
-        createMultiSelectUrl(items, withBaseUrl = true) {
-            let filters = [];
-            items.forEach(item => {
-                filters.push(item.getAttribute('data-icinga-multiselect-filter'));
-            });
-
-            let url = '?' + filters.join('|');
-
-            if (withBaseUrl) {
-                return items[0].closest('.action-list').getAttribute('data-icinga-multiselect-url') + url;
-            }
-
-            return url;
-        }
-
         onColumnClose(event) {
             let _this = event.data.self;
             let list = _this.findDetailUrlActionList(document.getElementById('col1'));
-            if (list && list.matches('[data-icinga-multiselect-url], [data-icinga-detail-url]')) {
+            if (list && list.matches('[data-icinga-detail-url]')) {
                 _this.clearSelection(_this.getActiveItems(list));
-                _this.addSelectionCountToFooter(list);
             }
         }
 
@@ -696,9 +581,7 @@
 
             let detailItem = container.querySelector(
                 '[data-icinga-detail-filter="'
-                + detailUrl.query.replace('?', '') + '"],' +
-                '[data-icinga-multiselect-filter="'
-                + detailUrl.query.split('|', 1).toString().replace('?', '') + '"]'
+                + detailUrl.query.replace('?', '') + '"]'
             );
 
             return detailItem ? detailItem.parentElement : null;
@@ -714,7 +597,7 @@
             let _this = event.data.self;
 
             if (event.target.id === 'col2' && sourceId === 'col1') { // only for browser-back (col1 shifted to col2)
-                _this.clearSelection(event.target.querySelectorAll('.action-list .active'));
+                _this.clearSelection(event.target.querySelectorAll('.action-list-kubernetes .active'));
             } else if (event.target.id === 'col1' && sourceId === 'col2') {
                 for (const requestNo of Object.keys(_this.activeRequests)) {
                     if (_this.activeRequests[requestNo] === sourceId) {
@@ -731,6 +614,7 @@
             let isTopLevelContainer = container.matches('#main > :scope');
 
             let list;
+            let groupLists;
             if (event.currentTarget !== container || Object.keys(_this.activeRequests).length) {
                 // Nested containers are not processed multiple times || still processing selection/navigation request
                 return;
@@ -749,7 +633,7 @@
                 // no detail view || ignore when already set
                 let actionLists = null;
                 if (! list) {
-                    actionLists = document.querySelectorAll('.action-list');
+                    actionLists = document.querySelectorAll('.action-list-kubernetes');
                 } else {
                     actionLists = [list];
                 }
@@ -767,30 +651,36 @@
                         actionList.dataset.isDisplayContents = "";
                     }
                 }
+                groupLists = Array.from(document.querySelectorAll(`.action-list-kubernetes[data-list-group=${ actionLists[0].getAttribute('data-list-group') }]`)).filter(item => item !== actionLists[0]);
+            } else {
+                groupLists = Array.from(document.querySelectorAll(`.action-list-kubernetes[data-list-group=${ list.getAttribute('data-list-group') }]`)).filter(item => item !== list);
             }
 
-            if (list && list.matches('[data-icinga-multiselect-url], [data-icinga-detail-url]')) {
+            if (sessionStorage.getItem('active-column') === '#' + event.target.id) {
+                let contentId = document.querySelector(_this.icinga.utils.getCSSPath(event.target) + ' > .content')?.id
+
+                if (contentId !== undefined) {
+                    sessionStorage.setItem('active-list', '#' + contentId + ' >' + sessionStorage.getItem('active-list').split('>')[1])
+                }
+            }
+
+            if (list && list.matches('[data-icinga-detail-url]')) {
                 let detailUrl = _this.icinga.utils.parseUrl(
                     _this.icinga.history.getCol2State().replace(/^#!/, '')
                 );
                 let toActiveItems = [];
-                if (list.dataset.icingaMultiselectUrl === detailUrl.path) {
-                    for (const filter of _this.parseSelectionQuery(detailUrl.query.slice(1))) {
-                        let item = list.querySelector(
-                            '[data-icinga-multiselect-filter="' + filter + '"]'
-                        );
-
-                        if (item) {
-                            toActiveItems.push(item);
-                        }
-                    }
-                } else if (_this.matchesDetailUrl(list.dataset.icingaDetailUrl, detailUrl.path)) {
+                if (_this.matchesDetailUrl(list.dataset.icingaDetailUrl, detailUrl.path)) {
                     let item = list.querySelector(
                         '[data-icinga-detail-filter="' + detailUrl.query.slice(1) + '"]'
                     );
-
                     if (item) {
                         toActiveItems.push(item);
+                        for (let groupList of groupLists) {
+                            let groupListItem = groupList.querySelector(`[data-action-item][data-icinga-detail-filter='${ item.getAttribute('data-icinga-detail-filter') }']`)
+                            if (groupListItem !== null) {
+                                toActiveItems.push(groupListItem)
+                            }
+                        }
                     }
                 }
 
@@ -799,15 +689,18 @@
                     _this.clearDashboardSelections(dashboard, list);
                 }
 
-                _this.clearSelection(_this.getAllItems(list).filter(item => !toActiveItems.includes(item)));
+                _this.clearSelection(_this.getAllItems(list).filter(item => ! toActiveItems.includes(item)));
                 _this.setActive(toActiveItems);
             }
 
-            if (isTopLevelContainer) {
-                let footerList = list ?? container.querySelector('.content > .action-list');
-                if (footerList) {
-                    _this.addSelectionCountToFooter(footerList);
-                }
+            let lastLocation = sessionStorage.getItem('location');
+            let currentLocation = window.location.href.split('?')[0];
+
+            sessionStorage.setItem('location', currentLocation);
+
+            if (currentLocation !== lastLocation) {
+                sessionStorage.removeItem('active-column')
+                sessionStorage.removeItem('active-list')
             }
         }
 

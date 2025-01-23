@@ -36,9 +36,13 @@ abstract class BaseItemList extends BaseHtmlElement
 
     protected $tag = 'ul';
 
-    public function __construct(iterable $query)
+    public function __construct(iterable $query, array $additionalAttributes = [])
     {
         $this->query = $query;
+
+        foreach ($additionalAttributes as $key => $value) {
+            $this->setAttribute($key, $value);
+        }
 
         $this->init();
     }
@@ -74,9 +78,9 @@ abstract class BaseItemList extends BaseHtmlElement
         $this->addAttributes($this->baseAttributes);
         foreach ($this->query as $item) {
             if (! $detailUrlAdded) {
-                $this->addAttributes(['class' => 'action-list'] + [
+                $this->addAttributes(['class' => 'action-list-kubernetes'] + [
                         'data-icinga-detail-url' => Url::fromPath(
-                            'kubernetes/' . str_replace('_', '-', $item->getTableAlias())
+                            'kubernetes/' . str_replace('_', '', $item->getTableAlias())
                         )
                     ]);
                 $detailUrlAdded = true;

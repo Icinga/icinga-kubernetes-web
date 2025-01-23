@@ -115,8 +115,8 @@ class EventListItem extends BaseListItem
     protected function createTypeVisual(): ?ValidHtml
     {
         return match ($this->item->type) {
-            'Warning' => new StateBall('warning', StateBall::SIZE_MEDIUM),
-            default   => new StateBall('none', StateBall::SIZE_MEDIUM)
+            'Warning' => new StateBall('warning', 'sm'),
+            default   => new StateBall('none', 'sm')
         };
     }
 }

@@ -122,3 +122,113 @@
 .kicon-volume:before {
   content: "\e90f";
 }
+
+@keyframes shake {
+  0% {
+    rotate: 0deg;
+  }
+
+  33% {
+    rotate: 10deg;
+  }
+
+  66% {
+    rotate: -10deg;
+  }
+
+  100% {
+    rotate: 10deg;
+  }
+}
+
+.fa-star {
+  content: "\f005";
+  font-style: normal;
+  font-family: "Font Awesome 6 Free";
+}
+
+.fa-regular {
+  font-weight: 400;
+}
+
+.fa-solid {
+  font-weight: 900;
+}
+
+.ball-size-sm {
+  &:not(.state-none) {
+    font-size: 1.75em;
+  }
+
+  &:is(.state-none) {
+    width: 0.58333em;
+    height: 0.58333em;
+  }
+}
+
+.favorite-toggle-sm {
+  label {
+    width: 0.65625em;
+    height: 0.875em;
+
+    &:before {
+      font-size: 0.58333em;
+    }
+  }
+}
+
+.favorite-toggle-m {
+  label {
+    width: 0.84333em;
+    height: 1.125em;
+
+    &:before {
+      font-size: 0.75em;
+    }
+  }
+}
+
+.action-list-kubernetes {
+  &[favorite-list] .favorite-toggle,
+  .list-item:hover .favorite-toggle {
+    display: inline;
+  }
+}
+
+.favorite-toggle {
+  display: none;
+
+  input {
+    display: none;
+
+    &:checked + label {
+      &:before {
+        .fa-solid();
+      }
+
+      &:hover {
+        animation: shake 0.2s;
+      }
+    }
+  }
+
+  label {
+    position: relative;
+    display: block;
+    cursor: pointer;
+
+    &:before {
+      position: absolute;
+      top: 0;
+
+      .fa-star();
+      .fa-regular();
+      color: @base-primary-color;
+    }
+
+    &:hover {
+      filter: brightness(0.8);
+      animation: shake 0.2s;
+    }
+  }
+}

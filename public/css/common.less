@@ -13,12 +13,14 @@ pre {
 }
 
 .state-ball {
-  margin-right: .2em;
-
   // Main use case is the event list, which also contains informational events.
   &.state-none {
     border: 1px solid @gray-light;
   }
+}
+
+.margin-to-ball {
+  margin-left: .2em;
 }
 
 .container-list > .list-item > .visual > .state-ball,
@@ -64,6 +66,21 @@ pre {
 
 .namespace-phase-active {
   color: @state-ok;
+}
+
+.phase-size-sm {
+  font-size: .75em;
+}
+
+.phase-size-m {
+  font-size: 1em;
+}
+
+.phase-size-sm,
+.phase-size-m {
+  &:before {
+    margin-right: 0;
+  }
 }
 
 .pv-phase-pending {
