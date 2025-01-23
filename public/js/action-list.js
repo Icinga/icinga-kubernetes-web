@@ -1,15 +1,8 @@
 /* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
-;(function (Icinga) {
+(function (Icinga) {
 
     "use strict";
-
-    try {
-        var notjQuery = require('icinga/icinga-php-library/notjQuery');
-    } catch (e) {
-        console.warn('Unable to provide input enrichments. Libraries not available:', e);
-        return;
-    }
 
     Icinga.Behaviors = Icinga.Behaviors || {};
 
