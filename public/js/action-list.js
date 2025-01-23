@@ -18,10 +18,10 @@
             super(icinga);
 
             this.on('click', '.action-list-kubernetes [data-action-item]:not(.page-separator), .action-list-kubernetes [data-action-item] a[href]', this.onClick, this);
-            this.on('close-column', '#main > #col2', this.onColumnClose, this);
+            this.on('close-column', '#main > #col2.module-kubernetes', this.onColumnClose, this);
             this.on('column-moved', this.onColumnMoved, this);
 
-            this.on('rendered', '#main .container', this.onRendered, this);
+            this.on('rendered', '#main .container.module-kubernetes', this.onRendered, this);
             this.on('keydown', '#body', this.onKeyDown, this);
 
             this.lastActivatedItemUrl = null;
