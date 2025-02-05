@@ -19,6 +19,7 @@ use Icinga\User\Preferences\PreferencesStore;
 use Icinga\Util\Json;
 use Icinga\Web\Session;
 use ipl\Html\Html;
+use ipl\Orm\Model;
 use ipl\Orm\Query;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\SearchControls;
@@ -97,6 +98,7 @@ abstract class ListController extends Controller
         $this->addControl($viewModeSwitcher);
         $this->addControl($searchBar);
 
+        /** @var class-string<Model> $modelClass */
         $modelClass = $this->getModelClass();
 
         $favorites = Favorite::on(Database::connection())
