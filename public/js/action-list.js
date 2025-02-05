@@ -14,7 +14,7 @@
             this.on('close-column', '#main > #col2.module-kubernetes', this.onColumnClose, this);
             this.on('column-moved', this.onColumnMoved, this);
 
-            this.on('rendered', '#main .container.module-kubernetes', this.onRendered, this);
+            this.on('rendered', '#main .container.module-kubernetes:has(.action-list-kubernetes)', this.onRendered, this);
             this.on('keydown', '#body', this.onKeyDown, this);
 
             this.lastActivatedItemUrl = null;
