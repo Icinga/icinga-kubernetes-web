@@ -115,12 +115,9 @@ abstract class ListController extends Controller
 
         if (! empty($favoriteFilter)) {
             $favoriteResources = $modelClass::on(Database::connection())
-                ->filter(
-                    Filter::all(
-                        $filter,
-                        Filter::any(...$favoriteFilter)
-                    )
-                );
+                ->withColumns('favorite.priority')
+                ->filter(Filter::all($filter, Filter::any(...$favoriteFilter)))
+                ->orderBy('favorite.priority', SORT_DESC);
 
             $this->addContent(
                 (new $contentClass($favoriteResources, ['data-list-group' => 'fav', 'favorite-list' => '']))
