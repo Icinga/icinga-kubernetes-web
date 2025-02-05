@@ -4,9 +4,12 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
+use Icinga\Module\Kubernetes\Web\Factory;
+use Icinga\Module\Kubernetes\Web\MoveFavoriteForm;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
 use ipl\Html\HtmlElement;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Base class for list items
@@ -49,6 +52,18 @@ abstract class BaseListItem extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        if (isset($this->item->favorite->priority)) {
+            $this->add(
+                (new MoveFavoriteForm())
+                    ->setAction(
+                        Links::moveFavorite(Factory::canonicalizeKind($this->item->getTableAlias()))->getAbsoluteUrl()
+                    )
+                    ->populate([
+                        'uuid'     => Uuid::fromBytes($this->item->uuid)->toString(),
+                        'priority' => $this->item->favorite->priority,
+                    ]),
+            );
+        }
         $this->add([
             $this->createVisual(),
             $this->createMain()

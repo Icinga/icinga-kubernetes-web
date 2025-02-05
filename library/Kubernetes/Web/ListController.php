@@ -123,6 +123,7 @@ abstract class ListController extends Controller
                 (new $contentClass($favoriteResources, ['data-list-group' => 'fav', 'favorite-list' => '']))
                     ->addAttributes(['class' => 'collapsible'])
                     ->setViewMode($viewModeSwitcher->getViewMode())
+                    ->setDraggable(true)
             );
             $this->addContent(Html::hr());
         }
@@ -135,6 +136,19 @@ abstract class ListController extends Controller
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();
         }
+    }
+
+    public function moveFavoriteAction(): void
+    {
+        $this->assertHttpMethod('POST');
+
+        (new MoveFavoriteForm(Database::connection()))
+            ->on(MoveFavoriteForm::ON_SUCCESS, function () {
+                // Suppress handling XHR response and disable view rendering,
+                // so we can use the form in the list without the page reloading.
+                $this->getResponse()->setHeader('X-Icinga-Container', 'ignore', true);
+                $this->_helper->viewRenderer->setNoRender();
+            })->handleRequest($this->getServerRequest());
     }
 
     abstract protected function getTitle(): string;

@@ -40,7 +40,17 @@ abstract class Factory
         if ($kind === 'pvc') {
             return 'persistentvolumeclaim';
         }
+
         return strtolower(str_replace(['_', '-'], '', $kind));
+    }
+
+    public static function pluralizeKind(string $kind): string
+    {
+        if ($kind === 'ingress') {
+            return $kind . 'es';
+        }
+
+        return $kind . 's';
     }
 
     public static function createIcon(string $kind): ?ValidHtml

@@ -26,6 +26,8 @@ abstract class BaseItemList extends BaseHtmlElement
      */
     protected bool $actionList = true;
 
+    protected bool $draggable = false;
+
     protected iterable $query;
 
     protected array $baseAttributes = [
@@ -58,6 +60,20 @@ abstract class BaseItemList extends BaseHtmlElement
     public function setActionList(bool $actionList): static
     {
         $this->actionList = $actionList;
+
+        return $this;
+    }
+
+    /**
+     * Enable or disable the ability to drag and drop the list items
+     *
+     * @param bool $draggable
+     *
+     * @return $this
+     */
+    public function setDraggable(bool $draggable): static
+    {
+        $this->draggable = $draggable;
 
         return $this;
     }
