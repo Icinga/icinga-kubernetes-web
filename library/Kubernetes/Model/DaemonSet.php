@@ -50,6 +50,10 @@ class DaemonSet extends Model
             ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array
@@ -70,7 +74,7 @@ class DaemonSet extends Model
             'number_unavailable'       => $this->translate('Number Unavailable'),
             'icinga_state'             => $this->translate('Icinga State'),
             'icinga_state_reason'      => $this->translate('Icinga State Reason'),
-            'yaml'                    => $this->translate('YAML'),
+            'yaml'                     => $this->translate('YAML'),
             'created'                  => $this->translate('Created At')
         ];
     }

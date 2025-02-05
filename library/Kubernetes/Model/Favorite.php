@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
+use ipl\Orm\Relations;
 
 class Favorite extends Model
 {
@@ -18,6 +19,35 @@ class Favorite extends Model
         $behaviors->add(new Uuid([
             'resource_uuid'
         ]));
+    }
+
+    public function createRelations(Relations $relations): void
+    {
+        $relations->belongsTo('cron_job', CronJob::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('daemon_set', DaemonSet::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('deployment', Deployment::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('ingress', Ingress::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('job', Job::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('namespace', NamespaceModel::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('node', Node::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('persistent_volume', PersistentVolume::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('pvc', PersistentVolumeClaim::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('pod', Pod::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('replica_set', ReplicaSet::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('service', Service::class)->setJoinType('LEFT');
+
+        $relations->belongsTo('stateful_set', StatefulSet::class)->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array

@@ -70,6 +70,10 @@ class Job extends Model
             ->belongsToMany('cron_job', CronJob::class)
             ->through('job_owner')
             ->setTargetForeignKey('owner_uuid');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array

@@ -56,6 +56,10 @@ class PersistentVolume extends Model
         $relations
             ->belongsToMany('annotation', Annotation::class)
             ->through('persistent_volume_annotation');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array
@@ -72,7 +76,7 @@ class PersistentVolume extends Model
             'volume_source_type' => $this->translate('Volume Source Type'),
             'storage_class'      => $this->translate('Storage Class'),
             'reclaim_policy'     => $this->translate('Reclaim Policy'),
-            'yaml'              => $this->translate('YAML'),
+            'yaml'               => $this->translate('YAML'),
             'created'            => $this->translate('Created At')
         ];
     }
