@@ -31,6 +31,8 @@ class Config extends Model
 
     public const PROMETHEUS_URL = 'prometheus.url';
 
+    public const PROMETHEUS_INSECURE = 'prometheus.insecure';
+
     public const PROMETHEUS_USERNAME = 'prometheus.username';
 
     public const PROMETHEUS_PASSWORD = 'prometheus.password';
