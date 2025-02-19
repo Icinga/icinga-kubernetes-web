@@ -611,7 +611,8 @@
             Sortable.create(favoriteList, {
                 scroll: true,
                 direction: 'vertical',
-                draggable: '.list-item'
+                draggable: '.list-item',
+                handle: '[data-drag-initiator]',
             });
         }
 

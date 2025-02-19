@@ -84,12 +84,12 @@ class PodListItem extends BaseListItem
                 (new Icon('life-ring'))->addAttributes(['title' => $this->translate('Quality of Service')]),
                 $this->item->qos
             ),
-            (new HorizontalKeyValue(
-                $this->translate('IP'),
-                $this->item->ip ?? $this->translate('None')
-            ))
-                ->addAttributes(['class' => 'push-left']),
-            new HorizontalKeyValue(new Icon('share-nodes'), $this->item->node_name ?? $this->translate('None'))
+//            (new HorizontalKeyValue(
+//                $this->translate('IP'),
+//                $this->item->ip ?? $this->translate('None')
+//            ))
+//                ->addAttributes(['class' => 'push-left']),
+//            new HorizontalKeyValue(new Icon('share-nodes'), $this->item->node_name ?? $this->translate('None'))
         );
     }
 }

@@ -65,7 +65,7 @@ footer {
   // which also defines rules for this class, assumes a height of two lines.
   display: block;
   height: 1.5em;
-  white-space: nowrap;
+  white-space: pre-wrap;
 }
 
 .title {
@@ -116,4 +116,12 @@ footer {
   .title {
     overflow: visible;
   }
+}
+
+.vertical-align {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.5em;
 }
