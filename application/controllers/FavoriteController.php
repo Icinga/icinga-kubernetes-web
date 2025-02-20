@@ -46,7 +46,7 @@ class FavoriteController extends Controller
             })
             ->handleRequest($this->getServerRequest());
 
-        $this->redirectNow('__REFRESH__');
+        $this->closeModalAndRefreshRemainingViews('__REFRESH__');
     }
 
     /**
@@ -78,6 +78,6 @@ class FavoriteController extends Controller
             })
             ->handleRequest($this->getServerRequest());
 
-        $this->redirectNow('__REFRESH__');
+        $this->closeModalAndRefreshRemainingViews('__REFRESH__');
     }
 }
