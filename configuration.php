@@ -294,5 +294,6 @@ $this->provideCssFile('conditions.less');
 $this->provideCssFile('icons.less');
 $this->provideCssFile('labels.less');
 $this->provideCssFile('lists.less');
+$this->provideCssFile('quick-actions.less');
 $this->provideCssFile('widgets.less');
 $this->provideCssFile('environment-widget.less');
