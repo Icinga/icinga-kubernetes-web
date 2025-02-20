@@ -6,6 +6,7 @@ use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\Html;
+use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\TimeAgo;
 
 trait DefaultListItemHeader
@@ -30,6 +31,11 @@ trait DefaultListItemHeader
             default                              => null
         };
 
-        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $span = Html::tag('span', Attributes::create(['class' => 'header-container']));
+        if ($this->isFavorite()) {
+            $span->addHtml(new Icon('star'));
+        }
+        $span->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+        $header->addHtml($span);
     }
 }
