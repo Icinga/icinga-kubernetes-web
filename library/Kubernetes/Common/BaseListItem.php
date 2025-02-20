@@ -23,6 +23,8 @@ abstract class BaseListItem extends BaseHtmlElement
 
     protected $tag = 'li';
 
+    protected bool $isFavorite;
+
     /**
      * Create a new list item
      *
@@ -45,6 +47,18 @@ abstract class BaseListItem extends BaseHtmlElement
      */
     protected function init(): void
     {
+    }
+
+    public function isFavorite(): bool
+    {
+        return $this->isFavorite;
+    }
+
+    public function setIsFavorite(bool $isFavorite): self
+    {
+        $this->isFavorite = $isFavorite;
+
+        return $this;
     }
 
     protected function assemble(): void
