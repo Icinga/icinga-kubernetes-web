@@ -1,5 +1,18 @@
 /* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
+header .info-container {
+  white-space: nowrap;
+
+  .favor-icon {
+    font-size: 10/12em;
+    display: none;
+  }
+}
+
+.favored header .info-container .favor-icon {
+  display: inline-block;
+}
+
 // Display only one caption line in the default list item layout.
 .item-layout.default-item-layout > .main > .caption {
   height: 1.5em;
