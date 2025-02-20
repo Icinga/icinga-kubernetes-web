@@ -175,6 +175,7 @@ abstract class Factory
             $model instanceof Deployment,
             $model instanceof Ingress,
             $model instanceof Job,
+            $model instanceof NamespaceModel,
             $model instanceof Node,
             $model instanceof PersistentVolume,
             $model instanceof PersistentVolumeClaim,

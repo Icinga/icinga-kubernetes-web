@@ -7,10 +7,13 @@ namespace Icinga\Module\Kubernetes\Controllers;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\JobDetail;
+use Icinga\Module\Kubernetes\Web\JobList;
+use Icinga\Module\Kubernetes\Web\QuickActions;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -30,6 +33,15 @@ class JobController extends Controller
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
+        $favorite = Favorite::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('resource_uuid', $uuidBytes),
+                    Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+                )
+            )
+            ->first();
+
         if ($job === null) {
             $this->httpNotFound($this->translate('Job not found'));
         }
@@ -37,8 +49,10 @@ class JobController extends Controller
         $this->addControl(
             (new ResourceList([$job]))
                 ->setDetailActionsDisabled()
-                ->setViewMode(ViewMode::Detailed)
+                ->setViewMode(ViewMode::Minimal)
         );
+
+        $this->addControl(new QuickActions($job, $favorite));
 
         $this->addContent(new JobDetail($job));
     }

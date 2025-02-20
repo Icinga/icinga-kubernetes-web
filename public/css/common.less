@@ -33,7 +33,6 @@ pre {
 }
 
 .controls {
-
   &:not(.no-shadow) {
     // Copied from Icinga DB Web
     -moz-box-shadow: 0 0 0 1px var(--gray-lighter, #4b4b4b);
@@ -41,9 +40,29 @@ pre {
     box-shadow: 0 0 0 1px var(--gray-lighter, #4b4b4b);
   }
 
+  &:not(.default-layout) > :not(:only-child) {
+    margin-bottom: 0.5em;
+  }
+
   a.subject {
     cursor: default;
     pointer-events: none;
+  }
+
+  .favorite-toggle {
+    margin-right: 1em;
+    float: right;
+    width: auto;
+
+    .control-group {
+      margin: 0;
+      justify-content: flex-end;
+      max-height: 24px;
+
+      label {
+        text-align: right;
+      }
+    }
   }
 
   .limit-control,
@@ -53,11 +72,15 @@ pre {
     float: right;
   }
 
-  .list-item {
-    font-size: @font-size-small;
-
+  .item-list .list-item {
     .main {
-      padding-bottom: 0.454545em;
+      padding: 3px 0;
+    }
+
+    .visual {
+      // Calculate the padding so that the icon is vertically centered in the minimal view.
+      padding: ~"calc((24px - (12px * 0.75 * 1.5)) / 2)" 0;
+      width: 1.2em;
     }
 
     .title a {
@@ -65,7 +88,6 @@ pre {
     }
   }
 }
-
 
 .horizontal-key-value,
 .vertical-key-value {

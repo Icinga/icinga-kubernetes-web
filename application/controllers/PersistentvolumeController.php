@@ -7,10 +7,12 @@ namespace Icinga\Module\Kubernetes\Controllers;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeDetail;
+use Icinga\Module\Kubernetes\Web\QuickActions;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -30,6 +32,15 @@ class PersistentvolumeController extends Controller
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
+        $favorite = Favorite::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('resource_uuid', $uuidBytes),
+                    Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+                )
+            )
+            ->first();
+
         if ($persistentVolume === null) {
             $this->httpNotFound($this->translate('Persistent Volume not found'));
         }
@@ -37,8 +48,10 @@ class PersistentvolumeController extends Controller
         $this->addControl(
             (new ResourceList([$persistentVolume]))
                 ->setDetailActionsDisabled()
-                ->setViewMode(ViewMode::Detailed)
+                ->setViewMode(ViewMode::Minimal)
         );
+
+        $this->addControl(new QuickActions($persistentVolume, $favorite));
 
         $this->addContent(new PersistentVolumeDetail($persistentVolume));
     }

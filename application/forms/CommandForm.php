@@ -28,6 +28,5 @@ abstract class CommandForm extends Form
     {
         $this->assembleElements();
         $this->assembleSubmitButton();
-
     }
 }
