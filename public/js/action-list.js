@@ -79,44 +79,8 @@
             let item = target.closest('[data-action-item]');
             let list = target.closest('.action-list-kubernetes');
             let activeItems = _this.getActiveItems(list);
-            let toActiveItems = [],
-                toDeactivateItems = [];
-
-            const isBeingMultiSelected = list.matches('[data-icinga-multiselect-url]')
-                && (event.ctrlKey || event.metaKey || event.shiftKey);
-
-            if (isBeingMultiSelected) {
-                if (event.ctrlKey || event.metaKey) {
-                    if (item.classList.contains('active')) {
-                        toDeactivateItems.push(item);
-                    } else {
-                        toActiveItems.push(item);
-                    }
-                } else {
-                    document.getSelection().removeAllRanges();
-
-                    let allItems = _this.getAllItems(list);
-
-                    let startIndex = allItems.indexOf(item);
-                    if (startIndex < 0) {
-                        startIndex = 0;
-                    }
-
-                    let endIndex = activeItems.length ? allItems.indexOf(activeItems[0]) : 0;
-                    if (startIndex > endIndex) {
-                        toActiveItems = allItems.slice(endIndex, startIndex + 1);
-                    } else {
-                        endIndex = activeItems.length ? allItems.indexOf(activeItems[activeItems.length - 1]) : 0;
-                        toActiveItems = allItems.slice(startIndex, endIndex + 1);
-                    }
-
-                    toDeactivateItems = activeItems.filter(item => ! toActiveItems.includes(item));
-                    toActiveItems = toActiveItems.filter(item => ! activeItems.includes(item));
-                }
-            } else {
-                toDeactivateItems = activeItems;
-                toActiveItems.push(item);
-            }
+            let toActiveItems = [item];
+            let toDeactivateItems = activeItems;
 
             if (activeItems.length === 1
                 && toActiveItems.length === 0
@@ -144,54 +108,8 @@
 
             _this.clearSelection(toDeactivateItems);
             _this.setActive(toActiveItems);
-            _this.addSelectionCountToFooter(list);
             _this.setLastActivatedItemUrl(lastActivatedUrl);
             _this.loadDetailUrl(list, target.matches('a') ? target.getAttribute('href') : null);
-        }
-
-        /**
-         * Add the selection count to footer if list allow multi selection
-         *
-         * @param list
-         */
-        addSelectionCountToFooter(list) {
-            if (! list.matches('[data-icinga-multiselect-url]') || list.closest('.dashboard')) {
-                return;
-            }
-
-            let activeItemCount = this.getActiveItems(list).length;
-            let footer = list.closest('.container').querySelector('.footer');
-
-            // For items that do not have a bottom status bar like Downtimes, Comments...
-            if (footer === null) {
-                footer = notjQuery.render(
-                    '<div class="footer" data-action-list-automatically-added>' +
-                    '<div class="selection-count"><span class="selected-items"></span></div>' +
-                    '</div>'
-                )
-
-                list.closest('.container').appendChild(footer);
-            }
-
-            let selectionCount = footer.querySelector('.selection-count');
-            if (selectionCount === null) {
-                selectionCount = notjQuery.render(
-                    '<div class="selection-count"><span class="selected-items"></span></div>'
-                );
-
-                footer.prepend(selectionCount);
-            }
-
-            let selectedItems = selectionCount.querySelector('.selected-items');
-            selectedItems.innerText = activeItemCount
-                ? list.dataset.icingaMultiselectCountLabel.replace('%d', activeItemCount)
-                : list.dataset.icingaMultiselectHintLabel;
-
-            if (activeItemCount === 0) {
-                selectedItems.classList.add('hint');
-            } else {
-                selectedItems.classList.remove('hint');
-            }
         }
 
         /**
@@ -199,7 +117,6 @@
          *
          * Only for primary lists (dashboard or lists in detail view are not taken into account)
          *
-         * - `Shift + ArrowUp|ArrowDown` = Multiselect
          * - `ArrowUp|ArrowDown` = Select next/previous
          * - `Ctrl|cmd + A` = Select all on currect page
          *
@@ -240,18 +157,6 @@
                 return;
             }
 
-            let isMultiSelectableList = list.matches('[data-icinga-multiselect-url]');
-
-            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
-                if (! isMultiSelectableList) {
-                    return;
-                }
-
-                event.preventDefault();
-                _this.selectAll(list);
-                return;
-            }
-
             event.preventDefault();
 
             let allItems = _this.getAllItems(list);
@@ -277,30 +182,6 @@
                 _this.clearSelection(activeItems);
                 if (toActiveItem.classList.contains('load-more')) {
                     toActiveItem = toActiveItem.previousElementSibling;
-                }
-            } else if (isMultiSelectableList && event.shiftKey) {
-                if (activeItems.length === 1) {
-                    toActiveItem = directionalNextItem;
-                } else if (wasAllSelected && (
-                    (lastActivatedItem !== firstListItem && pressedArrowDownKey)
-                    || (lastActivatedItem !== lastListItem && pressedArrowUpKey)
-                )) {
-                    if (pressedArrowDownKey) {
-                        toActiveItem = lastActivatedItem === lastListItem ? null : lastListItem;
-                    } else {
-                        toActiveItem = lastActivatedItem === firstListItem ? null : lastListItem;
-                    }
-
-                } else if (directionalNextItem && directionalNextItem.classList.contains('active')) {
-                    // deactivate last activated by down to up select
-                    _this.clearSelection([lastActivatedItem]);
-                    if (wasAllSelected) {
-                        _this.scrollItemIntoView(lastActivatedItem, event.key);
-                    }
-
-                    toActiveItem = directionalNextItem;
-                } else {
-                    [toActiveItem, markAsLastActive] = _this.findToActiveItem(lastActivatedItem, event.key);
                 }
             } else {
                 toActiveItem = directionalNextItem ?? lastActivatedItem;
@@ -328,7 +209,6 @@
                 markAsLastActive ? markAsLastActive.dataset.icingaDetailFilter : toActiveItem.dataset.icingaDetailFilter
             );
             _this.scrollItemIntoView(toActiveItem, event.key);
-            _this.addSelectionCountToFooter(list);
             _this.loadDetailUrl(list);
         }
 
@@ -382,20 +262,6 @@
             }
 
             return [toActiveItem, markAsLastActive];
-        }
-
-        /**
-         * Select All list items
-         *
-         * @param list The action list
-         */
-        selectAll(list) {
-            let allItems = this.getAllItems(list);
-            let activeItems = this.getActiveItems(list);
-            this.setActive(allItems.filter(item => ! activeItems.includes(item)));
-            this.setLastActivatedItemUrl(allItems[allItems.length - 1].dataset.icingaDetailFilter);
-            this.addSelectionCountToFooter(list);
-            this.loadDetailUrl(list);
         }
 
         /**
@@ -456,12 +322,8 @@
             let activeItems = this.getActiveItems(list);
 
             if (url === null) {
-                if (activeItems.length > 1) {
-                    url = this.createMultiSelectUrl(activeItems);
-                } else {
-                    let anchor = activeItems[0].querySelector('[href]');
-                    url = anchor ? anchor.getAttribute('href') : null;
-                }
+                let anchor = activeItems[0].querySelector('[href]');
+                url = anchor ? anchor.getAttribute('href') : null;
             }
 
             if (url === null) {
@@ -560,7 +422,6 @@
                         this.setActive(toActiveItem);
                         this.setLastActivatedItemUrl(toActiveItem.dataset.icingaDetailFilter);
                         this.scrollItemIntoView(toActiveItem, pressedKey);
-                        this.addSelectionCountToFooter(toActiveItem.parentElement);
                         this.loadDetailUrl(toActiveItem.parentElement);
                         return;
                     }
@@ -645,35 +506,11 @@
             return req;
         }
 
-        /**
-         * Create the detail url for multi selectable list
-         *
-         * @param items List items
-         * @param withBaseUrl Default to true
-         *
-         * @returns {string} The url
-         */
-        createMultiSelectUrl(items, withBaseUrl = true) {
-            let filters = [];
-            items.forEach(item => {
-                filters.push(item.getAttribute('data-icinga-multiselect-filter'));
-            });
-
-            let url = '?' + filters.join('|');
-
-            if (withBaseUrl) {
-                return items[0].closest('.action-list-kubernetes').getAttribute('data-icinga-multiselect-url') + url;
-            }
-
-            return url;
-        }
-
         onColumnClose(event) {
             let _this = event.data.self;
             let list = _this.findDetailUrlActionList(document.getElementById('col1'));
-            if (list && list.matches('[data-icinga-multiselect-url], [data-icinga-detail-url]')) {
+            if (list && list.matches('[data-icinga-detail-url]')) {
                 _this.clearSelection(_this.getActiveItems(list));
-                _this.addSelectionCountToFooter(list);
             }
         }
 
@@ -691,9 +528,7 @@
 
             let detailItem = container.querySelector(
                 '[data-icinga-detail-filter="'
-                + detailUrl.query.replace('?', '') + '"],' +
-                '[data-icinga-multiselect-filter="'
-                + detailUrl.query.split('|', 1).toString().replace('?', '') + '"]'
+                + detailUrl.query.replace('?', '') + '"]'
             );
 
             return detailItem ? detailItem.parentElement : null;
@@ -764,22 +599,12 @@
                 }
             }
 
-            if (list && list.matches('[data-icinga-multiselect-url], [data-icinga-detail-url]')) {
+            if (list && list.matches('[data-icinga-detail-url]')) {
                 let detailUrl = _this.icinga.utils.parseUrl(
                     _this.icinga.history.getCol2State().replace(/^#!/, '')
                 );
                 let toActiveItems = [];
-                if (list.dataset.icingaMultiselectUrl === detailUrl.path) {
-                    for (const filter of _this.parseSelectionQuery(detailUrl.query.slice(1))) {
-                        let item = list.querySelector(
-                            '[data-icinga-multiselect-filter="' + filter + '"]'
-                        );
-
-                        if (item) {
-                            toActiveItems.push(item);
-                        }
-                    }
-                } else if (_this.matchesDetailUrl(list.dataset.icingaDetailUrl, detailUrl.path)) {
+                if (_this.matchesDetailUrl(list.dataset.icingaDetailUrl, detailUrl.path)) {
                     let item = list.querySelector(
                         '[data-icinga-detail-filter="' + detailUrl.query.slice(1) + '"]'
                     );
@@ -796,13 +621,6 @@
 
                 _this.clearSelection(_this.getAllItems(list).filter(item => ! toActiveItems.includes(item)));
                 _this.setActive(toActiveItems);
-            }
-
-            if (isTopLevelContainer) {
-                let footerList = list ?? container.querySelector('.content > .action-list-kubernetes');
-                if (footerList) {
-                    _this.addSelectionCountToFooter(footerList);
-                }
             }
         }
 
