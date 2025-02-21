@@ -8,7 +8,7 @@ class ClusterManagementDashboard extends Dashboard
 {
     public function getTitle(): string
     {
-        return $this->translate('Cluster management');
+        return $this->translate('Cluster Management');
     }
 
     protected function assemble(): void
