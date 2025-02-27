@@ -23,6 +23,7 @@ use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\SidecarContainer;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
+use Icinga\Module\Kubernetes\Web\Factory;
 use ipl\Web\Url;
 use Ramsey\Uuid\Uuid;
 
@@ -140,5 +141,10 @@ abstract class Links
     public static function unfavor(string $uuid): Url
     {
         return Url::fromPath('kubernetes/favorite/unfavor', ['uuid' => $uuid]);
+    }
+
+    public static function moveFavorite(string $kind): Url
+    {
+        return Url::fromPath(Factory::createListUrl($kind) . '/move-favorite');
     }
 }

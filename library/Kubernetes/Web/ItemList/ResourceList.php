@@ -44,6 +44,8 @@ use Icinga\Module\Kubernetes\View\PersistentVolumeRenderer;
 use Icinga\Module\Kubernetes\View\PodRenderer;
 use Icinga\Module\Kubernetes\View\ReplicaSetRenderer;
 use Icinga\Module\Kubernetes\View\ResourceDefaultItemLayout;
+use Icinga\Module\Kubernetes\View\ResourceDetailedItemLayout;
+use Icinga\Module\Kubernetes\View\ResourceMinimalItemLayout;
 use Icinga\Module\Kubernetes\View\SecretRenderer;
 use Icinga\Module\Kubernetes\View\ServiceRenderer;
 use Icinga\Module\Kubernetes\View\SidecarContainerRenderer;
@@ -52,8 +54,6 @@ use Icinga\Module\Kubernetes\Web\Factory;
 use InvalidArgumentException;
 use ipl\Orm\Model;
 use ipl\Stdlib\Filter;
-use ipl\Web\Layout\DetailedItemLayout;
-use ipl\Web\Layout\MinimalItemLayout;
 use ipl\Web\Widget\ItemList;
 use ipl\Web\Widget\ListItem;
 
@@ -105,11 +105,11 @@ class ResourceList extends ItemList
     {
         switch ($mode) {
             case 'minimal':
-                $this->setItemLayoutClass(MinimalItemLayout::class);
+                $this->setItemLayoutClass(ResourceMinimalItemLayout::class);
 
                 break;
             case 'detailed':
-                $this->setItemLayoutClass(DetailedItemLayout::class);
+                $this->setItemLayoutClass(ResourceDetailedItemLayout::class);
 
                 break;
             case 'common':
@@ -133,7 +133,7 @@ class ResourceList extends ItemList
     protected function createListItem(object $data): ListItem
     {
         $item = parent::createListItem($data);
-        
+
         $favorite = Favorite::on(Database::connection())
             ->filter(
                 Filter::all(
