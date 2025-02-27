@@ -4,6 +4,13 @@
 
     "use strict";
 
+    try {
+        var Sortable = require('icinga/icinga-php-library/vendor/Sortable');
+    } catch (e) {
+        console.warn('Unable to provide Drag&Drop in the favorite lists. Libraries not available:', e);
+        return;
+    }
+
     Icinga.Behaviors = Icinga.Behaviors || {};
 
     class ActionList extends Icinga.EventListener {
@@ -16,6 +23,9 @@
 
             this.on('rendered', '#main .container.module-kubernetes:has(.action-list-kubernetes)', this.onRendered, this);
             this.on('keydown', '#body', this.onKeyDown, this);
+
+            this.on('rendered', '#main .container.module-kubernetes:has(.action-list-kubernetes)', this.onRenderedReorder, this);
+            this.on('end', '.action-list-kubernetes', this.onDropReorder, this)
 
             this.lastActivatedItemUrl = null;
             this.lastTimeoutId = null;
@@ -513,6 +523,51 @@
 
             // The slash is used to avoid false positives (e.g. icingadb/hostgroup and icingadb/host)
             return detailUrl.startsWith(itemUrl + '/');
+        }
+
+        onRenderedReorder(event) {
+            if (event.target !== event.currentTarget) {
+                return; // Nested containers are not of interest
+            }
+
+            const favoriteList = event.target.querySelector('.action-list-kubernetes');
+            if (! favoriteList) {
+                return;
+            }
+
+            Sortable.create(favoriteList, {
+                scroll: true,
+                direction: 'vertical',
+                draggable: '.list-item',
+                handle: '[data-drag-initiator]',
+            });
+        }
+
+        onDropReorder(event) {
+            event = event.originalEvent;
+            if (event.to === event.from && event.newIndex === event.oldIndex) {
+                // The user dropped the rotation at its previous position
+                return;
+            }
+
+            const nextRow = event.item.nextSibling;
+
+            let newPriority;
+            if (event.oldIndex > event.newIndex) {
+                // The rotation was moved up
+                newPriority = Number(nextRow.querySelector(':scope > form').priority.value);
+            } else {
+                // The rotation was moved down
+                if (nextRow !== null && nextRow.matches('.list-item')) {
+                    newPriority = Number(nextRow.querySelector(':scope > form').priority.value) + 1;
+                } else {
+                    newPriority = '0';
+                }
+            }
+
+            const form = event.item.querySelector(':scope > form');
+            form.priority.value = newPriority;
+            form.requestSubmit();
         }
     }
 

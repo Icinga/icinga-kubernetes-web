@@ -40,6 +40,7 @@ abstract class Factory
         if ($kind === 'pvc') {
             return 'persistentvolumeclaim';
         }
+
         return strtolower(str_replace(['_', '-'], '', $kind));
     }
 
