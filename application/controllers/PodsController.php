@@ -38,8 +38,8 @@ class PodsController extends ListController
         return Auth::SHOW_PODS;
     }
 
-    protected function getIgnoredViewModes(): array
+    protected function getFavorable(): true
     {
-        return [];
+        return true;
     }
 }

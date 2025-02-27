@@ -42,8 +42,8 @@ class PersistentvolumesController extends ListController
         return [ViewMode::Detailed];
     }
 
-    protected function getIgnoredViewModes(): array
+    protected function getFavorable(): true
     {
-        return [];
+        return true;
     }
 }

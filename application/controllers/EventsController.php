@@ -51,4 +51,9 @@ class EventsController extends ListController
     {
         return [ViewMode::Detailed];
     }
+
+    protected function getFavorable(): false
+    {
+        return false;
+    }
 }

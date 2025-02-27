@@ -35,8 +35,8 @@ class NamespacesController extends ListController
         return Auth::SHOW_NAMESPACES;
     }
 
-    protected function getIgnoredViewModes(): array
+    protected function getFavorable(): true
     {
-        return [];
+        return true;
     }
 }

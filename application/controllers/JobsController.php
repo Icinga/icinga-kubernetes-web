@@ -36,8 +36,8 @@ class JobsController extends ListController
         return Auth::SHOW_JOBS;
     }
 
-    protected function getIgnoredViewModes(): array
+    protected function getFavorable(): true
     {
-        return [];
+        return true;
     }
 }

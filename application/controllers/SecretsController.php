@@ -41,4 +41,9 @@ class SecretsController extends ListController
     {
         return [ViewMode::Detailed];
     }
+
+    protected function getFavorable(): false
+    {
+        return false;
+    }
 }

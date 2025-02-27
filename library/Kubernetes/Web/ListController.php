@@ -62,17 +62,25 @@ abstract class ListController extends Controller
             $q->filter(Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()));
         }
 
-        $limitControl = $this->createLimitControl();
-        $sortControl = $this->createSortControl($q, $this->getSortColumns());
-        $paginationControl = $this->createPaginationControl($q);
+        if ($this->getFavorable()) {
+            $favoriteToggle = $this->createFavoriteToggle($q);
+        }
 
+        $limitControl = $this->createLimitControl();
+        $sortControl = $this->createSortControl(
+            $q,
+            $this->getSortColumns()
+            + ($favoriteToggleActive ? ['favorite.priority desc' => $this->translate('Custom Order')] : [])
+        );
+        $paginationControl = $this->createPaginationControl($q);
         $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
         $searchBar = $this->createSearchBar($q, [
             $limitControl->getLimitParam(),
             $sortControl->getSortParam(),
             $viewModeSwitcher->getViewModeParam(),
-            'columns'
+            (isset($favoriteToggle) ? $favoriteToggle->getFavoriteParam() : ''),
+            'columns',
         ]);
 
         if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
@@ -94,6 +102,9 @@ abstract class ListController extends Controller
         $this->addControl($sortControl);
         $this->addControl($limitControl);
         $this->addControl($viewModeSwitcher);
+        if ($this->getFavorable()) {
+            $this->addControl($favoriteToggle);
+        }
         $this->addControl($searchBar);
 
         $this->addContent((new ResourceList($q))->setViewMode($viewModeSwitcher->getViewMode()));
@@ -108,6 +119,8 @@ abstract class ListController extends Controller
     abstract protected function getSortColumns(): array;
 
     abstract protected function getPermission(): string;
+
+    abstract protected function getFavorable(): bool;
 
     protected function getIgnoredViewModes(): array
     {
@@ -286,5 +299,54 @@ abstract class ListController extends Controller
         }
 
         return $viewModeSwitcher;
+    }
+
+    /**
+     * Create and return the FavoriteToggle
+     *
+     * This automatically shifts the favorite URL parameter from {@link $params}.
+     *
+     * @param Query $query
+     *
+     * @return FavoriteToggle
+     */
+    public function createFavoriteToggle(
+        Query $query
+    ): FavoriteToggle {
+        $favoriteToggle = new FavoriteToggle();
+        $defaultFavoriteParam = $favoriteToggle->getFavoriteParam();
+        $favoriteParam = $this->params->shift($defaultFavoriteParam);
+        $favoriteToggle->populate([
+            $defaultFavoriteParam => $favoriteParam
+        ]);
+
+        $favoriteToggle->on(FavoriteToggle::ON_SUCCESS, function (FavoriteToggle $favoriteToggle) use (
+            $query,
+            $defaultFavoriteParam
+        ) {
+            $favoriteParam = $favoriteToggle->getValue($defaultFavoriteParam);
+
+            $requestUrl = Url::fromRequest();
+
+            // Redirect if favorite param has changed to update the URL
+            if (isset($favoriteParam) && $requestUrl->getParam($defaultFavoriteParam) !== $favoriteParam) {
+                $requestUrl->setParam($defaultFavoriteParam, $favoriteParam);
+                if (
+                    $favoriteParam === 'n'
+                    && $requestUrl->getParam(SortControl::DEFAULT_SORT_PARAM) === 'favorite.priority desc'
+                ) {
+                    $requestUrl->remove(SortControl::DEFAULT_SORT_PARAM);
+                }
+
+                $this->redirectNow($requestUrl);
+            }
+        })->handleRequest($this->getServerRequest());
+
+        if ($favoriteToggle->getValue($defaultFavoriteParam) === 'y') {
+            $query->with('favorite')
+                ->filter(Filter::equal('favorite.username', Auth::getInstance()->getUser()->getUsername()));
+        }
+
+        return $favoriteToggle;
     }
 }

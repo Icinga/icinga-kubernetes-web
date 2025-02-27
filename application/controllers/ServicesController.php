@@ -36,8 +36,8 @@ class ServicesController extends ListController
         return Auth::SHOW_SERVICES;
     }
 
-    protected function getIgnoredViewModes(): array
+    protected function getFavorable(): true
     {
-        return [];
+        return true;
     }
 }

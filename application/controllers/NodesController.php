@@ -35,8 +35,8 @@ class NodesController extends ListController
         return Auth::SHOW_NODES;
     }
 
-    protected function getIgnoredViewModes(): array
+    protected function getFavorable(): true
     {
-        return [];
+        return true;
     }
 }
