@@ -43,7 +43,11 @@ class FavoriteToggle extends CompatForm
 
     protected function assemble(): void
     {
+<<<<<<< HEAD
         $this->addAttributes(['class' => 'favorite-toggle inline']);
+=======
+        $this->addAttributes(['class' => 'favorite-toggle']);
+>>>>>>> 3c8fb14 (Add toggle to show only favorites)
 
         $this->addElement(
             'checkbox',
