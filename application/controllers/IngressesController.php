@@ -41,4 +41,9 @@ class IngressesController extends ListController
     {
         return Auth::SHOW_INGRESSES;
     }
+
+    protected function getFavorable(): bool
+    {
+        return true;
+    }
 }
