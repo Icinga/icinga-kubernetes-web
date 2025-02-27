@@ -208,3 +208,35 @@ pre {
   // level-indicator (1em) + state-ball margin (0.4em) + half state-ball size m (0.375em)
   transform: translateX(~"calc(" 1em + .4em + .375em ~"- 0.5px)");
 }
+
+.reorder-handle-background {
+  position: absolute;
+  right: 0;
+  bottom: 0.25em;
+
+  display: none;
+
+  height: ~"calc(100% - 0.5em)";
+  width: 3em;
+  background-color: @body-bg-color;
+}
+
+.reorder-handle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  border-left: 1px solid @gray-light;
+  background-color: @tr-hover-color;
+
+  .icon {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}

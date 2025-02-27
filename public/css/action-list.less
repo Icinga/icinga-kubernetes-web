@@ -1,6 +1,10 @@
 /* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
 .action-list-kubernetes {
+  [data-action-item] {
+    position: relative;
+  }
+
   [data-action-item].active {
     background-color: @tr-active-color;
   }
@@ -9,4 +13,12 @@
     background-color: @tr-hover-color;
     cursor: pointer;
   }
+}
+
+.custom-sortable [data-action-item]:hover .reorder-handle-background {
+  display: block;
+}
+
+.sortable-drag {
+  background-color: @menu-active-bg-color !important;
 }

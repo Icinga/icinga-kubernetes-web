@@ -9,8 +9,10 @@ use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Application\Config;
 use Icinga\Application\Logger;
 use Icinga\Data\ConfigObject;
+use Icinga\Exception\Http\HttpMethodNotAllowedException;
 use Icinga\Exception\Json\JsonDecodeException;
 use Icinga\Module\Kubernetes\Common\Auth;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
@@ -62,8 +64,10 @@ abstract class ListController extends Controller
             $q->filter(Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()));
         }
 
+        $favoriteToggleActive = false;
         if ($this->getFavorable()) {
             $favoriteToggle = $this->createFavoriteToggle($q);
+            $favoriteToggleActive = $favoriteToggle->getValue($favoriteToggle->getFavoriteParam()) === 'y';
         }
 
         $limitControl = $this->createLimitControl();
@@ -98,9 +102,19 @@ abstract class ListController extends Controller
 
         $q->filter($filter);
 
+        if ($sortControl->getPopulatedValue($sortControl->getSortParam()) === 'favorite.priority desc') {
+            $this->content->addAttributes(['class' => 'custom-sortable']);
+        }
+
+        if ($favoriteToggleActive) {
+            $paginationControl->setDefaultPageSize(1000);
+        }
+
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
-        $this->addControl($limitControl);
+        if (! $favoriteToggleActive) {
+            $this->addControl($limitControl);
+        }
         $this->addControl($viewModeSwitcher);
         if ($this->getFavorable()) {
             $this->addControl($favoriteToggle);
@@ -112,6 +126,26 @@ abstract class ListController extends Controller
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();
         }
+    }
+
+    /**
+     * Handle the reordering via drag & drop.
+     *
+     * @return void
+     *
+     * @throws HttpMethodNotAllowedException
+     */
+    public function moveFavoriteAction(): void
+    {
+        $this->assertHttpMethod('POST');
+
+        (new MoveFavoriteForm(Database::connection()))
+            ->on(MoveFavoriteForm::ON_SUCCESS, function () {
+                // Suppress handling XHR response and disable view rendering,
+                // so we can use the form in the list without the page reloading.
+                $this->getResponse()->setHeader('X-Icinga-Container', 'ignore', true);
+                $this->_helper->viewRenderer->setNoRender();
+            })->handleRequest($this->getServerRequest());
     }
 
     abstract protected function getTitle(): string;

@@ -5,35 +5,20 @@
 namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Model\Ingress;
-use Icinga\Module\Kubernetes\Model\PersistentVolume;
-use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
-use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Web\Factory;
 use Icinga\Module\Kubernetes\Web\MoveFavoriteForm;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
-use ipl\Web\Layout\ItemLayout;
+use ipl\Web\Layout\MinimalItemLayout;
 use ipl\Web\Widget\Icon;
 use Ramsey\Uuid\Uuid;
 
-class ResourceDefaultItemLayout extends ItemLayout
+class ResourceMinimalItemLayout extends MinimalItemLayout
 {
     protected function assembleMain(HtmlDocument $container): void
     {
-        switch (true) {
-            case $this->item instanceof Ingress:
-            case $this->item instanceof PersistentVolume:
-            case $this->item instanceof PersistentVolumeClaim:
-            case $this->item instanceof Secret:
-                $this->registerHeader($container);
-                $this->registerFooter($container);
-
-                break;
-            default:
-                parent::assembleMain($container);
-        }
+        parent::assembleMain($container);
 
         if (isset($this->item->favorite->priority)) {
             // Add background span with same color as the main background to ensure correct
@@ -48,21 +33,6 @@ class ResourceDefaultItemLayout extends ItemLayout
                 )
             );
             $container->addHtml($reorderHandle);
-        }
-    }
-
-    protected function assembleHeader(HtmlDocument $container): void
-    {
-        switch (true) {
-            case $this->item instanceof Secret:
-            case $this->item instanceof PersistentVolume:
-            case $this->item instanceof PersistentVolumeClaim:
-                $this->registerTitle($container);
-                $this->registerExtendedInfo($container);
-
-                break;
-            default:
-                parent::assembleHeader($container);
         }
     }
 
