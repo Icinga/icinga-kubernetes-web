@@ -47,8 +47,6 @@ pre {
   }
 
   .favorite-toggle {
-    margin-right: 1em;
-    float: right;
     width: auto;
 
     .control-group {
@@ -58,15 +56,23 @@ pre {
 
       label {
         text-align: right;
+        margin-right: 0;
       }
     }
   }
 
   .limit-control,
   .view-mode-switcher,
-  .sort-control {
-    margin-left: .5em;
+  .sort-control,
+  .favorite-toggle {
+    margin-left: 1em;
     float: right;
+  }
+
+  .limit-control,
+  .view-mode-switcher,
+  .favorite-toggle {
+    margin-right: 0;
   }
 
   .item-list .list-item {
