@@ -23,6 +23,7 @@ class DashboardController extends Controller
     public function indexAction(): void
     {
         $this->addTitleTab($this->translate('Kubernetes'));
+        $this->controls->addAttributes(['class' => 'no-shadow']);
 
         $cluster = (new ClusterForm())
             ->addAttributes(new Attributes(['class' => 'cluster-form']))
