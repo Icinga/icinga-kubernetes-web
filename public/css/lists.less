@@ -71,6 +71,8 @@ footer {
 .title {
   .text-ellipsis();
 
+  height: 1.5em;
+
   > .subject + .subject {
     margin-left: .2em;
   }
@@ -80,9 +82,18 @@ footer {
   }
 }
 
+.item-list.minimal .visual {
+  width: 2.2em;
+}
+
 .visual {
-  font-size: 1.5em;
-  justify-content: flex-start;
+  > .state-ball {
+    font-size: 1.5em;
+  }
+
+  // Calculate the padding so that the icon is vertically centered in the minimal view,
+  // but has the same top padding in all other views.
+  padding: ~"calc((30px - (12px * 0.75 * 1.5)) / 2)" 0;
 }
 
 .config-map-list,

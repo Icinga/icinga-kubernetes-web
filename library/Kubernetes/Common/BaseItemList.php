@@ -72,6 +72,7 @@ abstract class BaseItemList extends BaseHtmlElement
         $itemClass = $this->getItemClass();
 
         $this->addAttributes($this->baseAttributes);
+        $this->addAttributes(['class' => $this->viewMode]);
         foreach ($this->query as $item) {
             if (! $detailUrlAdded) {
                 $this->addAttributes(['class' => 'action-list'] + [
