@@ -59,7 +59,11 @@ class CronJobDetail extends BaseHtmlElement
                 $this->translate('Successful Jobs History Limit') => $this->cronJob->successful_jobs_history_limit,
                 $this->translate('Failed Jobs History Limit')     => $this->cronJob->failed_jobs_history_limit,
                 $this->translate('Last Successful Time')          => $lastSuccessfulTime,
-                $this->translate('Last Schedule Time')            => $lastScheduleTime
+                $this->translate('Last Schedule Time')            => $lastScheduleTime,
+                $this->translate('Icinga State')                  => new DetailState($this->cronJob->icinga_state),
+                $this->translate('Icinga State Reason')           => new IcingaStateReason(
+                    $this->cronJob->icinga_state_reason
+                )
             ])),
             new Labels($this->cronJob->label),
             new Annotations($this->cronJob->annotation),
