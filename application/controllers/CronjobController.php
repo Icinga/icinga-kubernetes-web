@@ -10,7 +10,9 @@ use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\CronJobDetail;
+use Icinga\Module\Kubernetes\Web\CronJobList;
 use Icinga\Module\Kubernetes\Web\QuickActions;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -42,6 +44,12 @@ class CronjobController extends Controller
         if ($cronJob === null) {
             $this->httpNotFound($this->translate('Cron Job not found'));
         }
+
+        $this->addControl(
+            (new CronJobList([$cronJob]))
+                ->setActionList(false)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_MINIMAL)
+        );
 
         $this->addControl(new QuickActions($cronJob, $favorite));
 
