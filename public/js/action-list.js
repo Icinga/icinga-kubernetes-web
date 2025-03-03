@@ -98,7 +98,7 @@
                 return;
             }
 
-            let dashboard = list.closest('.dashboard');
+            let dashboard = list.closest('.dashboard') || list.closest('.favorite-dashboard');
             if (dashboard) {
                 _this.clearDashboardSelections(dashboard, list);
             }
