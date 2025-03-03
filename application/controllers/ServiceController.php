@@ -11,6 +11,8 @@ use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\QuickActions;
 use Icinga\Module\Kubernetes\Web\ServiceDetail;
+use Icinga\Module\Kubernetes\Web\ServiceList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -42,6 +44,12 @@ class ServiceController extends Controller
         if ($service === null) {
             $this->httpNotFound($this->translate('Service not found'));
         }
+
+        $this->addControl(
+            (new ServiceList([$service]))
+                ->setActionList(false)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_MINIMAL)
+        );
 
         $this->addControl(new QuickActions($service, $favorite));
 
