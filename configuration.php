@@ -18,6 +18,15 @@ $section = $this->menuSection(
 $priority = 0;
 
 $section->add(
+    N_('All Favorites'),
+    [
+        'description' => $this->translate('All Favorites'),
+        'url'         => 'kubernetes/favorites',
+        'priority'    => $priority++
+    ]
+);
+
+$section->add(
     N_('Cluster Services'),
     [
         'description' => $this->translate('Cluster Services'),

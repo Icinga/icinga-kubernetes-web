@@ -170,3 +170,33 @@ pre {
     }
   }
 }
+
+.favorite-dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+
+  > div {
+    padding: 1em;
+    width: 100%;
+
+    > .container {
+      > .content {
+        padding: 0;
+      }
+
+      > .progress-label {
+        margin: 0;
+
+        span {
+          font-size: 0.75em;
+        }
+      }
+    }
+  }
+}
+
+#layout.wide-layout:not(.twocols) .favorite-dashboard > div,
+#layout.default-layout:not(.twocols) .favorite-dashboard > div {
+  width: ~"calc(50% - 0.5em)";
+}
