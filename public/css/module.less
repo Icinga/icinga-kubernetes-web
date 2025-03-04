@@ -128,3 +128,16 @@
   }
 }
 
+.content.full-width {
+  padding-left: 0;
+  padding-right: 0;
+
+  .item-list .list-item {
+    // The .list-item itself can't have padding because of `display:table-row`
+    &:before, &:after {
+      display: inline-block;
+      content: '\00a0';
+      width: 1em;
+    }
+  }
+}
