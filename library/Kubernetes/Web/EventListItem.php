@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\BaseListItem;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -22,22 +23,40 @@ class EventListItem extends BaseListItem
 {
     use Translation;
 
+    protected function assembleHeader(BaseHtmlElement $header): void
+    {
+        match ($this->viewMode) {
+            ViewModeSwitcher::VIEW_MODE_MINIMAL =>
+            $header->addHtml(
+                Html::tag(
+                    'span',
+                    Attributes::create(['class' => 'header-minimal']),
+                    [
+                        $this->createTitle(),
+                        $this->createCaption()
+                    ]
+                )
+            ),
+            ViewModeSwitcher::VIEW_MODE_COMMON  =>
+            $header->addHtml($this->createTitle()),
+            default                             => null
+        };
+
+        $header->addHtml(new TimeAgo($this->item->created->getTimestamp()));
+    }
+
     protected function assembleCaption(BaseHtmlElement $caption): void
     {
         $caption->addHtml(new Text($this->item->note));
     }
 
-    protected function assembleHeader(BaseHtmlElement $header): void
-    {
-        $header
-            ->addHtml($this->createTitle())
-            ->addHtml(new TimeAgo($this->item->last_seen->getTimestamp()));
-    }
-
     protected function assembleMain(BaseHtmlElement $main): void
     {
         $main->addHtml($this->createHeader());
-        $main->addHtml($this->createCaption());
+
+        if ($this->viewMode === ViewModeSwitcher::VIEW_MODE_COMMON) {
+            $main->addHtml($this->createCaption());
+        }
     }
 
     protected function assembleTitle(BaseHtmlElement $title): void
