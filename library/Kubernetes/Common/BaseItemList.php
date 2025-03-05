@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
+use Icinga\Module\Kubernetes\Model\Favorite;
 use ipl\Html\BaseHtmlElement;
 use ipl\I18n\Translation;
 use ipl\Stdlib\BaseFilter;
@@ -75,13 +76,22 @@ abstract class BaseItemList extends BaseHtmlElement
         $this->addAttributes(['class' => $this->viewMode]);
         foreach ($this->query as $item) {
             if (! $detailUrlAdded) {
-                $this->addAttributes(['class' => 'action-list'] + [
+                $this->addAttributes(['class' => 'action-list-kubernetes'] + [
                         'data-icinga-detail-url' => Url::fromPath(
-                            'kubernetes/' . str_replace('_', '-', $item->getTableAlias())
+                            'kubernetes/' . str_replace('_', '', $item->getTableAlias())
                         )
                     ]);
                 $detailUrlAdded = true;
             }
+
+            $favorite = Favorite::on(Database::connection())
+                ->filter(
+                    Filter::all(
+                        Filter::equal('resource_uuid', $item->uuid),
+                        Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+                    )
+                )
+                ->first();
 
             $listItem = (new $itemClass($item, $this))
                 ->addAttributes([
@@ -89,7 +99,8 @@ abstract class BaseItemList extends BaseHtmlElement
                     'data-icinga-detail-filter' => QueryString::render(
                         Filter::equal('id', Uuid::fromBytes($item->uuid)->toString())
                     )
-                ]);
+                ])
+                ->setIsFavorite($favorite !== null);
 
             if ($this->viewMode !== null) {
                 $listItem->setViewMode($this->viewMode);

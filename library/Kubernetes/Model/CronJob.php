@@ -49,6 +49,10 @@ class CronJob extends Model
         $relations
             ->belongsToMany('job', Job::class)
             ->through('job_owner');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array

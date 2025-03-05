@@ -58,6 +58,10 @@ class Deployment extends Model
         $relations
             ->belongsToMany('annotation', Annotation::class)
             ->through('deployment_annotation');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array
