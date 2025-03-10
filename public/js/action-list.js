@@ -25,6 +25,8 @@
             this.on('keydown', '#body', this.onKeyDown, this);
 
             this.on('rendered', '#main .container.module-kubernetes', this.onRenderedReorder, this);
+            this.on('start', '.action-list-kubernetes', this.onDragSuspendAutoRefresh, this)
+            this.on('end', '.action-list-kubernetes', this.onDropEnableAutoRefresh, this)
             this.on('end', '.action-list-kubernetes', this.onDropReorder, this)
 
             this.lastActivatedItemUrl = null;
@@ -541,6 +543,27 @@
                 draggable: '.list-item',
                 handle: '[data-drag-initiator]',
             });
+        }
+
+        onDragSuspendAutoRefresh(event) {
+            const containerId = event.data.self.suspendAutoRefresh(event.target);
+
+            // Dashboards also use .container elements, so we need to check parent containers
+            if (! containerId.includes('col')) {
+                const container = document.getElementById(containerId);
+                event.data.self.suspendAutoRefresh(container.parentElement);
+            }
+        }
+
+        onDropEnableAutoRefresh(event) {
+            const containerId = event.target.closest('.container').id;
+            event.data.self.enableAutoRefresh(containerId);
+
+            // Dashboards also use .container elements, so we need to check parent containers
+            if (! containerId.includes('col')) {
+                const container = document.getElementById(containerId);
+                event.data.self.enableAutoRefresh(container.parentElement.closest('.container').id);
+            }
         }
 
         onDropReorder(event) {
