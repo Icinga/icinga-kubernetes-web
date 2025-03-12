@@ -21,10 +21,10 @@
             this.on('close-column', '#main > #col2.module-kubernetes', this.onColumnClose, this);
             this.on('column-moved', this.onColumnMoved, this);
 
-            this.on('rendered', '#main .container.module-kubernetes:has(.action-list-kubernetes)', this.onRendered, this);
+            this.on('rendered', '#main .container.module-kubernetes', this.onRendered, this);
             this.on('keydown', '#body', this.onKeyDown, this);
 
-            this.on('rendered', '#main .container.module-kubernetes:has(.action-list-kubernetes)', this.onRenderedReorder, this);
+            this.on('rendered', '#main .container.module-kubernetes', this.onRenderedReorder, this);
             this.on('start', '.action-list-kubernetes', this.onDragSuspendAutoRefresh, this)
             this.on('end', '.action-list-kubernetes', this.onDropEnableAutoRefresh, this)
             this.on('end', '.action-list-kubernetes', this.onDropReorder, this)
