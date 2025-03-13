@@ -200,3 +200,118 @@ pre {
 #layout.default-layout:not(.twocols) .favorite-dashboard > div {
   width: ~"calc(50% - 0.5em)";
 }
+
+//@keyframes slide-in {
+//  from {
+//    //bottom: -25em;
+//    transform: translateY(25em);
+//  }
+//
+//  to {
+//    transform: translateY(0);
+//    //bottom: 1em;
+//  }
+//}
+//
+//@keyframes slide-out {
+//  from {
+//    transform: translateY(0);
+//    //bottom: 1em;
+//  }
+//
+//  to {
+//    transform: translateY(25em);
+//    //bottom: -25em;
+//  }
+//}
+//
+//@keyframes hide-element {
+//  to {
+//    display: none;
+//  }
+//}
+
+#reorder-hint {
+  position: absolute;
+  left: 1em;
+  bottom: 1em;
+
+  width: ~"calc(100% - 2em)";
+  padding: 1em;
+  background-color: #f5f9fa;
+  border: 1px solid @color-notification-info;
+  border-radius: 3px;
+  box-shadow: 0 0 .2em @gray;
+  //transition: transform 0.3s;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  //transform: translateY(0);
+  &.hide {
+    display: none;
+  }
+
+
+  &.minimize {
+    width: fit-content;
+    border-radius: 50%;
+    cursor: pointer;
+
+    > p,
+    .button-container,
+    > i.fa-minus {
+      display: none;
+    }
+  }
+
+  > i.fa-lightbulb {
+    font-size: 1.5em;
+    color: @color-notification-info;
+    opacity: 1;
+
+    &:before {
+      margin: 0;
+    }
+  }
+
+  > p {
+    margin: 0;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    column-gap: 2em;
+  }
+
+  > i.fa-minus {
+    display: none;
+    position: absolute;
+    margin: 0;
+    width: 1.5em;
+    height: 1.5em;
+    top: 0 - .75em;
+    right: 0 - .75em;
+    background-color: #5c5c5c;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+    font-size: 1em;
+    line-height: 1.5em;
+    cursor: pointer;
+  }
+
+  //&.show {
+  //animation: slide-in ease-out 0.5s;
+  //transform: translateY(0);
+  //}
+
+  //&:not(.show) {
+  //  transform: translateY(25em);
+
+  //animation: slide-out ease-in 0.5s, hide-element 0.5s ease-in forwards;
+  //}
+}
