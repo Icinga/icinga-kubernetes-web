@@ -294,6 +294,7 @@ $this->provideRestriction(
 );
 
 $this->provideJsFile('action-list.js');
+$this->provideJsFile('hint.js');
 $this->provideJsFile('vendor/chart.umd.js');
 
 $this->provideCssFile('action-list.less');
