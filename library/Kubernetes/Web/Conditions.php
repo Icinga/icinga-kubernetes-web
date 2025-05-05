@@ -43,7 +43,7 @@ abstract class Conditions extends BaseHtmlElement
 
                 $listItem = new HtmlElement(
                     'li',
-                    new Attributes(['class' => 'list-item']),
+                    new Attributes(['class' => 'list-item item-layout']),
                     new HtmlElement(
                         'div',
                         new Attributes(['class' => 'visual ' . $status]),
