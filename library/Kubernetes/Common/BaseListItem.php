@@ -13,7 +13,7 @@ use ipl\Html\HtmlElement;
  */
 abstract class BaseListItem extends BaseHtmlElement
 {
-    protected array $baseAttributes = ['class' => 'list-item'];
+    protected array $baseAttributes = ['class' => 'list-item item-layout detailed-item-layout'];
 
     protected $item;
 
