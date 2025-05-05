@@ -22,7 +22,6 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Icon;
-use ipl\Web\Widget\StateBall;
 
 class StatefulSetDetail extends BaseHtmlElement
 {
@@ -73,14 +72,7 @@ class StatefulSetDetail extends BaseHtmlElement
                 $this->translate('Updated Replicas')      => $this->statefulSet->updated_replicas,
                 $this->translate('Ready Replicas')        => $this->statefulSet->ready_replicas,
                 $this->translate('Available Replicas')    => $this->statefulSet->available_replicas,
-                $this->translate('Icinga State')          => (new HtmlDocument())->addHtml(
-                    new StateBall($this->statefulSet->icinga_state, StateBall::SIZE_MEDIUM),
-                    new HtmlElement(
-                        'span',
-                        new Attributes(['class' => 'icinga-state-text']),
-                        new Text(' ' . $this->statefulSet->icinga_state)
-                    )
-                ),
+                $this->translate('Icinga State')          => new DetailState($this->statefulSet->icinga_state),
                 $this->translate('Icinga State Reason')   => new IcingaStateReason(
                     $this->statefulSet->icinga_state_reason
                 )
@@ -96,10 +88,11 @@ class StatefulSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList(Auth::getInstance()->withRestrictions(
+                (new PodList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $this->statefulSet->pod->with(['node'])
-                ))
+                )))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
             ));
         }
 
@@ -108,8 +101,9 @@ class StatefulSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->statefulSet->uuid)))
+                (new EventList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->statefulSet->uuid))))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

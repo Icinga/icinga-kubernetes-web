@@ -6,10 +6,13 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\NodeDetail;
 use Icinga\Module\Kubernetes\Web\NodeList;
+use Icinga\Module\Kubernetes\Web\QuickActions;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -29,11 +32,26 @@ class NodeController extends Controller
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
+        $favorite = Favorite::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('resource_uuid', $uuidBytes),
+                    Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+                )
+            )
+            ->first();
+
         if ($node === null) {
             $this->httpNotFound($this->translate('Node not found'));
         }
 
-        $this->addControl((new NodeList([$node]))->setActionList(false));
+        $this->addControl(
+            (new NodeList([$node]))
+                ->setActionList(false)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_MINIMAL)
+        );
+
+        $this->addControl(new QuickActions($node, $favorite));
 
         $this->addContent(new NodeDetail($node));
     }

@@ -16,7 +16,6 @@ use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
-use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
 class InitContainerDetail extends BaseHtmlElement
@@ -43,14 +42,7 @@ class InitContainerDetail extends BaseHtmlElement
                 new Icon('download'),
                 new Text($this->initContainer->image_pull_policy)
             ),
-            $this->translate('Icinga State')        => (new HtmlDocument())->addHtml(
-                new StateBall($this->initContainer->icinga_state, StateBall::SIZE_MEDIUM),
-                new HtmlElement(
-                    'span',
-                    new Attributes(['class' => 'icinga-state-text']),
-                    new Text($this->initContainer->icinga_state)
-                )
-            ),
+            $this->translate('Icinga State')        => new DetailState($this->initContainer->icinga_state),
             $this->translate('Icinga State Reason') => new IcingaStateReason($this->initContainer->icinga_state_reason)
         ]));
 

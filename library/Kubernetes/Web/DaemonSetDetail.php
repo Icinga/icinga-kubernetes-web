@@ -14,7 +14,6 @@ use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\DaemonSetCondition;
 use Icinga\Module\Kubernetes\Model\Event;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -22,7 +21,6 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Icon;
-use ipl\Web\Widget\StateBall;
 
 class DaemonSetDetail extends BaseHtmlElement
 {
@@ -66,14 +64,7 @@ class DaemonSetDetail extends BaseHtmlElement
                 $this->translate('Number Ready')             => $this->daemonSet->number_ready,
                 $this->translate('Number Available')         => $this->daemonSet->number_available,
                 $this->translate('Number Unavailable')       => $this->daemonSet->number_unavailable,
-                $this->translate('Icinga State')             => (new HtmlDocument())->addHtml(
-                    new StateBall($this->daemonSet->icinga_state, StateBall::SIZE_MEDIUM),
-                    new HtmlElement(
-                        'span',
-                        new Attributes(['class' => 'icinga-state-text']),
-                        new Text($this->daemonSet->icinga_state)
-                    )
-                ),
+                $this->translate('Icinga State')             => new DetailState($this->daemonSet->icinga_state),
                 $this->translate('Icinga State Reason')      => new IcingaStateReason(
                     $this->daemonSet->icinga_state_reason
                 )
@@ -89,10 +80,11 @@ class DaemonSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList(Auth::getInstance()->withRestrictions(
+                (new PodList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $this->daemonSet->pod->with(['node'])
-                ))
+                )))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
             ));
         }
 
@@ -101,8 +93,9 @@ class DaemonSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->daemonSet->uuid)))
+                (new EventList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->daemonSet->uuid))))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

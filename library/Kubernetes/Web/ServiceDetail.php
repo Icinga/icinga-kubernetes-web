@@ -10,7 +10,6 @@ use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Endpoint;
 use Icinga\Module\Kubernetes\Model\EndpointSlice;
-use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\ServicePort;
@@ -72,7 +71,11 @@ class ServiceDetail extends BaseHtmlElement
                 ),
                 $this->translate('Load Balancer Class')               => $this->service->load_balancer_class ??
                     new EmptyState($this->translate('None')),
-                $this->translate('Internal Traffic Policy')           => $this->service->internal_traffic_policy
+                $this->translate('Internal Traffic Policy')           => $this->service->internal_traffic_policy,
+                $this->translate('Icinga State')                      => new DetailState($this->service->icinga_state),
+                $this->translate('Icinga State Reason')               => new IcingaStateReason(
+                    $this->service->icinga_state_reason
+                )
             ])),
             new Labels($this->service->label),
             new Annotations($this->service->annotation),
@@ -101,10 +104,11 @@ class ServiceDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList(Auth::getInstance()->withRestrictions(
+                (new PodList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $pods
-                ))
+                )))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
             ));
         }
 

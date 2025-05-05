@@ -56,7 +56,11 @@ class CronJobDetail extends BaseHtmlElement
                 $this->translate('Successful Jobs History Limit') => $this->cronJob->successful_jobs_history_limit,
                 $this->translate('Failed Jobs History Limit')     => $this->cronJob->failed_jobs_history_limit,
                 $this->translate('Last Successful Time')          => $lastSuccessfulTime,
-                $this->translate('Last Schedule Time')            => $lastScheduleTime
+                $this->translate('Last Schedule Time')            => $lastScheduleTime,
+                $this->translate('Icinga State')                  => new DetailState($this->cronJob->icinga_state),
+                $this->translate('Icinga State Reason')           => new IcingaStateReason(
+                    $this->cronJob->icinga_state_reason
+                )
             ])),
             new Labels($this->cronJob->label),
             new Annotations($this->cronJob->annotation),
@@ -68,10 +72,11 @@ class CronJobDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Jobs'))),
-                new JobList(Auth::getInstance()->withRestrictions(
+                (new JobList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_JOBS,
                     $this->cronJob->job
-                ))
+                )))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
             ));
         }
 
@@ -80,8 +85,9 @@ class CronJobDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->cronJob->uuid)))
+                (new EventList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->cronJob->uuid))))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

@@ -27,6 +27,7 @@ use ipl\Html\HtmlElement;
 use ipl\Html\ValidHtml;
 use ipl\Orm\Model;
 use ipl\Orm\Query;
+use ipl\Sql\Connection;
 use ipl\Stdlib\Filter\Rule;
 use ipl\Web\Url;
 use ipl\Web\Widget\EmptyState;
@@ -34,9 +35,18 @@ use ipl\Web\Widget\Icon;
 
 abstract class Factory
 {
+    public static function canonicalizeKind(string $kind): string
+    {
+        if ($kind === 'pvc') {
+            return 'persistentvolumeclaim';
+        }
+
+        return strtolower(str_replace([' ', '_', '-'], '', $kind));
+    }
+
     public static function createIcon(string $kind): ?ValidHtml
     {
-        $kind = strtolower(str_replace(['_', '-'], '', $kind));
+        $kind = self::canonicalizeKind($kind);
 
         return match ($kind) {
             'configmap',
@@ -60,7 +70,7 @@ abstract class Factory
         };
     }
 
-    public static function createList(string $kind, Rule $filter): ValidHtml
+    public static function createList(string $kind, Rule $filter, $viewMode = null): ValidHtml
     {
         $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
@@ -70,71 +80,122 @@ abstract class Factory
             case 'configmap':
                 $q = ConfigMap::on($database)->filter($filter);
 
-                return new ConfigMapList($q);
+                $list = new ConfigMapList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'container':
                 $q = Container::on($database)->filter($filter);
 
-                return new ContainerList($q);
+                $list = new ContainerList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'cronjob':
                 $q = CronJob::on($database)->filter($filter);
 
-                return new CronJobList($q);
+                $list = new CronJobList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'daemonset':
                 $q = DaemonSet::on($database)->filter($filter);
 
-                return new DaemonSetList($q);
+                $list = new DaemonSetList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'deployment':
                 $q = Deployment::on($database)->filter($filter);
 
-                return new DeploymentList($q);
+                $list = new DeploymentList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'event':
                 $q = Event::on($database)->filter($filter);
 
-                return new EventList($q);
+                $list = new EventList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'ingress':
                 $q = Ingress::on($database)->filter($filter);
 
-                return new IngressList($q);
+                $list = new IngressList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'job':
                 $q = Job::on($database)->filter($filter);
 
-                return new JobList($q);
+                $list = new JobList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'namespace':
                 $q = NamespaceModel::on($database)->filter($filter);
 
-                return new NamespaceList($q);
+                $list = new NamespaceList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'node':
                 $q = Node::on($database)->filter($filter);
 
-                return new NodeList($q);
+                $list = new NodeList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'persistentvolume':
                 $q = PersistentVolume::on($database)->filter($filter);
 
-                return new PersistentVolumeList($q);
+                $list = new PersistentVolumeList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'persistentvolumeclaim':
                 $q = PersistentVolumeClaim::on($database)->filter($filter);
 
-                return new PersistentVolumeClaimList($q);
+                $list = new PersistentVolumeClaimList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'pod':
                 $q = Pod::on($database)->filter($filter);
 
-                return new PodList($q);
+                $list = new PodList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'replicaset':
                 $q = ReplicaSet::on($database)->filter($filter);
 
-                return new ReplicaSetList($q);
+                $list = new ReplicaSetList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'secret':
                 $q = Secret::on($database)->filter($filter);
 
-                return new SecretList($q);
+                $list = new SecretList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'service':
                 $q = Service::on($database)->filter($filter);
 
-                return new ServiceList($q);
+                $list = new ServiceList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             case 'statefulset':
                 $q = StatefulSet::on($database)->filter($filter);
 
-                return new StatefulSetList($q);
+                $list = new StatefulSetList($q);
+                $viewMode && $list->setViewMode($viewMode);
+
+                return $list;
             default:
                 return new EmptyState("No items to display. $kind seems to be a custom resource.");
         }
@@ -223,23 +284,48 @@ abstract class Factory
         return null;
     }
 
+    public static function createTitle(string $kind): string
+    {
+        return match ($kind) {
+            'configmap'             => 'Config Maps',
+            'cronjob'               => 'Cron Jobs',
+            'daemonset'             => 'Daemon Sets',
+            'deployment'            => 'Deployments',
+            'event'                 => 'Events',
+            'ingress'               => 'Ingresses',
+            'job'                   => 'Jobs',
+            'namespace'             => 'Namespaces',
+            'node'                  => 'Nodes',
+            'persistentvolume'      => 'Persistent Volumes',
+            'persistentvolumeclaim' => 'Persistent Volume Claims',
+            'pod'                   => 'Pods',
+            'replicaset'            => 'Replica Sets',
+            'secret'                => 'Secrets',
+            'service'               => 'Services',
+            'statefulset'           => 'Stateful Sets',
+            default                 => null,
+        };
+    }
+
     public static function getKindFromModel(Model $model): string
     {
         $kind = match (true) {
             $model instanceof ConfigMap,
-            $model instanceof CronJob,
-            $model instanceof DaemonSet,
-            $model instanceof Deployment,
-            $model instanceof Ingress,
-            $model instanceof Job,
-            $model instanceof PersistentVolume,
-            $model instanceof PersistentVolumeClaim,
-            $model instanceof Pod,
-            $model instanceof ReplicaSet,
-            $model instanceof Secret,
-            $model instanceof Service,
-            $model instanceof StatefulSet => basename(str_replace('\\', '/', get_class($model))),
-            default                       => null
+                $model instanceof CronJob,
+                $model instanceof DaemonSet,
+                $model instanceof Deployment,
+                $model instanceof Ingress,
+                $model instanceof Job,
+                $model instanceof Node,
+                $model instanceof PersistentVolume,
+                $model instanceof PersistentVolumeClaim,
+                $model instanceof Pod,
+                $model instanceof ReplicaSet,
+                $model instanceof Secret,
+                $model instanceof Service,
+                $model instanceof StatefulSet => basename(str_replace('\\', '/', get_class($model))),
+            $model instanceof NamespaceModel  => 'namespace',
+            default                           => null
         };
 
         return strtolower(str_replace(['_', '-'], '', $kind));
@@ -252,11 +338,11 @@ abstract class Factory
      *
      * @return Query|null
      */
-    public static function fetchResource(string $kind): ?Query
+    public static function fetchResource(string $kind, Connection $db = null): ?Query
     {
         $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
-        $database = Database::connection();
+        $database = $db ?? Database::connection();
 
         $query = match ($kind) {
             'configmap'             => ConfigMap::on($database),
@@ -266,6 +352,7 @@ abstract class Factory
             'deployment'            => Deployment::on($database),
             'ingress'               => Ingress::on($database),
             'job'                   => Job::on($database),
+            'persistentvolume'      => PersistentVolume::on($database),
             'persistentvolumeclaim' => PersistentVolumeClaim::on($database),
             'pod'                   => Pod::on($database),
             'replicaset'            => ReplicaSet::on($database),

@@ -39,6 +39,11 @@ class StatefulsetsController extends ListController
 
     protected function getPermission(): string
     {
-         return Auth::SHOW_STATEFUL_SETS;
+        return Auth::SHOW_STATEFUL_SETS;
+    }
+
+    protected function getFavorable(): bool
+    {
+        return true;
     }
 }

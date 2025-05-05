@@ -4,8 +4,12 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Icinga\Module\Kubernetes\Common\ViewMode;
+
 class InitContainerList extends ContainerList
 {
+    use ViewMode;
+
     protected $defaultAttributes = ['class' => 'init-container-list'];
 
     protected function getItemClass(): string

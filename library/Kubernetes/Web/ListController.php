@@ -4,14 +4,27 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
+use Exception;
+use GuzzleHttp\Psr7\ServerRequest;
+use Icinga\Application\Config;
+use Icinga\Application\Logger;
+use Icinga\Data\ConfigObject;
+use Icinga\Exception\Http\HttpMethodNotAllowedException;
+use Icinga\Exception\Json\JsonDecodeException;
 use Icinga\Module\Kubernetes\Common\Auth;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
+use Icinga\User\Preferences;
+use Icinga\User\Preferences\PreferencesStore;
+use Icinga\Util\Json;
 use Icinga\Web\Session;
 use ipl\Orm\Query;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\SearchControls;
 use ipl\Web\Control\LimitControl;
+use ipl\Web\Control\PaginationControl;
 use ipl\Web\Control\SortControl;
+use ipl\Web\Url;
 use Ramsey\Uuid\Uuid;
 
 abstract class ListController extends Controller
@@ -49,12 +62,27 @@ abstract class ListController extends Controller
             $q->filter(Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()));
         }
 
+        $favoriteToggleActive = false;
+        if ($this->getFavorable()) {
+            $favoriteToggle = $this->createFavoriteToggle($q);
+            $favoriteToggleActive = $favoriteToggle->getValue($favoriteToggle->getFavoriteParam()) === 'y';
+        }
+
         $limitControl = $this->createLimitControl();
-        $sortControl = $this->createSortControl($q, $this->getSortColumns());
+        $sortControl = $this->createSortControl(
+            $q,
+            $this->getSortColumns()
+            + ($favoriteToggleActive ? ['favorite.priority desc' => 'Custom Order'] : [])
+        );
         $paginationControl = $this->createPaginationControl($q);
+        $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
+
         $searchBar = $this->createSearchBar($q, [
             $limitControl->getLimitParam(),
-            $sortControl->getSortParam()
+            $sortControl->getSortParam(),
+            $viewModeSwitcher->getViewModeParam(),
+            (isset($favoriteToggle) ? $favoriteToggle->getFavoriteParam() : ''),
+            'columns',
         ]);
 
         if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
@@ -72,17 +100,51 @@ abstract class ListController extends Controller
 
         $q->filter($filter);
 
+        if ($sortControl->getValue($sortControl->getSortParam()) === 'favorite.priority desc') {
+            $this->content->addAttributes(['class' => 'custom-sortable']);
+        }
+
+        if ($favoriteToggleActive) {
+            $paginationControl->setDefaultPageSize(1000);
+        }
+
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
-        $this->addControl($limitControl);
+        if (! $favoriteToggleActive) {
+            $this->addControl($limitControl);
+        }
+        $this->addControl($viewModeSwitcher);
+        if ($this->getFavorable()) {
+            $this->addControl($favoriteToggle);
+        }
         $this->addControl($searchBar);
 
         $contentClass = $this->getContentClass();
-        $this->addContent(new $contentClass($q));
+        $this->addContent((new $contentClass($q))->setViewMode($viewModeSwitcher->getViewMode()));
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();
         }
+    }
+
+    /**
+     * Handle the reordering via drag & drop.
+     *
+     * @return void
+     *
+     * @throws HttpMethodNotAllowedException
+     */
+    public function moveFavoriteAction(): void
+    {
+        $this->assertHttpMethod('POST');
+
+        (new MoveFavoriteForm(Database::connection()))
+            ->on(MoveFavoriteForm::ON_SUCCESS, function () {
+                // Suppress handling XHR response and disable view rendering,
+                // so we can use the form in the list without the page reloading.
+                $this->getResponse()->setHeader('X-Icinga-Container', 'ignore', true);
+                $this->_helper->viewRenderer->setNoRender();
+            })->handleRequest($this->getServerRequest());
     }
 
     abstract protected function getTitle(): string;
@@ -93,6 +155,13 @@ abstract class ListController extends Controller
 
     abstract protected function getPermission(): string;
 
+    abstract protected function getFavorable(): bool;
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [];
+    }
+
     public function searchEditorAction(): void
     {
         $this->setTitle($this->translate('Adjust Filter'));
@@ -101,5 +170,214 @@ abstract class ListController extends Controller
             LimitControl::DEFAULT_LIMIT_PARAM,
             SortControl::DEFAULT_SORT_PARAM
         ]));
+    }
+
+    /**
+     * Create and return the ViewModeSwitcher
+     *
+     * This automatically shifts the view mode URL parameter from {@link $params}.
+     *
+     * @param PaginationControl $paginationControl
+     * @param LimitControl      $limitControl
+     * @param bool              $verticalPagination
+     *
+     * @return ViewModeSwitcher
+     */
+    public function createViewModeSwitcher(
+        PaginationControl $paginationControl,
+        LimitControl $limitControl,
+        bool $verticalPagination = false
+    ): ViewModeSwitcher {
+        $viewModeSwitcher = new ViewModeSwitcher();
+        $viewModeSwitcher->setIdProtector([$this->getRequest(), 'protectId']);
+
+        $ignoredViewModes = $this->getIgnoredViewModes();
+
+        // Check if only one or no view mode should be selectable. If so don't show view mode switcher in the Web UI.
+        // This is the case if all view modes are ignored or only one view mode is not ignored.
+        if (count($ignoredViewModes) >= count(ViewModeSwitcher::$viewModes) - 1) {
+            $viewModeSwitcher->addIgnoredViewModes(...array_keys(ViewModeSwitcher::$viewModes));
+        } else {
+            $viewModeSwitcher->addIgnoredViewModes(...$ignoredViewModes);
+        }
+
+        $user = $this->Auth()->getUser();
+        if (($preferredModes = $user->getAdditional('kubernetes.view_modes')) === null) {
+            try {
+                $preferredModes = Json::decode(
+                    $user->getPreferences()->getValue('kubernetes', 'view_modes', '[]'),
+                    true
+                );
+            } catch (JsonDecodeException $e) {
+                Logger::error('Failed to load preferred view modes for user "%s": %s', $user->getUsername(), $e);
+                $preferredModes = [];
+            }
+
+            $user->setAdditional('kubernetes.view_modes', $preferredModes);
+        }
+
+        $requestRoute = $this->getRequest()->getUrl()->getPath();
+        if (isset($preferredModes[$requestRoute])) {
+            $viewModeSwitcher->setDefaultViewMode($preferredModes[$requestRoute]);
+        } else {
+            if (! in_array('detailed', $ignoredViewModes)) {
+                $viewModeSwitcher->setDefaultViewMode('detailed');
+            } elseif (! in_array('common', $ignoredViewModes)) {
+                $viewModeSwitcher->setDefaultViewMode('common');
+            } else {
+                $viewModeSwitcher->setDefaultViewMode('minimal');
+            }
+        }
+
+        $viewModeSwitcher->populate([
+            $viewModeSwitcher->getViewModeParam() => $this->params->shift($viewModeSwitcher->getViewModeParam())
+        ]);
+
+        $session = $this->Window()->getSessionNamespace('kubernetes-viewmode-' . $this->Window()->getContainerId());
+
+        $viewModeSwitcher->on(
+            ViewModeSwitcher::ON_SUCCESS,
+            function (ViewModeSwitcher $viewModeSwitcher) use (
+                $user,
+                $preferredModes,
+                $paginationControl,
+                $verticalPagination,
+                &$session
+            ) {
+                $viewMode = $viewModeSwitcher->getValue($viewModeSwitcher->getViewModeParam());
+                $requestUrl = Url::fromRequest();
+
+                $preferredModes[$requestUrl->getPath()] = $viewMode;
+                $user->setAdditional('kubernetes.view_modes', $preferredModes);
+
+                try {
+                    $preferencesStore = PreferencesStore::create(new ConfigObject([
+                        //TODO: Don't set store key as it will no longer be needed once we drop support for
+                        // lower version of icingaweb2 then v2.11.
+                        //https://github.com/Icinga/icingaweb2/pull/4765
+                        'store'    => Config::app()->get('global', 'config_backend', 'db'),
+                        'resource' => Config::app()->get('global', 'config_resource')
+                    ]), $user);
+                    $preferencesStore->load();
+                    $preferencesStore->save(
+                        new Preferences(['kubernetes' => ['view_modes' => Json::encode($preferredModes)]])
+                    );
+                } catch (Exception $e) {
+                    Logger::error('Failed to save preferred view mode for user "%s": %s', $user->getUsername(), $e);
+                }
+
+                $pageParam = $paginationControl->getPageParam();
+                $limitParam = LimitControl::DEFAULT_LIMIT_PARAM;
+                $currentPage = $paginationControl->getCurrentPageNumber();
+
+                $requestUrl->setParam($viewModeSwitcher->getViewModeParam(), $viewMode);
+                if (! $requestUrl->hasParam($limitParam)) {
+                    if ($viewMode === 'minimal') {
+                        $session->set('previous_page', $currentPage);
+                        $session->set('request_path', $requestUrl->getPath());
+
+                        $limit = $paginationControl->getLimit();
+                        if (! $verticalPagination) {
+                            // We are computing it based on the first element being rendered on this current page
+                            $currentPage = (int) (floor((($currentPage * $limit) - $limit) / ($limit * 2)) + 1);
+                        } else {
+                            $currentPage = (int) (round($currentPage * $limit / ($limit * 2)));
+                        }
+
+                        $session->set('current_page', $currentPage);
+                    } elseif (
+                        $viewModeSwitcher->getDefaultViewMode() === 'minimal'
+                    ) {
+                        $limit = $paginationControl->getLimit();
+                        if ($currentPage === $session->get('current_page')) {
+                            // No other page numbers have been selected, i.e the user only
+                            // switches back and forth without changing the page numbers
+                            $currentPage = $session->get('previous_page');
+                        } elseif (! $verticalPagination) {
+                            $currentPage = (int) (floor((($currentPage * $limit) - $limit) / ($limit / 2)) + 1);
+                        } else {
+                            $currentPage = (int) (floor($currentPage * $limit / ($limit / 2)));
+                        }
+
+                        $session->clear();
+                    }
+
+                    if (($requestUrl->hasParam($pageParam) && $currentPage > 1) || $currentPage > 1) {
+                        $requestUrl->setParam($pageParam, $currentPage);
+                    } else {
+                        $requestUrl->remove($pageParam);
+                    }
+                }
+
+                $this->redirectNow($requestUrl);
+            }
+        )->handleRequest(ServerRequest::fromGlobals());
+
+        $viewMode = $viewModeSwitcher->getViewMode();
+        if ($viewMode === 'minimal' || $viewMode === 'common') {
+            $hasLimitParam = Url::fromRequest()->hasParam($limitControl->getLimitParam());
+
+            if ($paginationControl->getDefaultPageSize() <= LimitControl::DEFAULT_LIMIT && ! $hasLimitParam) {
+                $paginationControl->setDefaultPageSize($paginationControl->getDefaultPageSize() * 2);
+                $limitControl->setDefaultLimit($limitControl->getDefaultLimit() * 2);
+
+                $paginationControl->apply();
+            }
+        }
+
+        $requestPath = $session->get('request_path');
+        if ($requestPath && $requestPath !== $requestRoute) {
+            $session->clear();
+        }
+
+        return $viewModeSwitcher;
+    }
+
+    /**
+     * Create and return the FavoriteToggle
+     *
+     * This automatically shifts the favorite URL parameter from {@link $params}.
+     *
+     * @param Query $query
+     *
+     * @return FavoriteToggle
+     */
+    public function createFavoriteToggle(
+        Query $query
+    ): FavoriteToggle {
+        $favoriteToggle = new FavoriteToggle();
+        $defaultFavoriteParam = $favoriteToggle->getFavoriteParam();
+        $favoriteParam = $this->params->shift($defaultFavoriteParam);
+        $favoriteToggle->populate([
+            $defaultFavoriteParam => $favoriteParam
+        ]);
+
+        $favoriteToggle->on(FavoriteToggle::ON_SUCCESS, function (FavoriteToggle $favoriteToggle) use (
+            $query,
+            $defaultFavoriteParam
+        ) {
+            $favoriteParam = $favoriteToggle->getValue($defaultFavoriteParam);
+
+            $requestUrl = Url::fromRequest();
+
+            // Redirect if favorite param has changed to update the URL
+            if (isset($favoriteParam) && $requestUrl->getParam($defaultFavoriteParam) !== $favoriteParam) {
+                $requestUrl->setParam($defaultFavoriteParam, $favoriteParam);
+                if (
+                    $favoriteParam === 'n'
+                    && $requestUrl->getParam(SortControl::DEFAULT_SORT_PARAM) === 'favorite.priority desc'
+                ) {
+                    $requestUrl->remove(SortControl::DEFAULT_SORT_PARAM);
+                }
+
+                $this->redirectNow($requestUrl);
+            }
+        })->handleRequest($this->getServerRequest());
+
+        if ($favoriteToggle->getValue($defaultFavoriteParam) === 'y') {
+            $query->with('favorite')->filter(Filter::equal('favorite.username', Auth::getInstance()->getUser()->getUsername()));
+        }
+
+        return $favoriteToggle;
     }
 }

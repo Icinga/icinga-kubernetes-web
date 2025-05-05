@@ -50,6 +50,10 @@ class StatefulSet extends Model
             ->setTargetForeignKey('owner_uuid')
             ->setCandidateKey('uuid')
             ->setForeignKey('pod_uuid');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array

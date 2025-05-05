@@ -13,7 +13,6 @@ use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -21,7 +20,6 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Icon;
-use ipl\Web\Widget\StateBall;
 
 class ReplicaSetDetail extends BaseHtmlElement
 {
@@ -59,14 +57,7 @@ class ReplicaSetDetail extends BaseHtmlElement
                 $this->translate('Fully Labeled Replicas') => $this->replicaSet->fully_labeled_replicas,
                 $this->translate('Ready Replicas')         => $this->replicaSet->ready_replicas,
                 $this->translate('Available Replicas')     => $this->replicaSet->available_replicas,
-                $this->translate('Icinga State')           => (new HtmlDocument())->addHtml(
-                    new StateBall($this->replicaSet->icinga_state, StateBall::SIZE_MEDIUM),
-                    new HtmlElement(
-                        'span',
-                        new Attributes(['class' => 'icinga-state-text']),
-                        Text::create($this->replicaSet->icinga_state)
-                    )
-                ),
+                $this->translate('Icinga State')           => new DetailState($this->replicaSet->icinga_state),
                 $this->translate('Icinga State Reason')    => new IcingaStateReason(
                     $this->replicaSet->icinga_state_reason
                 )
@@ -82,10 +73,11 @@ class ReplicaSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList(Auth::getInstance()->withRestrictions(
+                (new PodList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $this->replicaSet->pod->with(['node'])
-                ))
+                )))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
             ));
         }
 
@@ -94,8 +86,9 @@ class ReplicaSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->replicaSet->uuid)))
+                (new EventList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->replicaSet->uuid))))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

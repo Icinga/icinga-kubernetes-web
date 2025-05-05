@@ -5,6 +5,10 @@
 namespace Icinga\Module\Kubernetes\Web;
 
 use Icinga\Module\Kubernetes\Common\BaseListItem;
+use Icinga\Module\Kubernetes\Common\DefaultListItemCaption;
+use Icinga\Module\Kubernetes\Common\DefaultListItemHeader;
+use Icinga\Module\Kubernetes\Common\DefaultListItemMain;
+use Icinga\Module\Kubernetes\Common\DefaultListItemVisual;
 use Icinga\Module\Kubernetes\Common\Links;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -14,27 +18,14 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
-use ipl\Web\Widget\TimeAgo;
 
 class ServiceListItem extends BaseListItem
 {
     use Translation;
-
-    protected function assembleHeader(BaseHtmlElement $header): void
-    {
-        $header->addHtml(
-            $this->createTitle(),
-            new TimeAgo($this->item->created->getTimestamp())
-        );
-    }
-
-    protected function assembleMain(BaseHtmlElement $main): void
-    {
-        $main->addHtml(
-            $this->createHeader(),
-            $this->createFooter()
-        );
-    }
+    use DefaultListItemHeader;
+    use DefaultListItemCaption;
+    use DefaultListItemMain;
+    use DefaultListItemVisual;
 
     protected function assembleFooter(BaseHtmlElement $footer): void
     {
