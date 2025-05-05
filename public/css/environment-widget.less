@@ -57,9 +57,14 @@
     .svg-lines {
       width: @svg-edge-length;
       height: @svg-edge-length;
+      z-index: -1;
+
+      :only-child {
+        shape-rendering: crispEdges;
+      }
 
       path {
-        stroke: @text-color-light;
+        stroke: @gray-light;
       }
     }
   }
