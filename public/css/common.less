@@ -13,12 +13,14 @@ pre {
 }
 
 .state-ball {
-  margin-right: .2em;
-
   // Main use case is the event list, which also contains informational events.
   &.state-none {
     border: 1px solid @gray-light;
   }
+}
+
+.margin-to-ball {
+  margin-left: .2em;
 }
 
 .container-list > .list-item > .visual > .state-ball,
@@ -29,7 +31,6 @@ pre {
 }
 
 .controls {
-
   &:not(.no-shadow) {
     // Copied from Icinga DB Web
     -moz-box-shadow: 0 0 0 1px var(--gray-lighter, #4b4b4b);
@@ -37,27 +38,56 @@ pre {
     box-shadow: 0 0 0 1px var(--gray-lighter, #4b4b4b);
   }
 
+  &:not(.default-layout) > :not(:only-child) {
+    margin-bottom: 0.5em;
+  }
+
   a.subject {
     cursor: default;
     pointer-events: none;
   }
 
+  .favorite-toggle {
+    width: auto;
+
+    .control-group {
+      margin: 0;
+      justify-content: flex-end;
+      max-height: 24px;
+
+      label {
+        text-align: right;
+        margin-right: 0;
+      }
+    }
+  }
+
   .limit-control,
   .view-mode-switcher,
-  .sort-control {
-    margin-left: .5em;
+  .sort-control,
+  .favorite-toggle {
+    margin-left: 1em;
     float: right;
   }
 
-  .list-item {
-    font-size: @font-size-small;
+  .limit-control,
+  .view-mode-switcher,
+  .favorite-toggle {
+    margin-right: 0;
+  }
 
+  .item-list .list-item {
     .main {
-      padding-bottom: 0.454545em;
+      padding: 3px 0;
+    }
+
+    .visual {
+      // Calculate the padding so that the icon is vertically centered in the minimal view.
+      padding: ~"calc((24px - (12px * 0.75 * 1.5)) / 2)" 0;
+      width: 1.2em;
     }
   }
 }
-
 
 .horizontal-key-value,
 .vertical-key-value {
@@ -101,4 +131,195 @@ pre {
 
 .pvc-phase-lost {
   color: @color-critical;
+}
+
+.reorder-handle-background {
+  position: absolute;
+  right: 0;
+  bottom: 0.25em;
+
+  display: none;
+
+  height: ~"calc(100% - 0.5em)";
+  width: 3em;
+  background-color: @body-bg-color;
+}
+
+.reorder-handle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  border-left: 1px solid @gray-light;
+  background-color: @tr-hover-color;
+
+  .icon {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+
+.favorite-dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+
+  > div {
+    padding: 1em;
+    width: 100%;
+
+    > .container {
+      > .content {
+        padding: 0;
+      }
+
+      > .progress-label {
+        margin: 0;
+
+        span {
+          font-size: 0.75em;
+        }
+      }
+    }
+  }
+}
+
+#layout.wide-layout:not(.twocols) .favorite-dashboard > div,
+#layout.default-layout:not(.twocols) .favorite-dashboard > div {
+  width: ~"calc(50% - 0.5em)";
+}
+
+//@keyframes slide-in {
+//  from {
+//    //bottom: -25em;
+//    transform: translateY(25em);
+//  }
+//
+//  to {
+//    transform: translateY(0);
+//    //bottom: 1em;
+//  }
+//}
+//
+//@keyframes slide-out {
+//  from {
+//    transform: translateY(0);
+//    //bottom: 1em;
+//  }
+//
+//  to {
+//    transform: translateY(25em);
+//    //bottom: -25em;
+//  }
+//}
+//
+//@keyframes hide-element {
+//  to {
+//    display: none;
+//  }
+//}
+
+.reorder-hint {
+  position: absolute;
+  left: 1em;
+  bottom: 1em;
+
+  width: ~"calc(100% - 2em)";
+  padding: 1em;
+  color: @text-color;
+  background-color: @body-bg-color;
+  border: 1px solid @color-notification-info;
+  border-radius: 3px;
+  box-shadow: 0 0 .2em @gray;
+  //transition: transform 0.3s;
+
+  display: flex;
+  justify-content: space-between;
+  //justify-content: flex-start;
+  align-items: center;
+  column-gap: 1em;
+
+  //transform: translateY(0);
+  &.hide {
+    display: none;
+  }
+
+
+  &.minimize {
+    width: fit-content;
+    border-radius: 50%;
+    cursor: pointer;
+    //opacity: 0.8;
+    //background-color: #f5f9facc;
+    background-color: @tab-hover-bg-color;
+
+    > p,
+    .button-container,
+    > i.fa-minus {
+      display: none;
+    }
+  }
+
+  > i.fa-lightbulb,
+  > .icon-lightbulb {
+    font-size: 1.5em;
+    color: @color-notification-info;
+    opacity: 1;
+
+    &:before {
+      margin: 0;
+    }
+  }
+
+  > p {
+    margin: 0;
+    text-align: center;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    column-gap: 2em;
+
+    //margin-left: auto;
+
+    > button {
+      white-space: nowrap;
+    }
+  }
+
+  > i.fa-minus {
+    display: none;
+    position: absolute;
+    margin: 0;
+    width: 1.5em;
+    height: 1.5em;
+    top: 0 - .75em;
+    right: 0 - .75em;
+    background-color: #5c5c5c;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+    font-size: 1em;
+    line-height: 1.5em;
+    cursor: pointer;
+  }
+
+  //&.show {
+  //animation: slide-in ease-out 0.5s;
+  //transform: translateY(0);
+  //}
+
+  //&:not(.show) {
+  //  transform: translateY(25em);
+
+  //animation: slide-out ease-in 0.5s, hide-element 0.5s ease-in forwards;
+  //}
 }
