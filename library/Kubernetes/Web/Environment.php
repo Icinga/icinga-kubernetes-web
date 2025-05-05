@@ -225,11 +225,10 @@ class Environment extends BaseHtmlElement
                 new HtmlElement(
                     'path',
                     Attributes::create([
-                                           'stroke'       => 'black',
-                                           'stroke-width' => 1,
-                                           'fill'         => 'none',
-                                           'd'            => sprintf($path, $coordinate, $coordinate)
-                                       ])
+                        'stroke-width' => 1,
+                        'fill'         => 'none',
+                        'd'            => sprintf($path, $coordinate, $coordinate)
+                    ])
                 )
             );
         }
