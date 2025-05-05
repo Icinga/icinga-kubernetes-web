@@ -100,7 +100,7 @@ abstract class ListController extends Controller
 
         $q->filter($filter);
 
-        if ($sortControl->getValue($sortControl->getSortParam()) === 'favorite.priority desc') {
+        if ($sortControl->getPopulatedValue($sortControl->getSortParam()) === 'favorite.priority desc') {
             $this->content->addAttributes(['class' => 'custom-sortable']);
         }
 
@@ -121,6 +121,15 @@ abstract class ListController extends Controller
 
         $contentClass = $this->getContentClass();
         $this->addContent((new $contentClass($q))->setViewMode($viewModeSwitcher->getViewMode()));
+        if ($favoriteToggleActive) {
+            if ($sortControl->getPopulatedValue($sortControl->getSortParam()) === 'favorite.priority desc') {
+                $this->content->addAttributes(['data-hint' => 'You can drag the favorites on the drag icon on the right side.']);
+                $this->content->addAttributes(['data-hint-id' => 112]);
+            } else {
+                $this->content->addAttributes(['data-hint' => 'To reorder favorites via drag &amp; drop sort by \'Custom Order\'.']);
+                $this->content->addAttributes(['data-hint-id' => 111]);
+            }
+        }
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();

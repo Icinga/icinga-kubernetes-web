@@ -11,16 +11,6 @@
         return;
     }
 
-    const POPUP_HTML = '<div id="reorder-hint">\n' +
-        '   <i class="icon fa-lightbulb fa"></i>\n' +
-        '   <p>To reorder favorites via drag &amp; drop sort by \'Custom Order\'.</p>\n' +
-        '   <span class="button-container">\n' +
-        '      <button class="close link-button">Close</button>\n' +
-        '      <button class="close-forever link-button">Never show again</button>\n' +
-        '   </span>\n' +
-        '   <i class="minimize fa-minus fa"></i>\n' +
-        '</div>';
-
     Icinga.Behaviors = Icinga.Behaviors || {};
 
     class ActionList extends Icinga.EventListener {
@@ -34,25 +24,14 @@
             this.on('rendered', '#main .container.module-kubernetes', this.onRendered, this);
             this.on('keydown', '#body', this.onKeyDown, this);
 
-            this.on('click', '#reorder-hint button.close', this.onReorderHintMinimize, this);
-            this.on('click', '#reorder-hint button.close-forever', this.onReorderHintCloseForever, this);
-            this.on('click', '#reorder-hint i.minimize', this.onReorderHintMinimize, this);
-            this.on('click', '#reorder-hint.minimize', this.onReorderHintMaximize, this);
-
             this.on('rendered', '#main .container.module-kubernetes', this.onRenderedReorder, this);
             this.on('start', '.action-list-kubernetes', this.onDragSuspendAutoRefresh, this)
             this.on('end', '.action-list-kubernetes', this.onDropEnableAutoRefresh, this)
             this.on('end', '.action-list-kubernetes', this.onDropReorder, this)
 
-            this.on('change', '.favorite-toggle', this.onFavoriteToggleChanged, this)
-
             this.lastActivatedItemUrl = null;
             this.lastTimeoutId = null;
             this.activeRequests = {};
-
-            this.$popup = null;
-            this.tempStorage = Icinga.Storage.BehaviorStorage('kubernetes');
-            this.tempStorage.setBackend(window.sessionStorage);
         }
 
         /**
@@ -536,83 +515,6 @@
 
                 _this.clearSelection(_this.getAllItems(list).filter(item => ! toActiveItems.includes(item)));
                 _this.setActive(toActiveItems);
-            }
-
-            if (! isAutoRefresh && ! _this.tempStorage.get('reorder-hint-never-show-again')) {
-                // if (! isAutoRefresh && _this.tempStorage.get('reorder-hint-show')) {
-                let isKubernetesFavoriteUrl = new RegExp('^' + icinga.config.baseUrl + '/kubernetes/.*[?&]show-favorites=y(?!.*[?&]showCompact)');
-                let $container = $(container);
-                let href = decodeURIComponent($container.data('icingaUrl'));
-
-                if (isKubernetesFavoriteUrl.test(href)) {
-                    _this.showPopup(container.id);
-
-                    if (_this.tempStorage.get('reorder-hint-minimize')) {
-                        _this.minimizePopup();
-                    }
-
-                    let $content = $container.find('.content');
-                    let $reorderHint = $('#reorder-hint');
-                    $content.css('padding-bottom', $reorderHint.height() + parseFloat($reorderHint.css('padding')) * 2 + parseFloat($content.css('padding-bottom')) * 2);
-
-                    _this.tempStorage.remove('reorder-hint-show')
-                }
-            }
-        }
-
-        showPopup(col) {
-            this.popup(col);
-        }
-
-        hidePopup() {
-            this.popup().addClass('hide');
-        }
-
-        minimizePopup() {
-            this.popup().addClass('minimize');
-        }
-
-        maximizePopup() {
-            this.popup().removeClass('minimize');
-        }
-
-        popup(col) {
-            if (this.$popup === null || ! document.body.contains(this.$popup[0])) {
-                let $col = $('#' + col)
-                $col.css('position', 'relative');
-                $col.append($(POPUP_HTML));
-                this.$popup = $('#reorder-hint');
-            }
-
-            return this.$popup;
-        }
-
-        onReorderHintClose(event) {
-            event.data.self.hidePopup();
-        }
-
-        onReorderHintCloseForever(event) {
-            let _this = event.data.self;
-            _this.tempStorage.set('reorder-hint-never-show-again', true);
-            _this.hidePopup();
-        }
-
-        onReorderHintMinimize(event) {
-            let _this = event.data.self;
-            _this.tempStorage.set('reorder-hint-minimize', true)
-            _this.minimizePopup()
-        }
-
-        onReorderHintMaximize(event) {
-            let _this = event.data.self;
-            _this.tempStorage.set('reorder-hint-minimize', false)
-            _this.maximizePopup()
-        }
-
-        onFavoriteToggleChanged(event) {
-            let _this = event.data.self;
-            if (event.originalEvent.target.checked && ! _this.tempStorage.get('reorder-hint-never-show-again')) {
-                event.data.self.tempStorage.set('reorder-hint-show', true);
             }
         }
 
