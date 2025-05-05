@@ -13,6 +13,8 @@ use ipl\Html\HtmlElement;
  */
 abstract class BaseListItem extends BaseHtmlElement
 {
+    use ViewMode;
+
     protected array $baseAttributes = ['class' => 'list-item'];
 
     protected $item;
@@ -24,7 +26,7 @@ abstract class BaseListItem extends BaseHtmlElement
     /**
      * Create a new list item
      *
-     * @param object $item
+     * @param object       $item
      * @param BaseItemList $list
      */
     public function __construct($item, BaseItemList $list)

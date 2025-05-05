@@ -9,6 +9,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Web\ListController;
 use Icinga\Module\Kubernetes\Web\SecretList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Orm\Query;
 
 class SecretsController extends ListController
@@ -40,5 +41,10 @@ class SecretsController extends ListController
     protected function getPermission(): string
     {
         return Auth::SHOW_SECRETS;
+    }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [ViewModeSwitcher::VIEW_MODE_DETAILED];
     }
 }
