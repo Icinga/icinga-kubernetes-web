@@ -26,6 +26,7 @@ class PrometheusConfigForm extends CompatForm
         $q = KConfig::on(Database::connection())
             ->filter(Filter::equal('key', [
                 KConfig::PROMETHEUS_URL,
+                KConfig::PROMETHEUS_INSECURE,
                 KConfig::PROMETHEUS_USERNAME,
                 KConfig::PROMETHEUS_PASSWORD
             ]))
@@ -72,6 +73,7 @@ class PrometheusConfigForm extends CompatForm
         if ($clusterUuid !== $this->getPopulatedValue('old_cluster_uuid', $clusterUuid)) {
             $this->clearPopulatedValue('old_cluster_uuid');
             $this->clearPopulatedValue('prometheus_url');
+            $this->clearPopulatedValue('prometheus_insecure');
             $this->clearPopulatedValue('prometheus_username');
             $this->clearPopulatedValue('prometheus_password');
         }
@@ -102,6 +104,19 @@ class PrometheusConfigForm extends CompatForm
                 'value'    => $kconfig[KConfig::PROMETHEUS_URL]->value ?? null,
                 'disabled' => $kconfig[KConfig::PROMETHEUS_URL]->locked ?? false,
                 'ignore'   => $kconfig[KConfig::PROMETHEUS_URL]->locked ?? false,
+            ]
+        );
+
+        $this->addElement(
+            'checkbox',
+            KConfig::transformKeyForForm(KConfig::PROMETHEUS_INSECURE),
+            [
+                'label'          => $this->translate('Insecure'),
+                'checkedValue'   => 'true',
+                'uncheckedValue' => 'false',
+                'value'          => $kconfig[KConfig::PROMETHEUS_INSECURE]?->value === 'true',
+                'disabled'       => $kconfig[KConfig::PROMETHEUS_INSECURE]->locked ?? false,
+                'ignore'         => $kconfig[KConfig::PROMETHEUS_INSECURE]->locked ?? false,
             ]
         );
 
