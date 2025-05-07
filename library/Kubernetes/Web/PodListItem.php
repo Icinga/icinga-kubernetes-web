@@ -102,7 +102,8 @@ class PodListItem extends BaseListItem
                 $this->item->restart_policy
             ),
             new HorizontalKeyValue(
-                (new Icon('life-ring'))->addAttributes(['title' => $this->translate('Quality of Service')]),
+                (new Icon(self::QOS_ICONS[$this->item->qos]))
+                    ->addAttributes(['title' => $this->translate('Quality of Service')]),
                 $this->item->qos
             ),
             (new HorizontalKeyValue(
