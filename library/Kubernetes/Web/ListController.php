@@ -12,6 +12,7 @@ use Icinga\Data\ConfigObject;
 use Icinga\Exception\Json\JsonDecodeException;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\User\Preferences;
 use Icinga\User\Preferences\PreferencesStore;
 use Icinga\Util\Json;
@@ -94,8 +95,7 @@ abstract class ListController extends Controller
         $this->addControl($viewModeSwitcher);
         $this->addControl($searchBar);
 
-        $contentClass = $this->getContentClass();
-        $this->addContent((new $contentClass($q))->setViewMode($viewModeSwitcher->getViewMode()));
+        $this->addContent((new ResourceList($q))->setViewMode($viewModeSwitcher->getViewMode()));
 
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();

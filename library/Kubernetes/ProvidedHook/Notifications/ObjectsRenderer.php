@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\ProvidedHook\Notifications;
 
 use Generator;
 use Icinga\Module\Kubernetes\Web\Factory;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Notifications\Hook\ObjectsRendererHook;
 use ipl\Html\Attributes;
 use ipl\Html\FormattedString;
@@ -43,10 +44,10 @@ class ObjectsRenderer extends ObjectsRendererHook
             return null;
         }
 
-        return Factory::createList(
-            $objectIdTag['resource'],
-            Filter::equal('uuid', Uuid::fromString($objectIdTag['uuid'])->getBytes())
-        );
+        return (new ResourceList(
+            Factory::fetchResource($objectIdTag['resource'])
+                ->filter(Filter::equal('uuid', Uuid::fromString($objectIdTag['uuid'])->getBytes()))
+        ));
     }
 
     /**

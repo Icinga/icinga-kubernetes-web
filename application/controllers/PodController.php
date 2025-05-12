@@ -8,8 +8,8 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\PodDetail;
-use Icinga\Module\Kubernetes\Web\PodList;
 use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
@@ -35,8 +35,8 @@ class PodController extends Controller
         }
 
         $this->addControl(
-            (new PodList([$pod]))
-                ->setActionList(false)
+            (new ResourceList([$pod]))
+                ->setDetailActionsDisabled()
                 ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
         );
 
