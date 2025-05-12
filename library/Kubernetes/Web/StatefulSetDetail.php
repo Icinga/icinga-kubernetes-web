@@ -14,6 +14,7 @@ use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Model\StatefulSetCondition;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -96,7 +97,7 @@ class StatefulSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                (new PodList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $this->statefulSet->pod->with(['node'])
                 )))
@@ -109,7 +110,7 @@ class StatefulSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                (new EventList(Event::on(Database::connection())
+                (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->statefulSet->uuid))))
                     ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));

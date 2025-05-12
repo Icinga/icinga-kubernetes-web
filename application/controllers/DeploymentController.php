@@ -9,7 +9,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DeploymentDetail;
-use Icinga\Module\Kubernetes\Web\DeploymentList;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
@@ -35,8 +35,8 @@ class DeploymentController extends Controller
         }
 
         $this->addControl(
-            (new DeploymentList([$deployment]))
-                ->setActionList(false)
+            (new ResourceList([$deployment]))
+                ->setDetailActionsDisabled()
                 ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
         );
 

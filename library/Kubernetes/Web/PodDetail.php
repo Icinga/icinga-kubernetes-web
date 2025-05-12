@@ -13,6 +13,7 @@ use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -100,19 +101,19 @@ class PodDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Init Containers')),
-                new InitContainerList($this->pod->init_container)
+                (new ResourceList($this->pod->init_container))->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
             ),
             new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Sidecar Containers')),
-                new SidecarContainerList($this->pod->sidecar_container)
+                (new ResourceList($this->pod->sidecar_container))->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
             ),
             new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Containers')),
-                new ContainerList($this->pod->container)
+                (new ResourceList($this->pod->container))->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
             )
         );
 
@@ -121,7 +122,7 @@ class PodDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Persistent Volume Claims'))),
-                (new PersistentVolumeClaimList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PERSISTENT_VOLUME_CLAIMS,
                     $this->pod->pvc
                 )))->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
@@ -133,7 +134,7 @@ class PodDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
-                (new EventList(Event::on(Database::connection())
+                (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->pod->uuid))))
                     ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));

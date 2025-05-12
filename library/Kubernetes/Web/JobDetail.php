@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Job;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -87,7 +88,7 @@ class JobDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                (new PodList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $this->job->pod->with(['node'])
                 )))
@@ -100,7 +101,7 @@ class JobDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
-                (new EventList(Event::on(Database::connection())
+                (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->job->uuid))))
                     ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
