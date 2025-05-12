@@ -14,6 +14,7 @@ use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\NodeCondition;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -102,7 +103,7 @@ class NodeDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                (new EventList(Event::on(Database::connection())
+                (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->node->uuid))))
                     ->setViewMode(ViewMode::Common)
             ));

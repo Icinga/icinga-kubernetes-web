@@ -9,8 +9,8 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\ReplicaSetDetail;
-use Icinga\Module\Kubernetes\Web\ReplicaSetList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -35,8 +35,8 @@ class ReplicasetController extends Controller
         }
 
         $this->addControl(
-            (new ReplicaSetList([$replicaSet]))
-                ->setActionList(false)
+            (new ResourceList([$replicaSet]))
+                ->setDetailActionsDisabled()
                 ->setViewMode(ViewMode::Detailed)
         );
 

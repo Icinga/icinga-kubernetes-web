@@ -6,11 +6,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\NodeDetail;
-use Icinga\Module\Kubernetes\Web\NodeList;
-use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -35,9 +35,9 @@ class NodeController extends Controller
         }
 
         $this->addControl(
-            (new NodeList([$node]))
-                ->setActionList(false)
-                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+            (new ResourceList([$node]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewMode::Detailed)
         );
 
         $this->addContent(new NodeDetail($node));

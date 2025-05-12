@@ -6,11 +6,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DaemonSetDetail;
-use Icinga\Module\Kubernetes\Web\DaemonSetList;
-use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -35,9 +35,9 @@ class DaemonsetController extends Controller
         }
 
         $this->addControl(
-            (new DaemonSetList([$daemonSet]))
-                ->setActionList(false)
-                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+            (new ResourceList([$daemonSet]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewMode::Detailed)
         );
 
         $this->addContent(new DaemonSetDetail($daemonSet));

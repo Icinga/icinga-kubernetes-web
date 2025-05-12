@@ -14,6 +14,7 @@ use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -92,11 +93,11 @@ class DeploymentDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Replica Sets'))),
-                (new ReplicaSetList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_REPLICA_SETS,
                     $this->deployment->replica_set
                 )))
-                    ->setViewMode(ViewMode::Detailed)
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 
@@ -105,7 +106,7 @@ class DeploymentDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                (new EventList(Event::on(Database::connection())
+                (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->deployment->uuid))))
                     ->setViewMode(ViewMode::Common)
             ));

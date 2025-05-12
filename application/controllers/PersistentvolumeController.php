@@ -9,8 +9,8 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeDetail;
-use Icinga\Module\Kubernetes\Web\PersistentVolumeList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -35,8 +35,8 @@ class PersistentvolumeController extends Controller
         }
 
         $this->addControl(
-            (new PersistentVolumeList([$persistentVolume]))
-                ->setActionList(false)
+            (new ResourceList([$persistentVolume]))
+                ->setDetailActionsDisabled()
                 ->setViewMode(ViewMode::Detailed)
         );
 
