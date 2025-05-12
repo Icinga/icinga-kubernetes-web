@@ -8,8 +8,8 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeClaimDetail;
-use Icinga\Module\Kubernetes\Web\PersistentVolumeClaimList;
 use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
@@ -35,8 +35,8 @@ class PersistentvolumeclaimController extends Controller
         }
 
         $this->addControl(
-            (new PersistentVolumeClaimList([$pvc]))
-                ->setActionList(false)
+            (new ResourceList([$pvc]))
+                ->setDetailActionsDisabled()
                 ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
         );
 
