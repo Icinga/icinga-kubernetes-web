@@ -69,7 +69,7 @@ abstract class BaseResourceRenderer implements ItemRenderer
         $info->addHtml(new TimeAgo($item->created->getTimestamp()));
     }
 
-    public function assemble($item, string $name, HtmlDocument $element, string $layout): bool
+    public function assemble($item, string $name, HtmlDocument $element, string $layout): false
     {
         return false;
     }
