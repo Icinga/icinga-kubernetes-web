@@ -8,7 +8,9 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\ServiceDetail;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -31,6 +33,12 @@ class ServiceController extends Controller
         if ($service === null) {
             $this->httpNotFound($this->translate('Service not found'));
         }
+
+        $this->addControl(
+            (new ResourceList([$service]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new ServiceDetail($service));
     }
