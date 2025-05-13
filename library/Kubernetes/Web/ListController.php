@@ -106,8 +106,6 @@ abstract class ListController extends Controller
 
     abstract protected function getSortColumns(): array;
 
-    abstract protected function getContentClass(): string;
-
     abstract protected function getPermission(): string;
 
     protected function getIgnoredViewModes(): array

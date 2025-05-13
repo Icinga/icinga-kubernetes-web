@@ -8,16 +8,10 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Web\ListController;
-use Icinga\Module\Kubernetes\Web\PersistentVolumeClaimList;
 use ipl\Orm\Query;
 
 class PersistentvolumeclaimsController extends ListController
 {
-    protected function getContentClass(): string
-    {
-        return PersistentVolumeClaimList::class;
-    }
-
     protected function getQuery(): Query
     {
         return PersistentVolumeClaim::on(Database::connection());
