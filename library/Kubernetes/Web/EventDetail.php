@@ -24,6 +24,8 @@ class EventDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
+    protected $defaultAttributes = ['class' => 'object-detail'];
+
     public function __construct(Event $event)
     {
         $this->event = $event;

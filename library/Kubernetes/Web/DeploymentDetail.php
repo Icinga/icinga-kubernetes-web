@@ -32,7 +32,7 @@ class DeploymentDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'deployment-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail deployment-detail'];
 
     public function __construct(Deployment $deployment)
     {

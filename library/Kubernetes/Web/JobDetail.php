@@ -29,7 +29,7 @@ class JobDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'job-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail job-detail'];
 
     public function __construct(Job $job)
     {

@@ -32,7 +32,7 @@ class ReplicaSetDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'replica-set-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail replica-set-detail'];
 
     public function __construct(ReplicaSet $replicaSet)
     {
