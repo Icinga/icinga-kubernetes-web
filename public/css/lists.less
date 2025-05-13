@@ -1,15 +1,17 @@
 /* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
-footer {
-  align-items: stretch;
+// Display only one caption line in the default list item layout.
+.item-layout.default-item-layout > .main > .caption {
   height: 1.5em;
+  .line-clamp("reset");
+  // Reduce to one line and change props for elliptic text accordingly, as the Icinga PHP library,
+  // which also defines rules for this class, assumes a height of two lines.
+  white-space: nowrap;
+}
+
+footer {
   justify-content: flex-start;
   padding-top: 0;
-
-  > * {
-    font-size: 1em;
-    color: @text-color-light;
-  }
 
   > *:not(:last-child) {
     margin-right: 1em;
@@ -25,9 +27,9 @@ footer {
     overflow: hidden;
 
     .key {
+      color: @gray-semilight;
       width: auto;
       margin-right: .2em;
-      color: @gray-semilight;
     }
 
     .value {
@@ -61,18 +63,9 @@ footer {
 .caption {
   .monospace-font();
   color: @text-color-light;
-  // Reduce to one line and change props for elliptic text accordingly, as the Icinga PHP library,
-  // which also defines rules for this class, assumes a height of two lines.
-  display: block;
-  height: 1.5em;
-  white-space: nowrap;
 }
 
 .title {
-  .text-ellipsis();
-
-  height: 1.5em;
-
   > .subject + .subject {
     margin-left: .2em;
   }
@@ -80,10 +73,6 @@ footer {
   > .icinga-state-text {
     color: @default-text-color;
   }
-}
-
-.item-list.minimal .visual {
-  width: 2.2em;
 }
 
 .visual {
@@ -96,26 +85,8 @@ footer {
   padding: ~"calc((30px - (12px * 0.75 * 1.5)) / 2)" 0;
 }
 
-.config-map-list,
-.secret-list {
-  > .list-item > .visual {
-    // The specified lists have no indicator for their state, therefore visual is hidden so that no space is occupied.
-    display: none;
-  }
-}
-
 .internal-endpoint-list {
   list-style-type: none;
   margin: 0;
   padding: 0;
-}
-
-.header-minimal {
-  display: flex;
-  overflow: hidden;
-  padding-right: 1em;
-
-  .title {
-    overflow: visible;
-  }
 }
