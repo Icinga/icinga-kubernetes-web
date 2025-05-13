@@ -28,9 +28,7 @@ use ipl\Html\ValidHtml;
 use ipl\Orm\Model;
 use ipl\Orm\Query;
 use ipl\Sql\Connection;
-use ipl\Stdlib\Filter\Rule;
 use ipl\Web\Url;
-use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\Icon;
 
 abstract class Factory
@@ -67,137 +65,6 @@ abstract class Factory
             'node'        => new Icon('share-nodes'),
             default       => null
         };
-    }
-
-    public static function createList(string $kind, Rule $filter, $viewMode = null): ValidHtml
-    {
-        $kind = strtolower(str_replace(['_', '-'], '', $kind));
-
-        $database = Database::connection();
-
-        switch ($kind) {
-            case 'configmap':
-                $q = ConfigMap::on($database)->filter($filter);
-
-                $list = new ConfigMapList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'container':
-                $q = Container::on($database)->filter($filter);
-
-                $list = new ContainerList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'cronjob':
-                $q = CronJob::on($database)->filter($filter);
-
-                $list = new CronJobList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'daemonset':
-                $q = DaemonSet::on($database)->filter($filter);
-
-                $list = new DaemonSetList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'deployment':
-                $q = Deployment::on($database)->filter($filter);
-
-                $list = new DeploymentList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'event':
-                $q = Event::on($database)->filter($filter);
-
-                $list = new EventList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'ingress':
-                $q = Ingress::on($database)->filter($filter);
-
-                $list = new IngressList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'job':
-                $q = Job::on($database)->filter($filter);
-
-                $list = new JobList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'namespace':
-                $q = NamespaceModel::on($database)->filter($filter);
-
-                $list = new NamespaceList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'node':
-                $q = Node::on($database)->filter($filter);
-
-                $list = new NodeList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'persistentvolume':
-                $q = PersistentVolume::on($database)->filter($filter);
-
-                $list = new PersistentVolumeList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'persistentvolumeclaim':
-                $q = PersistentVolumeClaim::on($database)->filter($filter);
-
-                $list = new PersistentVolumeClaimList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'pod':
-                $q = Pod::on($database)->filter($filter);
-
-                $list = new PodList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'replicaset':
-                $q = ReplicaSet::on($database)->filter($filter);
-
-                $list = new ReplicaSetList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'secret':
-                $q = Secret::on($database)->filter($filter);
-
-                $list = new SecretList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'service':
-                $q = Service::on($database)->filter($filter);
-
-                $list = new ServiceList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            case 'statefulset':
-                $q = StatefulSet::on($database)->filter($filter);
-
-                $list = new StatefulSetList($q);
-                $viewMode && $list->setViewMode($viewMode);
-
-                return $list;
-            default:
-                return new EmptyState("No items to display. $kind seems to be a custom resource.");
-        }
     }
 
     public static function createModel(string $kind): ?Model
