@@ -9,16 +9,10 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Web\ListController;
-use Icinga\Module\Kubernetes\Web\SecretList;
 use ipl\Orm\Query;
 
 class SecretsController extends ListController
 {
-    protected function getContentClass(): string
-    {
-        return SecretList::class;
-    }
-
     protected function getQuery(): Query
     {
         return Secret::on(Database::connection());

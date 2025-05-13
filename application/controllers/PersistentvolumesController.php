@@ -8,16 +8,10 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Web\ListController;
-use Icinga\Module\Kubernetes\Web\PersistentVolumeList;
 use ipl\Orm\Query;
 
 class PersistentvolumesController extends ListController
 {
-    protected function getContentClass(): string
-    {
-        return PersistentVolumeList::class;
-    }
-
     protected function getQuery(): Query
     {
         return PersistentVolume::on(Database::connection());

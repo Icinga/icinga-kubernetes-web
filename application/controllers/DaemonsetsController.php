@@ -7,17 +7,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
-use Icinga\Module\Kubernetes\Web\DaemonSetList;
 use Icinga\Module\Kubernetes\Web\ListController;
 use ipl\Orm\Query;
 
 class DaemonsetsController extends ListController
 {
-    protected function getContentClass(): string
-    {
-        return DaemonSetList::class;
-    }
-
     protected function getQuery(): Query
     {
         return DaemonSet::on(Database::connection());
