@@ -29,7 +29,7 @@ class ContainerDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'container-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail container-detail'];
 
     public function __construct(Container $container)
     {

@@ -29,7 +29,7 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'pvc-list'];
+    protected $defaultAttributes = ['class' => 'object-detail pvc-detail'];
 
     public function __construct(PersistentVolumeClaim $pvc)
     {
