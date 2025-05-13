@@ -25,13 +25,13 @@ class IcingaStateReason extends BaseHtmlElement
     /** @var string[] Replacements for {@see static::TEXT_PATTERNS} */
     protected const TEXT_REPLACEMENTS = [
         "\n",
-        '<span class="state-ball ball-size-m state-ok"></span>',
-        '<span class="state-ball ball-size-m state-warning"></span>',
-        '<span class="state-ball ball-size-m state-critical"></span>',
-        '<span class="state-ball ball-size-m state-unknown"></span>',
-        '<span class="state-ball ball-size-m state-up"></span>',
-        '<span class="state-ball ball-size-m state-down"></span>',
-        '<span class="state-ball ball-size-m state-pending"></span>',
+        '<span class="state-ball ball-size-m state-ok"></span> ',
+        '<span class="state-ball ball-size-m state-warning"></span> ',
+        '<span class="state-ball ball-size-m state-critical"></span> ',
+        '<span class="state-ball ball-size-m state-unknown"></span> ',
+        '<span class="state-ball ball-size-m state-up"></span> ',
+        '<span class="state-ball ball-size-m state-down"></span> ',
+        '<span class="state-ball ball-size-m state-pending"></span> ',
     ];
 
     protected string $icingaStateReason;

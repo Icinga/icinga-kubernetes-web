@@ -47,7 +47,7 @@ trait DetailActions
     {
         $this->getAttributes()
             ->registerAttributeCallback('class', function () {
-                return $this->getDetailActionsDisabled() ? null : 'action-list';
+                return $this->getDetailActionsDisabled() ? null : 'action-list-kubernetes';
             });
 
         return $this;

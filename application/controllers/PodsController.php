@@ -37,4 +37,9 @@ class PodsController extends ListController
     {
         return Auth::SHOW_PODS;
     }
+
+    protected function getFavorable(): bool
+    {
+        return true;
+    }
 }

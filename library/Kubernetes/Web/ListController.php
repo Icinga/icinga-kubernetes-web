@@ -9,8 +9,10 @@ use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Application\Config;
 use Icinga\Application\Logger;
 use Icinga\Data\ConfigObject;
+use Icinga\Exception\Http\HttpMethodNotAllowedException;
 use Icinga\Exception\Json\JsonDecodeException;
 use Icinga\Module\Kubernetes\Common\Auth;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\User\Preferences;
@@ -61,17 +63,27 @@ abstract class ListController extends Controller
             $q->filter(Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()));
         }
 
-        $limitControl = $this->createLimitControl();
-        $sortControl = $this->createSortControl($q, $this->getSortColumns());
-        $paginationControl = $this->createPaginationControl($q);
+        $favoriteToggleActive = false;
+        if ($this->getFavorable()) {
+            $favoriteToggle = $this->createFavoriteToggle($q);
+            $favoriteToggleActive = $favoriteToggle->getValue($favoriteToggle->getFavoriteParam()) === 'y';
+        }
 
+        $limitControl = $this->createLimitControl();
+        $sortControl = $this->createSortControl(
+            $q,
+            $this->getSortColumns()
+            + ($favoriteToggleActive ? ['favorite.priority desc' => 'Custom Order'] : [])
+        );
+        $paginationControl = $this->createPaginationControl($q);
         $viewModeSwitcher = $this->createViewModeSwitcher($paginationControl, $limitControl);
 
         $searchBar = $this->createSearchBar($q, [
             $limitControl->getLimitParam(),
             $sortControl->getSortParam(),
             $viewModeSwitcher->getViewModeParam(),
-            'columns'
+            (isset($favoriteToggle) ? $favoriteToggle->getFavoriteParam() : ''),
+            'columns',
         ]);
 
         if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
@@ -89,17 +101,60 @@ abstract class ListController extends Controller
 
         $q->filter($filter);
 
+        if ($sortControl->getPopulatedValue($sortControl->getSortParam()) === 'favorite.priority desc') {
+            $this->content->addAttributes(['class' => 'custom-sortable']);
+        }
+
+        if ($favoriteToggleActive) {
+            $paginationControl->setDefaultPageSize(1000);
+        }
+
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
-        $this->addControl($limitControl);
+        if (! $favoriteToggleActive) {
+            $this->addControl($limitControl);
+        }
         $this->addControl($viewModeSwitcher);
+        if ($this->getFavorable()) {
+            $this->addControl($favoriteToggle);
+        }
         $this->addControl($searchBar);
 
         $this->addContent((new ResourceList($q))->setViewMode($viewModeSwitcher->getViewMode()));
 
+        if ($favoriteToggleActive) {
+            if ($sortControl->getPopulatedValue($sortControl->getSortParam()) === 'favorite.priority desc') {
+                $this->content->addAttributes(['data-hint' => 'You can drag the favorites on the drag icon on the right side.']);
+                $this->content->addAttributes(['data-hint-id' => 112]);
+            } else {
+                $this->content->addAttributes(['data-hint' => 'To reorder favorites via drag &amp; drop sort by \'Custom Order\'.']);
+                $this->content->addAttributes(['data-hint-id' => 111]);
+            }
+        }
+
         if (! $searchBar->hasBeenSubmitted() && $searchBar->hasBeenSent()) {
             $this->sendMultipartUpdate();
         }
+    }
+
+    /**
+     * Handle the reordering via drag & drop.
+     *
+     * @return void
+     *
+     * @throws HttpMethodNotAllowedException
+     */
+    public function moveFavoriteAction(): void
+    {
+        $this->assertHttpMethod('POST');
+
+        (new MoveFavoriteForm(Database::connection()))
+            ->on(MoveFavoriteForm::ON_SUCCESS, function () {
+                // Suppress handling XHR response and disable view rendering,
+                // so we can use the form in the list without the page reloading.
+                $this->getResponse()->setHeader('X-Icinga-Container', 'ignore', true);
+                $this->_helper->viewRenderer->setNoRender();
+            })->handleRequest($this->getServerRequest());
     }
 
     abstract protected function getTitle(): string;
@@ -107,6 +162,8 @@ abstract class ListController extends Controller
     abstract protected function getSortColumns(): array;
 
     abstract protected function getPermission(): string;
+
+    abstract protected function getFavorable(): bool;
 
     protected function getIgnoredViewModes(): array
     {
@@ -282,5 +339,53 @@ abstract class ListController extends Controller
         }
 
         return $viewModeSwitcher;
+    }
+
+    /**
+     * Create and return the FavoriteToggle
+     *
+     * This automatically shifts the favorite URL parameter from {@link $params}.
+     *
+     * @param Query $query
+     *
+     * @return FavoriteToggle
+     */
+    public function createFavoriteToggle(
+        Query $query
+    ): FavoriteToggle {
+        $favoriteToggle = new FavoriteToggle();
+        $defaultFavoriteParam = $favoriteToggle->getFavoriteParam();
+        $favoriteParam = $this->params->shift($defaultFavoriteParam);
+        $favoriteToggle->populate([
+            $defaultFavoriteParam => $favoriteParam
+        ]);
+
+        $favoriteToggle->on(FavoriteToggle::ON_SUCCESS, function (FavoriteToggle $favoriteToggle) use (
+            $query,
+            $defaultFavoriteParam
+        ) {
+            $favoriteParam = $favoriteToggle->getValue($defaultFavoriteParam);
+
+            $requestUrl = Url::fromRequest();
+
+            // Redirect if favorite param has changed to update the URL
+            if (isset($favoriteParam) && $requestUrl->getParam($defaultFavoriteParam) !== $favoriteParam) {
+                $requestUrl->setParam($defaultFavoriteParam, $favoriteParam);
+                if (
+                    $favoriteParam === 'n'
+                    && $requestUrl->getParam(SortControl::DEFAULT_SORT_PARAM) === 'favorite.priority desc'
+                ) {
+                    $requestUrl->remove(SortControl::DEFAULT_SORT_PARAM);
+                }
+
+                $this->redirectNow($requestUrl);
+            }
+        })->handleRequest($this->getServerRequest());
+
+        if ($favoriteToggle->getValue($defaultFavoriteParam) === 'y') {
+            $query->with('favorite')->filter(Filter::equal('favorite.username', Auth::getInstance()->getUser()->getUsername()));
+        }
+
+        return $favoriteToggle;
     }
 }

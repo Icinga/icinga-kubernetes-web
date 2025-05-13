@@ -38,7 +38,8 @@ abstract class Factory
         if ($kind === 'pvc') {
             return 'persistentvolumeclaim';
         }
-        return strtolower(str_replace(['_', '-'], '', $kind));
+
+        return strtolower(str_replace([' ', '_', '-'], '', $kind));
     }
 
     public static function createIcon(string $kind): ?ValidHtml
@@ -150,23 +151,48 @@ abstract class Factory
         return null;
     }
 
+    public static function createTitle(string $kind): string
+    {
+        return match ($kind) {
+            'configmap'             => 'Config Maps',
+            'cronjob'               => 'Cron Jobs',
+            'daemonset'             => 'Daemon Sets',
+            'deployment'            => 'Deployments',
+            'event'                 => 'Events',
+            'ingress'               => 'Ingresses',
+            'job'                   => 'Jobs',
+            'namespace'             => 'Namespaces',
+            'node'                  => 'Nodes',
+            'persistentvolume'      => 'Persistent Volumes',
+            'persistentvolumeclaim' => 'Persistent Volume Claims',
+            'pod'                   => 'Pods',
+            'replicaset'            => 'Replica Sets',
+            'secret'                => 'Secrets',
+            'service'               => 'Services',
+            'statefulset'           => 'Stateful Sets',
+            default                 => null,
+        };
+    }
+
     public static function getKindFromModel(Model $model): string
     {
         $kind = match (true) {
             $model instanceof ConfigMap,
-            $model instanceof CronJob,
-            $model instanceof DaemonSet,
-            $model instanceof Deployment,
-            $model instanceof Ingress,
-            $model instanceof Job,
-            $model instanceof PersistentVolume,
-            $model instanceof PersistentVolumeClaim,
-            $model instanceof Pod,
-            $model instanceof ReplicaSet,
-            $model instanceof Secret,
-            $model instanceof Service,
-            $model instanceof StatefulSet => basename(str_replace('\\', '/', get_class($model))),
-            default                       => null
+                $model instanceof CronJob,
+                $model instanceof DaemonSet,
+                $model instanceof Deployment,
+                $model instanceof Ingress,
+                $model instanceof Job,
+                $model instanceof Node,
+                $model instanceof PersistentVolume,
+                $model instanceof PersistentVolumeClaim,
+                $model instanceof Pod,
+                $model instanceof ReplicaSet,
+                $model instanceof Secret,
+                $model instanceof Service,
+                $model instanceof StatefulSet => basename(str_replace('\\', '/', get_class($model))),
+            $model instanceof NamespaceModel  => 'namespace',
+            default                           => null
         };
 
         return strtolower(str_replace(['_', '-'], '', $kind));

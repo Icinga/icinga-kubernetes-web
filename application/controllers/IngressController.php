@@ -6,10 +6,12 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\IngressDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\QuickActions;
 use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
@@ -30,6 +32,15 @@ class IngressController extends Controller
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
+        $favorite = Favorite::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('resource_uuid', $uuidBytes),
+                    Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+                )
+            )
+            ->first();
+
         if ($ingress === null) {
             $this->httpNotFound($this->translate('Ingress not found'));
         }
@@ -37,8 +48,10 @@ class IngressController extends Controller
         $this->addControl(
             (new ResourceList([$ingress]))
                 ->setDetailActionsDisabled()
-                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_MINIMAL)
         );
+
+        $this->addControl(new QuickActions($ingress, $favorite));
 
         $this->addContent(new IngressDetail($ingress));
     }

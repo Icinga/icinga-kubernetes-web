@@ -46,6 +46,10 @@ class Ingress extends Model
         $relations
             ->belongsToMany('annotation', Annotation::class)
             ->through('ingress_annotation');
+
+        $relations->hasMany('favorite', Favorite::class)
+            ->setForeignKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array

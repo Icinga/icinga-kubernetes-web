@@ -35,4 +35,9 @@ class PersistentvolumeclaimsController extends ListController
     {
         return Auth::SHOW_PERSISTENT_VOLUME_CLAIMS;
     }
+
+    protected function getFavorable(): bool
+    {
+        return true;
+    }
 }

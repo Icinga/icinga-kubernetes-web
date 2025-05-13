@@ -51,4 +51,9 @@ class EventsController extends ListController
     {
         return [ViewModeSwitcher::VIEW_MODE_DETAILED];
     }
+
+    protected function getFavorable(): bool
+    {
+        return false;
+    }
 }
