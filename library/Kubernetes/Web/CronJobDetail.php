@@ -27,6 +27,8 @@ class CronJobDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
+    protected $defaultAttributes = ['class' => 'object-detail'];
+
     public function __construct(CronJob $cronJob)
     {
         $this->cronJob = $cronJob;

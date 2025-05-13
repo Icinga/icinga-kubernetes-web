@@ -27,7 +27,7 @@ class PersistentVolumeDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'persistent-volume-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail persistent-volume-detail'];
 
     public function __construct(PersistentVolume $persistentVolume)
     {

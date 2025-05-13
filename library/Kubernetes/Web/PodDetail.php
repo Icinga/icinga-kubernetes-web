@@ -34,7 +34,7 @@ class PodDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'pod-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail pod-detail'];
 
     public function __construct(Pod $pod)
     {

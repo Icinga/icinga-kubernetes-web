@@ -30,7 +30,7 @@ class ServiceDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'service-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail service-detail'];
 
     public function __construct(Service $service)
     {

@@ -34,7 +34,7 @@ class DaemonSetDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'daemon-set-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail daemon-set-detail'];
 
     public function __construct(DaemonSet $daemonSet)
     {

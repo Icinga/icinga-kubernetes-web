@@ -34,7 +34,7 @@ class StatefulSetDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'stateful-set-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail stateful-set-detail'];
 
     public function __construct(StatefulSet $statefulSet)
     {
