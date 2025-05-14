@@ -72,7 +72,11 @@ class ServiceDetail extends BaseHtmlElement
                 ),
                 $this->translate('Load Balancer Class')               => $this->service->load_balancer_class ??
                     new EmptyState($this->translate('None')),
-                $this->translate('Internal Traffic Policy')           => $this->service->internal_traffic_policy
+                $this->translate('Internal Traffic Policy')           => $this->service->internal_traffic_policy,
+                $this->translate('Icinga State')                      => new DetailState($this->service->icinga_state),
+                $this->translate('Icinga State Reason')               => new IcingaStateReason(
+                    $this->service->icinga_state_reason
+                )
             ])),
             new Labels($this->service->label),
             new Annotations($this->service->annotation),
