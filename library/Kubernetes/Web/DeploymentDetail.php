@@ -96,7 +96,7 @@ class DeploymentDetail extends BaseHtmlElement
                     Auth::SHOW_REPLICA_SETS,
                     $this->deployment->replica_set
                 )))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

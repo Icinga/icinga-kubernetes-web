@@ -101,7 +101,7 @@ class StatefulSetDetail extends BaseHtmlElement
                     Auth::SHOW_PODS,
                     $this->statefulSet->pod->with(['node'])
                 )))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

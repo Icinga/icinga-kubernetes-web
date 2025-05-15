@@ -105,7 +105,7 @@ class ServiceDetail extends BaseHtmlElement
                     Auth::SHOW_PODS,
                     $pods
                 )))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

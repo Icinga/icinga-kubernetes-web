@@ -92,7 +92,7 @@ class JobDetail extends BaseHtmlElement
                     Auth::SHOW_PODS,
                     $this->job->pod->with(['node'])
                 )))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

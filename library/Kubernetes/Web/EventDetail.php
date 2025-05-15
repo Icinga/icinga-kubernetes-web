@@ -65,7 +65,7 @@ class EventDetail extends BaseHtmlElement
                     Factory::fetchResource($this->event->reference_kind)
                         ->filter(Filter::equal('uuid', $this->event->reference_uuid))
                 ))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             )
         );
 

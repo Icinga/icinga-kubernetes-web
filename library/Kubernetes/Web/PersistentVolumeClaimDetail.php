@@ -78,7 +78,7 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
                     Auth::SHOW_PODS,
                     $this->pvc->pod
                 )))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

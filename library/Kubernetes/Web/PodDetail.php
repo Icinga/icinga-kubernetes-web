@@ -101,19 +101,19 @@ class PodDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Init Containers')),
-                (new ResourceList($this->pod->init_container))->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                (new ResourceList($this->pod->init_container))->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ),
             new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Sidecar Containers')),
-                (new ResourceList($this->pod->sidecar_container))->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                (new ResourceList($this->pod->sidecar_container))->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ),
             new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Containers')),
-                (new ResourceList($this->pod->container))->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                (new ResourceList($this->pod->container))->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             )
         );
 
@@ -125,7 +125,7 @@ class PodDetail extends BaseHtmlElement
                 (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PERSISTENT_VOLUME_CLAIMS,
                     $this->pod->pvc
-                )))->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                )))->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 
