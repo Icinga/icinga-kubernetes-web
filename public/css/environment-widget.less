@@ -45,7 +45,7 @@
 
   .label {
     max-width: @max-node-width;
-    padding-left: 2em + 0.5em + 2em + 0.5em; // state-ball + margin-right + icon-image + margin-right
+    padding-left: 2em + 0.5em + 0.5em; // state-ball + margin-right + margin-right
     text-align: center;
     color: @text-color-light;
   }
@@ -77,25 +77,6 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-
-    .icon-image {
-      display: flex;
-      align-items: center;
-    }
-
-    .icon-image, .object-statistics-total {
-      height: 2em;
-      width: 2em;
-      line-height: 2;
-      flex-shrink: 0;
-    }
-
-    .icon-image img {
-      max-height: 100%;
-      max-width: 100%;
-      height: auto;
-      width: auto;
-    }
   }
 
   .node-list {

@@ -182,9 +182,7 @@ class Environment extends BaseHtmlElement
 
         $mainBall->add($icon);
 
-        $iconImage = HtmlElement::create('div', ['class' => 'icon-image']);
-
-        return (new HtmlDocument())->addHtml($mainBall, $iconImage, $subject);
+        return (new HtmlDocument())->addHtml($mainBall, $subject);
     }
 
     /**
