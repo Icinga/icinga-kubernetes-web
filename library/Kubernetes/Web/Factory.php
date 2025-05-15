@@ -237,16 +237,18 @@ abstract class Factory
             'deployment',
             'event',
             'ingress',
+            'initcontainer',
             'job',
             'namespace',
             'node',
             'persistentvolume',
-            'persistentvolumeclaim',
             'pod',
             'replicaset',
             'secret',
             'service',
+            'sidecarcontainer',
             'statefulset' => Url::fromPath("kubernetes/$kind"),
+            'persistentvolumeclaim' => Url::fromPath('kubernetes/pvc'),
             default       => null
         };
     }
