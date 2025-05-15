@@ -73,7 +73,7 @@ class Labels extends BaseHtmlElement
                 )
             );
         } else {
-            $this->addHtml(new EmptyState($this->translate('No items to display.')));
+            $this->addHtml(new EmptyState($this->translate('No items found.')));
         }
     }
 
