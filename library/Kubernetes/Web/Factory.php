@@ -114,9 +114,9 @@ abstract class Factory
             'secret',
             'service',
             'sidecarcontainer',
-            'statefulset' => Url::fromPath("kubernetes/$kind"),
+            'statefulset'           => Url::fromPath("kubernetes/$kind"),
             'persistentvolumeclaim' => Url::fromPath('kubernetes/pvc'),
-            default       => null
+            default                 => null
         };
     }
 
@@ -124,13 +124,30 @@ abstract class Factory
     {
         $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
-        $controller = match ($kind) {
+        if ($controller = static::pluralizeKind($kind)) {
+            return Url::fromPath("kubernetes/$controller");
+        }
+
+        return null;
+    }
+
+    /**
+     * Pluralizes the given kind.
+     *
+     * @param string $kind The kind to pluralize
+     *
+     * @return string|null The pluralized kind or null if not found
+     */
+    public static function pluralizeKind(string $kind): ?string
+    {
+        return match ($kind) {
             'configmap',
             'container',
             'cronjob',
             'daemonset',
             'deployment',
             'event',
+            'initcontainer',
             'job',
             'namespace',
             'node',
@@ -140,16 +157,11 @@ abstract class Factory
             'replicaset',
             'secret',
             'service',
+            'sidecarcontainer',
             'statefulset' => "{$kind}s",
             'ingress'     => 'ingresses',
             default       => null
         };
-
-        if ($controller !== null) {
-            return Url::fromPath("kubernetes/$controller");
-        }
-
-        return null;
     }
 
     public static function getKindFromModel(Model $model): string
