@@ -303,7 +303,7 @@ class Environment extends BaseHtmlElement
     {
         $kind = Factory::getKindFromModel($node);
 
-        $kindPlural = $kind === 'ingress' ? $kind . 'es' : $kind . 's';
+        $kindPlural = Factory::pluralizeKind($kind);
 
         $url = Url::fromPath("kubernetes/$kindPlural");
 
