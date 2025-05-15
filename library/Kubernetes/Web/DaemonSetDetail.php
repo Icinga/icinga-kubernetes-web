@@ -94,7 +94,7 @@ class DaemonSetDetail extends BaseHtmlElement
                     Auth::SHOW_PODS,
                     $this->daemonSet->pod->with(['node'])
                 )))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

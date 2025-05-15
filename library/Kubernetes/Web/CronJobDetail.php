@@ -75,7 +75,7 @@ class CronJobDetail extends BaseHtmlElement
                     Auth::SHOW_JOBS,
                     $this->cronJob->job
                 )))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

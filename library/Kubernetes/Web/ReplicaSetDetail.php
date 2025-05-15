@@ -87,7 +87,7 @@ class ReplicaSetDetail extends BaseHtmlElement
                     Auth::SHOW_PODS,
                     $this->replicaSet->pod->with(['node'])
                 )))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

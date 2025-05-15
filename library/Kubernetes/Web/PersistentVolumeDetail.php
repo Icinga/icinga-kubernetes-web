@@ -72,7 +72,7 @@ class PersistentVolumeDetail extends BaseHtmlElement
                     Auth::SHOW_PERSISTENT_VOLUME_CLAIMS,
                     $this->persistentVolume->pvc
                 )))
-                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 
