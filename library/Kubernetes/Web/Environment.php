@@ -305,8 +305,7 @@ class Environment extends BaseHtmlElement
 
         $url = Url::fromPath("kubernetes/$kindPlural");
 
-        $summary = new HtmlElement('footer');
-
+        $summary = new HtmlDocument();
 
         if ($this->currentObject instanceof Job && $node instanceof Pod) {
             $pods = (new ItemCountIndicator())
