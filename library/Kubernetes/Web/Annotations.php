@@ -12,7 +12,6 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\HorizontalKeyValue;
-
 use function Icinga\Module\Kubernetes\yield_iterable;
 
 class Annotations extends BaseHtmlElement
@@ -64,7 +63,7 @@ class Annotations extends BaseHtmlElement
 
             $this->addHtml($container);
         } else {
-            $this->addHtml(new EmptyState($this->translate('No items to display.')));
+            $this->addHtml(new EmptyState($this->translate('No items found.')));
         }
     }
 }

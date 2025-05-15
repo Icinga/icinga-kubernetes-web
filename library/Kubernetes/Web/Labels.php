@@ -12,7 +12,6 @@ use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\HorizontalKeyValue;
-
 use function Icinga\Module\Kubernetes\yield_iterable;
 
 class Labels extends BaseHtmlElement
@@ -73,7 +72,7 @@ class Labels extends BaseHtmlElement
                 )
             );
         } else {
-            $this->addHtml(new EmptyState($this->translate('No items to display.')));
+            $this->addHtml(new EmptyState($this->translate('No items found.')));
         }
     }
 
