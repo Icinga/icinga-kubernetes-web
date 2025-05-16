@@ -8,16 +8,10 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Web\ListController;
-use Icinga\Module\Kubernetes\Web\ServiceList;
 use ipl\Orm\Query;
 
 class ServicesController extends ListController
 {
-    protected function getContentClass(): string
-    {
-        return ServiceList::class;
-    }
-
     protected function getQuery(): Query
     {
         return Service::on(Database::connection());

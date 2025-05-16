@@ -27,16 +27,23 @@ use ipl\Html\HtmlElement;
 use ipl\Html\ValidHtml;
 use ipl\Orm\Model;
 use ipl\Orm\Query;
-use ipl\Stdlib\Filter\Rule;
+use ipl\Sql\Connection;
 use ipl\Web\Url;
-use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\Icon;
 
 abstract class Factory
 {
+    public static function canonicalizeKind(string $kind): string
+    {
+        if ($kind === 'pvc') {
+            return 'persistentvolumeclaim';
+        }
+        return strtolower(str_replace(['_', '-'], '', $kind));
+    }
+
     public static function createIcon(string $kind): ?ValidHtml
     {
-        $kind = strtolower(str_replace(['_', '-'], '', $kind));
+        $kind = self::canonicalizeKind($kind);
 
         return match ($kind) {
             'configmap',
@@ -58,86 +65,6 @@ abstract class Factory
             'node'        => new Icon('share-nodes'),
             default       => null
         };
-    }
-
-    public static function createList(string $kind, Rule $filter): ValidHtml
-    {
-        $kind = strtolower(str_replace(['_', '-'], '', $kind));
-
-        $database = Database::connection();
-
-        switch ($kind) {
-            case 'configmap':
-                $q = ConfigMap::on($database)->filter($filter);
-
-                return new ConfigMapList($q);
-            case 'container':
-                $q = Container::on($database)->filter($filter);
-
-                return new ContainerList($q);
-            case 'cronjob':
-                $q = CronJob::on($database)->filter($filter);
-
-                return new CronJobList($q);
-            case 'daemonset':
-                $q = DaemonSet::on($database)->filter($filter);
-
-                return new DaemonSetList($q);
-            case 'deployment':
-                $q = Deployment::on($database)->filter($filter);
-
-                return new DeploymentList($q);
-            case 'event':
-                $q = Event::on($database)->filter($filter);
-
-                return new EventList($q);
-            case 'ingress':
-                $q = Ingress::on($database)->filter($filter);
-
-                return new IngressList($q);
-            case 'job':
-                $q = Job::on($database)->filter($filter);
-
-                return new JobList($q);
-            case 'namespace':
-                $q = NamespaceModel::on($database)->filter($filter);
-
-                return new NamespaceList($q);
-            case 'node':
-                $q = Node::on($database)->filter($filter);
-
-                return new NodeList($q);
-            case 'persistentvolume':
-                $q = PersistentVolume::on($database)->filter($filter);
-
-                return new PersistentVolumeList($q);
-            case 'persistentvolumeclaim':
-                $q = PersistentVolumeClaim::on($database)->filter($filter);
-
-                return new PersistentVolumeClaimList($q);
-            case 'pod':
-                $q = Pod::on($database)->filter($filter);
-
-                return new PodList($q);
-            case 'replicaset':
-                $q = ReplicaSet::on($database)->filter($filter);
-
-                return new ReplicaSetList($q);
-            case 'secret':
-                $q = Secret::on($database)->filter($filter);
-
-                return new SecretList($q);
-            case 'service':
-                $q = Service::on($database)->filter($filter);
-
-                return new ServiceList($q);
-            case 'statefulset':
-                $q = StatefulSet::on($database)->filter($filter);
-
-                return new StatefulSetList($q);
-            default:
-                return new EmptyState("No items to display. $kind seems to be a custom resource.");
-        }
     }
 
     public static function createModel(string $kind): ?Model
@@ -177,16 +104,18 @@ abstract class Factory
             'deployment',
             'event',
             'ingress',
+            'initcontainer',
             'job',
             'namespace',
             'node',
             'persistentvolume',
-            'persistentvolumeclaim',
             'pod',
             'replicaset',
             'secret',
             'service',
+            'sidecarcontainer',
             'statefulset' => Url::fromPath("kubernetes/$kind"),
+            'persistentvolumeclaim' => Url::fromPath('kubernetes/pvc'),
             default       => null
         };
     }
@@ -252,11 +181,11 @@ abstract class Factory
      *
      * @return Query|null
      */
-    public static function fetchResource(string $kind): ?Query
+    public static function fetchResource(string $kind, Connection $db = null): ?Query
     {
         $kind = strtolower(str_replace(['_', '-'], '', $kind));
 
-        $database = Database::connection();
+        $database = $db ?? Database::connection();
 
         $query = match ($kind) {
             'configmap'             => ConfigMap::on($database),
@@ -266,6 +195,7 @@ abstract class Factory
             'deployment'            => Deployment::on($database),
             'ingress'               => Ingress::on($database),
             'job'                   => Job::on($database),
+            'persistentvolume'      => PersistentVolume::on($database),
             'persistentvolumeclaim' => PersistentVolumeClaim::on($database),
             'pod'                   => Pod::on($database),
             'replicaset'            => ReplicaSet::on($database),

@@ -10,10 +10,10 @@ use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Endpoint;
 use Icinga\Module\Kubernetes\Model\EndpointSlice;
-use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\ServicePort;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -29,7 +29,7 @@ class ServiceDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'service-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail service-detail'];
 
     public function __construct(Service $service)
     {
@@ -101,10 +101,11 @@ class ServiceDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $pods
-                ))
+                )))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

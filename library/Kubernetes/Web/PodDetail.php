@@ -13,7 +13,7 @@ use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
-use Icinga\Module\Kubernetes\Model\PodOwner;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -24,7 +24,6 @@ use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
-use Ramsey\Uuid\Uuid;
 
 class PodDetail extends BaseHtmlElement
 {
@@ -34,7 +33,7 @@ class PodDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'pod-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail pod-detail'];
 
     public function __construct(Pod $pod)
     {
@@ -102,19 +101,19 @@ class PodDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Init Containers')),
-                new InitContainerList($this->pod->init_container)
+                (new ResourceList($this->pod->init_container))->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ),
             new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Sidecar Containers')),
-                new SidecarContainerList($this->pod->sidecar_container)
+                (new ResourceList($this->pod->sidecar_container))->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ),
             new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Containers')),
-                new ContainerList($this->pod->container)
+                (new ResourceList($this->pod->container))->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             )
         );
 
@@ -123,10 +122,10 @@ class PodDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Persistent Volume Claims'))),
-                new PersistentVolumeClaimList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PERSISTENT_VOLUME_CLAIMS,
                     $this->pod->pvc
-                ))
+                )))->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 
@@ -135,8 +134,9 @@ class PodDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->pod->uuid)))
+                (new ResourceList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->pod->uuid))))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             ));
         }
 

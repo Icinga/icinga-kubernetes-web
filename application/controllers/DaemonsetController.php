@@ -9,7 +9,8 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DaemonSetDetail;
-use Icinga\Module\Kubernetes\Web\DaemonSetList;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +34,11 @@ class DaemonsetController extends Controller
             $this->httpNotFound($this->translate('Daemon Set not found'));
         }
 
-        $this->addControl((new DaemonSetList([$daemonSet]))->setActionList(false));
+        $this->addControl(
+            (new ResourceList([$daemonSet]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new DaemonSetDetail($daemonSet));
     }

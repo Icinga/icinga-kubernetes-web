@@ -9,6 +9,8 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\CronJobDetail;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -31,6 +33,12 @@ class CronjobController extends Controller
         if ($cronJob === null) {
             $this->httpNotFound($this->translate('Cron Job not found'));
         }
+
+        $this->addControl(
+            (new ResourceList([$cronJob]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new CronJobDetail($cronJob));
     }

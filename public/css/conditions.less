@@ -3,6 +3,10 @@
   @list-item-spacing: 1.5em;
   @visual-width: 1.25em;
 
+  .item-layout .visual > i.icon {
+    font-size: 1em;
+  }
+
   .list-item {
     &:not(:last-child) .visual:before {
       border-left: @line-width solid @gray-light;
@@ -32,6 +36,7 @@
       justify-content: flex-start;
       position: relative;
       width: @visual-width;
+      font-size: 1.5em;
 
       &.error {
         color: @color-down;

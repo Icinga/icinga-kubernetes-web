@@ -7,6 +7,7 @@ namespace Icinga\Module\Kubernetes\Web;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -22,6 +23,8 @@ class EventDetail extends BaseHtmlElement
     protected Event $event;
 
     protected $tag = 'div';
+
+    protected $defaultAttributes = ['class' => 'object-detail'];
 
     public function __construct(Event $event)
     {
@@ -58,7 +61,11 @@ class EventDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Referent'))),
-                Factory::createList($this->event->reference_kind, Filter::equal('uuid', $this->event->reference_uuid))
+                (new ResourceList(
+                    Factory::fetchResource($this->event->reference_kind)
+                        ->filter(Filter::equal('uuid', $this->event->reference_uuid))
+                ))
+                    ->setViewMode(ViewModeSwitcher::VIEW_MODE_COMMON)
             )
         );
 

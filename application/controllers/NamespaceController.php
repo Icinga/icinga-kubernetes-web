@@ -8,7 +8,9 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\NamespaceDetail;
+use Icinga\Module\Kubernetes\Web\ViewModeSwitcher;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -31,6 +33,12 @@ class NamespaceController extends Controller
         if ($namespace === null) {
             $this->httpNotFound($this->translate('Namespace not found'));
         }
+
+        $this->addControl(
+            (new ResourceList([$namespace]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewModeSwitcher::VIEW_MODE_DETAILED)
+        );
 
         $this->addContent(new NamespaceDetail($namespace));
     }
