@@ -8,7 +8,9 @@ use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\InitContainer;
 use Icinga\Module\Kubernetes\Model\SidecarContainer;
 use Icinga\Module\Kubernetes\Web\ItemCountIndicator;
+use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
+use ipl\Html\HtmlElement;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 
@@ -46,7 +48,10 @@ class PodRenderer extends BaseResourceRenderer
         }
 
         $footer->addHtml(
-            (new HorizontalKeyValue(new Icon('box'), $containers))
+            (new HorizontalKeyValue(
+                new HtmlElement('i', new Attributes(['class' => 'icon kicon-container'])),
+                $containers
+            ))
                 ->addAttributes([
                     'title' => sprintf(
                         $this->translate(
