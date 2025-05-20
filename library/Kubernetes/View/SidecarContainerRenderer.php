@@ -11,6 +11,6 @@ class SidecarContainerRenderer extends ContainerRenderer
 {
     protected function getDetailUrl($item): Url
     {
-        return Links::sidecarContainer($item);
+        return Links::sidecarcontainer($item);
     }
 }

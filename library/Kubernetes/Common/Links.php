@@ -63,7 +63,7 @@ abstract class Links
         return Url::fromPath('kubernetes/ingress', ['id' => (string) Uuid::fromBytes($ingress->uuid)]);
     }
 
-    public static function initContainer(InitContainer $initContainer): Url
+    public static function initcontainer(InitContainer $initContainer): Url
     {
         return Url::fromPath('kubernetes/init-container', ['id' => (string) Uuid::fromBytes($initContainer->uuid)]);
     }
@@ -119,7 +119,7 @@ abstract class Links
         return Url::fromPath('kubernetes/service', ['id' => (string) Uuid::fromBytes($service->uuid)]);
     }
 
-    public static function sidecarContainer(SidecarContainer $sidecarContainer): Url
+    public static function sidecarcontainer(SidecarContainer $sidecarContainer): Url
     {
         return Url::fromPath(
             'kubernetes/sidecar-container',

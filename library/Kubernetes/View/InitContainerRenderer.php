@@ -30,6 +30,6 @@ class InitContainerRenderer extends ContainerRenderer
 
     protected function getDetailUrl($item): Url
     {
-        return Links::initContainer($item);
+        return Links::initcontainer($item);
     }
 }
