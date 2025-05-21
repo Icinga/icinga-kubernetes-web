@@ -43,6 +43,17 @@ class StatefulSetDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            new WorkloadIcingaStateReason(
+                $this->statefulSet->uuid,
+                $this->statefulSet->icinga_state_reason,
+                $this->statefulSet->icinga_state
+            )
+        ));
+
         $this->addHtml(
             new DetailMetricCharts(
                 Metrics::statefulSetMetrics(
@@ -82,10 +93,6 @@ class StatefulSetDetail extends BaseHtmlElement
                         new Attributes(['class' => 'icinga-state-text']),
                         new Text(' ' . $this->statefulSet->icinga_state)
                     )
-                ),
-                $this->translate('Icinga State Reason')   => new IcingaStateReason(
-                    $this->statefulSet->icinga_state_reason,
-                    $this->statefulSet->icinga_state
                 )
             ])),
             new Labels($this->statefulSet->label),

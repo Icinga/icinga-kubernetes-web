@@ -7,6 +7,7 @@ namespace Icinga\Module\Kubernetes\View;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Web\ItemCountIndicator;
 use Icinga\Module\Kubernetes\Web\KIcon;
+use Icinga\Module\Kubernetes\Web\WorkloadIcingaStateReason;
 use ipl\Html\HtmlDocument;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
@@ -22,6 +23,11 @@ class StatefulSetRenderer extends BaseResourceRenderer
         'OrderedReady' => 'shuffle',
         'Parallel'     => 'grip-lines'
     ];
+
+    public function assembleCaption($item, HtmlDocument $caption, string $layout): void
+    {
+        $caption->addHtml(new WorkloadIcingaStateReason($item->uuid, $item->icinga_state_reason, $item->icinga_state));
+    }
 
     public function assembleFooter($item, HtmlDocument $footer, string $layout): void
     {

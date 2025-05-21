@@ -43,6 +43,17 @@ class DaemonSetDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            new WorkloadIcingaStateReason(
+                $this->daemonSet->uuid,
+                $this->daemonSet->icinga_state_reason,
+                $this->daemonSet->icinga_state
+            )
+        ));
+
         $this->addHtml(
             new DetailMetricCharts(
                 Metrics::daemonSetMetrics(
@@ -75,10 +86,6 @@ class DaemonSetDetail extends BaseHtmlElement
                         new Attributes(['class' => 'icinga-state-text']),
                         new Text($this->daemonSet->icinga_state)
                     )
-                ),
-                $this->translate('Icinga State Reason')      => new IcingaStateReason(
-                    $this->daemonSet->icinga_state_reason,
-                    $this->daemonSet->icinga_state
                 )
             ])),
             new Labels($this->daemonSet->label),
