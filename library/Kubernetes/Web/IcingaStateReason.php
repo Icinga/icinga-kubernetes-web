@@ -14,7 +14,7 @@ use ipl\Web\Widget\StateBall;
 class IcingaStateReason extends BaseHtmlElement
 {
     /** @var string[] Patterns to be replaced in plain text plugin output */
-    protected const TEXT_PATTERNS = [
+    public const TEXT_PATTERNS = [
         '~\\\n~',
         '~([\[(])OK([])])?~',
         '~([\[(])WARNING([])])?~',
@@ -27,7 +27,7 @@ class IcingaStateReason extends BaseHtmlElement
     ];
 
     /** @var string[] Replacements for {@see static::TEXT_PATTERNS} */
-    protected const TEXT_REPLACEMENTS = [
+    public const TEXT_REPLACEMENTS = [
         "\n",
         '<span class="state-ball ball-size-m state-ok"></span>',
         '<span class="state-ball ball-size-m state-warning"></span>',

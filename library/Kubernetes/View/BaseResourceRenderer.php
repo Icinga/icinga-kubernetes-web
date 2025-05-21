@@ -6,10 +6,12 @@ namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Web\Factory;
+use Icinga\Module\Kubernetes\Web\IcingaStateReason;
 use ipl\Html\Attributes;
 use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
+use ipl\Html\HtmlString;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Common\ItemRenderer;
@@ -32,7 +34,13 @@ abstract class BaseResourceRenderer implements ItemRenderer
 
     public function assembleCaption($item, HtmlDocument $caption, string $layout): void
     {
-        $caption->addHtml(new Text($item->icinga_state_reason));
+        $caption->addHtml(
+            new HtmlElement(
+                'div',
+                new Attributes(['class' => 'preformatted']),
+                new HtmlString(new IcingaStateReason($item->icinga_state_reason, $item->icinga_state)),
+            ),
+        );
     }
 
     public function assembleTitle($item, HtmlDocument $title, string $layout): void
