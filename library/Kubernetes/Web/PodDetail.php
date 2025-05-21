@@ -49,6 +49,17 @@ class PodDetail extends BaseHtmlElement
             $containerRestarts += $container->restart_count;
         }
 
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            new PodIcingaStateReason(
+                $this->pod->uuid,
+                $this->pod->icinga_state_reason,
+                $this->pod->icinga_state
+            )
+        ));
+
         $this->addHtml(
             new DetailMetricCharts(
                 Metrics::podMetrics(
@@ -59,42 +70,38 @@ class PodDetail extends BaseHtmlElement
                 )
             ),
             new Details(new ResourceDetails($this->pod, [
-                $this->translate('IP')                  => $this->pod->ip ??
+                $this->translate('IP')                 => $this->pod->ip ??
                     new EmptyState($this->translate('None')),
-                $this->translate('Node')                => (new HtmlDocument())->addHtml(
+                $this->translate('Node')               => (new HtmlDocument())->addHtml(
                     new Icon('share-nodes'),
                     $this->pod->node_name ?
                         new Text($this->pod->node_name) :
                         new EmptyState($this->translate('None')),
                 ),
-                $this->translate('Container Restarts')  => (new HtmlDocument())->addHtml(
+                $this->translate('Container Restarts') => (new HtmlDocument())->addHtml(
                     new Icon('arrows-spin'),
                     new Text($containerRestarts)
                 ),
-                $this->translate('Restart Policy')      => (new HtmlDocument())->addHtml(
+                $this->translate('Restart Policy')     => (new HtmlDocument())->addHtml(
                     new Icon('recycle'),
                     new Text($this->pod->restart_policy)
                 ),
-                $this->translate('Quality of Service')  => (new HtmlDocument())->addHtml(
+                $this->translate('Quality of Service') => (new HtmlDocument())->addHtml(
                     new Icon('life-ring'),
                     new Text($this->pod->qos)
                 ),
-                $this->translate('Phase')               => $this->pod->phase,
-                $this->translate('Reason')              => $this->pod->reason ??
+                $this->translate('Phase')              => $this->pod->phase,
+                $this->translate('Reason')             => $this->pod->reason ??
                     new EmptyState($this->translate('None')),
-                $this->translate('Message')             => $this->pod->message ??
+                $this->translate('Message')            => $this->pod->message ??
                     new EmptyState($this->translate('None')),
-                $this->translate('Icinga State')        => (new HtmlDocument())->addHtml(
+                $this->translate('Icinga State')       => (new HtmlDocument())->addHtml(
                     new StateBall($this->pod->icinga_state, StateBall::SIZE_MEDIUM),
                     new HtmlElement(
                         'span',
                         new Attributes(['class' => 'icinga-state-text']),
                         new Text($this->pod->icinga_state)
                     )
-                ),
-                $this->translate('Icinga State Reason') => new IcingaStateReason(
-                    $this->pod->icinga_state_reason,
-                    $this->pod->icinga_state
                 )
             ])),
             new Labels($this->pod->label),
