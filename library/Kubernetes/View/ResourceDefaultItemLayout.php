@@ -4,6 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\View;
 
+use Icinga\Module\Kubernetes\Model\PersistentVolume;
+use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\Secret;
 use ipl\Html\HtmlDocument;
 use ipl\Web\Layout\ItemLayout;
@@ -14,6 +16,8 @@ class ResourceDefaultItemLayout extends ItemLayout
     {
         switch (true) {
             case $this->item instanceof Secret:
+            case $this->item instanceof PersistentVolume:
+            case $this->item instanceof PersistentVolumeClaim:
                 $this->registerHeader($container);
                 $this->registerFooter($container);
 
@@ -27,6 +31,8 @@ class ResourceDefaultItemLayout extends ItemLayout
     {
         switch (true) {
             case $this->item instanceof Secret:
+            case $this->item instanceof PersistentVolume:
+            case $this->item instanceof PersistentVolumeClaim:
                 $this->registerTitle($container);
                 $this->registerExtendedInfo($container);
 

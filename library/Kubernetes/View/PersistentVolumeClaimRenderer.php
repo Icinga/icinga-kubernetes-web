@@ -31,8 +31,6 @@ class PersistentVolumeClaimRenderer extends BaseResourceRenderer
 
     public function assembleCaption($item, HtmlDocument $caption, string $layout): void
     {
-        // TODO add state reason then remove this function
-        $caption->addHtml(new Text('Placeholder for Icinga State Reason'));
     }
 
     public function assembleFooter($item, HtmlDocument $footer, string $layout): void
