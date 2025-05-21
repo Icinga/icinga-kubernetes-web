@@ -22,7 +22,10 @@ pre {
 }
 
 .container-list-item > .visual > .state-ball,
-.container-detail > .details > .horizontal-key-value > .value > .state-ball {
+.container-list-item .caption .icinga-state-reason > .state-ball,
+.container-row > .state-ball,
+.container-detail > .details > .horizontal-key-value > .value > .state-ball,
+.container-detail > section > .icinga-state-reason > .state-ball {
   // Display squares instead of balls for containers.
   border-radius: initial;
 }
@@ -111,4 +114,67 @@ pre {
   margin-left: -1em;
   padding-right: 1em;
   padding-left: 1em;
+}
+
+.object-detail :not(.caption) > .icinga-state-reason {
+  line-height: 1.75em;
+
+  .reason {
+    color: @text-color-light;
+  }
+}
+
+.caption > .icinga-state-reason {
+  font-size: 0.91666667em;
+  line-height: 1.63636364em;
+
+  .tooltip-holder {
+    pointer-events: none;
+  }
+}
+
+.icinga-state-reason {
+  .state-ball {
+    flex-shrink: 0;
+    margin-right: .4em;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+
+    .text {
+      display: flex;
+      gap: .25em;
+
+      color: @text-color-light;
+
+      .text-ellipsis();
+    }
+
+    .highlight-text {
+      color: @text-color;
+    }
+  }
+}
+
+.workload-rows,
+.pod-rows,
+.container-rows {
+  transform: translateX(.75em);
+
+  .row:before {
+    content: '';
+    border-left: 1px solid @gray-light;
+    border-bottom: 1px solid @gray-light;
+    height: 1em;
+    width: 1em;
+    transform: translateX(~"calc(-.375em - 0.5px)") translateY(~"calc(-0.5em + 0.5px)");
+  }
+}
+
+.workload-rows .pod-rows,
+.pod-rows .container-rows {
+  // level-indicator (1em) + state-ball margin (0.4em) + half state-ball size m (0.375em)
+  transform: translateX(~"calc(" 1em + .4em + .375em ~"- 0.5px)");
 }
