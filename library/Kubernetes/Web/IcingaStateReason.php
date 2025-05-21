@@ -4,9 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web;
 
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\HtmlElement;
 use ipl\Html\HtmlString;
 use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
@@ -75,7 +73,7 @@ class IcingaStateReason extends BaseHtmlElement
         if (strtolower($kind) === 'node') {
             $this->addHtml(new Icon('share-nodes'));
         } else {
-            $this->addHtml(new HtmlElement('i', new Attributes(['class' => 'icon kicon-' . strtolower($kind)])));
+            $this->addHtml(new KIcon(strtolower($kind)));
         }
 
         $this->addHtml(new HtmlString($content));

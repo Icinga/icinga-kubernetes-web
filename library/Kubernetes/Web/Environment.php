@@ -315,7 +315,7 @@ class Environment extends BaseHtmlElement
 
             $summary->addHtml(
                 (new HorizontalKeyValue(
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+                    new KIcon('pod'),
                     $pods
                 ))
                     ->addAttributes([
@@ -347,7 +347,7 @@ class Environment extends BaseHtmlElement
 
             $summary->addHtml(
                 (new HorizontalKeyValue(
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+                    new KIcon('pod'),
                     $pods
                 ))
                     ->addAttributes([
@@ -374,7 +374,7 @@ class Environment extends BaseHtmlElement
 
             $summary->addHtml(
                 (new HorizontalKeyValue(
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+                    new KIcon('pod'),
                     $pods
                 ))
                     ->addAttributes([

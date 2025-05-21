@@ -6,9 +6,8 @@ namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Web\ItemCountIndicator;
-use ipl\Html\Attributes;
+use Icinga\Module\Kubernetes\Web\KIcon;
 use ipl\Html\HtmlDocument;
-use ipl\Html\HtmlElement;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 
@@ -23,7 +22,7 @@ class ReplicaSetRenderer extends BaseResourceRenderer
 
         $footer->addHtml(
             (new HorizontalKeyValue(
-                new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+                new KIcon('pod'),
                 $pods
             ))
                 ->addAttributes([

@@ -66,7 +66,7 @@ class StatefulSetDetail extends BaseHtmlElement
                     new Text($this->statefulSet->pod_management_policy)
                 ),
                 $this->translate('Service Name')          => (new HtmlDocument())->addHtml(
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-service'])),
+                    new KIcon('service'),
                     new Text($this->statefulSet->service_name)
                 ),
                 $this->translate('Desired Replicas')      => $this->statefulSet->desired_replicas,

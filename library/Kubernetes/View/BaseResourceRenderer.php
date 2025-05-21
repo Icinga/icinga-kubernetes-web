@@ -7,6 +7,7 @@ namespace Icinga\Module\Kubernetes\View;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Web\Factory;
 use Icinga\Module\Kubernetes\Web\IcingaStateReason;
+use Icinga\Module\Kubernetes\Web\KIcon;
 use ipl\Html\Attributes;
 use ipl\Html\Html;
 use ipl\Html\HtmlDocument;
@@ -52,7 +53,7 @@ abstract class BaseResourceRenderer implements ItemRenderer
                 new HtmlElement(
                     'span',
                     new Attributes(['class' => 'namespace-badge']),
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                    new KIcon('namespace'),
                     new Text($item->namespace)
                 ),
                 new Link(

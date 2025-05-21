@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Web\ItemCountIndicator;
+use Icinga\Module\Kubernetes\Web\KIcon;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -24,7 +25,7 @@ class JobRenderer extends BaseResourceRenderer
 
         $footer->addHtml(
             (new HorizontalKeyValue(
-                new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+                new KIcon('pod'),
                 $pods
             ))
                 ->addAttributes([

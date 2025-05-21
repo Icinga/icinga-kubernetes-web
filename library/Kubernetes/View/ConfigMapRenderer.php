@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Links;
+use Icinga\Module\Kubernetes\Web\KIcon;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -37,12 +38,12 @@ class ConfigMapRenderer implements ItemRenderer
             new HtmlElement(
                 'span',
                 new Attributes(['class' => 'namespace-badge']),
-                new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                new KIcon('namespace'),
                 new Text($item->namespace)
             ),
             new Link(
                 (new HtmlDocument())->addHtml(
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-config-map'])),
+                    new KIcon('config-map'),
                     new Text($item->name)
                 ),
                 Links::configmap($item),
