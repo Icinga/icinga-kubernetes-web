@@ -39,6 +39,13 @@ class JobDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            new IcingaStateReason($this->job->icinga_state_reason, $this->job->icinga_state)
+        ));
+
         $this->addHtml(
             new Details(new ResourceDetails($this->job, [
                 $this->translate('Parallelism')                 => (new HtmlDocument())->addHtml(
@@ -74,10 +81,6 @@ class JobDetail extends BaseHtmlElement
                         new Text($this->job->icinga_state)
                     )
                 ),
-                $this->translate('Icinga State Reason')         => new IcingaStateReason(
-                    $this->job->icinga_state_reason,
-                    $this->job->icinga_state
-                )
             ])),
             new Labels($this->job->label),
             new Annotations($this->job->annotation),
