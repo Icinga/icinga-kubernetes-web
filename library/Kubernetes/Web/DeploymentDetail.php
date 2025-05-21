@@ -42,6 +42,17 @@ class DeploymentDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            new DeploymentIcingaStateReason(
+                $this->deployment->uuid,
+                $this->deployment->icinga_state_reason,
+                $this->deployment->icinga_state
+            )
+        ));
+
         $this->addHtml(
             new DetailMetricCharts(
                 Metrics::deploymentMetrics(
@@ -77,10 +88,6 @@ class DeploymentDetail extends BaseHtmlElement
                         new Attributes(['class' => 'icinga-state-text']),
                         new Text($this->deployment->icinga_state)
                     )
-                ),
-                $this->translate('Icinga State Reason')  => new IcingaStateReason(
-                    $this->deployment->icinga_state_reason,
-                    $this->deployment->icinga_state
                 )
             ])),
             new Labels($this->deployment->label),

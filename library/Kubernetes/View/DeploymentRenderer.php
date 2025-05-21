@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Format;
+use Icinga\Module\Kubernetes\Web\DeploymentIcingaStateReason;
 use Icinga\Module\Kubernetes\Web\ItemCountIndicator;
 use Icinga\Module\Kubernetes\Web\KIcon;
 use ipl\Html\HtmlDocument;
@@ -13,6 +14,12 @@ use ipl\Web\Widget\Icon;
 
 class DeploymentRenderer extends BaseResourceRenderer
 {
+    public function assembleCaption($item, HtmlDocument $caption, string $layout): void
+    {
+        $caption->addHtml(
+            new DeploymentIcingaStateReason($item->uuid, $item->icinga_state_reason, $item->icinga_state)
+        );
+    }
 
     public function assembleFooter($item, HtmlDocument $footer, string $layout): void
     {
