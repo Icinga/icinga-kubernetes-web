@@ -79,7 +79,8 @@ class DeploymentDetail extends BaseHtmlElement
                     )
                 ),
                 $this->translate('Icinga State Reason')  => new IcingaStateReason(
-                    $this->deployment->icinga_state_reason
+                    $this->deployment->icinga_state_reason,
+                    $this->deployment->icinga_state
                 )
             ])),
             new Labels($this->deployment->label),

@@ -70,7 +70,8 @@ class ReplicaSetDetail extends BaseHtmlElement
                     )
                 ),
                 $this->translate('Icinga State Reason')    => new IcingaStateReason(
-                    $this->replicaSet->icinga_state_reason
+                    $this->replicaSet->icinga_state_reason,
+                    $this->replicaSet->icinga_state
                 )
             ])),
             new Labels($this->replicaSet->label),

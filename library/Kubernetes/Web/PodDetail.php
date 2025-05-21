@@ -92,7 +92,10 @@ class PodDetail extends BaseHtmlElement
                         new Text($this->pod->icinga_state)
                     )
                 ),
-                $this->translate('Icinga State Reason') => new IcingaStateReason($this->pod->icinga_state_reason)
+                $this->translate('Icinga State Reason') => new IcingaStateReason(
+                    $this->pod->icinga_state_reason,
+                    $this->pod->icinga_state
+                )
             ])),
             new Labels($this->pod->label),
             new Annotations($this->pod->annotation),

@@ -77,7 +77,8 @@ class DaemonSetDetail extends BaseHtmlElement
                     )
                 ),
                 $this->translate('Icinga State Reason')      => new IcingaStateReason(
-                    $this->daemonSet->icinga_state_reason
+                    $this->daemonSet->icinga_state_reason,
+                    $this->daemonSet->icinga_state
                 )
             ])),
             new Labels($this->daemonSet->label),

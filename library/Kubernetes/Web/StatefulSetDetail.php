@@ -84,7 +84,8 @@ class StatefulSetDetail extends BaseHtmlElement
                     )
                 ),
                 $this->translate('Icinga State Reason')   => new IcingaStateReason(
-                    $this->statefulSet->icinga_state_reason
+                    $this->statefulSet->icinga_state_reason,
+                    $this->statefulSet->icinga_state
                 )
             ])),
             new Labels($this->statefulSet->label),

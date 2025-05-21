@@ -75,7 +75,8 @@ class JobDetail extends BaseHtmlElement
                     )
                 ),
                 $this->translate('Icinga State Reason')         => new IcingaStateReason(
-                    $this->job->icinga_state_reason
+                    $this->job->icinga_state_reason,
+                    $this->job->icinga_state
                 )
             ])),
             new Labels($this->job->label),

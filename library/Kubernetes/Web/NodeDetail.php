@@ -90,7 +90,8 @@ class NodeDetail extends BaseHtmlElement
                         Text::create($this->node->icinga_state)
                     )),
                 $this->translate('Icinga State Reason')       => new IcingaStateReason(
-                    $this->node->icinga_state_reason
+                    $this->node->icinga_state_reason,
+                    $this->node->icinga_state
                 )
             ]),
             new Labels($this->node->label),
