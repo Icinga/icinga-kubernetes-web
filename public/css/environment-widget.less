@@ -45,7 +45,7 @@
 
   .label {
     max-width: @max-node-width;
-    padding-left: 2em + 0.5em + 2em + 0.5em; // state-ball + margin-right + icon-image + margin-right
+    padding-left: 2em + 0.5em + 0.5em; // state-ball + margin-right + margin-right
     text-align: center;
     color: @text-color-light;
   }
@@ -77,25 +77,6 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-
-    .icon-image {
-      display: flex;
-      align-items: center;
-    }
-
-    .icon-image, .object-statistics-total {
-      height: 2em;
-      width: 2em;
-      line-height: 2;
-      flex-shrink: 0;
-    }
-
-    .icon-image img {
-      max-height: 100%;
-      max-width: 100%;
-      height: auto;
-      width: auto;
-    }
   }
 
   .node-list {
@@ -110,21 +91,29 @@
     padding: 0;
     margin: 0;
 
-    .summary .object-statistics {
+    .summary > .horizontal-key-value {
+      align-items: center;
+      padding: 0;
+      overflow: hidden;
       width: 100%;
 
-      & > li {
-        &:not(:last-child) {
-          margin-right: 0.5em;
-        }
-
-        &:last-child {
-          margin: auto;
-        }
+      .key {
+        width: auto;
+        margin-left: .5em;
       }
 
-      .object-statistics-total {
-        text-align: left; // less gap from donut AND align it with icon-image
+      .value {
+        color: @text-color;
+        width: 100%;
+
+        > .item-count-indicator {
+          width: 100%;
+          justify-content: center;
+        }
+
+        > .empty-state {
+          color: inherit;
+        }
       }
     }
   }
@@ -163,10 +152,6 @@
       cursor: default;
       outline: .25em solid @icinga-blue; // 3px
       outline-offset: 1px;
-    }
-
-    .summary .dependency-node-state-badges {
-      pointer-events: none;
     }
 
     .summary, .self {

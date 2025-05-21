@@ -182,9 +182,7 @@ class Environment extends BaseHtmlElement
 
         $mainBall->add($icon);
 
-        $iconImage = HtmlElement::create('div', ['class' => 'icon-image']);
-
-        return (new HtmlDocument())->addHtml($mainBall, $iconImage, $subject);
+        return (new HtmlDocument())->addHtml($mainBall, $subject);
     }
 
     /**
@@ -303,12 +301,11 @@ class Environment extends BaseHtmlElement
     {
         $kind = Factory::getKindFromModel($node);
 
-        $kindPlural = $kind === 'ingress' ? $kind . 'es' : $kind . 's';
+        $kindPlural = Factory::pluralizeKind($kind);
 
         $url = Url::fromPath("kubernetes/$kindPlural");
 
-        $summary = new HtmlElement('footer');
-
+        $summary = new HtmlDocument();
 
         if ($this->currentObject instanceof Job && $node instanceof Pod) {
             $pods = (new ItemCountIndicator())
