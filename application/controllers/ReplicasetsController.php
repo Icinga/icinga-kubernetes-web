@@ -8,16 +8,10 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Web\ListController;
-use Icinga\Module\Kubernetes\Web\ReplicaSetList;
 use ipl\Orm\Query;
 
 class ReplicasetsController extends ListController
 {
-    protected function getContentClass(): string
-    {
-        return ReplicaSetList::class;
-    }
-
     protected function getQuery(): Query
     {
         return ReplicaSet::on(Database::connection());

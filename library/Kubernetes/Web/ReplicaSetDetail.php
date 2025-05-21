@@ -11,8 +11,10 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -31,7 +33,7 @@ class ReplicaSetDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'replica-set-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail replica-set-detail'];
 
     public function __construct(ReplicaSet $replicaSet)
     {
@@ -82,10 +84,11 @@ class ReplicaSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $this->replicaSet->pod->with(['node'])
-                ))
+                )))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 
@@ -94,8 +97,9 @@ class ReplicaSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->replicaSet->uuid)))
+                (new ResourceList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->replicaSet->uuid))))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 

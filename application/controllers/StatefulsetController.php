@@ -6,10 +6,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\StatefulSetDetail;
-use Icinga\Module\Kubernetes\Web\StatefulSetList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +34,11 @@ class StatefulsetController extends Controller
             $this->httpNotFound($this->translate('Stateful Set not found'));
         }
 
-        $this->addControl((new StatefulSetList([$statefulSet]))->setActionList(false));
+        $this->addControl(
+            (new ResourceList([$statefulSet]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewMode::Detailed)
+        );
 
         $this->addContent(new StatefulSetDetail($statefulSet));
     }

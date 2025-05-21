@@ -11,9 +11,11 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Model\StatefulSetCondition;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -32,7 +34,7 @@ class StatefulSetDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'stateful-set-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail stateful-set-detail'];
 
     public function __construct(StatefulSet $statefulSet)
     {
@@ -96,10 +98,11 @@ class StatefulSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $this->statefulSet->pod->with(['node'])
-                ))
+                )))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 
@@ -108,8 +111,9 @@ class StatefulSetDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->statefulSet->uuid)))
+                (new ResourceList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->statefulSet->uuid))))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 

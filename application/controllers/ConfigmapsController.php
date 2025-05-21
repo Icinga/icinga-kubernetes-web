@@ -6,18 +6,13 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\ConfigMap;
-use Icinga\Module\Kubernetes\Web\ConfigMapList;
 use Icinga\Module\Kubernetes\Web\ListController;
 use ipl\Orm\Query;
 
 class ConfigmapsController extends ListController
 {
-    protected function getContentClass(): string
-    {
-        return ConfigMapList::class;
-    }
-
     protected function getQuery(): Query
     {
         return ConfigMap::on(Database::connection());
@@ -40,5 +35,10 @@ class ConfigmapsController extends ListController
     protected function getPermission(): string
     {
         return AUTH::SHOW_CONFIG_MAPS;
+    }
+
+    protected function getIgnoredViewModes(): array
+    {
+        return [ViewMode::Common, ViewMode::Detailed];
     }
 }

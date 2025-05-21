@@ -6,10 +6,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\JobDetail;
-use Icinga\Module\Kubernetes\Web\JobList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +34,11 @@ class JobController extends Controller
             $this->httpNotFound($this->translate('Job not found'));
         }
 
-        $this->addControl((new JobList([$job]))->setActionList(false));
+        $this->addControl(
+            (new ResourceList([$job]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewMode::Detailed)
+        );
 
         $this->addContent(new JobDetail($job));
     }

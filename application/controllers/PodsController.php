@@ -8,16 +8,10 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\ListController;
-use Icinga\Module\Kubernetes\Web\PodList;
 use ipl\Orm\Query;
 
 class PodsController extends ListController
 {
-    protected function getContentClass(): string
-    {
-        return PodList::class;
-    }
-
     protected function getQuery(): Query
     {
         return Pod::on(Database::connection())->with('node');

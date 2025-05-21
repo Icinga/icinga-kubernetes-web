@@ -6,8 +6,10 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\PersistentVolumeDetail;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
@@ -31,6 +33,12 @@ class PersistentvolumeController extends Controller
         if ($persistentVolume === null) {
             $this->httpNotFound($this->translate('Persistent Volume not found'));
         }
+
+        $this->addControl(
+            (new ResourceList([$persistentVolume]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewMode::Detailed)
+        );
 
         $this->addContent(new PersistentVolumeDetail($persistentVolume));
     }

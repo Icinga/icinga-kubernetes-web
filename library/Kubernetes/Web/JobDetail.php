@@ -8,8 +8,10 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Job;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -28,7 +30,7 @@ class JobDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'job-detail'];
+    protected $defaultAttributes = ['class' => 'object-detail job-detail'];
 
     public function __construct(Job $job)
     {
@@ -87,10 +89,11 @@ class JobDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $this->job->pod->with(['node'])
-                ))
+                )))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 
@@ -99,8 +102,9 @@ class JobDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Events')),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->job->uuid)))
+                (new ResourceList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->job->uuid))))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 

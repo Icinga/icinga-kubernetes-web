@@ -6,10 +6,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\ReplicaSetDetail;
-use Icinga\Module\Kubernetes\Web\ReplicaSetList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +34,11 @@ class ReplicasetController extends Controller
             $this->httpNotFound($this->translate('Replica Set not found'));
         }
 
-        $this->addControl((new ReplicaSetList([$replicaSet]))->setActionList(false));
+        $this->addControl(
+            (new ResourceList([$replicaSet]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewMode::Detailed)
+        );
 
         $this->addContent(new ReplicaSetDetail($replicaSet));
     }

@@ -6,9 +6,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\IngressDetail;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -31,6 +33,12 @@ class IngressController extends Controller
         if ($ingress === null) {
             $this->httpNotFound($this->translate('Ingress not found'));
         }
+
+        $this->addControl(
+            (new ResourceList([$ingress]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewMode::Detailed)
+        );
 
         $this->addContent(new IngressDetail($ingress));
     }

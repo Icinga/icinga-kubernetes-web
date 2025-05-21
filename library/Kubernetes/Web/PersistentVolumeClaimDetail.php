@@ -8,9 +8,11 @@ use Icinga\Module\Kubernetes\Common\AccessModes;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaimCondition;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -28,7 +30,7 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
 
     protected $tag = 'div';
 
-    protected $defaultAttributes = ['class' => 'pvc-list'];
+    protected $defaultAttributes = ['class' => 'object-detail pvc-detail'];
 
     public function __construct(PersistentVolumeClaim $pvc)
     {
@@ -73,10 +75,11 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
-                new PodList(Auth::getInstance()->withRestrictions(
+                (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
                     $this->pvc->pod
-                ))
+                )))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 
@@ -85,8 +88,9 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                new EventList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->pvc->uuid)))
+                (new ResourceList(Event::on(Database::connection())
+                    ->filter(Filter::equal('reference_uuid', $this->pvc->uuid))))
+                    ->setViewMode(ViewMode::Common)
             ));
         }
 

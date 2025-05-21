@@ -6,10 +6,11 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DeploymentDetail;
-use Icinga\Module\Kubernetes\Web\DeploymentList;
+use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +34,11 @@ class DeploymentController extends Controller
             $this->httpNotFound($this->translate('Deployment not found'));
         }
 
-        $this->addControl((new DeploymentList([$deployment]))->setActionList(false));
+        $this->addControl(
+            (new ResourceList([$deployment]))
+                ->setDetailActionsDisabled()
+                ->setViewMode(ViewMode::Detailed)
+        );
 
         $this->addContent(new DeploymentDetail($deployment));
     }
