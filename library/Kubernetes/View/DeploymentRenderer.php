@@ -25,7 +25,7 @@ class DeploymentRenderer extends BaseResourceRenderer
     {
         $pods = (new ItemCountIndicator())
             ->addIndicator('critical', $item->unavailable_replicas)
-            ->addIndicator('pending', $item->desired_replicas - $item->actual_replicas)
+            ->addIndicator('pending', $item->desired_replicas - $item->unavailable_replicas - $item->actual_replicas)
             ->addIndicator('ok', $item->available_replicas);
 
         $footer->addHtml(
