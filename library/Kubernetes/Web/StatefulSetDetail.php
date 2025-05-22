@@ -43,6 +43,17 @@ class StatefulSetDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            new WorkloadIcingaStateReason(
+                $this->statefulSet->uuid,
+                $this->statefulSet->icinga_state_reason,
+                $this->statefulSet->icinga_state
+            )
+        ));
+
         $this->addHtml(
             new DetailMetricCharts(
                 Metrics::statefulSetMetrics(
@@ -66,7 +77,7 @@ class StatefulSetDetail extends BaseHtmlElement
                     new Text($this->statefulSet->pod_management_policy)
                 ),
                 $this->translate('Service Name')          => (new HtmlDocument())->addHtml(
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-service'])),
+                    new KIcon('service'),
                     new Text($this->statefulSet->service_name)
                 ),
                 $this->translate('Desired Replicas')      => $this->statefulSet->desired_replicas,
@@ -82,9 +93,6 @@ class StatefulSetDetail extends BaseHtmlElement
                         new Attributes(['class' => 'icinga-state-text']),
                         new Text(' ' . $this->statefulSet->icinga_state)
                     )
-                ),
-                $this->translate('Icinga State Reason')   => new IcingaStateReason(
-                    $this->statefulSet->icinga_state_reason
                 )
             ])),
             new Labels($this->statefulSet->label),

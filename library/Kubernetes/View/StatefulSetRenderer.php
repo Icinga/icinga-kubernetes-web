@@ -6,9 +6,9 @@ namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Format;
 use Icinga\Module\Kubernetes\Web\ItemCountIndicator;
-use ipl\Html\Attributes;
+use Icinga\Module\Kubernetes\Web\KIcon;
+use Icinga\Module\Kubernetes\Web\WorkloadIcingaStateReason;
 use ipl\Html\HtmlDocument;
-use ipl\Html\HtmlElement;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 
@@ -24,6 +24,11 @@ class StatefulSetRenderer extends BaseResourceRenderer
         'Parallel'     => 'grip-lines'
     ];
 
+    public function assembleCaption($item, HtmlDocument $caption, string $layout): void
+    {
+        $caption->addHtml(new WorkloadIcingaStateReason($item->uuid, $item->icinga_state_reason, $item->icinga_state));
+    }
+
     public function assembleFooter($item, HtmlDocument $footer, string $layout): void
     {
         $pods = (new ItemCountIndicator())
@@ -33,7 +38,7 @@ class StatefulSetRenderer extends BaseResourceRenderer
 
         $footer->addHtml(
             (new HorizontalKeyValue(
-                new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+                new KIcon('pod'),
                 $pods
             ))
                 ->addAttributes([
@@ -66,7 +71,7 @@ class StatefulSetRenderer extends BaseResourceRenderer
                 $item->pod_management_policy
             ),
             (new HorizontalKeyValue(
-                new HtmlElement('i', new Attributes(['class' => 'icon kicon-service'])),
+                new KIcon('service'),
                 $item->service_name
             ))
                 ->addAttributes([

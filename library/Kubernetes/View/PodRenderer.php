@@ -8,9 +8,9 @@ use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\InitContainer;
 use Icinga\Module\Kubernetes\Model\SidecarContainer;
 use Icinga\Module\Kubernetes\Web\ItemCountIndicator;
-use ipl\Html\Attributes;
+use Icinga\Module\Kubernetes\Web\KIcon;
+use Icinga\Module\Kubernetes\Web\PodIcingaStateReason;
 use ipl\Html\HtmlDocument;
-use ipl\Html\HtmlElement;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 
@@ -21,6 +21,11 @@ class PodRenderer extends BaseResourceRenderer
         'Burstable'  => 'life-ring',
         'Guaranteed' => 'heart-pulse'
     ];
+
+    public function assembleCaption($item, HtmlDocument $caption, string $layout): void
+    {
+        $caption->addHtml(new PodIcingaStateReason($item->uuid, $item->icinga_state_reason, $item->icinga_state));
+    }
 
     public function assembleFooter($item, HtmlDocument $footer, string $layout): void
     {
@@ -49,7 +54,7 @@ class PodRenderer extends BaseResourceRenderer
 
         $footer->addHtml(
             (new HorizontalKeyValue(
-                new HtmlElement('i', new Attributes(['class' => 'icon kicon-container'])),
+                new KIcon('container'),
                 $containers
             ))
                 ->addAttributes([

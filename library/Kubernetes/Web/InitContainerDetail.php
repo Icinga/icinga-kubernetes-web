@@ -36,6 +36,13 @@ class InitContainerDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            new IcingaStateReason($this->initContainer->icinga_state_reason, $this->initContainer->icinga_state)
+        ));
+
         $this->addHtml(new Details([
             $this->translate('Name')                => $this->initContainer->name,
             $this->translate('Image')               => $this->initContainer->image,
@@ -51,7 +58,6 @@ class InitContainerDetail extends BaseHtmlElement
                     new Text($this->initContainer->icinga_state)
                 )
             ),
-            $this->translate('Icinga State Reason') => new IcingaStateReason($this->initContainer->icinga_state_reason)
         ]));
 
         $state = new HtmlElement(

@@ -7,6 +7,7 @@ namespace Icinga\Module\Kubernetes\ProvidedHook\Notifications;
 use Generator;
 use Icinga\Module\Kubernetes\Web\Factory;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\KIcon;
 use Icinga\Module\Notifications\Hook\ObjectsRendererHook;
 use ipl\Html\Attributes;
 use ipl\Html\FormattedString;
@@ -80,13 +81,13 @@ class ObjectsRenderer extends ObjectsRendererHook
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'namespace-badge']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                                    new KIcon('namespace'),
                                     new Text($idTags['namespace'])
                                 ),
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'subject']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+                                    new KIcon('pod'),
                                     new Text($idTags['name'])
                                 )
                             ]
@@ -104,13 +105,13 @@ class ObjectsRenderer extends ObjectsRendererHook
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'namespace-badge']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                                    new KIcon('namespace'),
                                     new Text($idTags['namespace'])
                                 ),
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'subject']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-deployment'])),
+                                    new KIcon('deployment'),
                                     new Text($idTags['name'])
                                 )
                             ]
@@ -143,13 +144,13 @@ class ObjectsRenderer extends ObjectsRendererHook
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'namespace-badge']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                                    new KIcon('namespace'),
                                     new Text($idTags['namespace'])
                                 ),
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'subject']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-daemon-set'])),
+                                    new KIcon('daemon-set'),
                                     new Text($idTags['name'])
                                 )
                             ]
@@ -166,13 +167,13 @@ class ObjectsRenderer extends ObjectsRendererHook
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'namespace-badge']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                                    new KIcon('namespace'),
                                     new Text($idTags['namespace'])
                                 ),
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'subject']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-replica-set'])),
+                                    new KIcon('replica-set'),
                                     new Text($idTags['name'])
                                 )
                             ]
@@ -189,13 +190,13 @@ class ObjectsRenderer extends ObjectsRendererHook
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'namespace-badge']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                                    new KIcon('namespace'),
                                     new Text($idTags['namespace'])
                                 ),
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'subject']),
-                                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-stateful-set'])),
+                                    new KIcon('stateful-set'),
                                     new Text($idTags['name'])
                                 )
                             ]

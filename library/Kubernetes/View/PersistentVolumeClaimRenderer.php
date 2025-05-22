@@ -8,6 +8,7 @@ use Icinga\Module\Kubernetes\Common\AccessModes;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
+use Icinga\Module\Kubernetes\Web\KIcon;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\Html;
@@ -30,8 +31,6 @@ class PersistentVolumeClaimRenderer extends BaseResourceRenderer
 
     public function assembleCaption($item, HtmlDocument $caption, string $layout): void
     {
-        // TODO add state reason then remove this function
-        $caption->addHtml(new Text('Placeholder for Icinga State Reason'));
     }
 
     public function assembleFooter($item, HtmlDocument $footer, string $layout): void
@@ -69,12 +68,12 @@ class PersistentVolumeClaimRenderer extends BaseResourceRenderer
                 new HtmlElement(
                     'span',
                     new Attributes(['class' => 'namespace-badge']),
-                    new HtmlElement('i', new Attributes(['class' => 'icon kicon-namespace'])),
+                    new KIcon('namespace'),
                     new Text($item->namespace)
                 ),
                 new Link(
                     (new HtmlDocument())->addHtml(
-                        new HtmlElement('i', new Attributes(['class' => 'icon kicon-pvc'])),
+                        new KIcon('pvc'),
                         new Text($item->name)
                     ),
                     Links::persistentvolumeclaim($item),

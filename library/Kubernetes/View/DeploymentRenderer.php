@@ -5,17 +5,21 @@
 namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Format;
+use Icinga\Module\Kubernetes\Web\DeploymentIcingaStateReason;
 use Icinga\Module\Kubernetes\Web\ItemCountIndicator;
-use ipl\Html\Attributes;
+use Icinga\Module\Kubernetes\Web\KIcon;
 use ipl\Html\HtmlDocument;
-use ipl\Html\HtmlElement;
-use ipl\I18n\Translation;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
 
 class DeploymentRenderer extends BaseResourceRenderer
 {
-    use Translation;
+    public function assembleCaption($item, HtmlDocument $caption, string $layout): void
+    {
+        $caption->addHtml(
+            new DeploymentIcingaStateReason($item->uuid, $item->icinga_state_reason, $item->icinga_state)
+        );
+    }
 
     public function assembleFooter($item, HtmlDocument $footer, string $layout): void
     {
@@ -26,7 +30,7 @@ class DeploymentRenderer extends BaseResourceRenderer
 
         $footer->addHtml(
             (new HorizontalKeyValue(
-                new HtmlElement('i', new Attributes(['class' => 'icon kicon-pod'])),
+                new KIcon('pod'),
                 $pods
             ))
                 ->addAttributes([

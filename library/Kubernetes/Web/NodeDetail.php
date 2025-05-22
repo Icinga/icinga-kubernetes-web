@@ -42,6 +42,13 @@ class NodeDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            new IcingaStateReason($this->node->icinga_state_reason, $this->node->icinga_state)
+        ));
+
         $this->addHtml(
             new DetailMetricCharts(
                 Metrics::nodeMetrics(
@@ -89,9 +96,6 @@ class NodeDetail extends BaseHtmlElement
                         new Attributes(['class' => 'icinga-state-text']),
                         Text::create($this->node->icinga_state)
                     )),
-                $this->translate('Icinga State Reason')       => new IcingaStateReason(
-                    $this->node->icinga_state_reason
-                )
             ]),
             new Labels($this->node->label),
             new Annotations($this->node->annotation),
