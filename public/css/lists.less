@@ -1,5 +1,23 @@
 /* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
+header .info-container {
+  white-space: nowrap;
+
+  .favor-icon {
+    font-size: 10/12em;
+    display: none;
+    opacity: 0.6;
+  }
+}
+
+.detailed-item-layout .caption {
+  max-height: 7.5em; // 5 lines
+}
+
+.favored header .info-container .favor-icon {
+  display: inline-block;
+}
+
 .item-layout .visual {
   > .pv-phase-pending,
   > .pv-phase-available,
@@ -11,10 +29,6 @@
   > .pvc-phase-lost {
     font-size: 1.125em;
   }
-}
-
-.detailed-item-layout .caption {
-  max-height: 7.5em; // 5 lines
 }
 
 footer {

@@ -41,4 +41,9 @@ class ConfigmapsController extends ListController
     {
         return [ViewMode::Common, ViewMode::Detailed];
     }
+
+    protected function getFavorable(): false
+    {
+        return false;
+    }
 }

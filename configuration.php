@@ -18,6 +18,15 @@ $section = $this->menuSection(
 $priority = 0;
 
 $section->add(
+    N_('All Favorites'),
+    [
+        'description' => $this->translate('All Favorites'),
+        'url'         => 'kubernetes/favorites',
+        'priority'    => $priority++
+    ]
+);
+
+$section->add(
     N_('Cluster Services'),
     [
         'description' => $this->translate('Cluster Services'),
@@ -284,10 +293,7 @@ $this->provideRestriction(
     $this->translate('Restrict access to the resources that match the filter')
 );
 
-if (! Module::exists('icingadb')) {
-    $this->provideJsFile('action-list.js');
-}
-
+$this->provideJsFile('action-list.js');
 $this->provideJsFile('vendor/chart.umd.js');
 
 $this->provideCssFile('action-list.less');
@@ -297,5 +303,6 @@ $this->provideCssFile('conditions.less');
 $this->provideCssFile('icons.less');
 $this->provideCssFile('labels.less');
 $this->provideCssFile('lists.less');
+$this->provideCssFile('quick-actions.less');
 $this->provideCssFile('widgets.less');
 $this->provideCssFile('environment-widget.less');

@@ -35,4 +35,9 @@ class ReplicasetsController extends ListController
     {
         return Auth::SHOW_REPLICA_SETS;
     }
+
+    protected function getFavorable(): true
+    {
+        return true;
+    }
 }

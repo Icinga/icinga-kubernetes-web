@@ -5,6 +5,8 @@
 namespace Icinga\Module\Kubernetes\Web\ItemList;
 
 use Icinga\Exception\NotImplementedError;
+use Icinga\Module\Kubernetes\Common\Auth;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\DetailActions;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\ConfigMap;
@@ -13,6 +15,7 @@ use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Model\InitContainer;
 use Icinga\Module\Kubernetes\Model\Job;
@@ -42,6 +45,8 @@ use Icinga\Module\Kubernetes\View\PersistentVolumeRenderer;
 use Icinga\Module\Kubernetes\View\PodRenderer;
 use Icinga\Module\Kubernetes\View\ReplicaSetRenderer;
 use Icinga\Module\Kubernetes\View\ResourceDefaultItemLayout;
+use Icinga\Module\Kubernetes\View\ResourceDetailedItemLayout;
+use Icinga\Module\Kubernetes\View\ResourceMinimalItemLayout;
 use Icinga\Module\Kubernetes\View\SecretRenderer;
 use Icinga\Module\Kubernetes\View\ServiceRenderer;
 use Icinga\Module\Kubernetes\View\SidecarContainerRenderer;
@@ -49,8 +54,6 @@ use Icinga\Module\Kubernetes\View\StatefulSetRenderer;
 use Icinga\Module\Kubernetes\Web\Factory;
 use ipl\Orm\Model;
 use ipl\Stdlib\Filter;
-use ipl\Web\Layout\DetailedItemLayout;
-use ipl\Web\Layout\MinimalItemLayout;
 use ipl\Web\Widget\ItemList;
 use ipl\Web\Widget\ListItem;
 
@@ -101,9 +104,9 @@ class ResourceList extends ItemList
     public function setViewMode(ViewMode $mode): self
     {
         return $this->setItemLayoutClass(match ($mode) {
-            ViewMode::Minimal  => MinimalItemLayout::class,
+            ViewMode::Minimal  => ResourceMinimalItemLayout::class,
             ViewMode::Common   => ResourceDefaultItemLayout::class,
-            ViewMode::Detailed => DetailedItemLayout::class,
+            ViewMode::Detailed => ResourceDetailedItemLayout::class,
         });
     }
 
@@ -118,7 +121,21 @@ class ResourceList extends ItemList
     {
         $item = parent::createListItem($data);
 
+        $favorite = Favorite::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('resource_uuid', $data->uuid),
+                    Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+                )
+            )
+            ->first();
+
+        if ($favorite !== null) {
+            $item->addAttributes(['class' => 'favored']);
+        }
+
         $this->setDetailUrl(Factory::createDetailUrl(Factory::canonicalizeKind($data->getTableName())));
+
 
         if (! $this->getDetailActionsDisabled()) {
             $this->addDetailFilterAttribute($item, Filter::equal('id', $data->uuid));

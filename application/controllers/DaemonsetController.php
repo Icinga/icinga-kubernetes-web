@@ -8,9 +8,11 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\DaemonSetDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\QuickActions;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -30,6 +32,15 @@ class DaemonsetController extends Controller
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
+        $favorite = Favorite::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('resource_uuid', $uuidBytes),
+                    Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+                )
+            )
+            ->first();
+
         if ($daemonSet === null) {
             $this->httpNotFound($this->translate('Daemon Set not found'));
         }
@@ -37,8 +48,10 @@ class DaemonsetController extends Controller
         $this->addControl(
             (new ResourceList([$daemonSet]))
                 ->setDetailActionsDisabled()
-                ->setViewMode(ViewMode::Detailed)
+                ->setViewMode(ViewMode::Minimal)
         );
+
+        $this->addControl(new QuickActions($daemonSet, $favorite));
 
         $this->addContent(new DaemonSetDetail($daemonSet));
     }

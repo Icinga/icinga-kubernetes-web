@@ -18,7 +18,6 @@ use ipl\I18n\Translation;
 use ipl\Stdlib\Str;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;
-use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
 
 class ContainerDetail extends BaseHtmlElement
@@ -58,14 +57,7 @@ class ContainerDetail extends BaseHtmlElement
                 new Icon('arrows-spin'),
                 new Text($this->container->restart_count)
             ),
-            $this->translate('Icinga State')        => (new HtmlDocument())->addHtml(
-                new StateBall($this->container->icinga_state, StateBall::SIZE_MEDIUM),
-                new HtmlElement(
-                    'span',
-                    new Attributes(['class' => 'icinga-state-text']),
-                    new Text($this->container->icinga_state)
-                )
-            ),
+            $this->translate('Icinga State')        => new DetailState($this->container->icinga_state)
         ]));
 
         $state = new HtmlElement(

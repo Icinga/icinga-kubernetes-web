@@ -13,12 +13,14 @@ pre {
 }
 
 .state-ball {
-  margin-right: .2em;
-
   // Main use case is the event list, which also contains informational events.
   &.state-none {
     border: 1px solid @gray-light;
   }
+}
+
+.margin-to-ball {
+  margin-left: .2em;
 }
 
 .container-list-item > .visual > .state-ball,
@@ -31,7 +33,6 @@ pre {
 }
 
 .controls {
-
   &:not(.no-shadow) {
     // Copied from Icinga DB Web
     -moz-box-shadow: 0 0 0 1px var(--gray-lighter, #4b4b4b);
@@ -39,23 +40,53 @@ pre {
     box-shadow: 0 0 0 1px var(--gray-lighter, #4b4b4b);
   }
 
+  &:not(.default-layout) > :not(:only-child) {
+    margin-bottom: 0.5em;
+  }
+
   a.subject {
     cursor: default;
     pointer-events: none;
   }
 
+  .favorite-toggle {
+    width: auto;
+
+    .control-group {
+      margin: 0;
+      justify-content: flex-end;
+      max-height: 24px;
+
+      label {
+        text-align: right;
+        margin-right: 0;
+      }
+    }
+  }
+
   .limit-control,
   .view-mode-switcher,
-  .sort-control {
-    margin-left: .5em;
+  .sort-control,
+  .favorite-toggle {
+    margin-left: 1em;
     float: right;
   }
 
-  .list-item {
-    font-size: @font-size-small;
+  .limit-control,
+  .view-mode-switcher,
+  .favorite-toggle {
+    margin-right: 0;
+  }
 
+  .item-list .list-item {
     .main {
-      padding-bottom: 0.454545em;
+      padding: 3px 0;
+    }
+
+    .visual {
+      // Calculate the padding so that the icon is vertically centered in the minimal view.
+      padding: ~"calc((24px - (12px * 0.75 * 1.5)) / 2)" 0;
+      width: 1.2em;
     }
 
     .title a {
@@ -63,7 +94,6 @@ pre {
     }
   }
 }
-
 
 .horizontal-key-value,
 .vertical-key-value {
@@ -177,4 +207,66 @@ pre {
 .pod-rows .container-rows {
   // level-indicator (1em) + state-ball margin (0.4em) + half state-ball size m (0.375em)
   transform: translateX(~"calc(" 1em + .4em + .375em ~"- 0.5px)");
+}
+
+.reorder-handle-background {
+  position: absolute;
+  right: 0;
+  bottom: 0.25em;
+
+  display: none;
+
+  height: ~"calc(100% - 0.5em)";
+  width: 3em;
+  background-color: @body-bg-color;
+}
+
+.reorder-handle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  border-left: 1px solid @gray-light;
+  background-color: @tr-hover-color;
+
+  .icon {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+
+.favorite-dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+
+  > div {
+    padding: 1em;
+    width: 100%;
+
+    > .container {
+      > .content {
+        padding: 0;
+      }
+
+      > .progress-label {
+        margin: 0;
+
+        span {
+          font-size: 0.75em;
+        }
+      }
+    }
+  }
+}
+
+#layout.wide-layout:not(.twocols) .favorite-dashboard > div,
+#layout.default-layout:not(.twocols) .favorite-dashboard > div {
+  width: ~"calc(50% - 0.5em)";
 }

@@ -34,4 +34,9 @@ class NodesController extends ListController
     {
         return Auth::SHOW_NODES;
     }
+
+    protected function getFavorable(): true
+    {
+        return true;
+    }
 }

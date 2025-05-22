@@ -41,4 +41,9 @@ class PersistentvolumesController extends ListController
     {
         return [ViewMode::Detailed];
     }
+
+    protected function getFavorable(): true
+    {
+        return true;
+    }
 }

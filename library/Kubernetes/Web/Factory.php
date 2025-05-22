@@ -166,6 +166,29 @@ abstract class Factory
         };
     }
 
+    public static function createTitle(string $kind): string
+    {
+        return match ($kind) {
+            'configmap'             => 'Config Maps',
+            'cronjob'               => 'Cron Jobs',
+            'daemonset'             => 'Daemon Sets',
+            'deployment'            => 'Deployments',
+            'event'                 => 'Events',
+            'ingress'               => 'Ingresses',
+            'job'                   => 'Jobs',
+            'namespace'             => 'Namespaces',
+            'node'                  => 'Nodes',
+            'persistentvolume'      => 'Persistent Volumes',
+            'persistentvolumeclaim' => 'Persistent Volume Claims',
+            'pod'                   => 'Pods',
+            'replicaset'            => 'Replica Sets',
+            'secret'                => 'Secrets',
+            'service'               => 'Services',
+            'statefulset'           => 'Stateful Sets',
+            default                 => null,
+        };
+    }
+
     public static function getKindFromModel(Model $model): string
     {
         $kind = match (true) {
@@ -175,6 +198,7 @@ abstract class Factory
             $model instanceof Deployment,
             $model instanceof Ingress,
             $model instanceof Job,
+            $model instanceof NamespaceModel,
             $model instanceof Node,
             $model instanceof PersistentVolume,
             $model instanceof PersistentVolumeClaim,

@@ -6,11 +6,13 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\ViewMode;
+use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Web\Controller;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\QuickActions;
 use Icinga\Module\Kubernetes\Web\ServiceDetail;
-use Icinga\Module\Kubernetes\Common\ViewMode;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
@@ -30,6 +32,15 @@ class ServiceController extends Controller
             ->filter(Filter::equal('uuid', $uuidBytes))
             ->first();
 
+        $favorite = Favorite::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('resource_uuid', $uuidBytes),
+                    Filter::equal('username', Auth::getInstance()->getUser()->getUsername())
+                )
+            )
+            ->first();
+
         if ($service === null) {
             $this->httpNotFound($this->translate('Service not found'));
         }
@@ -37,8 +48,10 @@ class ServiceController extends Controller
         $this->addControl(
             (new ResourceList([$service]))
                 ->setDetailActionsDisabled()
-                ->setViewMode(ViewMode::Detailed)
+                ->setViewMode(ViewMode::Minimal)
         );
+
+        $this->addControl(new QuickActions($service, $favorite));
 
         $this->addContent(new ServiceDetail($service));
     }

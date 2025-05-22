@@ -41,4 +41,9 @@ class IngressesController extends ListController
     {
         return [ViewMode::Detailed];
     }
+
+    protected function getFavorable(): true
+    {
+        return true;
+    }
 }

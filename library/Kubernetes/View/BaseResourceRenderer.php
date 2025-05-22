@@ -16,6 +16,7 @@ use ipl\Html\HtmlString;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Web\Common\ItemRenderer;
+use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
 use ipl\Web\Widget\TimeAgo;
@@ -75,7 +76,14 @@ abstract class BaseResourceRenderer implements ItemRenderer
 
     public function assembleExtendedInfo($item, HtmlDocument $info, string $layout): void
     {
-        $info->addHtml(new TimeAgo($item->created->getTimestamp()));
+        $info->addHtml(HtmlElement::create(
+            'span',
+            Attributes::create(['class' => 'info-container']),
+            [
+                new Icon('star', Attributes::create(['class' => 'favor-icon'])),
+                new TimeAgo($item->created->getTimestamp())
+            ]
+        ));
     }
 
     public function assemble($item, string $name, HtmlDocument $element, string $layout): false

@@ -34,4 +34,9 @@ class NamespacesController extends ListController
     {
         return Auth::SHOW_NAMESPACES;
     }
+
+    protected function getFavorable(): true
+    {
+        return true;
+    }
 }

@@ -35,4 +35,9 @@ class ServicesController extends ListController
     {
         return Auth::SHOW_SERVICES;
     }
+
+    protected function getFavorable(): true
+    {
+        return true;
+    }
 }
