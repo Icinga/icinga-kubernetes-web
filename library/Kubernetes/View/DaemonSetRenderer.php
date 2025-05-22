@@ -23,7 +23,10 @@ class DaemonSetRenderer extends BaseResourceRenderer
     {
         $pods = (new ItemCountIndicator())
             ->addIndicator('critical', $item->number_unavailable)
-            ->addIndicator('pending', $item->desired_number_scheduled - $item->current_number_scheduled)
+            ->addIndicator(
+                'pending',
+                $item->desired_number_scheduled - $item->number_unavailable - $item->current_number_scheduled
+            )
             ->addIndicator('ok', $item->number_available);
 
         $footer->addHtml(

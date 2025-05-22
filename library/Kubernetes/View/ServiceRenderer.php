@@ -6,6 +6,8 @@ namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Web\KIcon;
+use Icinga\Module\Kubernetes\Web\ServiceIcingaStateReason;
+use Icinga\Module\Kubernetes\Web\WorkloadIcingaStateReason;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -13,19 +15,25 @@ use ipl\Html\Text;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
 use ipl\Web\Widget\StateBall;
+use SplObjectStorage;
 
 class ServiceRenderer extends BaseResourceRenderer
 {
+    protected $cache;
     public function assembleVisual($item, HtmlDocument $visual, string $layout): void
     {
-        // TODO add icinga state then remove this function
-        $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
+        $this->cache ??= new SplObjectStorage();
+        $this->cache[$item] ??= new ServiceIcingaStateReason($item);
+
+        $visual->addHtml(new StateBall($this->cache[$item]->getState(), StateBall::SIZE_MEDIUM));
     }
 
     public function assembleCaption($item, HtmlDocument $caption, string $layout): void
     {
-        // TODO add state reason then remove this function
-        $caption->addHtml(new Text('Placeholder for Icinga State Reason'));
+        $this->cache ??= new SplObjectStorage();
+        $this->cache[$item] ??= new ServiceIcingaStateReason($item);
+
+        $caption->addHtml($this->cache[$item]);
     }
 
     public function assembleFooter($item, HtmlDocument $footer, string $layout): void

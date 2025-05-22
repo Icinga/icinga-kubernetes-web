@@ -12,12 +12,15 @@ use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
+use ipl\Web\Widget\StateBall;
 
 class CronJobDetail extends BaseHtmlElement
 {
@@ -36,6 +39,16 @@ class CronJobDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            new IcingaStateReason(
+                $this->cronJob->icinga_state_reason,
+                $this->cronJob->icinga_state
+            )
+        ));
+
         if (isset($this->cronJob->last_schedule_time)) {
             $lastScheduleTime = $this->cronJob->last_schedule_time->format('Y-m-d H:i:s');
         } else {
@@ -60,7 +73,15 @@ class CronJobDetail extends BaseHtmlElement
                 $this->translate('Successful Jobs History Limit') => $this->cronJob->successful_jobs_history_limit,
                 $this->translate('Failed Jobs History Limit')     => $this->cronJob->failed_jobs_history_limit,
                 $this->translate('Last Successful Time')          => $lastSuccessfulTime,
-                $this->translate('Last Schedule Time')            => $lastScheduleTime
+                $this->translate('Last Schedule Time')            => $lastScheduleTime,
+                $this->translate('Icinga State')                  => (new HtmlDocument())->addHtml(
+                    new StateBall($this->cronJob->icinga_state, StateBall::SIZE_MEDIUM),
+                    new HtmlElement(
+                        'span',
+                        new Attributes(['class' => 'icinga-state-text']),
+                        new Text($this->cronJob->icinga_state)
+                    )
+                )
             ])),
             new Labels($this->cronJob->label),
             new Annotations($this->cronJob->annotation),

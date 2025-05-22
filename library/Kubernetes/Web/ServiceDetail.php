@@ -15,12 +15,15 @@ use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\ServicePort;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
+use ipl\Web\Widget\StateBall;
 
 class ServiceDetail extends BaseHtmlElement
 {
@@ -39,13 +42,13 @@ class ServiceDetail extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $endpointSlices = EndpointSlice::on(Database::connection())
-            ->filter(
-                Filter::all(
-                    Filter::equal('endpoint_slice.label.name', 'kubernetes.io/service-name'),
-                    Filter::equal('endpoint_slice.label.value', $this->service->name)
-                )
-            )->first();
+        $stateReason = new ServiceIcingaStateReason($this->service);
+        $this->addHtml(new HtmlElement(
+            'section',
+            null,
+            new HtmlElement('h2', null, new Text($this->translate('Icinga State Reason'))),
+            $stateReason
+        ));
 
         $this->addHtml(
             new Details(new ResourceDetails($this->service, [
@@ -73,15 +76,34 @@ class ServiceDetail extends BaseHtmlElement
                 ),
                 $this->translate('Load Balancer Class')               => $this->service->load_balancer_class ??
                     new EmptyState($this->translate('None')),
-                $this->translate('Internal Traffic Policy')           => $this->service->internal_traffic_policy
+                $this->translate('Internal Traffic Policy')           => $this->service->internal_traffic_policy,
+                $this->translate('Icinga State')                      => (new HtmlDocument())->addHtml(
+                    new StateBall($stateReason->getState(), StateBall::SIZE_MEDIUM),
+                    new HtmlElement(
+                        'span',
+                        new Attributes(['class' => 'icinga-state-text']),
+                        new Text($stateReason->getState())
+                    )
+                )
             ])),
             new Labels($this->service->label),
             new Annotations($this->service->annotation),
             new Selectors($this->service->selector),
-            new PortTable($this->service->port, (new ServicePort())->getColumnDefinitions()),
-            new EndpointTable($endpointSlices->endpoint, (new Endpoint())->getColumnDefinitions()),
-            new ServiceEnvironment($this->service)
+            new PortTable($this->service->port, (new ServicePort())->getColumnDefinitions())
         );
+
+        $endpointSlices = EndpointSlice::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('endpoint_slice.label.name', 'kubernetes.io/service-name'),
+                    Filter::equal('endpoint_slice.label.value', $this->service->name)
+                )
+            )->first();
+        if ($endpointSlices !== null) {
+            $this->addHtml(new EndpointTable($endpointSlices->endpoint, (new Endpoint())->getColumnDefinitions()));
+        }
+
+        $this->addHtml(new ServiceEnvironment($this->service));
 
         $selectors = $this->service->selector->execute();
         if ($selectors->valid() && Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {
