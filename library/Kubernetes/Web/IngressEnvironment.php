@@ -28,17 +28,23 @@ class IngressEnvironment implements ValidHtml
         $services = Service::on(Database::connection())
             ->filter(Filter::equal('namespace', $this->ingress->namespace));
 
+        $childrenFilter = null;
         $filters = [];
-        foreach ($this->ingress->backend_service as $backendService) {
-            $filters[] = Filter::all(
-                Filter::equal('service.name', $backendService->service_name),
-                Filter::equal('service.port.port', $backendService->service_port_number)
-            );
-        }
+        if ($this->ingress->backend_service->first() != null) {
+            foreach ($this->ingress->backend_service as $backendService) {
+                $filters[] = Filter::all(
+                    Filter::equal('service.name', $backendService->service_name),
+                    Filter::equal('service.port.port', $backendService->service_port_number)
+                );
+            }
 
-        $services
-            ->filter(Filter::any(...$filters))
-            ->limit(3);
+            $childrenFilter = Filter::any(...$filters);
+            $services
+                ->filter($childrenFilter)
+                ->limit(3);
+        } else {
+            $services = null;
+        }
 
         return (new HtmlDocument())
             ->addHtml(
@@ -47,7 +53,7 @@ class IngressEnvironment implements ValidHtml
                     new Attributes(['class' => 'environment-widget-title']),
                     new Text($this->translate('Environment'))
                 ),
-                new Environment($this->ingress, null, $services, null, Filter::any(...$filters))
+                new Environment($this->ingress, null, $services, null, $childrenFilter)
             );
     }
 }
