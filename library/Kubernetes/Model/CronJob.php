@@ -68,6 +68,8 @@ class CronJob extends Model
             'active'                        => $this->translate('Active'),
             'last_schedule_time'            => $this->translate('Last Schedule Time'),
             'last_successful_time'          => $this->translate('Last Successful Time'),
+            'icinga_state'                  => $this->translate('Icinga State'),
+            'icinga_state_reason'           => $this->translate('Icinga State Reason'),
             'yaml'                          => $this->translate('YAML'),
             'created'                       => $this->translate('Created At')
         ];
@@ -91,6 +93,8 @@ class CronJob extends Model
             'active',
             'last_schedule_time',
             'last_successful_time',
+            'icinga_state',
+            'icinga_state_reason',
             'yaml',
             'created'
         ];

@@ -13,22 +13,9 @@ use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
-use ipl\Web\Widget\StateBall;
 
 class CronJobRenderer extends BaseResourceRenderer
 {
-    public function assembleVisual($item, HtmlDocument $visual, string $layout): void
-    {
-        // TODO add icinga state then remove this function
-        $visual->addHtml(new StateBall('none', StateBall::SIZE_MEDIUM));
-    }
-
-    public function assembleCaption($item, HtmlDocument $caption, string $layout): void
-    {
-        // TODO add state reason then remove this function
-        $caption->addHtml(new Text('Placeholder for Icinga State Reason'));
-    }
-
     public function assembleTitle($item, HtmlDocument $title, string $layout): void
     {
         $title->addHtml(
