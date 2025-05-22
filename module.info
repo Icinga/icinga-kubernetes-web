@@ -1,6 +1,6 @@
 Module: kubernetes
-Version: 0.2.0
+Version: 0.3.0
 Requires:
-  Libraries: icinga-php-library (>=0.14.1), icinga-php-thirdparty (>=0.12.1)
+  Libraries: icinga-php-library (>=0.16.0), icinga-php-thirdparty (>=0.12.1)
 Description: Icinga for Kubernetes Web
   UI for Icinga for Kubernetes – Provides a graphical interface to your Icinga for Kubernetes monitoring
