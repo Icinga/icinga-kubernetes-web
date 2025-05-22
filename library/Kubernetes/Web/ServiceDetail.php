@@ -15,15 +15,12 @@ use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\ServicePort;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
-use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
-use ipl\Web\Widget\StateBall;
 
 class ServiceDetail extends BaseHtmlElement
 {
@@ -77,14 +74,7 @@ class ServiceDetail extends BaseHtmlElement
                 $this->translate('Load Balancer Class')               => $this->service->load_balancer_class ??
                     new EmptyState($this->translate('None')),
                 $this->translate('Internal Traffic Policy')           => $this->service->internal_traffic_policy,
-                $this->translate('Icinga State')                      => (new HtmlDocument())->addHtml(
-                    new StateBall($stateReason->getState(), StateBall::SIZE_MEDIUM),
-                    new HtmlElement(
-                        'span',
-                        new Attributes(['class' => 'icinga-state-text']),
-                        new Text($stateReason->getState())
-                    )
-                )
+                $this->translate('Icinga State')                      => new DetailState($stateReason->getState())
             ])),
             new Labels($this->service->label),
             new Annotations($this->service->annotation),
