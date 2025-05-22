@@ -50,14 +50,6 @@ class ServiceDetail extends BaseHtmlElement
             $stateReason
         ));
 
-        $endpointSlices = EndpointSlice::on(Database::connection())
-            ->filter(
-                Filter::all(
-                    Filter::equal('endpoint_slice.label.name', 'kubernetes.io/service-name'),
-                    Filter::equal('endpoint_slice.label.value', $this->service->name)
-                )
-            )->first();
-
         $this->addHtml(
             new Details(new ResourceDetails($this->service, [
                 $this->translate('Type')                              => $this->service->type,
@@ -85,7 +77,7 @@ class ServiceDetail extends BaseHtmlElement
                 $this->translate('Load Balancer Class')               => $this->service->load_balancer_class ??
                     new EmptyState($this->translate('None')),
                 $this->translate('Internal Traffic Policy')           => $this->service->internal_traffic_policy,
-                $this->translate('Icinga State')       => (new HtmlDocument())->addHtml(
+                $this->translate('Icinga State')                      => (new HtmlDocument())->addHtml(
                     new StateBall($stateReason->getState(), StateBall::SIZE_MEDIUM),
                     new HtmlElement(
                         'span',
@@ -97,10 +89,21 @@ class ServiceDetail extends BaseHtmlElement
             new Labels($this->service->label),
             new Annotations($this->service->annotation),
             new Selectors($this->service->selector),
-            new PortTable($this->service->port, (new ServicePort())->getColumnDefinitions()),
-            new EndpointTable($endpointSlices->endpoint, (new Endpoint())->getColumnDefinitions()),
-            new ServiceEnvironment($this->service)
+            new PortTable($this->service->port, (new ServicePort())->getColumnDefinitions())
         );
+
+        $endpointSlices = EndpointSlice::on(Database::connection())
+            ->filter(
+                Filter::all(
+                    Filter::equal('endpoint_slice.label.name', 'kubernetes.io/service-name'),
+                    Filter::equal('endpoint_slice.label.value', $this->service->name)
+                )
+            )->first();
+        if ($endpointSlices !== null) {
+            $this->addHtml(new EndpointTable($endpointSlices->endpoint, (new Endpoint())->getColumnDefinitions()));
+        }
+
+        $this->addHtml(new ServiceEnvironment($this->service));
 
         $selectors = $this->service->selector->execute();
         if ($selectors->valid() && Auth::getInstance()->hasPermission(Auth::SHOW_PODS)) {
