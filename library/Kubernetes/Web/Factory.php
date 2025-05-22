@@ -160,8 +160,8 @@ abstract class Factory
             'secret',
             'service',
             'sidecarcontainer',
-            'statefulset' => Url::fromPath("kubernetes/{$kind}s"),
-            'ingress'     => Url::fromPath('kubernetes/ingresses'),
+            'statefulset' => "{$kind}s",
+            'ingress'     => 'ingresses',
             default       => null
         };
     }
