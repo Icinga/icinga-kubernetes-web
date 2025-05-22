@@ -54,9 +54,10 @@ class ResourceDefaultItemLayout extends ItemLayout
     protected function assembleHeader(HtmlDocument $container): void
     {
         switch (true) {
-            case $this->item instanceof Secret:
+            case $this->item instanceof Ingress:
             case $this->item instanceof PersistentVolume:
             case $this->item instanceof PersistentVolumeClaim:
+            case $this->item instanceof Secret:
                 $this->registerTitle($container);
                 $this->registerExtendedInfo($container);
 
