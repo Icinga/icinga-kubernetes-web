@@ -13,7 +13,7 @@
 
     Icinga.Behaviors = Icinga.Behaviors || {};
 
-    class ActionList extends Icinga.EventListener {
+    class ActionListKubernetes extends Icinga.EventListener {
         constructor(icinga) {
             super(icinga);
 
@@ -594,6 +594,6 @@
         }
     }
 
-    Icinga.Behaviors.ActionList = ActionList;
+    Icinga.Behaviors.ActionListKubernetes = ActionListKubernetes;
 
 }(Icinga));
