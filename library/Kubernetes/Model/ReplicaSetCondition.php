@@ -54,7 +54,7 @@ class ReplicaSetCondition extends Model
 
     public function getDefaultSort(): array
     {
-        return ['last_transition desc'];
+        return ['replica_set_condition.last_transition desc'];
     }
 
     public function getKeyName(): array

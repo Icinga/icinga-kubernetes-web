@@ -115,7 +115,7 @@ class Deployment extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['deployment.created desc'];
     }
 
     public function getKeyName(): string

@@ -56,7 +56,7 @@ class ServiceCondition extends Model
 
     public function getDefaultSort(): array
     {
-        return ['last_transition desc'];
+        return ['service_condition.last_transition desc'];
     }
 
     public function getKeyName(): array

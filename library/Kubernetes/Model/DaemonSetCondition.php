@@ -54,7 +54,7 @@ class DaemonSetCondition extends Model
 
     public function getDefaultSort(): array
     {
-        return ['last_transition desc'];
+        return ['daemon_set_condition.last_transition desc'];
     }
 
     public function getKeyName(): array

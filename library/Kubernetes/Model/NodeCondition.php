@@ -57,7 +57,7 @@ class NodeCondition extends Model
 
     public function getDefaultSort(): array
     {
-        return ['last_transition desc'];
+        return ['node_condition.last_transition desc'];
     }
 
     public function getKeyName(): array

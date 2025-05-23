@@ -117,7 +117,7 @@ class Service extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['service.created desc'];
     }
 
     public function getKeyName(): string

@@ -53,7 +53,7 @@ class DaemonSetOwner extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name asc'];
+        return ['daemon_set_owner.name asc'];
     }
 
     public function getKeyName(): array

@@ -103,7 +103,7 @@ class PersistentVolume extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['persistent_volume.created desc'];
     }
 
     public function getKeyName(): string

@@ -46,7 +46,7 @@ class Selector extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name'];
+        return ['selector.name'];
     }
 
     public function getKeyName(): array

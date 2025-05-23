@@ -100,7 +100,7 @@ class Event extends Model
 
     public function getDefaultSort(): array
     {
-        return ['last_seen desc'];
+        return ['event.last_seen desc'];
     }
 
     public function getKeyName(): string

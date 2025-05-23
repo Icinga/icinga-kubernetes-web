@@ -109,7 +109,7 @@ class Annotation extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name'];
+        return ['annotation.name'];
     }
 
     public function getKeyName(): array

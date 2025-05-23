@@ -170,7 +170,7 @@ class Pod extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['pod.created desc'];
     }
 
     public function getKeyName(): string

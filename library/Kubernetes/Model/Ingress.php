@@ -79,7 +79,7 @@ class Ingress extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['ingress.created desc'];
     }
 
     public function getKeyName(): string

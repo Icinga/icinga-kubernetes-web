@@ -53,7 +53,7 @@ class StatefulSetOwner extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name asc'];
+        return ['stateful_set_owner.name asc'];
     }
 
     public function getKeyName(): array

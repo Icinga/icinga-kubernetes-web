@@ -53,7 +53,7 @@ class PodOwner extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name asc'];
+        return ['pod_owner.name asc'];
     }
 
     public function getKeyName(): array

@@ -87,7 +87,7 @@ class Container extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name'];
+        return ['container.name'];
     }
 
     public function getKeyName(): string

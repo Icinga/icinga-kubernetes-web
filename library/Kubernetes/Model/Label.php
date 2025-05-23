@@ -113,7 +113,7 @@ class Label extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name'];
+        return ['label.name'];
     }
 
     public function getKeyName(): array

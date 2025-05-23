@@ -57,7 +57,7 @@ class DeploymentCondition extends Model
 
     public function getDefaultSort(): array
     {
-        return ['last_transition desc'];
+        return ['deployment_condition.last_transition desc'];
     }
 
     public function getKeyName(): array

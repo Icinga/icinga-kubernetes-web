@@ -131,7 +131,7 @@ class Job extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['job.created desc'];
     }
 
     public function getKeyName(): string
