@@ -21,8 +21,7 @@ use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
-use ipl\Html\Attributes;
-use ipl\Html\HtmlElement;
+use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use ipl\Html\ValidHtml;
 use ipl\Orm\Model;
 use ipl\Orm\Query;
@@ -62,7 +61,7 @@ abstract class Factory
             'replicaset',
             'secret',
             'service',
-            'statefulset' => new HtmlElement('i', new Attributes(['class' => "icon kicon-$kind"])),
+            'statefulset' => new KIcon($kind),
             'node'        => new Icon('share-nodes'),
             default       => null
         };
