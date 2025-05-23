@@ -55,6 +55,13 @@
   }
 }
 
+.minimal-item-layout .caption,
+.default-item-layout .caption {
+  > .icinga-state-reason .row:before {
+    display: none;
+  }
+}
+
 .workload-rows .pod-rows,
 .pod-rows .container-rows {
   // level-indicator (1em) + state-ball margin (0.4em) + half state-ball size m (0.375em)
