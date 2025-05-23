@@ -6,10 +6,10 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Factory;
 use Icinga\Module\Kubernetes\Model\Favorite;
-use Icinga\Module\Kubernetes\Web\Controller;
-use Icinga\Module\Kubernetes\Web\Factory;
-use Icinga\Module\Kubernetes\Web\FavoriteDashboard;
+use Icinga\Module\Kubernetes\Web\Controller\Controller;
+use Icinga\Module\Kubernetes\Web\Widget\FavoriteDashboard;
 use Icinga\Web\Widget\Dashboard;
 use Icinga\Web\Widget\Dashboard\Dashlet;
 use Icinga\Web\Widget\Dashboard\Pane;

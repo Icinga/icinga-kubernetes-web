@@ -5,8 +5,8 @@
 namespace Icinga\Module\Kubernetes\Dashboard;
 
 use Icinga\Module\Kubernetes\Common\BeforeAssemble;
+use Icinga\Module\Kubernetes\Common\Factory;
 use Icinga\Module\Kubernetes\Common\FormatString;
-use Icinga\Module\Kubernetes\Web\Factory;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;

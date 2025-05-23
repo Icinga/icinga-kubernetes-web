@@ -4,8 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\View;
 
+use Icinga\Module\Kubernetes\Common\Factory;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Web\Factory;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;

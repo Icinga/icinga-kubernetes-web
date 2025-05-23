@@ -7,7 +7,7 @@ namespace Icinga\Module\Kubernetes\Common;
 use AppendIterator;
 use ArrayIterator;
 use Generator;
-use Icinga\Module\Kubernetes\Web\KIcon;
+use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;

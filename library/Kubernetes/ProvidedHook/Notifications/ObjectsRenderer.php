@@ -5,9 +5,9 @@
 namespace Icinga\Module\Kubernetes\ProvidedHook\Notifications;
 
 use Generator;
-use Icinga\Module\Kubernetes\Web\Factory;
+use Icinga\Module\Kubernetes\Common\Factory;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
-use Icinga\Module\Kubernetes\Web\KIcon;
+use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use Icinga\Module\Notifications\Hook\ObjectsRendererHook;
 use ipl\Html\Attributes;
 use ipl\Html\FormattedString;

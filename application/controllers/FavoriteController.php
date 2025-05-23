@@ -10,7 +10,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Forms\FavorForm;
 use Icinga\Module\Kubernetes\Forms\UnfavorForm;
 use Icinga\Module\Kubernetes\Model\Favorite;
-use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use ipl\Sql\Expression;
 use ipl\Stdlib\Filter;
 use Throwable;

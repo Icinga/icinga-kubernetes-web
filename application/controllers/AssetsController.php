@@ -4,7 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
-use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\Controller\Controller;
 
 class AssetsController extends Controller
 {

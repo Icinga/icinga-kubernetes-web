@@ -7,8 +7,8 @@ namespace Icinga\Module\Kubernetes\Controllers;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Secret;
-use Icinga\Module\Kubernetes\Web\Controller;
-use Icinga\Module\Kubernetes\Web\SecretDetail;
+use Icinga\Module\Kubernetes\Web\Controller\Controller;
+use Icinga\Module\Kubernetes\Web\Detail\SecretDetail;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 

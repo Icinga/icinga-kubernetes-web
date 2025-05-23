@@ -13,8 +13,8 @@ use Icinga\Module\Kubernetes\Dashboard\ObservabilityDashboard;
 use Icinga\Module\Kubernetes\Dashboard\StorageDashboard;
 use Icinga\Module\Kubernetes\Dashboard\WorkloadsDashboard;
 use Icinga\Module\Kubernetes\Model\Cluster;
-use Icinga\Module\Kubernetes\Web\ClusterForm;
-use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\Controller\Controller;
+use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
 use Icinga\Web\Session;
 use ipl\Html\Attributes;
 
