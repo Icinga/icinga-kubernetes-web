@@ -109,6 +109,7 @@ class NodeDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->node->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 

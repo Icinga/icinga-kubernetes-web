@@ -112,6 +112,7 @@ class StatefulSetDetail extends BaseHtmlElement
                     $this->statefulSet->pod->with(['node'])
                 )))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 
@@ -123,6 +124,7 @@ class StatefulSetDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->statefulSet->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 

@@ -79,6 +79,7 @@ class PersistentVolumeDetail extends BaseHtmlElement
                     $this->persistentVolume->pvc
                 )))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 
@@ -90,6 +91,7 @@ class PersistentVolumeDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->persistentVolume->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 

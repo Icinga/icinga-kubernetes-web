@@ -97,6 +97,7 @@ class ReplicaSetDetail extends BaseHtmlElement
                     $this->replicaSet->pod->with(['node'])
                 )))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 
@@ -108,6 +109,7 @@ class ReplicaSetDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->replicaSet->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 

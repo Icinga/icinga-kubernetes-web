@@ -129,6 +129,7 @@ class ServiceDetail extends BaseHtmlElement
                     $pods
                 )))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 

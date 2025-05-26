@@ -95,6 +95,8 @@ class CronJobDetail extends BaseHtmlElement
                     $this->cronJob->job
                 )))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
+                    ->setCollapsible()
             ));
         }
 
@@ -106,6 +108,8 @@ class CronJobDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->cronJob->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
+                    ->setCollapsible()
             ));
         }
 

@@ -64,6 +64,7 @@ class NamespaceDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->namespace->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 
