@@ -1,0 +1,121 @@
+.kubernetes-dashboard > ul {
+  min-width: 38em;
+  max-width: 80em;
+  margin: 0;
+  padding: 0;
+
+  li {
+    clear: both;
+
+    display: inline-block;
+    vertical-align: top;
+
+    width: 25em;
+    min-width: 16em;
+    padding: 0;
+
+    text-align: left;
+    list-style-type: none;
+
+    a {
+      i {
+        float: left;
+
+        display: block;
+        margin-right: 0.3em;
+
+        color: @text-color-light;
+
+        font-size: 3em;
+        line-height: 1em;
+      }
+
+      &.state-critical i {
+        color: @color-critical;
+      }
+
+      &.state-warning i {
+        color: @color-warning;
+      }
+
+      &.state-ok i {
+        color: @color-ok;
+      }
+
+      &.state-unknown i {
+        color: @color-unknown;
+      }
+
+      &.state-pending i {
+        color: @color-pending;
+      }
+
+      display: block;
+
+      min-height: 10em;
+      padding: 1em;
+      border-left: 0.5em solid transparent;
+
+      color: @text-color;
+
+      font-weight: bold;
+      text-decoration: none;
+
+      overflow: hidden;
+
+      &.active {
+        border-color: @icinga-blue;
+        background-color: @tr-active-color;
+      }
+
+      &:hover {
+        background-color: @tr-hover-color;
+        text-decoration: none;
+      }
+
+      &:active, &:focus {
+        background-color: @tr-hover-color;
+        outline: none;
+      }
+    }
+
+    p {
+      margin-bottom: 0.5em;
+      padding-left: 4.5em;
+
+      color: @text-color-light;
+
+      font-weight: normal;
+    }
+  }
+}
+
+.favorite-dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+
+  > div {
+    width: 100%;
+    padding: 1em;
+
+    > .container {
+      > .content {
+        padding: 0;
+      }
+
+      > .progress-label {
+        margin: 0;
+
+        span {
+          font-size: 0.75em;
+        }
+      }
+    }
+  }
+}
+
+#layout.wide-layout:not(.twocols) .favorite-dashboard > div,
+#layout.default-layout:not(.twocols) .favorite-dashboard > div {
+  width: ~"calc(50% - 0.5em)";
+}

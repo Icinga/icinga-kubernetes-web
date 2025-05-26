@@ -3,9 +3,10 @@
 .quick-actions {
   display: flex;
   flex-wrap: wrap;
-  list-style-type: none;
   margin: 0 -.5em;
   padding: 0;
+
+  list-style-type: none;
 
   a {
     text-decoration: none;
@@ -13,10 +14,10 @@
 
   a,
   button {
-    padding: .25em;
-    .rounded-corners();
     display: inline-flex;
     align-items: baseline;
+    padding: .25em;
+    .rounded-corners();
 
     &:hover {
       background: @gray-lighter;
@@ -24,8 +25,8 @@
   }
 
   li {
-    margin: 0 .25em .5em .25em;
     vertical-align: middle;
+    margin: 0 .25em .5em .25em;
     white-space: nowrap;
   }
 }
@@ -53,6 +54,5 @@ button.spinner.active > i {
     // far spinner
     content: '\f110';
     font-weight: 900;
-
   }
 }

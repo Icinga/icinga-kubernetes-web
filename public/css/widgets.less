@@ -1,93 +1,19 @@
 /* Icinga for Kubernetes Web | (c) 2024 Icinga GmbH | AGPLv3 */
 
 .logs > p {
-  .monospace-font();
-  background-color: black;
-  color: white;
   display: flex;
   flex-direction: column-reverse;
-  max-height: 50em;
   overflow: auto;
+
+  max-height: 50em;
   padding: 1em;
+
+  background-color: black;
+  color: white;
+
   white-space: pre;
-}
 
-.item-count-indicator {
-  --state-color: @gray;
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  width: 6em;
-
-  li {
-    height: 0.6em;
-    width: 0.6em;
-
-    &:last-child {
-      margin-right: 0;
-    }
-
-    &.critical {
-      --state-color: @state-critical
-    }
-
-    &.warning {
-      --state-color: @state-warning;
-    }
-
-    &.unknown {
-      --state-color: @state-unknown;
-    }
-
-    &.pending {
-      --state-color: @state-pending;
-    }
-
-    &.ok {
-      --state-color: @state-ok;
-    }
-  }
-
-
-  &.box li {
-    background-color: var(--state-color);
-    height: 6px;
-    margin-right: 2px;
-    width: 6px;
-  }
-
-  &.ball li {
-    background-color: var(--state-color);
-    border-radius: 50%;
-
-    margin-left: -0.26em;
-
-    &:nth-child(2n) {
-      margin-top: 0.6em;
-    }
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
-
-  &.text > li {
-    .state-badge();
-    background-color: @gray-light;
-    color: var(--state-color);
-    height: auto;
-    padding: 0;
-    width: auto;
-  }
-
-  &.empty-state > li {
-    height: auto;
-    padding: 0;
-    width: auto;
-  }
+  .monospace-font();
 }
 
 .details,
@@ -100,47 +26,101 @@
   }
 }
 
-.view-mode-switcher {
-  list-style-type: none;
-  padding: 0;
+.namespace-badge {
+  vertical-align: baseline;
+
+  max-width: 8em;
+  margin-right: .2em;
+  padding: 0 .25em;
+  border-radius: .25em;
+
+
+  // Namespace badges are wrapped by an "a" HTML tag when rendered in Icinga Notifications via the object
+  // renderer hook, which forces the font weight to bold and the text colour to the default text one, making
+  // the lists look different within Icinga Notification than in Icinga for Kubernetes.
+  font-weight: normal;
+  line-height: 1.5em / 12 * 11; // 1.5em / @font-size-small
+
+  background-color: @gray-lighter;
+  color: @text-color-light;
+
+  .text-ellipsis();
+}
+
+.condition-table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+
+  thead {
+    border-bottom: 1px solid @gray-light;
+  }
+
+  tr:not(:last-child) {
+    border-bottom: 1px solid @gray-lighter;
+  }
+
+  th {
+    font-size: .857em;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  td {
+    text-align: right;
+    .text-ellipsis();
+  }
+
+  th:first-child,
+  td:first-child {
+    padding-left: 0;
+  }
+}
+
+.cluster-form {
+  .control-label-group {
+    flex-direction: row;
+    width: 5em;
+    font-size: 1.2em;
+    text-align: left;
+  }
+
+  .icinga-controls {
+    select {
+      max-width: 280px;
+    }
+  }
+}
+
+.reorder-handle-background {
+  position: absolute;
+  right: 0;
+  bottom: 0.25em;
+
+  display: none;
+
+  height: ~"calc(100% - 0.5em)";
+  width: 3em;
+
+  background-color: @body-bg-color;
+}
+
+.reorder-handle-container {
   display: flex;
+  justify-content: center;
+  align-items: center;
 
-  input {
-    display: none;
-  }
+  width: 100%;
+  height: 100%;
+  border-left: 1px solid @gray-light;
+  background-color: @tr-hover-color;
 
-  label {
-    color: @control-color;
-    line-height: 1;
-    background: @low-sat-blue;
-    padding: 14/16*.25em 14/16*.5em;
-    font-size: 16/12em;
-    height: 24/16em; // desired pixel height / font-size
-    cursor: pointer;
+  .icon {
+    cursor: grab;
 
-    &:first-of-type {
-      border-top-left-radius: 0.25em;
-      border-bottom-left-radius: 0.25em;
+    &:active {
+      cursor: grabbing;
     }
-
-    &:last-of-type {
-      border-top-right-radius: 0.25em;
-      border-bottom-right-radius: 0.25em;
-    }
-
-    &:not(:last-of-type) {
-      border-right: 1px solid @low-sat-blue-dark;
-    }
-
-    i {
-      // fix height for Chrome
-      display: block;
-    }
-  }
-
-  input[checked] + label {
-    background-color: @control-color;
-    color: @text-color-on-icinga-blue;
-    cursor: default;
   }
 }

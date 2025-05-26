@@ -1,0 +1,81 @@
+.item-count-indicator {
+  --state-color: @gray;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  width: 6em;
+  margin: 0;
+  padding: 0;
+
+  list-style-type: none;
+
+  li {
+    height: 0.6em;
+    width: 0.6em;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    &.critical {
+      --state-color: @state-critical
+    }
+
+    &.warning {
+      --state-color: @state-warning;
+    }
+
+    &.unknown {
+      --state-color: @state-unknown;
+    }
+
+    &.pending {
+      --state-color: @state-pending;
+    }
+
+    &.ok {
+      --state-color: @state-ok;
+    }
+  }
+
+
+  &.box li {
+    width: 6px;
+    height: 6px;
+    margin-right: 2px;
+
+    background-color: var(--state-color);
+  }
+
+  &.ball li {
+    margin-left: -0.26em;
+    border-radius: 50%;
+    background-color: var(--state-color);
+
+    &:nth-child(2n) {
+      margin-top: 0.6em;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+
+  &.text > li {
+    width: auto;
+    height: auto;
+    padding: 0;
+
+    background-color: @gray-light;
+    color: var(--state-color);
+
+    .state-badge();
+  }
+
+  &.empty-state > li {
+    height: auto;
+    padding: 0;
+    width: auto;
+  }
+}

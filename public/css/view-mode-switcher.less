@@ -1,0 +1,47 @@
+.view-mode-switcher {
+  display: flex;
+  padding: 0;
+  list-style-type: none;
+
+  input {
+    display: none;
+  }
+
+  label {
+    height: 24/16em; // desired pixel height / font-size
+    padding: 14/16*.25em 14/16*.5em;
+
+    line-height: 1;
+    font-size: 16/12em;
+
+    background: @low-sat-blue;
+    color: @control-color;
+
+    cursor: pointer;
+
+    &:first-of-type {
+      border-top-left-radius: 0.25em;
+      border-bottom-left-radius: 0.25em;
+    }
+
+    &:last-of-type {
+      border-top-right-radius: 0.25em;
+      border-bottom-right-radius: 0.25em;
+    }
+
+    &:not(:last-of-type) {
+      border-right: 1px solid @low-sat-blue-dark;
+    }
+
+    i {
+      // fix height for Chrome
+      display: block;
+    }
+  }
+
+  input[checked] + label {
+    background-color: @control-color;
+    color: @text-color-on-icinga-blue;
+    cursor: default;
+  }
+}
