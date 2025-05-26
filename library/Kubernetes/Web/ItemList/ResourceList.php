@@ -56,6 +56,7 @@ use ipl\Orm\Model;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\ItemList;
 use ipl\Web\Widget\ListItem;
+use Ramsey\Uuid\Uuid;
 
 class ResourceList extends ItemList
 {
@@ -138,7 +139,7 @@ class ResourceList extends ItemList
 
 
         if (! $this->getDetailActionsDisabled()) {
-            $this->addDetailFilterAttribute($item, Filter::equal('id', $data->uuid));
+            $this->addDetailFilterAttribute($item, Filter::equal('id', Uuid::fromBytes($data->uuid)->toString()));
         }
 
         return $item;
