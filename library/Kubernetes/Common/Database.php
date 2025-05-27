@@ -17,6 +17,9 @@ use PDO;
 
 abstract class Database
 {
+    /** The database connection */
+    protected static ?Connection $connection = null;
+
     /**
      * Get a connection to the database
      *
@@ -24,7 +27,9 @@ abstract class Database
      */
     public static function connection(): Connection
     {
-        return static::getConnection();
+        static::$connection ??= static::getConnection();
+
+        return static::$connection;
     }
 
     /**
