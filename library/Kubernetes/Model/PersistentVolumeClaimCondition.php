@@ -57,7 +57,7 @@ class PersistentVolumeClaimCondition extends Model
 
     public function getDefaultSort(): array
     {
-        return ['last_transition desc'];
+        return ['pvc_condition.last_transition desc'];
     }
 
     public function getKeyName(): array

@@ -75,7 +75,7 @@ class Cluster extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name desc'];
+        return ['cluster.name desc'];
     }
 
     public function getKeyName(): array

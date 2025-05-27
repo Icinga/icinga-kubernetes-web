@@ -68,7 +68,7 @@ class ConfigMap extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['config_map.created desc'];
     }
 
     public function getKeyName(): array

@@ -50,7 +50,7 @@ class Data extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name'];
+        return ['data.name'];
     }
 
     public function getKeyName(): array

@@ -128,7 +128,7 @@ class Node extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['node.created desc'];
     }
 
     public function getKeyName(): array

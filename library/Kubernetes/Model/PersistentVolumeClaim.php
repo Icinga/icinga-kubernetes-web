@@ -111,7 +111,7 @@ class PersistentVolumeClaim extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['pvc.created desc'];
     }
 
     public function getKeyName(): string

@@ -69,7 +69,7 @@ class InitContainer extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name'];
+        return ['init_container.name'];
     }
 
     public function getKeyName(): string

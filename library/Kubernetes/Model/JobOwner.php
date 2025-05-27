@@ -53,7 +53,7 @@ class JobOwner extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name asc'];
+        return ['job_owner.name asc'];
     }
 
     public function getKeyName(): array

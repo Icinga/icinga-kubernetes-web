@@ -34,7 +34,10 @@ class EventsController extends ListController
 
     protected function getSortColumns(): array
     {
-        return ['event.created desc' => $this->translate('Created')];
+        return [
+            'event.last_seen desc' => $this->translate('Last Seen'),
+            'event.created desc' => $this->translate('Created')
+        ];
     }
 
     protected function getTitle(): string

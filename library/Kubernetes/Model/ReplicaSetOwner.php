@@ -53,7 +53,7 @@ class ReplicaSetOwner extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name asc'];
+        return ['replica_set_owner.name asc'];
     }
 
     public function getKeyName(): array

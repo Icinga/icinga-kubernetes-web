@@ -105,7 +105,7 @@ class DaemonSet extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['daemon_set.created desc'];
     }
 
     public function getKeyName(): string

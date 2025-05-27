@@ -51,7 +51,7 @@ class ContainerMount extends Model
 
     public function getDefaultSort(): array
     {
-        return ['volume_name desc'];
+        return ['container_mount.volume_name desc'];
     }
 
     public function getKeyName(): array

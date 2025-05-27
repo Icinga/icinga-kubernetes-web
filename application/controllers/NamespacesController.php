@@ -20,8 +20,8 @@ class NamespacesController extends ListController
     protected function getSortColumns(): array
     {
         return [
-            'namespaces.created desc' => $this->translate('Created'),
-            'namespaces.name'         => $this->translate('Name')
+            'namespace.created desc' => $this->translate('Created'),
+            'namespace.name'         => $this->translate('Name')
         ];
     }
 

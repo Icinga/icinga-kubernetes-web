@@ -107,7 +107,7 @@ class ReplicaSet extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['replica_set.created desc'];
     }
 
     public function getKeyName(): string

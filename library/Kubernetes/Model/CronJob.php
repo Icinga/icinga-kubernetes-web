@@ -106,7 +106,7 @@ class CronJob extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['cron_job.created desc'];
     }
 
     public function getKeyName(): string

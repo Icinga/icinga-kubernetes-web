@@ -53,7 +53,7 @@ class DeploymentOwner extends Model
 
     public function getDefaultSort(): array
     {
-        return ['name asc'];
+        return ['deployment_owner.name asc'];
     }
 
     public function getKeyName(): array

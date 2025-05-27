@@ -77,7 +77,7 @@ class NamespaceModel extends Model
 
     public function getDefaultSort(): array
     {
-        return ['created desc'];
+        return ['namespace.created desc'];
     }
 
     public function getKeyName(): array
