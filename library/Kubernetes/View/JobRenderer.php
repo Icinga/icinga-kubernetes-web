@@ -5,11 +5,9 @@
 namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Format;
-use Icinga\Module\Kubernetes\Web\ItemCountIndicator;
-use Icinga\Module\Kubernetes\Web\KIcon;
-use ipl\Html\Attributes;
+use Icinga\Module\Kubernetes\Web\Widget\ItemCountIndicator;
+use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use ipl\Html\HtmlDocument;
-use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Icon;

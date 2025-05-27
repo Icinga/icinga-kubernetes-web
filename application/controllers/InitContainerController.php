@@ -6,8 +6,8 @@ namespace Icinga\Module\Kubernetes\Controllers;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\InitContainer;
-use Icinga\Module\Kubernetes\Web\Controller;
-use Icinga\Module\Kubernetes\Web\InitContainerDetail;
+use Icinga\Module\Kubernetes\Web\Controller\Controller;
+use Icinga\Module\Kubernetes\Web\Detail\InitContainerDetail;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 

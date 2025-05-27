@@ -4,10 +4,10 @@
 
 namespace Icinga\Module\Kubernetes\View;
 
+use Icinga\Module\Kubernetes\Common\Factory;
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Web\Factory;
-use Icinga\Module\Kubernetes\Web\IcingaStateReason;
-use Icinga\Module\Kubernetes\Web\KIcon;
+use Icinga\Module\Kubernetes\Web\Widget\IcingaStateReason\IcingaStateReason;
+use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use ipl\Html\Attributes;
 use ipl\Html\Html;
 use ipl\Html\HtmlDocument;

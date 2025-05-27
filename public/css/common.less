@@ -45,6 +45,7 @@ pre {
   }
 
   a.subject {
+    font-weight: normal;
     cursor: default;
     pointer-events: none;
   }
@@ -53,13 +54,13 @@ pre {
     width: auto;
 
     .control-group {
-      margin: 0;
       justify-content: flex-end;
       max-height: 24px;
+      margin: 0;
 
       label {
-        text-align: right;
         margin-right: 0;
+        text-align: right;
       }
     }
   }
@@ -68,8 +69,8 @@ pre {
   .view-mode-switcher,
   .sort-control,
   .favorite-toggle {
-    margin-left: 1em;
     float: right;
+    margin-left: 1em;
   }
 
   .limit-control,
@@ -80,17 +81,13 @@ pre {
 
   .item-list .list-item {
     .main {
-      padding: 3px 0;
+      padding: .25em 0;
     }
 
     .visual {
+      width: 1.2em;
       // Calculate the padding so that the icon is vertically centered in the minimal view.
       padding: ~"calc((24px - (12px * 0.75 * 1.5)) / 2)" 0;
-      width: 1.2em;
-    }
-
-    .title a {
-      font-weight: normal;
     }
   }
 }
@@ -144,129 +141,4 @@ pre {
   margin-left: -1em;
   padding-right: 1em;
   padding-left: 1em;
-}
-
-.object-detail :not(.caption) > .icinga-state-reason {
-  line-height: 1.75em;
-
-  .reason {
-    color: @text-color-light;
-  }
-}
-
-.caption > .icinga-state-reason {
-  font-size: 0.91666667em;
-  line-height: 1.63636364em;
-
-  .tooltip-holder {
-    pointer-events: none;
-  }
-}
-
-.icinga-state-reason {
-  .state-ball {
-    flex-shrink: 0;
-    margin-right: .4em;
-  }
-
-  .row {
-    display: flex;
-    align-items: center;
-
-    .text {
-      display: flex;
-      gap: .25em;
-
-      color: @text-color-light;
-
-      .text-ellipsis();
-    }
-
-    .highlight-text {
-      color: @text-color;
-    }
-  }
-}
-
-.workload-rows,
-.pod-rows,
-.container-rows {
-  transform: translateX(.75em);
-
-  .row:before {
-    content: '';
-    border-left: 1px solid @gray-light;
-    border-bottom: 1px solid @gray-light;
-    height: 1em;
-    width: 1em;
-    transform: translateX(~"calc(-.375em - 0.5px)") translateY(~"calc(-0.5em + 0.5px)");
-  }
-}
-
-.workload-rows .pod-rows,
-.pod-rows .container-rows {
-  // level-indicator (1em) + state-ball margin (0.4em) + half state-ball size m (0.375em)
-  transform: translateX(~"calc(" 1em + .4em + .375em ~"- 0.5px)");
-}
-
-.reorder-handle-background {
-  position: absolute;
-  right: 0;
-  bottom: 0.25em;
-
-  display: none;
-
-  height: ~"calc(100% - 0.5em)";
-  width: 3em;
-  background-color: @body-bg-color;
-}
-
-.reorder-handle-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  width: 100%;
-  height: 100%;
-
-  border-left: 1px solid @gray-light;
-  background-color: @tr-hover-color;
-
-  .icon {
-    cursor: grab;
-
-    &:active {
-      cursor: grabbing;
-    }
-  }
-}
-
-.favorite-dashboard {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1em;
-
-  > div {
-    padding: 1em;
-    width: 100%;
-
-    > .container {
-      > .content {
-        padding: 0;
-      }
-
-      > .progress-label {
-        margin: 0;
-
-        span {
-          font-size: 0.75em;
-        }
-      }
-    }
-  }
-}
-
-#layout.wide-layout:not(.twocols) .favorite-dashboard > div,
-#layout.default-layout:not(.twocols) .favorite-dashboard > div {
-  width: ~"calc(50% - 0.5em)";
 }

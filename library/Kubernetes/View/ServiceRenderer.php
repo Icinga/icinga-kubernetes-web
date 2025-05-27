@@ -5,9 +5,8 @@
 namespace Icinga\Module\Kubernetes\View;
 
 use Icinga\Module\Kubernetes\Common\Links;
-use Icinga\Module\Kubernetes\Web\KIcon;
-use Icinga\Module\Kubernetes\Web\ServiceIcingaStateReason;
-use Icinga\Module\Kubernetes\Web\WorkloadIcingaStateReason;
+use Icinga\Module\Kubernetes\Web\Widget\IcingaStateReason\ServiceIcingaStateReason;
+use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;

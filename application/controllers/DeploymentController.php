@@ -9,10 +9,10 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\Favorite;
-use Icinga\Module\Kubernetes\Web\Controller;
-use Icinga\Module\Kubernetes\Web\DeploymentDetail;
+use Icinga\Module\Kubernetes\Web\Controller\Controller;
+use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
+use Icinga\Module\Kubernetes\Web\Detail\DeploymentDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
-use Icinga\Module\Kubernetes\Web\QuickActions;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 

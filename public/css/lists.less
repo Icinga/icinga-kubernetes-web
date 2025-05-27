@@ -4,9 +4,9 @@ header .info-container {
   white-space: nowrap;
 
   .favor-icon {
-    font-size: 10/12em;
     display: none;
     opacity: 0.6;
+    font-size: 10/12em;
   }
 }
 
@@ -45,18 +45,18 @@ footer {
 
   > .horizontal-key-value {
     align-items: center;
-    padding: 0;
     overflow: hidden;
+    padding: 0;
 
     .key {
-      color: @gray-semilight;
       width: auto;
       margin-right: .2em;
+      color: @gray-semilight;
     }
 
     .value {
-      color: @text-color-light;
       min-width: 1em;
+      color: @text-color-light;
 
       > .empty-state {
         color: inherit;
@@ -65,26 +65,9 @@ footer {
   }
 }
 
-.namespace-badge {
-  .text-ellipsis();
-  background-color: @gray-lighter;
-  border-radius: .25em;
-  line-height: 1.5em / 12 * 11; // 1.5em / @font-size-small
-  margin-right: .2em;
-  max-width: 8em;
-  padding: 0 .25em;
-  vertical-align: baseline;
-
-  // Namespace badges are wrapped by an "a" HTML tag when rendered in Icinga Notifications via the object
-  // renderer hook, which forces the font weight to bold and the text colour to the default text one, making
-  // the lists look different within Icinga Notification than in Icinga for Kubernetes.
-  font-weight: normal;
-  color: @text-color-light;
-}
-
 .caption {
-  .monospace-font();
   color: @text-color-light;
+  .monospace-font();
 }
 
 .title {
@@ -105,10 +88,4 @@ footer {
   // Calculate the padding so that the icon is vertically centered in the minimal view,
   // but has the same top padding in all other views.
   padding: ~"calc((30px - (12px * 0.75 * 1.5)) / 2)" 0;
-}
-
-.internal-endpoint-list {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
 }

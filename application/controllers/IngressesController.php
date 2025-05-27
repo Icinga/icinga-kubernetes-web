@@ -8,7 +8,7 @@ use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Ingress;
-use Icinga\Module\Kubernetes\Web\ListController;
+use Icinga\Module\Kubernetes\Web\Controller\ListController;
 use ipl\Orm\Query;
 
 class IngressesController extends ListController

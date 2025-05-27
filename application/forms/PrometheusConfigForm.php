@@ -7,7 +7,7 @@ namespace Icinga\Module\Kubernetes\Forms;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
-use Icinga\Module\Kubernetes\Web\ClusterForm;
+use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatForm;
 use Ramsey\Uuid\Uuid;

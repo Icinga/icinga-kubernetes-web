@@ -4,13 +4,13 @@
 
 namespace Icinga\Module\Kubernetes\View;
 
+use Icinga\Module\Kubernetes\Common\Factory;
 use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\Secret;
-use Icinga\Module\Kubernetes\Web\Factory;
-use Icinga\Module\Kubernetes\Web\MoveFavoriteForm;
+use Icinga\Module\Kubernetes\Web\Widget\MoveFavoriteForm;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;

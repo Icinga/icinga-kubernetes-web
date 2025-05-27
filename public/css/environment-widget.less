@@ -5,9 +5,10 @@
       "parents current children"
       / 8fr minmax(2.5em, 4fr) 8fr;
 
-  border: 1px solid @gray-lighter;
-  .rounded-corners(.5em);
   padding: 0.5em;
+  border: 1px solid @gray-lighter;
+
+  .rounded-corners(.5em);
 
   .parents {
     grid-area: parents;
@@ -46,8 +47,10 @@
   .label {
     max-width: @max-node-width;
     padding-left: 2em + 0.5em + 0.5em; // state-ball + margin-right + margin-right
-    text-align: center;
+
     color: @text-color-light;
+
+    text-align: center;
   }
 
   .parents, .children {
@@ -55,9 +58,9 @@
     align-items: center;
 
     .svg-lines {
+      z-index: -1;
       width: @svg-edge-length;
       height: @svg-edge-length;
-      z-index: -1;
 
       :only-child {
         shape-rendering: crispEdges;
@@ -80,22 +83,24 @@
   }
 
   .node-list {
+    flex: 1 1 auto;
+    gap: 0.8333em;
+
     width: 0;
     min-width: 5em;
     max-width: @max-node-width;
-    flex: 1 1 auto;
     height: 15em;
-    gap: 0.8333em;
+    margin: 0;
+    padding: 0;
 
     list-style-type: none;
-    padding: 0;
-    margin: 0;
 
     .summary > .horizontal-key-value {
       align-items: center;
-      padding: 0;
       overflow: hidden;
+
       width: 100%;
+      padding: 0;
 
       .key {
         width: auto;
@@ -103,12 +108,12 @@
       }
 
       .value {
-        color: @text-color;
         width: 100%;
+        color: @text-color;
 
         > .item-count-indicator {
-          width: 100%;
           justify-content: center;
+          width: 100%;
         }
 
         > .empty-state {
@@ -122,9 +127,12 @@
     .node, .summary, .self {
       display: flex;
       align-items: center;
-      padding: 0.25em;
+
       height: @object-node-height;
+      padding: 0.25em;
+
       background-color: @gray-lighter;
+
       .rounded-corners();
 
       & > :not(:last-child) {
@@ -139,6 +147,7 @@
 
       .subject {
         margin: auto;
+
         .text-ellipsis();
       }
     }

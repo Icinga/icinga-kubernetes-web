@@ -6,7 +6,7 @@ namespace Icinga\Module\Kubernetes\Dashboard;
 
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
-use Icinga\Module\Kubernetes\Web\Factory;
+use Icinga\Module\Kubernetes\Common\Factory;
 use Icinga\Web\Session;
 use ipl\Sql\Expression;
 use ipl\Stdlib\Filter;

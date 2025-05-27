@@ -9,13 +9,16 @@
 
   .list-item {
     &:not(:last-child) .visual:before {
-      border-left: @line-width solid @gray-light;
       content: "";
-      display: block;
-      height: ~"calc(100% - 18px)";
-      left: (@visual-width - @line-width) / 2;
+
       position: absolute;
       top: ~"calc("@list-item-spacing/2 ~" + 18px)";
+      left: (@visual-width - @line-width) / 2;
+
+      display: block;
+
+      height: ~"calc(100% - 18px)";
+      border-left: @line-width solid @gray-light;
     }
 
     .main, .visual {
@@ -26,15 +29,15 @@
       border-top: none;
 
       pre {
-        background-color: unset;
         padding: 0;
         margin: 0;
+        background-color: unset;
       }
     }
 
     .visual {
-      justify-content: flex-start;
       position: relative;
+      justify-content: flex-start;
       width: @visual-width;
       font-size: 1.5em;
 
@@ -68,8 +71,8 @@
     }
 
     h3 {
-      color: @text-color;
       margin: 0;
+      color: @text-color;
     }
 
     header {

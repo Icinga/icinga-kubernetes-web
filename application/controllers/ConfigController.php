@@ -12,7 +12,7 @@ use Icinga\Module\Kubernetes\Forms\DatabaseConfigForm;
 use Icinga\Module\Kubernetes\Forms\NotificationsConfigForm;
 use Icinga\Module\Kubernetes\Forms\PrometheusConfigForm;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
-use Icinga\Module\Kubernetes\Web\Controller;
+use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Notifications\Common\Database as NotificationsDatabase;
 use Icinga\Module\Notifications\Forms\SourceForm;
 use Icinga\Module\Notifications\Model\Source;
