@@ -104,6 +104,7 @@ class DaemonSetDetail extends BaseHtmlElement
                     $this->daemonSet->pod->with(['node'])
                 )))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 
@@ -115,6 +116,7 @@ class DaemonSetDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->daemonSet->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 

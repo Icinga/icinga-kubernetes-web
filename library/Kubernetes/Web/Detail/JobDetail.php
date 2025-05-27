@@ -97,6 +97,7 @@ class JobDetail extends BaseHtmlElement
                     $this->job->pod->with(['node'])
                 )))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 
@@ -108,6 +109,7 @@ class JobDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->job->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 

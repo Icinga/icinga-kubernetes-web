@@ -112,19 +112,19 @@ class PodDetail extends BaseHtmlElement
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Init Containers')),
-                (new ResourceList($this->pod->init_container))->setViewMode(ViewMode::Common)
+                (new ResourceList($this->pod->init_container))->setViewMode(ViewMode::Common)->setCollapsible()
             ),
             new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Sidecar Containers')),
-                (new ResourceList($this->pod->sidecar_container))->setViewMode(ViewMode::Common)
+                (new ResourceList($this->pod->sidecar_container))->setViewMode(ViewMode::Common)->setCollapsible()
             ),
             new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text('Containers')),
-                (new ResourceList($this->pod->container))->setViewMode(ViewMode::Common)
+                (new ResourceList($this->pod->container))->setViewMode(ViewMode::Common)->setCollapsible()
             )
         );
 
@@ -136,7 +136,9 @@ class PodDetail extends BaseHtmlElement
                 (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PERSISTENT_VOLUME_CLAIMS,
                     $this->pod->pvc
-                )))->setViewMode(ViewMode::Common)
+                )))
+                    ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 
@@ -148,6 +150,7 @@ class PodDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->pod->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 

@@ -106,6 +106,7 @@ class DeploymentDetail extends BaseHtmlElement
                     $this->deployment->replica_set
                 )))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 
@@ -117,6 +118,7 @@ class DeploymentDetail extends BaseHtmlElement
                 (new ResourceList(Event::on(Database::connection())
                     ->filter(Filter::equal('reference_uuid', $this->deployment->uuid))))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             ));
         }
 

@@ -72,6 +72,7 @@ class EventDetail extends BaseHtmlElement
                         ->filter(Filter::equal('uuid', $this->event->reference_uuid))
                 ))
                     ->setViewMode(ViewMode::Common)
+                    ->setCollapsible()
             )
         );
 

@@ -62,6 +62,8 @@ class ResourceList extends ItemList
 {
     use DetailActions;
 
+    protected bool $collapsible = false;
+
     public function __construct($data)
     {
         parent::__construct($data, function (Model $item) {
@@ -102,13 +104,27 @@ class ResourceList extends ItemList
      *
      * @return $this
      */
-    public function setViewMode(ViewMode $mode): self
+    public function setViewMode(ViewMode $mode): static
     {
         return $this->setItemLayoutClass(match ($mode) {
             ViewMode::Minimal  => ResourceMinimalItemLayout::class,
             ViewMode::Common   => ResourceDefaultItemLayout::class,
             ViewMode::Detailed => ResourceDetailedItemLayout::class,
         });
+    }
+
+    /**
+     * Set whether this list should be collapsible
+     *
+     * @param bool $collapsible
+     *
+     * @return $this
+     */
+    public function setCollapsible(bool $collapsible = true): static
+    {
+        $this->collapsible = $collapsible;
+
+        return $this;
     }
 
     /**
@@ -142,5 +158,17 @@ class ResourceList extends ItemList
         }
 
         return $item;
+    }
+
+    public function assemble(): void
+    {
+        parent::assemble();
+
+        if ($this->collapsible) {
+            $this->addAttributes([
+                'class'             => 'collapsible',
+                'data-visible-rows' => 3
+            ]);
+        }
     }
 }
