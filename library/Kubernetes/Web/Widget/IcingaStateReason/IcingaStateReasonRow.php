@@ -4,13 +4,12 @@
 
 namespace Icinga\Module\Kubernetes\Web\Widget\IcingaStateReason;
 
+use Icinga\Module\Kubernetes\Common\Factory;
 use Icinga\Module\Kubernetes\Web\Widget\HighlightDelta;
-use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
-use ipl\Web\Widget\Icon;
 use ipl\Web\Widget\StateBall;
 
 class IcingaStateReasonRow extends BaseHtmlElement
@@ -31,10 +30,9 @@ class IcingaStateReasonRow extends BaseHtmlElement
 
     public function assemble(): void
     {
-        $kind = strtolower($this->kind);
         $this->addHtml(
             new StateBall(strtolower($this->state), StateBall::SIZE_MEDIUM),
-            ($kind === 'node' ? new Icon('share-nodes') : new KIcon($kind)),
+            Factory::createIcon($this->kind),
             new HtmlElement(
                 'span',
                 new Attributes(['class' => 'text']),
