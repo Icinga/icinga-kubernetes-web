@@ -4,8 +4,6 @@
 
 namespace Icinga\Module\Kubernetes\Web\Controller;
 
-use Icinga\Module\Kubernetes\Common\BaseItemList;
-use ipl\Html\ValidHtml;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatController;
 use ipl\Web\Filter\QueryString;
@@ -56,21 +54,5 @@ abstract class Controller extends CompatController
         }
 
         return $this->filter;
-    }
-
-    /**
-     * Add the full-width class to the content element of BaseItemList instances.
-     *
-     * @param ValidHtml $content
-     *
-     * @return Controller
-     */
-    protected function addContent(ValidHtml $content)
-    {
-        if ($content instanceof BaseItemList) {
-            $this->content->addAttributes(['class' => 'full-width']);
-        }
-
-        return parent::addContent($content);
     }
 }
