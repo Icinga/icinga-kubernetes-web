@@ -73,7 +73,7 @@ class PersistentVolumeClaimRenderer extends BaseResourceRenderer
                 ),
                 new Link(
                     (new HtmlDocument())->addHtml(
-                        new KIcon('pvc'),
+                        new KIcon('persistentvolumeclaim'),
                         new Text($item->name)
                     ),
                     Links::persistentvolumeclaim($item),

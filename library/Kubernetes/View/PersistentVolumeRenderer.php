@@ -61,7 +61,7 @@ class PersistentVolumeRenderer extends BaseResourceRenderer
             $this->translate('%s is %s', '<persistent_volume> is <persistent_volume_phase>'),
             new Link(
                 (new HtmlDocument())->addHtml(
-                    new KIcon('persistent-volume'),
+                    new KIcon('persistentvolume'),
                     new Text($item->name)
                 ),
                 Links::persistentvolume($item),
