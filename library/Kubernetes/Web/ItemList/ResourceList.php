@@ -136,7 +136,6 @@ class ResourceList extends ItemList
 
         $this->setDetailUrl(Factory::createDetailUrl(Factory::canonicalizeKind($data->getTableName())));
 
-
         if (! $this->getDetailActionsDisabled()) {
             $this->addDetailFilterAttribute($item, Filter::equal('id', $data->uuid));
         }
