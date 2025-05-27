@@ -43,7 +43,7 @@ class ConfigMapRenderer implements ItemRenderer
             ),
             new Link(
                 (new HtmlDocument())->addHtml(
-                    new KIcon('config-map'),
+                    new KIcon('configmap'),
                     new Text($item->name)
                 ),
                 Links::configmap($item),

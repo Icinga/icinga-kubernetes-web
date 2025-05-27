@@ -150,7 +150,7 @@ class ObjectsRenderer extends ObjectsRendererHook
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'subject']),
-                                    new KIcon('daemon-set'),
+                                    new KIcon('daemonset'),
                                     new Text($idTags['name'])
                                 )
                             ]
@@ -173,7 +173,7 @@ class ObjectsRenderer extends ObjectsRendererHook
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'subject']),
-                                    new KIcon('replica-set'),
+                                    new KIcon('replicaset'),
                                     new Text($idTags['name'])
                                 )
                             ]
@@ -196,7 +196,7 @@ class ObjectsRenderer extends ObjectsRendererHook
                                 new HtmlElement(
                                     'span',
                                     new Attributes(['class' => 'subject']),
-                                    new KIcon('stateful-set'),
+                                    new KIcon('statefulset'),
                                     new Text($idTags['name'])
                                 )
                             ]
