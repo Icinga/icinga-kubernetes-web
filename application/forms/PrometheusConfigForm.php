@@ -114,7 +114,7 @@ class PrometheusConfigForm extends CompatForm
                 'label'          => $this->translate('Insecure'),
                 'checkedValue'   => 'true',
                 'uncheckedValue' => 'false',
-                'value'          => $kconfig[KConfig::PROMETHEUS_INSECURE]?->value === 'true',
+                'value'          => $kconfig[KConfig::PROMETHEUS_INSECURE]->value ?? null === 'true',
                 'disabled'       => $kconfig[KConfig::PROMETHEUS_INSECURE]->locked ?? false,
                 'ignore'         => $kconfig[KConfig::PROMETHEUS_INSECURE]->locked ?? false,
             ]
