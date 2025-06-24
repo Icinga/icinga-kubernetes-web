@@ -119,6 +119,7 @@ class ConfigController extends Controller
 
                     if (
                         $source === null
+                        || ! isset($kconfig[KConfig::NOTIFICATIONS_PASSWORD])
                         // Must be kept in sync with SourceForm.
                         || password_hash(
                             $kconfig[KConfig::NOTIFICATIONS_PASSWORD]->value,
