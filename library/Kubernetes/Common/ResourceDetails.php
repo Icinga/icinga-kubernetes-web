@@ -7,12 +7,17 @@ namespace Icinga\Module\Kubernetes\Common;
 use AppendIterator;
 use ArrayIterator;
 use Generator;
+use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use ipl\Html\Attributes;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
+use ipl\Stdlib\Filter;
+use ipl\Web\Widget\Icon;
 use IteratorAggregate;
+use Ramsey\Uuid\Uuid;
 use Traversable;
 
 class ResourceDetails implements IteratorAggregate
@@ -31,8 +36,16 @@ class ResourceDetails implements IteratorAggregate
 
     public function getIterator(): Traversable
     {
+        $clusterName = Cluster::on(Database::connection())
+            ->columns('name')
+            ->filter(Filter::equal('uuid', $this->resource->cluster_uuid))
+            ->first()
+            ?->name ?? (string) Uuid::fromBytes($this->resource->cluster_uuid);
         $iterator = new AppendIterator();
         $iterator->append(new ArrayIterator([
+            $this->translate('Cluster')          => (new HtmlDocument())
+                ->addHtml(new Icon('circle-nodes'))
+                ->addHtml(new Text($clusterName)),
             $this->translate('Name')             => $this->resource->name,
             $this->translate('Namespace')        => new HtmlElement(
                 'span',

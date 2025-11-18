@@ -11,6 +11,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Icons;
 use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ViewMode;
+use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\NodeCondition;
@@ -25,10 +26,12 @@ use Icinga\Module\Kubernetes\Web\Widget\Labels;
 use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use Icinga\Util\Format;
 use ipl\Html\BaseHtmlElement;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
+use ipl\Web\Widget\Icon;
 
 class NodeDetail extends BaseHtmlElement
 {
@@ -54,6 +57,12 @@ class NodeDetail extends BaseHtmlElement
             new IcingaStateReason($this->node->icinga_state_reason, $this->node->icinga_state)
         ));
 
+        $clusterName = Cluster::on(Database::connection())
+            ->columns('name')
+            ->filter(Filter::equal('uuid', $this->node->cluster_uuid))
+            ->first()
+            ?->name ?? (string) Uuid::fromBytes($this->node->cluster_uuid);
+
         $this->addHtml(
             new DetailMetricCharts(
                 Metrics::nodeMetrics(
@@ -64,6 +73,9 @@ class NodeDetail extends BaseHtmlElement
                 )
             ),
             new Details([
+                $this->translate('Cluster')                   => (new HtmlDocument())
+                    ->addHtml(new Icon('circle-nodes'))
+                    ->addHtml(new Text($clusterName)),
                 $this->translate('Name')                      => $this->node->name,
                 $this->translate('UID')                       => $this->node->uid,
                 $this->translate('Resource Version')          => $this->node->resource_version,
