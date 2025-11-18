@@ -46,9 +46,7 @@ class DashboardController extends Controller
             })
             ->handleRequest(ServerRequest::fromGlobals());
 
-        if ($this->isMultiCluster()) {
-            $this->addContent($cluster);
-        }
+        $this->addContent($cluster);
 
         $this->content->addHtml(
             new ClusterManagementDashboard(),
@@ -58,10 +56,5 @@ class DashboardController extends Controller
             new ConfigurationDashboard(),
             new ObservabilityDashboard(),
         );
-    }
-
-    protected function isMultiCluster(): bool
-    {
-        return Cluster::on(Database::connection())->count() > 1;
     }
 }

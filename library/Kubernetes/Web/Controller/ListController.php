@@ -14,6 +14,7 @@ use Icinga\Exception\Json\JsonDecodeException;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
+use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
 use Icinga\Module\Kubernetes\Web\Controls\ViewModeSwitcher;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
@@ -56,13 +57,26 @@ abstract class ListController extends Controller
     {
         $this->assertPermission($this->getPermission());
 
-        $this->addTitleTab($this->getTitle());
-
-        $q = Auth::getInstance()->withRestrictions($this->getPermission(), $this->getQuery());
-
         $clusterUuid = Session::getSession()
             ->getNamespace('kubernetes')
             ->get('cluster_uuid');
+
+        $title = $this->getTitle();
+        if ($clusterUuid !== null) {
+            $clusterName = Cluster::on(Database::connection())
+                ->columns('name')
+                ->filter(Filter::equal('uuid', Uuid::fromString($clusterUuid)->getBytes()))
+                ->first()
+                ->name;
+
+            $title .= " ($clusterName)";
+        } else {
+            $title .= " ({$this->translate('All clusters')})";
+        }
+        $this->addTitleTab($title);
+
+        $q = Auth::getInstance()->withRestrictions($this->getPermission(), $this->getQuery());
+
         if ($clusterUuid !== null) {
             $q->filter(Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()));
         }
