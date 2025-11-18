@@ -33,13 +33,13 @@ abstract class Controller extends CompatController
      */
     protected bool $disableDefaultAutoRefresh = false;
 
-    public function postDispatchXhr(): void
+    public function preDispatch(): void
     {
         if ($this->autorefreshInterval === null && ! $this->disableDefaultAutoRefresh) {
             $this->setAutorefreshInterval(static::DEFAULT_AUTO_REFRESH_INTERVAL);
         }
 
-        parent::postDispatchXhr();
+        parent::preDispatch();
     }
 
     /**
