@@ -16,11 +16,14 @@ class HighlightDelta extends BaseHtmlElement
 
     public function __construct(
         protected string $long,
-        protected string $short
+        protected string $short,
+        ?Attributes $attributes = null
     ) {
         if (!str_contains($long, $short)) {
             throw new InvalidArgumentException('Short name must be part of long name');
         }
+
+        $this->addAttributes($attributes);
     }
 
     public function assemble(): void
