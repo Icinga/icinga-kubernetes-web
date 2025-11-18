@@ -100,7 +100,6 @@ class PrometheusConfigForm extends CompatForm
             KConfig::transformKeyForForm(KConfig::PROMETHEUS_URL),
             [
                 'label'    => $this->translate('URL'),
-                'required' => true,
                 'value'    => $kconfig[KConfig::PROMETHEUS_URL]->value ?? null,
                 'disabled' => $kconfig[KConfig::PROMETHEUS_URL]->locked ?? false,
                 'ignore'   => $kconfig[KConfig::PROMETHEUS_URL]->locked ?? false,
