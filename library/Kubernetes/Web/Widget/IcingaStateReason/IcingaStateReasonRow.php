@@ -31,14 +31,21 @@ class IcingaStateReasonRow extends BaseHtmlElement
     public function assemble(): void
     {
         $this->addHtml(
-            new StateBall(strtolower($this->state), StateBall::SIZE_MEDIUM),
-            Factory::createIcon($this->kind),
             new HtmlElement(
                 'span',
-                new Attributes(['class' => 'text']),
-                (new HighlightDelta($this->name, $this->parentName ?? ''))
-                    ->addAttributes(['class' => 'tooltip-holder', 'title' => $this->tooltip]),
-                new HtmlElement('span', new Attributes(['class' => 'reason']), new Text($this->reason))
+                new Attributes(['class' => 'icon-container']),
+                new StateBall(strtolower($this->state), StateBall::SIZE_MEDIUM),
+                Factory::createIcon($this->kind)
+            ),
+            new HtmlElement(
+                'span',
+                new Attributes(['class' => 'reason']),
+                new HighlightDelta(
+                    $this->name,
+                    $this->parentName ?? '',
+                    new Attributes(['class' => 'tooltip-holder', 'title' => $this->tooltip])
+                ),
+                new Text(' ' . $this->reason)
             )
         );
     }
