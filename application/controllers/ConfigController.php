@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
+use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Application\Config;
 use Icinga\Application\Logger;
@@ -22,7 +23,6 @@ use Icinga\Web\Widget\Tabs;
 use ipl\Sql\Connection;
 use ipl\Stdlib\Filter;
 use ipl\Web\Url;
-use LogicException;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
@@ -44,7 +44,7 @@ class ConfigController extends Controller
         $config = Config::module('kubernetes');
         $form = (new DatabaseConfigForm())
             ->populate($config->getSection('database'))
-            ->on(DatabaseConfigForm::ON_SUCCESS, function (DatabaseConfigForm $form) use ($config) {
+            ->on(DatabaseConfigForm::ON_SUBMIT, function (DatabaseConfigForm $form) use ($config) {
                 $config->setSection('database', $form->getValues());
                 $config->saveIni();
 
@@ -68,6 +68,24 @@ class ConfigController extends Controller
             {
                 return true;
             }
+
+            public function onError()
+            {
+                $messages = [];
+                foreach ($this->getMessages() as $message) {
+                    if ($message instanceof Throwable) {
+                        $messages[] = $message->getMessage();
+                    } else {
+                        $messages[] = $message;
+                    }
+                }
+                foreach ($this->getElements() as $element) {
+                    foreach ($element->getMessages() as $message) {
+                        $messages[] = $element->getName() . ": " . $message;
+                    }
+                }
+                throw new Exception(implode("\n", array_filter($messages)));
+            }
         };
 
         $form = (new NotificationsConfigForm())
@@ -79,7 +97,7 @@ class ConfigController extends Controller
                         ->get('cluster_uuid')
             ])
             ->on(
-                NotificationsConfigForm::ON_SUCCESS,
+                NotificationsConfigForm::ON_SUBMIT,
                 function (NotificationsConfigForm $form) use ($sourceForm) {
                     if ($form->isLocked()) {
                         $form->addMessage($this->translate('Notifications configuration is locked.'));
@@ -101,7 +119,7 @@ class ConfigController extends Controller
 
                     if (
                         $source === null
-                        // Must be kept in sync with SourceForm:292.
+                        // Must be kept in sync with SourceForm.
                         || password_hash(
                             $kconfig[KConfig::NOTIFICATIONS_PASSWORD]->value,
                             SourceForm::HASH_ALGORITHM
@@ -110,20 +128,6 @@ class ConfigController extends Controller
                         try {
                             $values[KConfig::NOTIFICATIONS_PASSWORD] = $this
                                 ->createOrUpdateSource($sourceForm, $clusterUuid);
-
-                            /** @var ?Source $source */
-                            $source = Source::on(NotificationsDatabase::get())
-                                ->filter(Filter::all(
-                                    Filter::equal('name', KConfig::DEFAULT_NOTIFICATIONS_NAME . " ($clusterUuid)"),
-                                    Filter::equal('type', KConfig::DEFAULT_NOTIFICATIONS_TYPE)
-                                ))
-                                ->first();
-
-                            if ($source === null) {
-                                throw new LogicException($this->translate('Source not created'));
-                            }
-
-                            $values[KConfig::NOTIFICATIONS_USERNAME] = "source-$source->id";
                         } catch (Throwable $e) {
                             Logger::error($e);
                             Logger::error($e->getTraceAsString());
@@ -131,6 +135,8 @@ class ConfigController extends Controller
                             throw $e;
                         }
                     }
+
+                    $values[KConfig::NOTIFICATIONS_USERNAME] = $clusterUuid;
 
                     try {
                         Database::connection()->transaction(function (Connection $db) use ($values, $clusterUuid) {
@@ -184,7 +190,7 @@ class ConfigController extends Controller
                         ->getNamespace('kubernetes')
                         ->get('cluster_uuid')
             ])
-            ->on(PrometheusConfigForm::ON_SUCCESS, function (PrometheusConfigForm $form) {
+            ->on(PrometheusConfigForm::ON_SUBMIT, function (PrometheusConfigForm $form) {
                 if ($form->isLocked()) {
                     $form->addMessage($this->translate('Prometheus configuration is locked.'));
 
@@ -249,6 +255,7 @@ class ConfigController extends Controller
         $password = sha1(openssl_random_pseudo_bytes(16));
 
         $formData = [
+            'listener_username'      => $clusterUuid,
             'listener_password'      => $password,
             'listener_password_dupe' => $password,
             'name'                   => KConfig::DEFAULT_NOTIFICATIONS_NAME . " ($clusterUuid)",
@@ -272,21 +279,16 @@ class ConfigController extends Controller
         $sourceForm->populate($formData);
 
         if ($source !== null) {
-            $sourceForm->on(SourceForm::ON_SUCCESS, function (SourceForm $form) {
+            $sourceForm->on(SourceForm::ON_SUBMIT, function (SourceForm $form) {
                 $form->editSource();
             });
         } else {
-            $sourceForm->on(SourceForm::ON_SUCCESS, function (SourceForm $form) {
+            $sourceForm->on(SourceForm::ON_SUBMIT, function (SourceForm $form) {
                 $form->addSource();
             });
         }
 
-        $sourceForm->ensureAssembled();
-        $csrf = $sourceForm->getElement('CSRFToken');
-        if (preg_match('/ value="([^"]+)/', $csrf->getAttributes()->render(), $matches)) {
-            $csrf->setValue($matches[1]);
-        }
-
+        $sourceForm->disableCsrfCounterMeasure();
         $sourceForm->handleRequest(ServerRequest::fromGlobals());
 
         return $password;

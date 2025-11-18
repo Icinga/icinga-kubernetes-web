@@ -14,4 +14,5 @@ $this->provideHook('Health');
 
 if (Module::exists('notifications')) {
     $this->provideHook('Notifications/ObjectsRenderer');
+    $this->provideHook('Notifications/V1/Source');
 }

@@ -5,13 +5,15 @@
 namespace Icinga\Module\Kubernetes\ProvidedHook\Notifications;
 
 use Generator;
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Factory;
+use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use Icinga\Module\Notifications\Hook\ObjectsRendererHook;
 use ipl\Html\Attributes;
 use ipl\Html\FormattedString;
-use ipl\Html\Html;
+use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\Html\ValidHtml;
@@ -45,10 +47,15 @@ class ObjectsRenderer extends ObjectsRendererHook
             return null;
         }
 
-        return (new ResourceList(
+        $html = new ResourceList(
             Factory::fetchResource($objectIdTag['resource'])
                 ->filter(Filter::equal('uuid', Uuid::fromString($objectIdTag['uuid'])->getBytes()))
-        ));
+        );
+        // TODO(el): Icinga Notifications Web now forcefully adds the target, which results in having it twice,
+        // ultimately leading to JS errors.
+        $html->removeAttribute('data-base-target');
+
+        return $html;
     }
 
     /**
@@ -61,147 +68,71 @@ class ObjectsRenderer extends ObjectsRendererHook
      */
     protected function yieldObjectsResults(array $objectIdTags, bool $asHtml): Generator
     {
+        $clusterNames = [];
+
         foreach ($objectIdTags as $idTags) {
             if (! isset($idTags['resource']) || ! isset($idTags['name'])) {
                 continue;
             }
 
+            $clusterName = 'default';
+            if (isset($idTags['cluster_uuid'])) {
+                $clusterNames[$idTags['cluster_uuid']] ??= Cluster::on(Database::connection())
+                    ->columns('name')
+                    ->filter(Filter::equal('uuid', Uuid::fromString($idTags['cluster_uuid'])->getBytes()))
+                    ->first()
+                    ?->name ?? $idTags['cluster_uuid'];
+
+                $clusterName = $clusterNames[$idTags['cluster_uuid']] ?? $idTags['cluster_uuid'];
+            }
+
             switch ($idTags['resource']) {
-                case 'pod':
-                    if (! $asHtml) {
-                        yield $idTags => sprintf(
-                            $this->translate('%s - %s', '<namespace> - <name>'),
-                            $idTags['namespace'],
-                            $idTags['name']
-                        );
-                    } else {
-                        yield $idTags => Html::sprintf(
-                            $this->translate('%s', '<pod>'),
-                            [
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'namespace-badge']),
-                                    new KIcon('namespace'),
-                                    new Text($idTags['namespace'])
-                                ),
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'subject']),
-                                    new KIcon('pod'),
-                                    new Text($idTags['name'])
-                                )
-                            ]
-                        );
-                    }
-
-                    break;
-                case 'deployment':
-                    if (! $asHtml) {
-                        yield $idTags => sprintf($this->translate('%s', '<deployment>'), $idTags['name']);
-                    } else {
-                        yield $idTags => Html::sprintf(
-                            $this->translate('%s', '<deployment>'),
-                            [
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'namespace-badge']),
-                                    new KIcon('namespace'),
-                                    new Text($idTags['namespace'])
-                                ),
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'subject']),
-                                    new KIcon('deployment'),
-                                    new Text($idTags['name'])
-                                )
-                            ]
-                        );
-                    }
-
-                    break;
                 case 'node':
                     if (! $asHtml) {
-                        yield $idTags => sprintf($this->translate('%s', '<node>'), $idTags['name']);
+                        yield $idTags => sprintf('%s@%s', $idTags['name'], $clusterName);
                     } else {
-                        yield $idTags => Html::sprintf(
-                            $this->translate('%s', '<node>'),
-                            new HtmlElement(
+                        yield $idTags => (new HtmlDocument())
+                            ->addHtml(new HtmlElement(
                                 'span',
                                 new Attributes(['class' => 'subject']),
                                 new Icon('share-nodes'),
                                 new Text($idTags['name'])
-                            )
-                        );
+                            ))
+                            ->addHtml(new HtmlElement(
+                                'span',
+                                new Attributes(['class' => 'cluster-name']),
+                                new Icon('circle-nodes'),
+                                new Text($clusterName)
+                            ));
                     }
+
                     break;
-                case 'daemon_set':
+                default:
                     if (! $asHtml) {
-                        yield $idTags => sprintf($this->translate('%s', '<daemon_set>'), $idTags['name']);
+                        yield $idTags => sprintf('%s/%s@%s', $idTags['namespace'], $idTags['name'], $clusterName);
                     } else {
-                        yield $idTags => Html::sprintf(
-                            $this->translate('%s', '<daemon_set>'),
-                            [
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'namespace-badge']),
-                                    new KIcon('namespace'),
-                                    new Text($idTags['namespace'])
-                                ),
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'subject']),
-                                    new KIcon('daemonset'),
-                                    new Text($idTags['name'])
-                                )
-                            ]
-                        );
+                        yield $idTags => (new HtmlDocument())
+                            ->addHtml(new HtmlElement(
+                                'span',
+                                new Attributes(['class' => 'namespace-badge']),
+                                new KIcon('namespace'),
+                                new Text($idTags['namespace'])
+                            ))
+                            ->addHtml(new HtmlElement(
+                                'span',
+                                new Attributes(['class' => 'subject']),
+                                Factory::createIcon($idTags['resource']),
+                                new Text($idTags['name'])
+                            ))
+                            ->addHtml(new HtmlElement(
+                                'span',
+                                new Attributes(['class' => 'cluster-name']),
+                                new Icon('circle-nodes'),
+                                new Text($clusterName)
+                            ));
                     }
+
                     break;
-                case 'replica_set':
-                    if (! $asHtml) {
-                        yield $idTags => sprintf($this->translate('%s', '<replica_set>'), $idTags['name']);
-                    } else {
-                        yield $idTags => Html::sprintf(
-                            $this->translate('%s', '<replica_set>'),
-                            [
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'namespace-badge']),
-                                    new KIcon('namespace'),
-                                    new Text($idTags['namespace'])
-                                ),
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'subject']),
-                                    new KIcon('replicaset'),
-                                    new Text($idTags['name'])
-                                )
-                            ]
-                        );
-                    }
-                    break;
-                case 'stateful_set':
-                    if (! $asHtml) {
-                        yield $idTags => sprintf($this->translate('%s', '<stateful_set>'), $idTags['name']);
-                    } else {
-                        yield $idTags => Html::sprintf(
-                            $this->translate('%s is %s', '<stateful_set> is <icinga_state>'),
-                            [
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'namespace-badge']),
-                                    new KIcon('namespace'),
-                                    new Text($idTags['namespace'])
-                                ),
-                                new HtmlElement(
-                                    'span',
-                                    new Attributes(['class' => 'subject']),
-                                    new KIcon('statefulset'),
-                                    new Text($idTags['name'])
-                                )
-                            ]
-                        );
-                    }
             }
         }
     }
