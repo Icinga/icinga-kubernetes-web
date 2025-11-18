@@ -67,7 +67,7 @@ abstract class ListController extends Controller
                 ->columns('name')
                 ->filter(Filter::equal('uuid', Uuid::fromString($clusterUuid)->getBytes()))
                 ->first()
-                ->name;
+                ->name ?? $clusterUuid;
 
             $title .= " ($clusterName)";
         } else {

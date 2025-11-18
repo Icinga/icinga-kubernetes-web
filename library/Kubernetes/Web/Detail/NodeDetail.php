@@ -32,6 +32,7 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Icon;
+use Ramsey\Uuid\Uuid;
 
 class NodeDetail extends BaseHtmlElement
 {
