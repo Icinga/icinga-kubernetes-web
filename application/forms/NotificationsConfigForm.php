@@ -142,7 +142,6 @@ class NotificationsConfigForm extends CompatForm
         $kconfig = $this->getKConfig($clusterUuid);
 
         $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_URL), [
-            'required'    => true,
             'label'       => $this->translate('Icinga Notifications URL'),
             'disabled'    => $kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false,
             'value'       => $kconfig[KConfig::NOTIFICATIONS_URL]->value ?? null,
