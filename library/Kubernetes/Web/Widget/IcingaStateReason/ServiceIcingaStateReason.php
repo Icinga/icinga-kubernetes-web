@@ -69,6 +69,7 @@ class ServiceIcingaStateReason extends BaseHtmlElement
                 "warning"  => 1,
                 "critical" => 2,
                 "unknown"  => 3,
+                "peding"   => 99,
             };
         }
         $this->addHtml($podRows);
