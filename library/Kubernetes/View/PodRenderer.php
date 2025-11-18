@@ -16,12 +16,6 @@ use ipl\Web\Widget\Icon;
 
 class PodRenderer extends BaseResourceRenderer
 {
-    public const QOS_ICONS = [
-        'BestEffort' => 'eraser',
-        'Burstable'  => 'life-ring',
-        'Guaranteed' => 'heart-pulse'
-    ];
-
     public function assembleCaption($item, HtmlDocument $caption, string $layout): void
     {
         $caption->addHtml(new PodIcingaStateReason($item->uuid, $item->icinga_state_reason, $item->icinga_state));
@@ -78,7 +72,7 @@ class PodRenderer extends BaseResourceRenderer
                 $item->restart_policy
             ),
             new HorizontalKeyValue(
-                (new Icon(static::QOS_ICONS[$item->qos]))
+                (new Icon('life-ring'))
                     ->addAttributes(['title' => $this->translate('Quality of Service')]),
                 $item->qos
             ),
