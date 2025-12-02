@@ -136,9 +136,7 @@ pre {
   color: @color-critical;
 }
 
-.object-detail .item-list.action-list .list-item {
-  margin-right: -1em;
-  margin-left: -1em;
-  padding-right: 1em;
-  padding-left: 1em;
+// TODO(jr): Remove if https://github.com/Icinga/icingaweb2/pull/5456 is merged
+.collapsible.collapsed:not(details) {
+  overflow: visible clip;
 }
