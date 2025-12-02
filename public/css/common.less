@@ -136,3 +136,7 @@ pre {
   color: @color-critical;
 }
 
+// TODO(jr): Remove if https://github.com/Icinga/icingaweb2/pull/5456 is merged
+.collapsible.collapsed:not(details) {
+  overflow: visible clip;
+}
