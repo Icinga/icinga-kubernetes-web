@@ -53,7 +53,7 @@ abstract class BaseResourceRenderer implements ItemRenderer
             [
                 new HtmlElement(
                     'span',
-                    new Attributes(['class' => 'namespace-badge']),
+                    new Attributes(['class' => 'namespace-badge', 'title' => $item->namespace]),
                     new KIcon('namespace'),
                     new Text($item->namespace)
                 ),
@@ -63,7 +63,7 @@ abstract class BaseResourceRenderer implements ItemRenderer
                         new Text($item->name)
                     ),
                     Links::$kind($item),
-                    new Attributes(['class' => 'subject'])
+                    new Attributes(['class' => 'subject', 'title' => $item->name])
                 )
             ],
             new HtmlElement(

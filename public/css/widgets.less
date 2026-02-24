@@ -47,6 +47,24 @@
   .text-ellipsis();
 }
 
+// Show the full namespace in the detail page no matter the length
+.object-detail .namespace-badge {
+  white-space: normal;
+}
+
+// Only when the namespace badge has shrunk to a width of 8em the subject start shrinking.
+.default-item-layout:not(.minimal-item-layout),
+.detailed-item-layout {
+  .namespace-badge {
+    flex: 1 0 8em;
+    max-width: fit-content;
+  }
+
+  .subject {
+    flex: 0 1 auto;
+  }
+}
+
 .condition-table {
   display: block;
   overflow-x: auto;
