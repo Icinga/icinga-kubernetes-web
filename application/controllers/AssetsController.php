@@ -44,7 +44,9 @@ class AssetsController extends Controller
         } else {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mimeType = finfo_file($finfo, $asset);
-            finfo_close($finfo);
+            if (version_compare(PHP_VERSION, '8.5.0', '<')) {
+                finfo_close($finfo);
+            }
 
             $this->getResponse()
                 ->setHeader('ETag', $eTag)
