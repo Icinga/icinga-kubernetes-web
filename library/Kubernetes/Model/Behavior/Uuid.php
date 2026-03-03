@@ -72,7 +72,7 @@ class Uuid extends PropertyBehavior implements QueryAwareBehavior, RewriteFilter
         return $this;
     }
 
-    public function rewriteCondition(Condition $condition, $relation = null): void
+    public function rewriteCondition(Condition $condition, $relation = null): null
     {
         /**
          * TODO(lippserd): Duplicate code because {@see RewriteFilterBehavior}s come after {@see PropertyBehavior}s.
@@ -101,5 +101,7 @@ class Uuid extends PropertyBehavior implements QueryAwareBehavior, RewriteFilter
                 }
             }
         }
+
+        return null;
     }
 }
