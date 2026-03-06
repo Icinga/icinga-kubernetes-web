@@ -28,7 +28,7 @@ class ResourceDetails implements IteratorAggregate
 
     protected $resource;
 
-    public function __construct($resource, iterable $details = null)
+    public function __construct($resource, ?iterable $details = null)
     {
         $this->resource = $resource;
         $this->details = $details;

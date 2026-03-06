@@ -214,11 +214,12 @@ abstract class Factory
     /**
      * Retrieves a resource by its kind.
      *
-     * @param string $kind The kind of the resource
+     * @param string          $kind The kind of the resource
+     * @param Connection|null $db   The connection to query
      *
      * @return Query|null
      */
-    public static function fetchResource(string $kind, Connection $db = null): ?Query
+    public static function fetchResource(string $kind, ?Connection $db = null): ?Query
     {
         $kind = static::canonicalizeKind($kind);
 
