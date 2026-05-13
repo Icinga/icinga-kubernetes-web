@@ -47,7 +47,9 @@ class ConditionRenderer implements ItemRenderer
 
     public function assembleExtendedInfo($item, HtmlDocument $info, string $layout): void
     {
-        $info->addHtml(new TimeAgo($item->last_transition->getTimestamp()));
+        if ($item->last_transition !== null) {
+            $info->addHtml(new TimeAgo($item->last_transition->getTimestamp()));
+        }
     }
 
     public function assemble($item, string $name, HtmlDocument $element, string $layout): false
