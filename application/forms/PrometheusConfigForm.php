@@ -28,7 +28,9 @@ class PrometheusConfigForm extends CompatForm
                 KConfig::PROMETHEUS_URL,
                 KConfig::PROMETHEUS_INSECURE,
                 KConfig::PROMETHEUS_USERNAME,
-                KConfig::PROMETHEUS_PASSWORD
+                KConfig::PROMETHEUS_PASSWORD,
+                KConfig::PROMETHEUS_TOKEN,
+                KConfig::PROMETHEUS_TOKEN_FILE
             ]))
             ->filter(Filter::equal('cluster_uuid', $clusterUuid));
 
@@ -76,6 +78,8 @@ class PrometheusConfigForm extends CompatForm
             $this->clearPopulatedValue('prometheus_insecure');
             $this->clearPopulatedValue('prometheus_username');
             $this->clearPopulatedValue('prometheus_password');
+            $this->clearPopulatedValue('prometheus_token');
+            $this->clearPopulatedValue('prometheus_token_file');
         }
 
         $this->addElement('hidden', 'old_cluster_uuid', ['value' => $clusterUuid, 'ignore' => true]);
@@ -138,6 +142,28 @@ class PrometheusConfigForm extends CompatForm
                 'value'    => $kconfig[KConfig::PROMETHEUS_PASSWORD]->value ?? null,
                 'disabled' => $kconfig[KConfig::PROMETHEUS_PASSWORD]->locked ?? false,
                 'ignore'   => $kconfig[KConfig::PROMETHEUS_PASSWORD]->locked ?? false,
+            ]
+        );
+
+        $this->addElement(
+            'password',
+            KConfig::transformKeyForForm(KConfig::PROMETHEUS_TOKEN),
+            [
+                'label'    => $this->translate('Bearer Token'),
+                'value'    => $kconfig[KConfig::PROMETHEUS_TOKEN]->value ?? null,
+                'disabled' => $kconfig[KConfig::PROMETHEUS_TOKEN]->locked ?? false,
+                'ignore'   => $kconfig[KConfig::PROMETHEUS_TOKEN]->locked ?? false,
+            ]
+        );
+
+        $this->addElement(
+            'text',
+            KConfig::transformKeyForForm(KConfig::PROMETHEUS_TOKEN_FILE),
+            [
+                'label'    => $this->translate('Bearer Token File'),
+                'value'    => $kconfig[KConfig::PROMETHEUS_TOKEN_FILE]->value ?? null,
+                'disabled' => $kconfig[KConfig::PROMETHEUS_TOKEN_FILE]->locked ?? false,
+                'ignore'   => $kconfig[KConfig::PROMETHEUS_TOKEN_FILE]->locked ?? false,
             ]
         );
 
