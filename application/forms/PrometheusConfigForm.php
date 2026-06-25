@@ -9,7 +9,11 @@ use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
 use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
 use ipl\Stdlib\Filter;
+use ipl\Validator\CallbackValidator;
+use ipl\Web\Common\CalloutType;
 use ipl\Web\Compat\CompatForm;
+use ipl\Web\Compat\DisplayFormElement;
+use ipl\Web\Widget\Callout;
 use Ramsey\Uuid\Uuid;
 
 class PrometheusConfigForm extends CompatForm
@@ -28,7 +32,9 @@ class PrometheusConfigForm extends CompatForm
                 KConfig::PROMETHEUS_URL,
                 KConfig::PROMETHEUS_INSECURE,
                 KConfig::PROMETHEUS_USERNAME,
-                KConfig::PROMETHEUS_PASSWORD
+                KConfig::PROMETHEUS_PASSWORD,
+                KConfig::PROMETHEUS_TOKEN,
+                KConfig::PROMETHEUS_TOKEN_FILE
             ]))
             ->filter(Filter::equal('cluster_uuid', $clusterUuid));
 
@@ -76,6 +82,7 @@ class PrometheusConfigForm extends CompatForm
             $this->clearPopulatedValue('prometheus_insecure');
             $this->clearPopulatedValue('prometheus_username');
             $this->clearPopulatedValue('prometheus_password');
+            $this->clearPopulatedValue('prometheus_token');
         }
 
         $this->addElement('hidden', 'old_cluster_uuid', ['value' => $clusterUuid, 'ignore' => true]);
@@ -140,6 +147,62 @@ class PrometheusConfigForm extends CompatForm
                 'ignore'   => $kconfig[KConfig::PROMETHEUS_PASSWORD]->locked ?? false,
             ]
         );
+
+        $tokenFileLocked = $kconfig[KConfig::PROMETHEUS_TOKEN_FILE]->locked ?? false;
+        // A token file from the daemon configuration rules out a token, just
+        // as the daemon configuration does not allow both.
+        $tokenLocked = $tokenFileLocked || ($kconfig[KConfig::PROMETHEUS_TOKEN]->locked ?? false);
+
+        $this->addElement(
+            'password',
+            KConfig::transformKeyForForm(KConfig::PROMETHEUS_TOKEN),
+            [
+                'label'      => $this->translate('Bearer Token'),
+                'value'      => $kconfig[KConfig::PROMETHEUS_TOKEN]->value ?? null,
+                'disabled'   => $tokenLocked,
+                'ignore'     => $tokenLocked,
+                'validators' => [
+                    'Callback' => function ($value, CallbackValidator $validator) {
+                        if (
+                            $this->getValue(KConfig::PROMETHEUS_USERNAME)
+                            || $this->getValue(KConfig::PROMETHEUS_PASSWORD)
+                        ) {
+                            $validator->addMessage($this->translate(
+                                'Username/password and bearer token authentication are mutually exclusive.'
+                            ));
+
+                            return false;
+                        }
+
+                        return true;
+                    },
+                ],
+            ]
+        );
+
+        // The daemon only honors a token file from its own configuration, since
+        // one set here could send any file the daemon can read to a Prometheus
+        // URL of the editor's choice. Hence, it is only shown when locked.
+        if ($tokenFileLocked) {
+            $this->addElement(
+                'text',
+                KConfig::transformKeyForForm(KConfig::PROMETHEUS_TOKEN_FILE),
+                [
+                    'label'    => $this->translate('Bearer Token File'),
+                    'value'    => $kconfig[KConfig::PROMETHEUS_TOKEN_FILE]->value,
+                    'disabled' => true,
+                    'ignore'   => true,
+                ],
+            );
+        } else {
+            $this->addHtml(new DisplayFormElement(new Callout(
+                CalloutType::Info,
+                $this->translate(
+                    'To read the bearer token from a file, such as a Kubernetes service account token,'
+                    . ' set token_file in the Prometheus section of the daemon YAML configuration.'
+                )
+            )));
+        }
 
         $this->addElement(
             'submit',
