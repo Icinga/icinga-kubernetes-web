@@ -26,6 +26,18 @@ class ObjectsRenderer extends ObjectsRendererHook
 {
     use Translation;
 
+    private const HUMAN_OBJECT_TAG_ORDER = [
+        'name',
+        'resource',
+        'namespace'
+    ];
+
+    private const FULL_OBJECT_TAG_ORDER = [
+        ...self::HUMAN_OBJECT_TAG_ORDER,
+        'uuid',
+        'cluster_uuid'
+    ];
+
     public function getObjectNames(array $objectIdTags): Generator
     {
         yield from $this->yieldObjectsResults($objectIdTags, false);
@@ -72,6 +84,10 @@ class ObjectsRenderer extends ObjectsRendererHook
 
         foreach ($objectIdTags as $idTags) {
             if (! isset($idTags['resource']) || ! isset($idTags['name'])) {
+                if ($idTags !== []) {
+                    yield $idTags => $this->formatObjectIdTags($idTags);
+                }
+
                 continue;
             }
 
@@ -89,51 +105,90 @@ class ObjectsRenderer extends ObjectsRendererHook
             switch ($idTags['resource']) {
                 case 'node':
                     if (! $asHtml) {
-                        yield $idTags => sprintf('%s@%s', $idTags['name'], $clusterName);
+                        yield $idTags => $this->formatObjectIdTags($idTags, $clusterName);
                     } else {
                         yield $idTags => (new HtmlDocument())
                             ->addHtml(new HtmlElement(
                                 'span',
-                                new Attributes(['class' => 'subject']),
+                                new Attributes(['class' => 'subject', 'title' => $this->formatObjectIdTags($idTags, $clusterName, true)]),
                                 new Icon('share-nodes'),
-                                new Text($idTags['name'])
+                                new Text('name=' . $idTags['name'])
+                            ))
+                            ->addHtml(new HtmlElement(
+                                'span',
+                                new Attributes(['class' => 'object-tag']),
+                                new Text('resource=' . $idTags['resource'])
                             ))
                             ->addHtml(new HtmlElement(
                                 'span',
                                 new Attributes(['class' => 'cluster-name']),
                                 new Icon('circle-nodes'),
-                                new Text($clusterName)
+                                new Text('cluster=' . $clusterName)
                             ));
                     }
 
                     break;
                 default:
                     if (! $asHtml) {
-                        yield $idTags => sprintf('%s/%s@%s', $idTags['namespace'], $idTags['name'], $clusterName);
+                        yield $idTags => $this->formatObjectIdTags($idTags, $clusterName);
                     } else {
                         yield $idTags => (new HtmlDocument())
                             ->addHtml(new HtmlElement(
                                 'span',
-                                new Attributes(['class' => 'namespace-badge']),
-                                new KIcon('namespace'),
-                                new Text($idTags['namespace'])
+                                new Attributes(['class' => 'subject', 'title' => $this->formatObjectIdTags($idTags, $clusterName, true)]),
+                                Factory::createIcon($idTags['resource']),
+                                new Text('name=' . $idTags['name'])
                             ))
                             ->addHtml(new HtmlElement(
                                 'span',
-                                new Attributes(['class' => 'subject']),
-                                Factory::createIcon($idTags['resource']),
-                                new Text($idTags['name'])
+                                new Attributes(['class' => 'object-tag']),
+                                new Text('resource=' . $idTags['resource'])
+                            ))
+                            ->addHtml(new HtmlElement(
+                                'span',
+                                new Attributes(['class' => 'namespace-badge']),
+                                new KIcon('namespace'),
+                                new Text('namespace=' . ($idTags['namespace'] ?? ''))
                             ))
                             ->addHtml(new HtmlElement(
                                 'span',
                                 new Attributes(['class' => 'cluster-name']),
                                 new Icon('circle-nodes'),
-                                new Text($clusterName)
+                                new Text('cluster=' . $clusterName)
                             ));
                     }
 
                     break;
             }
         }
+    }
+
+    protected function formatObjectIdTags(array $idTags, ?string $clusterName = null, bool $includeIdentifiers = false): string
+    {
+        $tags = [];
+
+        foreach ($includeIdentifiers ? self::FULL_OBJECT_TAG_ORDER : self::HUMAN_OBJECT_TAG_ORDER as $tag) {
+            if (isset($idTags[$tag]) && $idTags[$tag] !== '') {
+                $tags[$tag] = $idTags[$tag];
+            }
+        }
+
+        $remainingTags = array_diff_key($idTags, $tags);
+        if (! $includeIdentifiers) {
+            unset($remainingTags['uuid'], $remainingTags['cluster_uuid']);
+        }
+
+        ksort($remainingTags);
+
+        $parts = [];
+        foreach ($tags + $remainingTags as $tag => $value) {
+            $parts[] = sprintf('%s=%s', $tag, $value);
+        }
+
+        if ($clusterName !== null) {
+            $parts[] = sprintf('cluster=%s', $clusterName);
+        }
+
+        return implode(', ', $parts);
     }
 }
