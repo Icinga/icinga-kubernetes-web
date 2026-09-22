@@ -44,7 +44,7 @@ class PodConditions extends Conditions
                 $condition->status === 'true' &&
                 ($condition->type === 'Completed' || $condition->type === 'DisruptionTarget')
             ) {
-                if ($condition->type === 'Completed') {
+                if ($condition->type === 'Completed' && $i > 0) {
                     $condition->last_transition = $conditions[$i - 1]->last_transition;
                 }
 
