@@ -109,14 +109,14 @@ abstract class Factory
             'namespace',
             'node',
             'persistentvolume',
+            'persistentvolumeclaim',
             'pod',
             'replicaset',
             'secret',
             'service',
             'sidecarcontainer',
-            'statefulset'           => Url::fromPath("kubernetes/$kind"),
-            'persistentvolumeclaim' => Url::fromPath('kubernetes/pvc'),
-            default                 => null
+            'statefulset' => Url::fromPath("kubernetes/$kind"),
+            default       => null
         };
     }
 
