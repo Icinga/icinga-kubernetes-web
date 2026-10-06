@@ -142,6 +142,7 @@ class Auth
      */
     public function withRestrictions(string $permission, Query $query): Query
     {
+        $query->getResolver()->getBehaviors($query->getModel());
         $q = clone $query; // The original query may be part of a model and those shouldn't change implicitly
 
         $table = $q->getModel()->getTableName();
