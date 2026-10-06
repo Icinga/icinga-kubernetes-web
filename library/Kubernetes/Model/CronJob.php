@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\HideDeleted;
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
 use ipl\Orm\Behavior\BoolCast;
@@ -32,6 +33,8 @@ class CronJob extends Model
             'last_successful_time',
             'created'
         ]));
+
+        $behaviors->add(new HideDeleted($this));
     }
 
     public function createRelations(Relations $relations): void

@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\HideDeleted;
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
@@ -22,6 +23,8 @@ class Secret extends Model
         $behaviors->add(new MillisecondTimestamp([
             'created'
         ]));
+
+        $behaviors->add(new HideDeleted($this));
     }
 
     public function createRelations(Relations $relations): void

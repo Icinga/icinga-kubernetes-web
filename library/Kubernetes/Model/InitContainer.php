@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
+use Icinga\Module\Kubernetes\Model\Behavior\HideDeleted;
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
 use ipl\Orm\Behaviors;
@@ -26,6 +27,8 @@ class InitContainer extends Model
             'uuid',
             'pod_uuid'
         ]));
+
+        $behaviors->add(new HideDeleted($this, 'pod'));
     }
 
     public function createRelations(Relations $relations): void
