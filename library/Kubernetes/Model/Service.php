@@ -41,9 +41,7 @@ class Service extends Model
 
         $relations->hasMany('port', ServicePort::class);
 
-        $relations
-            ->belongsToMany('selector', Selector::class)
-            ->through('service_selector');
+        $relations->hasMany('selector', ServiceSelector::class);
 
         $relations
             ->hasMany('label', Label::class)
