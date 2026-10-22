@@ -36,8 +36,8 @@ class StatefulSet extends Model
         $relations->hasOne('owner', StatefulSetOwner::class)->setJoinType('LEFT');
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('stateful_set_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->hasMany('annotation', Annotation::class)

@@ -36,8 +36,8 @@ class ReplicaSet extends Model
         $relations->hasOne('owner', ReplicaSetOwner::class)->setJoinType('LEFT');
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('replica_set_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->hasMany('annotation', Annotation::class)

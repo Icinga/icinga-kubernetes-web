@@ -46,8 +46,8 @@ class Service extends Model
             ->through('service_selector');
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('service_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->hasMany('annotation', Annotation::class)

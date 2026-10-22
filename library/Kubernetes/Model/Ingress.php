@@ -40,8 +40,8 @@ class Ingress extends Model
         $relations->hasMany('ingress_tls', IngressTls::class);
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('ingress_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->hasMany('annotation', Annotation::class)

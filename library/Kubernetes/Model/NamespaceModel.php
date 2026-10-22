@@ -36,8 +36,8 @@ class NamespaceModel extends Model
         $relations->belongsToOne('cluster', Cluster::class);
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('namespace_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->hasMany('annotation', Annotation::class)

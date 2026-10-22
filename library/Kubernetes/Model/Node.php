@@ -40,8 +40,8 @@ class Node extends Model
         $relations->hasMany('condition', NodeCondition::class);
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('node_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->hasMany('annotation', Annotation::class)

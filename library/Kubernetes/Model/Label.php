@@ -17,7 +17,8 @@ class Label extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'uuid'
+            'uuid',
+            'resource_uuid',
         ]));
     }
 
@@ -31,68 +32,68 @@ class Label extends Model
             ->setJoinType('LEFT');
 
         $relations
-            ->belongsToMany('config_map', ConfigMap::class)
-            ->through('config_map_label');
+            ->belongsTo('config_map', ConfigMap::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('cron_job', CronJob::class)
-            ->through('cron_job_label');
+            ->belongsTo('cron_job', CronJob::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('daemon_set', DaemonSet::class)
-            ->through('daemon_set_label');
+            ->belongsTo('daemon_set', DaemonSet::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('deployment', Deployment::class)
-            ->through('deployment_label');
+            ->belongsTo('deployment', Deployment::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('endpoint_slice', EndpointSlice::class)
-            ->through('endpoint_slice_label');
+            ->belongsTo('endpoint_slice', EndpointSlice::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('job', Job::class)
-            ->through('job_label');
+            ->belongsTo('job', Job::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('namespace', NamespaceModel::class)
-            ->through('namespace_label');
+            ->belongsTo('namespace', NamespaceModel::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('node', Node::class)
-            ->through('node_label');
+            ->belongsTo('node', Node::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('pod', Pod::class)
-            ->through('pod_label');
+            ->belongsTo('pod', Pod::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('pvc', PersistentVolumeClaim::class)
-            ->through('pvc_label');
+            ->belongsTo('pvc', PersistentVolumeClaim::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('replica_set', ReplicaSet::class)
-            ->through('replica_set_label');
+            ->belongsTo('replica_set', ReplicaSet::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('secret', Secret::class)
-            ->through('secret_label');
+            ->belongsTo('secret', Secret::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('service', Service::class)
-            ->through('service_label');
+            ->belongsTo('service', Service::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('stateful_set', StatefulSet::class)
-            ->through('stateful_set_label');
+            ->belongsTo('stateful_set', StatefulSet::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('ingress', Ingress::class)
-            ->through('ingress_label');
+            ->belongsTo('ingress', Ingress::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('persistent_volume', PersistentVolume::class)
-            ->through('persistent_volume_label');
+            ->belongsTo('persistent_volume', PersistentVolume::class)
+            ->setCandidateKey('resource_uuid');
     }
 
     public function getColumnDefinitions(): array
@@ -106,6 +107,7 @@ class Label extends Model
     public function getColumns(): array
     {
         return [
+            'resource_uuid',
             'name',
             'value'
         ];
