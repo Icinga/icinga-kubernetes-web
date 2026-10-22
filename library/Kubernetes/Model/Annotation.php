@@ -17,7 +17,8 @@ class Annotation extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'uuid'
+            'uuid',
+            'resource_uuid',
         ]));
     }
 
@@ -31,64 +32,64 @@ class Annotation extends Model
             ->setJoinType('LEFT');
 
         $relations
-            ->belongsToMany('pod', Pod::class)
-            ->through('pod_annotation');
+            ->belongsTo('pod', Pod::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('replica_set', ReplicaSet::class)
-            ->through('replica_set_annotation');
+            ->belongsTo('replica_set', ReplicaSet::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('deployment', Deployment::class)
-            ->through('deployment_annotation');
+            ->belongsTo('deployment', Deployment::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('daemon_set', DaemonSet::class)
-            ->through('daemon_set_annotation');
+            ->belongsTo('daemon_set', DaemonSet::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('stateful_set', StatefulSet::class)
-            ->through('stateful_set_annotation');
+            ->belongsTo('stateful_set', StatefulSet::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('namespace', NamespaceModel::class)
-            ->through('namespace_annotation');
+            ->belongsTo('namespace', NamespaceModel::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('node', Node::class)
-            ->through('node_annotation');
+            ->belongsTo('node', Node::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('secret', Secret::class)
-            ->through('secret_annotation');
+            ->belongsTo('secret', Secret::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('config_map', ConfigMap::class)
-            ->through('config_map_annotation');
+            ->belongsTo('config_map', ConfigMap::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('service', Service::class)
-            ->through('service_annotation');
+            ->belongsTo('service', Service::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('job', Job::class)
-            ->through('job_annotation');
+            ->belongsTo('job', Job::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('cron_job', CronJob::class)
-            ->through('cron_job_annotation');
+            ->belongsTo('cron_job', CronJob::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('pvc', PersistentVolumeClaim::class)
-            ->through('pvc_annotation');
+            ->belongsTo('pvc', PersistentVolumeClaim::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('ingress', Ingress::class)
-            ->through('ingress_annotation');
+            ->belongsTo('ingress', Ingress::class)
+            ->setCandidateKey('resource_uuid');
 
         $relations
-            ->belongsToMany('persistent_volume', PersistentVolume::class)
-            ->through('persistent_volume_annotation');
+            ->belongsTo('persistent_volume', PersistentVolume::class)
+            ->setCandidateKey('resource_uuid');
     }
 
     public function getColumnDefinitions(): array
@@ -102,6 +103,7 @@ class Annotation extends Model
     public function getColumns(): array
     {
         return [
+            'resource_uuid',
             'name',
             'value'
         ];

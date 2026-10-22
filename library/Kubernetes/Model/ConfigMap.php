@@ -36,8 +36,8 @@ class ConfigMap extends Model
             ->through('config_map_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('config_map_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
     }
 
     public function getColumnDefinitions(): array

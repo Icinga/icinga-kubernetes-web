@@ -43,8 +43,8 @@ class CronJob extends Model
             ->through('cron_job_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('cron_job_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->belongsToMany('job', Job::class)

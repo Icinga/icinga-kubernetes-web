@@ -40,8 +40,8 @@ class DaemonSet extends Model
             ->through('daemon_set_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('daemon_set_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->belongsToMany('pod', Pod::class)

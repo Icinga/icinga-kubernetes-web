@@ -52,8 +52,8 @@ class PersistentVolumeClaim extends Model
             ->through('pvc_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('pvc_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->belongsToMany('pod', Pod::class)

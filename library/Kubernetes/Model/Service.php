@@ -50,8 +50,8 @@ class Service extends Model
             ->through('service_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('service_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->belongsToMany('pod', Pod::class)

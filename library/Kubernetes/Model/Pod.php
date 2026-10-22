@@ -50,8 +50,8 @@ class Pod extends Model
             ->through('pod_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('pod_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations->hasMany('sidecar_container', SidecarContainer::class);
 

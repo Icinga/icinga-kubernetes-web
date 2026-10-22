@@ -44,8 +44,8 @@ class Node extends Model
             ->through('node_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('node_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->hasMany('pod', Pod::class)

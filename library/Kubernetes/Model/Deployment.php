@@ -56,8 +56,8 @@ class Deployment extends Model
             ->through('deployment_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('deployment_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations->hasMany('favorite', Favorite::class)
             ->setForeignKey('resource_uuid')

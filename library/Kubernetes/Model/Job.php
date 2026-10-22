@@ -53,8 +53,8 @@ class Job extends Model
             ->through('job_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('job_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->belongsToMany('pod', Pod::class)

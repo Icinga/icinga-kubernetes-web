@@ -33,8 +33,8 @@ class Secret extends Model
             ->through('secret_label');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('secret_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
     }
 
     public function getColumns(): array
