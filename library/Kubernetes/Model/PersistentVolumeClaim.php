@@ -4,13 +4,13 @@
 
 namespace Icinga\Module\Kubernetes\Model;
 
-use Icinga\Module\Kubernetes\Model\Behavior\HideDeleted;
 use Icinga\Module\Kubernetes\Model\Behavior\Uuid;
 use ipl\I18n\Translation;
 use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
+use ipl\Stdlib\Filter;
 
 class PersistentVolumeClaim extends Model
 {
@@ -32,8 +32,6 @@ class PersistentVolumeClaim extends Model
         $behaviors->add(new MillisecondTimestamp([
             'created'
         ]));
-
-        $behaviors->add(new HideDeleted($this));
     }
 
     public function createRelations(Relations $relations): void
@@ -69,6 +67,11 @@ class PersistentVolumeClaim extends Model
         $relations->hasMany('favorite', Favorite::class)
             ->setForeignKey('resource_uuid')
             ->setJoinType('LEFT');
+    }
+
+    public function createVisibilityFilter(Filter\Chain $filter): void
+    {
+        $filter->add(Filter::unlike('deleted', '*'));
     }
 
     public function getColumnDefinitions(): array
