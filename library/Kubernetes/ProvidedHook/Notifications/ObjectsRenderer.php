@@ -47,9 +47,13 @@ class ObjectsRenderer extends ObjectsRendererHook
             return null;
         }
 
+        $resource = Factory::fetchResource($objectIdTag['resource']);
+        if ($resource === null) {
+            return null;
+        }
+
         $html = new ResourceList(
-            Factory::fetchResource($objectIdTag['resource'])
-                ->filter(Filter::equal('uuid', Uuid::fromString($objectIdTag['uuid'])->getBytes()))
+            $resource->filter(Filter::equal('uuid', Uuid::fromString($objectIdTag['uuid'])->getBytes()))
         );
         // TODO(el): Icinga Notifications Web now forcefully adds the target, which results in having it twice,
         // ultimately leading to JS errors.
