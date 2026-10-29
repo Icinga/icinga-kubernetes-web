@@ -65,13 +65,17 @@ class EventDetail extends BaseHtmlElement
         );
 
         // Events can refer to kinds the module has no query for, such as EndpointSlice.
-        $referent = Factory::fetchResource($this->event->reference_kind);
+        $kind = Factory::canonicalizeKind($this->event->reference_kind);
+        $referent = Factory::fetchResource($kind);
         if ($referent !== null) {
+            if (isset(Auth::PERMISSIONS[$kind])) {
+                $referent = Auth::getInstance()->withRestrictions(Auth::PERMISSIONS[$kind], $referent);
+            }
+
             $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Referent'))),
-                // TODO fix with restrictions?
                 (new ResourceList($referent->filter(Filter::equal('uuid', $this->event->reference_uuid))))
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
