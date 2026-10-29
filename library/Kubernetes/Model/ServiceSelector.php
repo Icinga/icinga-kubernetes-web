@@ -10,22 +10,21 @@ use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
 
-class Selector extends Model
+class ServiceSelector extends Model
 {
     use Translation;
 
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'uuid'
+            'uuid',
+            'service_uuid',
         ]));
     }
 
     public function createRelations(Relations $relations): void
     {
-        $relations
-            ->belongsToMany('service', Service::class)
-            ->through('service_selector');
+        $relations->belongsTo('service', Service::class);
     }
 
     public function getColumnDefinitions(): array
@@ -39,6 +38,7 @@ class Selector extends Model
     public function getColumns(): array
     {
         return [
+            'service_uuid',
             'name',
             'value'
         ];
@@ -46,7 +46,7 @@ class Selector extends Model
 
     public function getDefaultSort(): array
     {
-        return ['selector.name'];
+        return ['service_selector.name'];
     }
 
     public function getKeyName(): array
@@ -56,6 +56,6 @@ class Selector extends Model
 
     public function getTableName(): string
     {
-        return 'selector';
+        return 'service_selector';
     }
 }

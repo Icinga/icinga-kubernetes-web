@@ -34,8 +34,8 @@ class EndpointSlice extends Model
         $relations->hasMany('endpoint', Endpoint::class);
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('endpoint_slice_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
     }
 
     public function getColumnDefinitions(): array

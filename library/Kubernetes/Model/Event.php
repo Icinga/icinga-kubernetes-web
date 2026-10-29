@@ -35,15 +35,13 @@ class Event extends Model
         $relations->belongsToOne('cluster', Cluster::class);
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('resource_label')
+            ->hasMany('label', Label::class)
             ->setCandidateKey('reference_uuid')
             ->setForeignKey('resource_uuid')
             ->setJoinType('LEFT');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('resource_annotation')
+            ->hasMany('annotation', Annotation::class)
             ->setCandidateKey('reference_uuid')
             ->setForeignKey('resource_uuid')
             ->setJoinType('LEFT');

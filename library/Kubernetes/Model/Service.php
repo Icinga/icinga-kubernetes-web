@@ -41,17 +41,15 @@ class Service extends Model
 
         $relations->hasMany('port', ServicePort::class);
 
-        $relations
-            ->belongsToMany('selector', Selector::class)
-            ->through('service_selector');
+        $relations->hasMany('selector', ServiceSelector::class);
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('service_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('service_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->belongsToMany('pod', Pod::class)

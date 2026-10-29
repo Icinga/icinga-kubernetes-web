@@ -29,12 +29,12 @@ class Secret extends Model
         $relations->belongsToOne('cluster', Cluster::class);
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('secret_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('secret_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
     }
 
     public function getColumns(): array

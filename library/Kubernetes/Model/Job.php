@@ -49,12 +49,12 @@ class Job extends Model
         $relations->hasMany('condition', JobCondition::class);
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('job_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('job_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->belongsToMany('pod', Pod::class)

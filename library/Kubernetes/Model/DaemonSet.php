@@ -36,12 +36,12 @@ class DaemonSet extends Model
         $relations->hasOne('owner', DaemonSetOwner::class)->setJoinType('LEFT');
 
         $relations
-            ->belongsToMany('label', Label::class)
-            ->through('daemon_set_label');
+            ->hasMany('label', Label::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
-            ->belongsToMany('annotation', Annotation::class)
-            ->through('daemon_set_annotation');
+            ->hasMany('annotation', Annotation::class)
+            ->setForeignKey('resource_uuid');
 
         $relations
             ->belongsToMany('pod', Pod::class)
