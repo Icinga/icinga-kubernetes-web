@@ -61,20 +61,22 @@ class EventDetail extends BaseHtmlElement
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Note'))),
                 new Note($this->event->note)
-            ),
-            new HtmlElement(
+            )
+        );
+
+        // Events can refer to kinds the module has no query for, such as EndpointSlice.
+        $referent = Factory::fetchResource($this->event->reference_kind);
+        if ($referent !== null) {
+            $this->addHtml(new HtmlElement(
                 'section',
                 null,
                 new HtmlElement('h2', null, new Text($this->translate('Referent'))),
                 // TODO fix with restrictions?
-                (new ResourceList(
-                    Factory::fetchResource($this->event->reference_kind)
-                        ->filter(Filter::equal('uuid', $this->event->reference_uuid))
-                ))
+                (new ResourceList($referent->filter(Filter::equal('uuid', $this->event->reference_uuid))))
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
-            )
-        );
+            ));
+        }
 
         if (Auth::getInstance()->canShowYaml()) {
             new Yaml($this->event->yaml);
