@@ -118,6 +118,8 @@ class Auth
      */
     public function canList(string $kind): bool
     {
+        $kind = Factory::canonicalizeKind($kind);
+
         if (isset(self::PERMISSIONS[$kind])) {
             $permission = self::PERMISSIONS[$kind];
 
