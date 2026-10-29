@@ -10,6 +10,7 @@ use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
+use ipl\Stdlib\Filter;
 
 class Pod extends Model
 {
@@ -113,6 +114,11 @@ class Pod extends Model
         $relations->hasMany('favorite', Favorite::class)
             ->setForeignKey('resource_uuid')
             ->setJoinType('LEFT');
+    }
+
+    public function createVisibilityFilter(Filter\Chain $filter): void
+    {
+        $filter->add(Filter::unlike('deleted', '*'));
     }
 
     public function getColumnDefinitions(): array

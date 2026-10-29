@@ -10,6 +10,7 @@ use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
+use ipl\Stdlib\Filter;
 
 class EndpointSlice extends Model
 {
@@ -36,6 +37,11 @@ class EndpointSlice extends Model
         $relations
             ->hasMany('label', Label::class)
             ->setForeignKey('resource_uuid');
+    }
+
+    public function createVisibilityFilter(Filter\Chain $filter): void
+    {
+        $filter->add(Filter::unlike('deleted', '*'));
     }
 
     public function getColumnDefinitions(): array
