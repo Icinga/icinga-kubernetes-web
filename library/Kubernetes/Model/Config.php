@@ -37,6 +37,10 @@ class Config extends Model
 
     public const PROMETHEUS_PASSWORD = 'prometheus.password';
 
+    public const PROMETHEUS_TOKEN = 'prometheus.token';
+
+    public const PROMETHEUS_TOKEN_FILE = 'prometheus.token_file';
+
     public static function transformKeyForForm(string $key): string
     {
         return strtr($key, ['notifications.' => 'notifications_', 'prometheus.' => 'prometheus_']);
