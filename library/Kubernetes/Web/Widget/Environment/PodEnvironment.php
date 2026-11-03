@@ -41,8 +41,9 @@ class PodEnvironment implements ValidHtml
 
 
         if ($podOwner !== null) {
+            // Pods can be owned by kinds the module has no query for, such as custom resources.
             $podOwnerKind = Factory::fetchResource($podOwner->kind)
-                ->filter(Filter::equal('uuid', (string) Uuid::fromBytes($podOwner->owner_uuid)));
+                ?->filter(Filter::equal('uuid', (string) Uuid::fromBytes($podOwner->owner_uuid)));
         } else {
             $podOwnerKind = null;
         }

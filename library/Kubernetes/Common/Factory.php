@@ -233,11 +233,13 @@ abstract class Factory
             'deployment'            => Deployment::on($database),
             'ingress'               => Ingress::on($database),
             'job'                   => Job::on($database),
+            'namespace'             => NamespaceModel::on($database),
             'node'                  => Node::on($database),
             'persistentvolume'      => PersistentVolume::on($database),
             'persistentvolumeclaim' => PersistentVolumeClaim::on($database),
             'pod'                   => Pod::on($database),
             'replicaset'            => ReplicaSet::on($database),
+            'secret'                => Secret::on($database),
             'service'               => Service::on($database),
             'statefulset'           => StatefulSet::on($database),
             default                 => null
