@@ -10,6 +10,8 @@ use ipl\Orm\Behavior\BoolCast;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
+use ipl\Sql\Select;
+use ipl\Stdlib\Filter;
 
 class Container extends Model
 {
@@ -43,6 +45,17 @@ class Container extends Model
             ->setJoinType('LEFT');
 
         $relations->belongsTo('pod', Pod::class);
+    }
+
+    public function createVisibilityFilter(Filter\Chain $filter): void
+    {
+        $filter->add(Filter::equal(
+            'pod_uuid',
+            (new Select())
+                ->columns('uuid')
+                ->from('pod')
+                ->where('deleted IS NULL')
+        ));
     }
 
     public function getColumnDefinitions(): array

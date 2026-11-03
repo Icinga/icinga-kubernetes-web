@@ -9,6 +9,7 @@ use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
+use ipl\Stdlib\Filter;
 
 class Secret extends Model
 {
@@ -35,6 +36,11 @@ class Secret extends Model
         $relations
             ->hasMany('annotation', Annotation::class)
             ->setForeignKey('resource_uuid');
+    }
+
+    public function createVisibilityFilter(Filter\Chain $filter): void
+    {
+        $filter->add(Filter::unlike('deleted', '*'));
     }
 
     public function getColumns(): array
