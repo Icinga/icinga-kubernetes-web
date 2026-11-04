@@ -233,6 +233,7 @@ abstract class Factory
             'deployment'            => Deployment::on($database),
             'ingress'               => Ingress::on($database),
             'job'                   => Job::on($database),
+            'namespace'             => NamespaceModel::on($database),
             'node'                  => Node::on($database),
             'persistentvolume'      => PersistentVolume::on($database),
             'persistentvolumeclaim' => PersistentVolumeClaim::on($database),
