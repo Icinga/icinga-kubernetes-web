@@ -149,7 +149,13 @@ class Environment extends BaseHtmlElement
                 )
             );
 
-            $this->createSummary($node, $list, $forParents);
+            // Three nodes plus the summary give four entries, the most createSVGLines()
+            // has coordinates for.
+            if ($list->count() === 3) {
+                $this->createSummary($node, $list, $forParents);
+
+                break;
+            }
         }
 
         return $list;
