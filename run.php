@@ -14,4 +14,5 @@ $this->provideHook('Health');
 
 if (Module::exists('notifications')) {
     $this->provideHook('Notifications/V2/KubernetesSource');
+    $this->provideHook('Notifications/V2/V1FilterMigration');
 }
