@@ -4,17 +4,15 @@
 
 namespace Icinga\Module\Kubernetes\Forms;
 
-use Icinga\Application\Icinga;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
 use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
 use ipl\Stdlib\Filter;
-use ipl\Stdlib\Str;
 use ipl\Validator\CallbackValidator;
 use ipl\Web\Compat\CompatForm;
-use ipl\Web\Url;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Request;
 
 class NotificationsConfigForm extends CompatForm
 {
@@ -47,7 +45,7 @@ class NotificationsConfigForm extends CompatForm
                 KConfig::NOTIFICATIONS_URL,
                 KConfig::NOTIFICATIONS_USERNAME,
                 KConfig::NOTIFICATIONS_PASSWORD,
-                KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL
+                KConfig::NOTIFICATIONS_ICINGAWEB2_URL
             ]))
             ->filter(Filter::equal('cluster_uuid', $clusterUuid));
 
@@ -84,22 +82,28 @@ class NotificationsConfigForm extends CompatForm
         return array_combine(array_map([static::class, 'transformKeyForDb'], array_keys($values)), $values);
     }
 
-    protected function getKubernetesWebUrl(): string
+    /**
+     * Detect the absolute Url of Icinga Web, respecting X-Forwarded-* headers set by reverse proxies
+     *
+     * @return string
+     */
+    protected function getIcingaWeb2Url(): string
     {
-        $r = Icinga::app()->getRequest();
+        $serverParams = $this->getRequest()->getServerParams();
 
-        list($host, $port) = Str::symmetricSplit($r->getServer('HTTP_HOST'), ':', 2);
+        $request = new Request(server: $serverParams);
+        $request->headers->replace($this->getRequest()->getHeaders());
 
-        $url = (Url::fromPath('kubernetes', [], $r))
-            ->setScheme($r->getScheme())
-            ->setHost($host)
-            ->setIsExternal();
+        // Trusts X-Forwarded-* from any peer: only safe because this form requires config/modules
+        Request::setTrustedProxies(
+            isset($serverParams['REMOTE_ADDR']) ? [$serverParams['REMOTE_ADDR']] : [],
+            Request::HEADER_X_FORWARDED_PROTO
+            | Request::HEADER_X_FORWARDED_HOST
+            | Request::HEADER_X_FORWARDED_PORT
+            | Request::HEADER_X_FORWARDED_PREFIX
+        );
 
-        if ($port !== null) {
-            $url->setPort($port);
-        }
-
-        return $url->getAbsoluteUrl();
+        return $request->getSchemeAndHttpHost() . $request->getBaseUrl();
     }
 
     protected function isValidUri(string $uri): string
@@ -121,7 +125,7 @@ class NotificationsConfigForm extends CompatForm
         if ($clusterUuid !== $this->getOldClusterUuid()) {
             $this->clearPopulatedValue('old_cluster_uuid');
             $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_URL));
-            $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL));
+            $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_ICINGAWEB2_URL));
         }
 
         $this->addElement('hidden', 'old_cluster_uuid', ['value' => $clusterUuid, 'ignore' => true]);
@@ -164,15 +168,11 @@ class NotificationsConfigForm extends CompatForm
             ]
         ]);
 
-        $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL), [
-            'label'       => $this->translate('Kubernetes Web URL'),
-            'required'    => true,
-            'disabled'    => $kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->locked ?? false,
-            'value'       => $kconfig[KConfig::NOTIFICATIONS_KUBERNETES_WEB_URL]->value ??
-                $this->getKubernetesWebUrl(),
-            'description' => $this->translate(
-                'Icinga Kubernetes Web URL.'
-            ),
+        $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_ICINGAWEB2_URL), [
+            'label'       => $this->translate('Icinga Web URL'),
+            'disabled'    => $kconfig[KConfig::NOTIFICATIONS_ICINGAWEB2_URL]->locked ?? false,
+            'value'       => $kconfig[KConfig::NOTIFICATIONS_ICINGAWEB2_URL]->value ?? $this->getIcingaWeb2Url(),
+            'description' => $this->translate('Icinga Web URL.'),
             'validators'  => [
                 'Callback' => function ($value, CallbackValidator $validator) {
                     if (! $this->isValidUri($value)) {
