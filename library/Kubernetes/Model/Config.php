@@ -27,7 +27,7 @@ class Config extends Model
 
     public const NOTIFICATIONS_PASSWORD = 'notifications.password';
 
-    public const NOTIFICATIONS_KUBERNETES_WEB_URL = 'notifications.kubernetes_web_url';
+    public const NOTIFICATIONS_ICINGAWEB2_URL = 'notifications.icingaweb2_url';
 
     public const PROMETHEUS_URL = 'prometheus.url';
 

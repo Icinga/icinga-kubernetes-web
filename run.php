@@ -13,6 +13,6 @@ if (! function_exists('yield_iterable')) {
 $this->provideHook('Health');
 
 if (Module::exists('notifications')) {
-    $this->provideHook('Notifications/ObjectsRenderer');
-    $this->provideHook('Notifications/V1/Source');
+    $this->provideHook('Notifications/V2/KubernetesSource');
+    $this->provideHook('Notifications/V2/V1FilterMigration');
 }

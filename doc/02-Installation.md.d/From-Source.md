@@ -9,6 +9,6 @@ Make sure you use `kubernetes` as the module name. The following requirements mu
 * [Icinga for Kubernetes](https://github.com/Icinga/icinga-kubernetes)
 * [Icinga Web 2](https://github.com/Icinga/icingaweb2) (≥2.9)
 * [Icinga PHP Library (ipl)](https://github.com/Icinga/icinga-php-library) (≥0.19)
-* [Icinga PHP Thirdparty](https://github.com/Icinga/icinga-php-thirdparty) (≥0.12)
+* [Icinga PHP Thirdparty](https://github.com/Icinga/icinga-php-thirdparty) (≥1.1.0)
 
 <!-- {% include "02-Installation.md" %} -->
