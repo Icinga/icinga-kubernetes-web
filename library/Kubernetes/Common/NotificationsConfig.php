@@ -8,7 +8,6 @@ use Icinga\Module\Kubernetes\Model\Config;
 use Icinga\Module\Notifications\Integrations\V1\Source;
 use ipl\I18n\Translation;
 use ipl\Sql\Connection;
-use Ramsey\Uuid\Uuid;
 use RuntimeException;
 
 /**
@@ -28,7 +27,7 @@ class NotificationsConfig
     }
 
     /**
-     * Save writable settings, rechecking cluster settings before provisioning an HTTP source
+     * Save writable settings, rechecking cluster settings and discovery before provisioning a source
      *
      * A new HTTP password is committed before provisioning, while the username and URL are activated together.
      * The Notifications API commits separately. If an insert succeeded before activation failed, only an
@@ -36,6 +35,7 @@ class NotificationsConfig
      *
      * @param string $clusterUuid
      * @param array<string, ?string> $values Submitted URL settings
+     * @param ?string $discoveryConfirmation Confirmation for assisted Unix setup, or null for manual setup
      * @param ?string $confirmedHttpUser Username explicitly confirmed for reuse, or null for automatic HTTP setup
      * @param ?string $rotateHttpUser Username explicitly confirmed for password rotation, or null for an ordinary save
      *
@@ -46,12 +46,14 @@ class NotificationsConfig
     public function save(
         string $clusterUuid,
         array $values,
+        ?string $discoveryConfirmation = null,
         ?string $confirmedHttpUser = null,
         ?string $rotateHttpUser = null,
     ): void {
         $save = fn(bool $stagePassword): bool => $this->saveSettings(
             $clusterUuid,
             $values,
+            $discoveryConfirmation,
             $confirmedHttpUser,
             $rotateHttpUser,
             $stagePassword,
@@ -67,6 +69,7 @@ class NotificationsConfig
      *
      * @param string $clusterUuid
      * @param array<string, ?string> $values
+     * @param ?string $discoveryConfirmation
      * @param ?string $confirmedHttpUser
      * @param ?string $rotateHttpUser
      * @param bool $stagePassword Whether to allow creating an inactive password
@@ -78,11 +81,12 @@ class NotificationsConfig
     protected function saveSettings(
         string $clusterUuid,
         array $values,
+        ?string $discoveryConfirmation,
         ?string $confirmedHttpUser,
         ?string $rotateHttpUser,
         bool $stagePassword,
     ): bool {
-        $uuid = Uuid::fromString($clusterUuid)->getBytes();
+        $uuid = NotificationsDiscovery::encodeClusterUuid($this->db, $clusterUuid);
         if ($this->db->fetchOne('SELECT uuid FROM cluster WHERE uuid = ? FOR UPDATE', [$uuid]) === false) {
             throw new RuntimeException($this->translate('The selected cluster is no longer available.'));
         }
@@ -117,6 +121,21 @@ class NotificationsConfig
             ));
         }
 
+        $serviceUser = null;
+        if ($discoveryConfirmation !== null) {
+            $discovery = NotificationsDiscovery::load($this->db, $clusterUuid);
+            $serviceUser = $discovery->serviceUser;
+            if (
+                $urlLocked
+                || $serviceUser === null
+                || ! $discovery->matchesConfirmation($clusterUuid, $url, $discoveryConfirmation)
+            ) {
+                throw new RuntimeException($this->translate(
+                    'The discovered socket or process user changed, or the URL was locked. Confirm the settings again.'
+                ));
+            }
+        }
+
         $source = null;
         $sourceName = Config::DEFAULT_NOTIFICATIONS_NAME;
         $sourcePassword = null;
@@ -131,7 +150,23 @@ class NotificationsConfig
             $usernameLocked = ($settings[Config::NOTIFICATIONS_USERNAME]->locked ?? 'n') === 'y';
             $passwordLocked = ($settings[Config::NOTIFICATIONS_PASSWORD]->locked ?? 'n') === 'y';
 
-            if ($url !== '') {
+            if (NotificationsUrl::isUnix($url)) {
+                if (($usernameLocked && $username !== '') || ($passwordLocked && $password !== '')) {
+                    throw new RuntimeException($this->translate(
+                        'Remove locally configured Notifications credentials before using a Unix socket.'
+                    ));
+                }
+
+                if ($serviceUser !== null) {
+                    $source = $this->getSource($serviceUser);
+                    if ($source->getName() !== null) {
+                        throw new RuntimeException(sprintf($this->translate(
+                            'A Notifications source already uses "%s". Verify that it is a Kubernetes source,'
+                            . ' then clear the discovery checkbox and save the socket URL manually.'
+                        ), $serviceUser));
+                    }
+                }
+            } elseif ($url !== '') {
                 $sourceName .= " ($clusterUuid)";
                 $httpActive = NotificationsUrl::isWeb($settings[Config::NOTIFICATIONS_URL]->value ?? '');
                 $source = $this->prepareHttpSource(

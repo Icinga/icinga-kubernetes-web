@@ -81,6 +81,7 @@ class ConfigController extends Controller
                 (new NotificationsConfig(Database::connection()))->save(
                     $clusterUuid,
                     $form->getValues(),
+                    $form->getDiscoveryConfirmation(),
                     $form->getConfirmedHttpUsername(),
                     $form->getHttpPasswordRotationUsername(),
                 );

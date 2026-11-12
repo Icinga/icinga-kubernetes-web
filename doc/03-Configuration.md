@@ -21,6 +21,34 @@ Icinga Notifications Web 1.0 or later with a configured database. Unless overrid
 the daemon configuration, HTTP setup uses the cluster UUID as the listener username
 and generates a password.
 
+For Unix socket transport, use versions of Icinga for Kubernetes and Icinga Notifications
+that support Unix socket URLs and OS user authentication. The Icinga for Kubernetes
+process must be able to access the Notifications socket. Remove Notifications credentials
+set in the daemon configuration before switching to a Unix socket. The daemon ignores
+stored HTTP credentials over Unix, so the form keeps them for a later return to HTTP.
+Before switching a cluster that was configured for HTTP, upgrade Icinga for Kubernetes
+to a release with Unix socket discovery support. Earlier releases can use manual Unix
+URLs for clusters without stored HTTP credentials.
+
+Select **Use discovered Unix socket** to prefill the URL and check the process username,
+then select **Save Changes**. All live instances of the selected cluster must report the
+same path and username. The form ignores heartbeats more than 60 seconds old. If the
+path or username changes before saving, select the new discovery result again.
+
+Assisted setup creates a Kubernetes source without a password when the process username
+is available in Icinga Notifications. If the username already belongs to a source,
+verify in Icinga Notifications that the source is a Kubernetes source configured for
+that process user. To use this source, clear the discovery checkbox and save the
+socket URL manually. Clusters running under the same OS user can use that source.
+
+For manual setup, create or verify the Kubernetes source for the process username in
+Icinga Notifications, then enter a URL such as
+`unix:///run/icinga-notifications/api.sock`.
+Use this procedure when the daemon does not publish discovery metadata. Encode spaces,
+`#`, `?`, and `%` in a socket path as `%20`, `%23`, `%3F`, and `%25`, respectively.
+If the encoded URL exceeds 255 bytes, use a shorter path or a symlink the
+Icinga for Kubernetes process can access.
+
 If automatic HTTP setup reports an existing source, verify its listener username and
 Kubernetes source type in Icinga Notifications. The form creates locked sources named
 `Icinga for Kubernetes (<cluster UUID>)`. Select **Use an existing HTTP source** if the
@@ -39,5 +67,5 @@ HTTP password** in the Kubernetes form and save. Coordinate changes to shared so
 with their administrators. Ordinary saves leave existing source passwords in place.
 
 Leave the Notifications URL blank to disable notifications for the cluster. Existing
-sources and stored HTTP credentials stay available for later use.
+sources and stored HTTP credentials stay available for other clusters or for later use.
 Restart Icinga for Kubernetes after saving to apply the database configuration.

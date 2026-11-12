@@ -5,11 +5,13 @@
 namespace Icinga\Module\Kubernetes\Test;
 
 use Icinga\Module\Kubernetes\Common\NotificationsConfig;
+use Icinga\Module\Kubernetes\Common\NotificationsDiscovery;
 use Icinga\Module\Kubernetes\Common\NotificationsSource;
 use Icinga\Module\Kubernetes\Common\NotificationsUrl;
 use Icinga\Module\Kubernetes\Model\Config;
 use Icinga\Module\Notifications\Integrations\V1\Source;
 use ipl\Sql\Adapter\Mysql;
+use ipl\Sql\Adapter\Pgsql;
 use ipl\Sql\Connection;
 use PDOStatement;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use ReflectionMethod;
 use RuntimeException;
+use stdClass;
 
 class NotificationsConfigTest extends TestCase
 {
@@ -28,6 +31,12 @@ class NotificationsConfigTest extends TestCase
     protected const OTHER_CLUSTER = '471d54de-dc99-4d5a-b794-a1a17d847980';
 
     /** @var string */
+    protected const SOCKET_PATH = '/run/icinga-notifications/api.sock';
+
+    /** @var string */
+    protected const SOCKET_URL = 'unix:///run/icinga-notifications/api.sock';
+
+    /** @var string */
     protected const HTTP_URL = 'http://notifications.example:5680';
 
     /** @var array<string, string> */
@@ -35,6 +44,9 @@ class NotificationsConfigTest extends TestCase
 
     /** @var array<string, bool> */
     protected array $locks = [];
+
+    /** @var list<stdClass> */
+    protected array $instances = [];
 
     protected int $transactions = 0;
 
@@ -60,7 +72,23 @@ class NotificationsConfigTest extends TestCase
             'IDN hostname'      => ['https://über.example/events', true, true],
             'raw newline'       => ["http://notifications.example/\n", false, false],
             'host whitespace'   => ['http://invalid host:5680', false, false],
+            'unix'              => ['unix:///run/icinga-notifications.sock', true, false],
+            'escaped path'      => ['unix:///run/socket%20%23%3F%25.sock', true, false],
+            'relative path'     => ['unix:run/socket', false, false],
             'relative URL'      => ['/run/socket', false, false],
+            'authority'         => ['unix://localhost/run/socket', false, false],
+            'userinfo'          => ['unix://user@localhost/run/socket', false, false],
+            'port'              => ['unix://localhost:5680/run/socket', false, false],
+            'extra slash'       => ['unix:////run/socket', false, false],
+            'empty socket path' => ['unix:///', false, false],
+            'query'             => ['unix:///run/socket?test=1', false, false],
+            'fragment'          => ['unix:///run/socket#test', false, false],
+            'raw space'         => ['unix:///run/socket name', false, false],
+            'bad escape'        => ['unix:///run/socket%zz', false, false],
+            'null byte'         => ['unix:///run/socket%00', false, false],
+            'raw null byte'     => ["unix:///run/socket\0", false, false],
+            '255-byte Unix URL' => ['unix:///' . str_repeat('%20', 82) . 'x', true, false],
+            '256-byte Unix URL' => ['unix:///' . str_repeat('%20', 82) . 'xx', false, false],
             'http missing host' => ['https:///events', false, false],
             'unknown scheme'    => ['ftp://notifications.example', false, false],
             'scheme missing'    => ['notifications.example:5680', false, false],
@@ -72,6 +100,178 @@ class NotificationsConfigTest extends TestCase
     {
         self::assertSame($valid, NotificationsUrl::isValid($url));
         self::assertSame($web, NotificationsUrl::isWeb($url));
+    }
+
+    public function testDiscoveredPathEscapesReservedCharacters(): void
+    {
+        self::assertSame(
+            'unix:///run/socket%20%23%3F%25.sock',
+            NotificationsUrl::fromSocketPath('/run/socket #?%.sock'),
+        );
+    }
+
+    public function testUnrepresentableSocketUrlHasNoConfirmation(): void
+    {
+        $discovery = new NotificationsDiscovery('/' . str_repeat(' ', 82) . 'xx', 'kubernetes');
+
+        self::assertNull($discovery->getConfirmation(static::CLUSTER));
+    }
+
+    public function testDiscoveryIgnoresStaleInstancesAndSupportsMissingMetadata(): void
+    {
+        $now = 2_000_000_000;
+        $discovery = NotificationsDiscovery::fromRows([
+            (object) ['heartbeat'                      => ($now - 61) * 1000, 'kubernetes_service_user' => 'old',
+                'notifications_discovered_socket_path' => '/old/socket'],
+            (object) ['heartbeat'                      => ($now - 60) * 1000, 'kubernetes_service_user' => 'kubernetes',
+                'notifications_discovered_socket_path' => '/run/socket #?%'],
+        ], $now);
+        self::assertSame('/run/socket #?%', $discovery->socketPath);
+        self::assertSame('kubernetes', $discovery->serviceUser);
+        $missing = NotificationsDiscovery::fromRows([(object) ['heartbeat' => $now * 1000]], $now);
+        self::assertNull($missing->socketPath);
+        self::assertNull($missing->serviceUser);
+        $stale = NotificationsDiscovery::fromRows([(object) ['heartbeat' => ($now - 61) * 1000]], $now);
+        self::assertNull($stale->socketPath);
+        self::assertNull($stale->serviceUser);
+    }
+
+    public function testDiscoveryRejectsConflictingLivePathsAndUsers(): void
+    {
+        $now = 2_000_000_000;
+        $rows = [
+            (object) ['heartbeat'                      => $now * 1000, 'kubernetes_service_user' => 'first',
+                'notifications_discovered_socket_path' => '/run/first'],
+            (object) ['heartbeat'                      => $now * 1000, 'kubernetes_service_user' => 'second',
+                'notifications_discovered_socket_path' => '/run/second'],
+        ];
+        $discovery = NotificationsDiscovery::fromRows($rows, $now);
+        self::assertNull($discovery->socketPath);
+        self::assertNull($discovery->serviceUser);
+        $rows[1]->kubernetes_service_user = 'first';
+        self::assertSame('first', NotificationsDiscovery::fromRows($rows, $now)->serviceUser);
+        $rows[1]->notifications_discovered_socket_path = null;
+        self::assertNull(NotificationsDiscovery::fromRows($rows, $now)->socketPath);
+        $rows[0]->kubernetes_service_user = '1001';
+        $rows[1]->kubernetes_service_user = '01001';
+        self::assertNull(NotificationsDiscovery::fromRows($rows, $now)->serviceUser);
+    }
+
+    public function testDiscoverySelectsTheClusterWithBothDatabaseEncodings(): void
+    {
+        foreach ([new Mysql(), new Pgsql()] as $adapter) {
+            $db = $this->createMock(Connection::class);
+            $db->method('getAdapter')->willReturn($adapter);
+            $db->expects(self::once())->method('fetchAll')->with(
+                'SELECT * FROM kubernetes_instance WHERE cluster_uuid = ?',
+                [$adapter instanceof Pgsql
+                    ? '\\x' . bin2hex(Uuid::fromString(static::OTHER_CLUSTER)->getBytes())
+                    : Uuid::fromString(static::OTHER_CLUSTER)->getBytes()],
+            )->willReturn([(object) [
+                'heartbeat'                            => time() * 1000,
+                'kubernetes_service_user'              => 'selected-cluster',
+                'notifications_discovered_socket_path' => '/run/selected',
+            ]]);
+            self::assertSame('selected-cluster', NotificationsDiscovery::load($db, static::OTHER_CLUSTER)->serviceUser);
+        }
+    }
+
+    public function testAssistedUnixSetupCreatesPasswordlessSourceAndRetainsHttpCredentials(): void
+    {
+        $this->settings = [
+            Config::NOTIFICATIONS_USERNAME => static::CLUSTER,
+            Config::NOTIFICATIONS_PASSWORD => 'stored-password',
+        ];
+        $discovery = $this->discovery();
+        $source = $this->source(null);
+        $source->expects(self::once())->method('create')->with(Config::DEFAULT_NOTIFICATIONS_NAME, null);
+
+        $service = $this->service();
+        $service->expects(self::once())->method('getSource')->with('kubernetes')->willReturn($source);
+        $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL], $discovery);
+
+        self::assertSame(static::SOCKET_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
+        self::assertSame(static::CLUSTER, $this->settings[Config::NOTIFICATIONS_USERNAME]);
+        self::assertSame('stored-password', $this->settings[Config::NOTIFICATIONS_PASSWORD]);
+    }
+
+    #[DataProvider('staleDiscoveries')]
+    public function testStaleDiscoveryDoesNotChangeSettings(string $url, string $path, string $user, int $age): void
+    {
+        $confirmation = $this->discovery();
+        $this->discovery($path, $user, $age);
+        $service = $this->service();
+        $service->expects(self::never())->method('getSource');
+
+        try {
+            $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => $url], $confirmation);
+            self::fail('Stale discovery must reject the save');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('Confirm the settings again', $e->getMessage());
+        } finally {
+            self::assertSame([], $this->deletes);
+            self::assertSame([], $this->inserts);
+        }
+    }
+
+    /**
+     * @return array<string, array{string, string, string, int}>
+     */
+    public static function staleDiscoveries(): array
+    {
+        return [
+            'URL edited'   => ['unix:///run/different.sock', static::SOCKET_PATH, 'kubernetes', 0],
+            'path changed' => [static::SOCKET_URL, '/run/different.sock', 'kubernetes', 0],
+            'user changed' => [static::SOCKET_URL, static::SOCKET_PATH, 'new-user', 0],
+            'expired'      => [static::SOCKET_URL, static::SOCKET_PATH, 'kubernetes', 61],
+        ];
+    }
+
+    public function testExistingUnixSourceRequiresManualSetupAndRemainsUntouched(): void
+    {
+        $discovery = $this->discovery();
+        $service = $this->service();
+        $service->expects(self::once())->method('getSource')->with('kubernetes')
+            ->willReturn($this->unchangedSource(Config::DEFAULT_NOTIFICATIONS_NAME));
+
+        try {
+            $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL], $discovery);
+            self::fail('The assisted save must reject the existing source');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('save the socket URL manually', $e->getMessage());
+        }
+
+        self::assertSame([], $this->settings);
+        self::assertSame([], $this->deletes);
+        $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL]);
+        self::assertSame(static::SOCKET_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
+    }
+
+    public function testManualUnixSetupDoesNotRequireDiscoveryOrNotificationsWeb(): void
+    {
+        $service = $this->service();
+        $service->expects(self::never())->method('getSource');
+        $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL]);
+
+        self::assertSame(static::SOCKET_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
+    }
+
+    public function testUnixRejectsLocallyConfiguredCredentials(): void
+    {
+        $this->settings[Config::NOTIFICATIONS_USERNAME] = 'local-user';
+        $this->locks[Config::NOTIFICATIONS_USERNAME] = true;
+        $service = $this->service();
+        $service->expects(self::never())->method('getSource');
+
+        try {
+            $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL]);
+            self::fail('A Unix URL with locally configured credentials must reject the save');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('Remove locally configured Notifications credentials', $e->getMessage());
+        } finally {
+            self::assertSame([], $this->deletes);
+            self::assertSame([], $this->inserts);
+        }
     }
 
     public function testLocallyConfiguredHttpCredentialsAreUsedWithoutChangingTheSource(): void
@@ -261,7 +461,7 @@ class NotificationsConfigTest extends TestCase
         $service = $this->service();
         $service->expects(self::never())->method('getSource');
         $service->save(static::CLUSTER, [
-            Config::NOTIFICATIONS_URL            => 'https://notifications.example',
+            Config::NOTIFICATIONS_URL            => static::SOCKET_URL,
             Config::NOTIFICATIONS_ICINGAWEB2_URL => 'https://example.com/icingaweb2',
         ]);
 
@@ -270,13 +470,14 @@ class NotificationsConfigTest extends TestCase
         self::assertSame('https://example.com/icingaweb2', $this->getSetting(Config::NOTIFICATIONS_ICINGAWEB2_URL));
     }
 
-    public function testNewHttpSourceUsesGeneratedPasswordAndRetainsItOnOrdinarySaves(): void
+    public function testNewHttpSourceUsesGeneratedPasswordAndRetainsItAcrossTransportChanges(): void
     {
         $service = $this->service();
-        $service->expects(self::exactly(3))->method('getSource')->with(static::CLUSTER)
+        $service->expects(self::exactly(4))->method('getSource')->with(static::CLUSTER)
             ->willReturnOnConsecutiveCalls(
                 $this->source(null),
                 $this->newHttpSource(),
+                $this->unchangedSource($this->httpSourceName()),
                 $this->unchangedSource($this->httpSourceName()),
             );
 
@@ -285,6 +486,8 @@ class NotificationsConfigTest extends TestCase
         self::assertIsString($password);
         self::assertMatchesRegularExpression('/^[a-f0-9]{40}$/D', $password);
         self::assertSame(static::CLUSTER, $this->getSetting(Config::NOTIFICATIONS_USERNAME));
+        $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL]);
+        $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::HTTP_URL]);
         $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => 'https://notifications.example']);
         $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => '']);
 
@@ -457,6 +660,20 @@ class NotificationsConfigTest extends TestCase
         return 'Icinga for Kubernetes (' . static::CLUSTER . ')';
     }
 
+    protected function discovery(
+        string $path = self::SOCKET_PATH,
+        string $user = 'kubernetes',
+        int $age = 0,
+    ): string {
+        $this->instances = [(object) [
+            'heartbeat'                            => (time() - $age) * 1000,
+            'notifications_discovered_socket_path' => $path,
+            'kubernetes_service_user'              => $user,
+        ]];
+
+        return hash('sha256', static::CLUSTER . "\0" . $path . "\0" . $user);
+    }
+
     protected function service(): NotificationsConfig&MockObject
     {
         $db = $this->createStub(Connection::class);
@@ -473,7 +690,11 @@ class NotificationsConfigTest extends TestCase
 
             return (object) ['uuid' => $uuid];
         });
-        $db->method('fetchAll')->willReturnCallback(function (): array {
+        $db->method('fetchAll')->willReturnCallback(function (string $query): array {
+            if (str_contains($query, 'FROM kubernetes_instance')) {
+                return $this->instances;
+            }
+
             $settings = [];
             foreach ($this->settings as $key => $value) {
                 $settings[] = (object) [

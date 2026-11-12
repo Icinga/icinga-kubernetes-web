@@ -5,13 +5,16 @@
 namespace Icinga\Module\Kubernetes\Forms;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\NotificationsDiscovery;
 use Icinga\Module\Kubernetes\Common\NotificationsUrl;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
 use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
 use ipl\Stdlib\Filter;
 use ipl\Validator\CallbackValidator;
+use ipl\Web\Common\CalloutType;
 use ipl\Web\Compat\CompatForm;
+use ipl\Web\Widget\Callout;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -20,7 +23,29 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class NotificationsConfigForm extends CompatForm
 {
+    protected ?string $discoveryConfirmation = null;
+
     protected bool $clusterChanged = false;
+
+    /**
+     * Get the fresh discovery evidence for the selected cluster
+     *
+     * @return NotificationsDiscovery
+     */
+    public function getDiscovery(): NotificationsDiscovery
+    {
+        return NotificationsDiscovery::load(Database::connection(), $this->getClusterUuid());
+    }
+
+    /**
+     * Get the discovery confirmation submitted with the form
+     *
+     * @return ?string Null for manual setup, or an empty string for a missing confirmation
+     */
+    public function getDiscoveryConfirmation(): ?string
+    {
+        return $this->discoveryConfirmation;
+    }
 
     /**
      * Get the listener username the user explicitly selected for HTTP reuse
@@ -160,6 +185,8 @@ class NotificationsConfigForm extends CompatForm
         if ($clusterUuid !== $this->getOldClusterUuid()) {
             $this->clusterChanged = true;
             $this->clearPopulatedValue('old_cluster_uuid');
+            $this->clearPopulatedValue('use_discovered_socket');
+            $this->clearPopulatedValue('discovery_confirmation');
             $this->clearPopulatedValue('use_existing_http_source');
             $this->clearPopulatedValue('rotate_http_password');
             $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_URL));
@@ -175,7 +202,7 @@ class NotificationsConfigForm extends CompatForm
                 'required' => true,
                 'class'    => 'autosubmit',
                 'label'    => $this->translate('Cluster'),
-                'options'  => iterator_to_array(ClusterForm::yieldClusters()),
+                'options'  => $this->getClusterOptions(),
                 'value'    => $clusterUuid,
                 'ignore'   => true
             ],
@@ -183,20 +210,76 @@ class NotificationsConfigForm extends CompatForm
 
         $kconfig = $this->getKConfig($clusterUuid);
 
-        $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_URL), [
+        $discovery = $this->getDiscovery();
+        $discoveredUrl = $discovery->socketPath === null
+            ? null
+            : NotificationsUrl::fromSocketPath($discovery->socketPath);
+        $confirmation = $discovery->getConfirmation($clusterUuid);
+        $assistanceAvailable = $confirmation !== null
+            && ! ($kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false)
+            && (
+                ! ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->locked ?? false)
+                || ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->value ?? '') === ''
+            )
+            && (
+                ! ($kconfig[KConfig::NOTIFICATIONS_PASSWORD]->locked ?? false)
+                || ($kconfig[KConfig::NOTIFICATIONS_PASSWORD]->value ?? '') === ''
+            );
+        $longUrlMessage = $this->translate(
+            'The socket URL is too long to save. Use a shorter path or a symlink accessible to the daemon.'
+        );
+        if ($assistanceAvailable) {
+            $assistanceDescription = sprintf($this->translate(
+                'Use "%s" and create a source for the process user "%s" when saving.'
+            ), $discoveredUrl, $discovery->serviceUser);
+        } elseif ($discoveredUrl !== null && strlen($discoveredUrl) > NotificationsUrl::MAX_UNIX_URL_LENGTH) {
+            $assistanceDescription = $longUrlMessage;
+        } else {
+            $assistanceDescription = $this->translate(
+                'Assistance requires writable Notifications settings and matching socket paths and process users'
+                . ' from live daemon instances.'
+            );
+        }
+
+        if ($this->getPopulatedValue('use_discovered_socket') === 'y') {
+            $submitted = $this->getPopulatedValue('discovery_confirmation');
+            $this->discoveryConfirmation = is_string($submitted) ? $submitted : '';
+        }
+
+        $previewMatches = $assistanceAvailable && $this->discoveryConfirmation === $confirmation;
+        $urlField = static::transformKeyForForm(KConfig::NOTIFICATIONS_URL);
+        if (! $previewMatches) {
+            $this->clearPopulatedValue('use_discovered_socket');
+            if ($this->discoveryConfirmation !== null) {
+                $this->clearPopulatedValue($urlField);
+            }
+        }
+
+        $this->clearPopulatedValue('discovery_confirmation');
+        $this->addElement('hidden', 'discovery_confirmation', ['value' => $confirmation, 'ignore' => true]);
+        $this->addElement('checkbox', 'use_discovered_socket', [
+            'label'       => $this->translate('Use discovered Unix socket'),
+            'class'       => 'autosubmit',
+            'disabled'    => ! $assistanceAvailable,
+            'ignore'      => true,
+            'description' => $assistanceDescription,
+        ]);
+
+        $this->addElement('text', $urlField, [
             'label'       => $this->translate('Icinga Notifications URL'),
             'disabled'    => $kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false,
+            'readonly'    => $previewMatches,
             'value'       => $kconfig[KConfig::NOTIFICATIONS_URL]->value ?? null,
             'placeholder' => 'http://localhost:5680',
             'description' => $this->translate(
-                'Use an HTTP(S) URL. Leave blank to turn off notifications.'
+                'Use an HTTP(S) URL or unix:///absolute/path. Leave blank to turn off notifications.'
                 . ' Restart Icinga for Kubernetes after saving changes.',
             ),
             'validators'  => [
-                'Callback' => function ($value, CallbackValidator $validator): bool {
+                'Callback' => function ($value, CallbackValidator $validator) use ($longUrlMessage): bool {
                     if (! NotificationsUrl::isValid($value)) {
-                        $validator->addMessage($this->translate(
-                            'Use an HTTP(S) URL with a host.',
+                        $validator->addMessage(NotificationsUrl::isUnix($value) ? $longUrlMessage : $this->translate(
+                            'Use an HTTP(S) URL with a host or a Unix URL with an absolute socket path.',
                         ));
 
                         return false;
@@ -271,5 +354,25 @@ class NotificationsConfigForm extends CompatForm
             'label'    => $this->translate('Save Changes'),
             'disabled' => $locked
         ]);
+
+        if ($previewMatches && ! $this->hasBeenSubmitted()) {
+            $this->populate([$urlField => $discoveredUrl]);
+        }
+
+        if ($this->discoveryConfirmation !== null && ! $previewMatches && ! $this->hasBeenSubmitted()) {
+            $this->prependHtml(new Callout(CalloutType::Warning, $this->translate(
+                'The discovered socket or process user changed, or the settings were locked. Confirm them again.'
+            )));
+        }
+    }
+
+    /**
+     * Get the available clusters for the selector
+     *
+     * @return array<string, string>
+     */
+    protected function getClusterOptions(): array
+    {
+        return iterator_to_array(ClusterForm::yieldClusters());
     }
 }
