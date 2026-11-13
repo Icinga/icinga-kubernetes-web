@@ -35,7 +35,7 @@ class PersistentVolumeClaim extends Model
 
     public function createRelations(Relations $relations): void
     {
-        $relations->belongsToOne('cluster', Cluster::class);
+        $relations->belongsTo('cluster', Cluster::class);
 
         $relations->hasMany('condition', PersistentVolumeClaimCondition::class);
 
