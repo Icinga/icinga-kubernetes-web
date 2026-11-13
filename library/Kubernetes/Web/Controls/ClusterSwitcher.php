@@ -9,18 +9,23 @@ use ipl\Html\Form;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\HtmlElement;
 use ipl\I18n\Translation;
+use ipl\Web\Common\FormUid;
 
 class ClusterSwitcher extends Form
 {
     use ClusterOptions;
+    use FormUid;
     use Translation;
 
     /** @var string URL parameter which stores the selected cluster */
     public const DEFAULT_CLUSTER_PARAM = 'cluster';
 
-    protected $defaultAttributes = ['class' => 'cluster-switcher'];
+    protected $defaultAttributes = [
+        'class' => 'cluster-switcher',
+        'name'  => 'cluster-switcher',
+    ];
 
-    protected $method = 'GET';
+    protected $method = 'POST';
 
     /** @var ?array<string, string> Clusters as UUID-label pairs, loaded on first use */
     protected ?array $clusters = null;
@@ -56,6 +61,8 @@ class ClusterSwitcher extends Form
 
     protected function assemble(): void
     {
+        // Distinguishes this form's submissions from those of other POST forms on the same page
+        $this->addElement($this->createUidElement());
         $this->addElement('select', static::DEFAULT_CLUSTER_PARAM, [
             'class'   => 'autosubmit',
             'label'   => $this->translate('Cluster'),
