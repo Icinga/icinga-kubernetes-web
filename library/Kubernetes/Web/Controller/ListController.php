@@ -16,6 +16,7 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
+use Icinga\Module\Kubernetes\Web\Controls\ClusterSwitcher;
 use Icinga\Module\Kubernetes\Web\Controls\ViewModeSwitcher;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\FavoriteToggle;
@@ -57,9 +58,12 @@ abstract class ListController extends Controller
     {
         $this->assertPermission($this->getPermission());
 
-        $clusterUuid = Session::getSession()
-            ->getNamespace('kubernetes')
-            ->get('cluster_uuid');
+        $clusterSwitcher = (new ClusterSwitcher())->populate([
+            ClusterSwitcher::DEFAULT_CLUSTER_PARAM => $this->params->shift(ClusterSwitcher::DEFAULT_CLUSTER_PARAM)
+                // Fall back to the cluster selected on the dashboard
+                ?? Session::getSession()->getNamespace('kubernetes')->get('cluster_uuid')
+        ]);
+        $clusterUuid = $clusterSwitcher->getClusterUuid();
 
         $title = $this->getTitle();
         if ($clusterUuid !== null) {
@@ -99,6 +103,7 @@ abstract class ListController extends Controller
         $searchBar = $this->createSearchBar($q, [
             $limitControl->getLimitParam(),
             $sortControl->getSortParam(),
+            ClusterSwitcher::DEFAULT_CLUSTER_PARAM,
             $viewModeSwitcher->getViewModeParam(),
             (isset($favoriteToggle) ? $favoriteToggle->getFavoriteParam() : ''),
             'columns',
@@ -129,6 +134,7 @@ abstract class ListController extends Controller
 
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
+        $this->addControl($clusterSwitcher);
         if (! $favoriteToggleActive) {
             $this->addControl($limitControl);
         }
@@ -184,7 +190,8 @@ abstract class ListController extends Controller
 
         $this->getDocument()->addHtml($this->createSearchEditor($this->getQuery(), [
             LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM
+            SortControl::DEFAULT_SORT_PARAM,
+            ClusterSwitcher::DEFAULT_CLUSTER_PARAM,
         ]));
     }
 
