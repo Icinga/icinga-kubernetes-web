@@ -4,57 +4,34 @@
 
 namespace Icinga\Module\Kubernetes\Controllers;
 
-use GuzzleHttp\Psr7\ServerRequest;
-use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Dashboard\ClusterManagementDashboard;
 use Icinga\Module\Kubernetes\Dashboard\ConfigurationDashboard;
 use Icinga\Module\Kubernetes\Dashboard\NetworkingDashboard;
 use Icinga\Module\Kubernetes\Dashboard\ObservabilityDashboard;
 use Icinga\Module\Kubernetes\Dashboard\StorageDashboard;
 use Icinga\Module\Kubernetes\Dashboard\WorkloadsDashboard;
-use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Web\Controller\Controller;
-use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
-use Icinga\Web\Session;
-use ipl\Html\Attributes;
 
 class DashboardController extends Controller
 {
     public function indexAction(): void
     {
         $this->addTitleTab($this->translate('Kubernetes'));
-        $this->controls->addAttributes(['class' => 'no-shadow']);
+        $this->controls->addAttributes(['class' => ['no-shadow', 'kubernetes-dashboard-controls']]);
 
-        $cluster = (new ClusterForm())
-            ->addAttributes(new Attributes(['class' => 'cluster-form']))
-            ->populate(
-                [
-                    'cluster_uuid' => Session::getSession()
-                        ->getNamespace('kubernetes')
-                        ->get('cluster_uuid', ClusterForm::ALL_CLUSTERS)
-                ]
-            )
-            ->on(ClusterForm::ON_SUCCESS, function (ClusterForm $form) {
-                $session = Session::getSession()
-                    ->getNamespace('kubernetes');
-                $clusterUuid = $form->getElement('cluster_uuid')->getValue();
-                if ($clusterUuid === ClusterForm::ALL_CLUSTERS) {
-                    $session->set('cluster_uuid', null);
-                } else {
-                    $session->set('cluster_uuid', $clusterUuid);
-                }
-            })
-            ->handleRequest(ServerRequest::fromGlobals());
+        $clusterSwitcher = $this->createClusterSwitcher();
+        if ($clusterSwitcher->hasMultipleClusters()) {
+            $this->addControl($clusterSwitcher);
+        }
 
-        $this->addContent($cluster);
-
+        $clusterUuid = $clusterSwitcher->getClusterUuid();
         $this->content->addHtml(
-            new ClusterManagementDashboard(),
-            new WorkloadsDashboard(),
-            new StorageDashboard(),
-            new NetworkingDashboard(),
-            new ConfigurationDashboard(),
-            new ObservabilityDashboard(),
+            new ClusterManagementDashboard($clusterUuid),
+            new WorkloadsDashboard($clusterUuid),
+            new StorageDashboard($clusterUuid),
+            new NetworkingDashboard($clusterUuid),
+            new ConfigurationDashboard($clusterUuid),
+            new ObservabilityDashboard($clusterUuid),
         );
     }
 }

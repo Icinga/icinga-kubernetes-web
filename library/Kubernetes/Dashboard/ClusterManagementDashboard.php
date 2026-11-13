@@ -19,7 +19,8 @@ class ClusterManagementDashboard extends Dashboard
                 $this->translate('Namespaces'),
                 $this->translate(
                     'Out of {total} total Namespaces, {Active} are Active, {Terminating} are Terminating.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             ),
             new IcingaStateDashlet(
                 'node',
@@ -27,7 +28,8 @@ class ClusterManagementDashboard extends Dashboard
                 $this->translate(
                     'Out of {total} total Nodes, {ok} are in OK state, {critical} are Critical, {warning} are 
                     in Warning state, and {unknown} are Unknown.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             )
         );
     }

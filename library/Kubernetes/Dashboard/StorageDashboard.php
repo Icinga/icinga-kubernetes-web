@@ -20,7 +20,8 @@ class StorageDashboard extends Dashboard
                 $this->translate(
                     'Out of {total} total Persistent Volumes, {Bound} are Bound, {Available} are Available,
                     {Pending} are Pending, {Released} are Released, and {Failed} are Failed.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             ),
             new KubernetesPhaseDashlet(
                 'persistentvolumeclaim',
@@ -28,7 +29,8 @@ class StorageDashboard extends Dashboard
                 $this->translate(
                     'Out of {total} total Persistent Volume Claims, {Bound} are Bound, {Pending} are Pending,
                     {Lost} are Lost.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             )
         );
     }
