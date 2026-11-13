@@ -19,7 +19,6 @@ use Icinga\Module\Kubernetes\Web\Widget\DetailState;
 use Icinga\Module\Kubernetes\Web\Widget\Environment\JobEnvironment;
 use Icinga\Module\Kubernetes\Web\Widget\IcingaStateReason\IcingaStateReason;
 use Icinga\Module\Kubernetes\Web\Widget\Labels;
-use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -111,10 +110,6 @@ class JobDetail extends BaseHtmlElement
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
             ));
-        }
-
-        if (Auth::getInstance()->canShowYaml()) {
-            $this->addHtml(new Yaml($this->job->yaml));
         }
     }
 }

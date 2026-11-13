@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\PodDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class PodController extends Controller
 {
-    public function indexAction(): void
+    protected Pod $pod;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_PODS);
 
-        $this->addTitleTab($this->translate('Pod'));
+        $this->createResourceTabs($this->translate('Pod'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class PodController extends Controller
 
         $this->addControl(new QuickActions($pod, $favorite));
 
-        $this->addContent(new PodDetail($pod));
+        $this->pod = $pod;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new PodDetail($this->pod));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->pod->yaml));
     }
 }

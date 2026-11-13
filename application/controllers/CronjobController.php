@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\CronJobDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class CronjobController extends Controller
 {
-    public function indexAction(): void
+    protected CronJob $cronJob;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_CRON_JOBS);
 
-        $this->addTitleTab($this->translate('Cron Job'));
+        $this->createResourceTabs($this->translate('Cron Job'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class CronjobController extends Controller
 
         $this->addControl(new QuickActions($cronJob, $favorite));
 
-        $this->addContent(new CronJobDetail($cronJob));
+        $this->cronJob = $cronJob;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new CronJobDetail($this->cronJob));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->cronJob->yaml));
     }
 }

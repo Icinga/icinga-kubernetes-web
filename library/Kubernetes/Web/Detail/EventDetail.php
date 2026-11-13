@@ -4,7 +4,6 @@
 
 namespace Icinga\Module\Kubernetes\Web\Detail;
 
-use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Factory;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Common\ViewMode;
@@ -12,7 +11,6 @@ use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\Details;
 use Icinga\Module\Kubernetes\Web\Widget\Note;
-use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -75,9 +73,5 @@ class EventDetail extends BaseHtmlElement
                     ->setCollapsible()
             )
         );
-
-        if (Auth::getInstance()->canShowYaml()) {
-            new Yaml($this->event->yaml);
-        }
     }
 }

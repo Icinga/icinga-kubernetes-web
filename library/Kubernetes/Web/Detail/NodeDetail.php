@@ -23,7 +23,6 @@ use Icinga\Module\Kubernetes\Web\Widget\Details;
 use Icinga\Module\Kubernetes\Web\Widget\DetailState;
 use Icinga\Module\Kubernetes\Web\Widget\IcingaStateReason\IcingaStateReason;
 use Icinga\Module\Kubernetes\Web\Widget\Labels;
-use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use Icinga\Util\Format;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlDocument;
@@ -124,10 +123,6 @@ class NodeDetail extends BaseHtmlElement
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
             ));
-        }
-
-        if (Auth::getInstance()->canShowYaml()) {
-            $this->addHtml(new Yaml($this->node->yaml));
         }
     }
 }

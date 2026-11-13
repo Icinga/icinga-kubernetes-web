@@ -4,9 +4,11 @@
 
 namespace Icinga\Module\Kubernetes\Web\Controller;
 
+use Icinga\Module\Kubernetes\Common\Auth;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatController;
 use ipl\Web\Filter\QueryString;
+use ipl\Web\Url;
 
 abstract class Controller extends CompatController
 {
@@ -40,6 +42,35 @@ abstract class Controller extends CompatController
         }
 
         parent::preDispatch();
+    }
+
+    /**
+     * Create the detail and, if permitted, YAML tabs of the current resource and activate the current action's tab
+     *
+     * @param string $title
+     *
+     * @return void
+     */
+    protected function createResourceTabs(string $title): void
+    {
+        $this->setTitle($title);
+
+        $path = 'kubernetes/' . $this->getRequest()->getControllerName();
+        $params = ['id' => $this->params->getRequired('id')];
+
+        $tabs = $this->getTabs()->add('index', [
+            'label' => $title,
+            'url'   => Url::fromPath($path, $params)
+        ]);
+
+        if (Auth::getInstance()->canShowYaml()) {
+            $tabs->add('yaml', [
+                'label' => $this->translate('YAML'),
+                'url'   => Url::fromPath("$path/yaml", $params)
+            ]);
+        }
+
+        $tabs->activate($this->getRequest()->getActionName());
     }
 
     /**

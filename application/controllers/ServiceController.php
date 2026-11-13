@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\ServiceDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class ServiceController extends Controller
 {
-    public function indexAction(): void
+    protected Service $service;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_SERVICES);
 
-        $this->addTitleTab($this->translate('Service'));
+        $this->createResourceTabs($this->translate('Service'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class ServiceController extends Controller
 
         $this->addControl(new QuickActions($service, $favorite));
 
-        $this->addContent(new ServiceDetail($service));
+        $this->service = $service;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new ServiceDetail($this->service));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->service->yaml));
     }
 }
