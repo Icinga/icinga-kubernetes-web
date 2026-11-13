@@ -4,7 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web\Controls;
 
-use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
+use Icinga\Module\Kubernetes\Common\ClusterOptions;
 use ipl\Html\Form;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\HtmlElement;
@@ -13,6 +13,7 @@ use Ramsey\Uuid\Uuid;
 
 class ClusterSwitcher extends Form
 {
+    use ClusterOptions;
     use Translation;
 
     /** @var string URL parameter which stores the selected cluster */
@@ -39,9 +40,9 @@ class ClusterSwitcher extends Form
         $this->addElement('select', static::DEFAULT_CLUSTER_PARAM, [
             'class'   => 'autosubmit',
             'label'   => $this->translate('Cluster'),
-            'options' => [ClusterForm::ALL_CLUSTERS => $this->translate('All clusters')]
-                + iterator_to_array(ClusterForm::yieldClusters()),
-            'value'   => $this->getClusterUuid() ?? ClusterForm::ALL_CLUSTERS
+            'options' => [static::ALL_CLUSTERS => $this->translate('All clusters')]
+                + static::fetchClusters(),
+            'value'   => $this->getClusterUuid() ?? static::ALL_CLUSTERS,
         ]);
 
         // Same markup as ipl's SortControl

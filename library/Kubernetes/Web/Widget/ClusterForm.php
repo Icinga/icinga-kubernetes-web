@@ -4,27 +4,12 @@
 
 namespace Icinga\Module\Kubernetes\Web\Widget;
 
-use Generator;
-use Icinga\Module\Kubernetes\Common\Database;
-use Icinga\Module\Kubernetes\Model\Cluster;
+use Icinga\Module\Kubernetes\Common\ClusterOptions;
 use ipl\Web\Compat\CompatForm;
-use Ramsey\Uuid\Uuid;
 
 class ClusterForm extends CompatForm
 {
-    public const ALL_CLUSTERS = '-';
-
-    public static function yieldClusters(): Generator
-    {
-        $clusters = Cluster::on(Database::connection())
-            ->columns(['uuid', 'name']);
-
-        foreach ($clusters as $cluster) {
-            $label = $cluster->name ?? (string) Uuid::fromBytes($cluster->uuid);
-
-            yield (string) Uuid::fromBytes($cluster->uuid) => $label;
-        }
-    }
+    use ClusterOptions;
 
     protected function assemble(): void
     {
@@ -37,7 +22,7 @@ class ClusterForm extends CompatForm
                 'label'    => $this->translate('Cluster'),
                 'options'  => [
                         static::ALL_CLUSTERS => $this->translate('All clusters'),
-                    ] + iterator_to_array(ClusterForm::yieldClusters()),
+                    ] + static::fetchClusters(),
             ],
         );
     }
