@@ -47,9 +47,9 @@ class StatefulSet extends Model
             ->belongsToMany('pod', Pod::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('uuid')
-            ->setTargetForeignKey('owner_uuid')
+            ->setTargetForeignKey('pod_uuid')
             ->setCandidateKey('uuid')
-            ->setForeignKey('pod_uuid');
+            ->setForeignKey('owner_uuid');
 
         $relations->hasMany('favorite', Favorite::class)
             ->setForeignKey('resource_uuid')
