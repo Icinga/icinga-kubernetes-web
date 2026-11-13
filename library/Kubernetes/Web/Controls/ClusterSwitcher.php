@@ -9,7 +9,6 @@ use ipl\Html\Form;
 use ipl\Html\FormDecorator\DivDecorator;
 use ipl\Html\HtmlElement;
 use ipl\I18n\Translation;
-use Ramsey\Uuid\Uuid;
 
 class ClusterSwitcher extends Form
 {
@@ -39,7 +38,8 @@ class ClusterSwitcher extends Form
     /**
      * Get the selected cluster UUID, or null for all clusters
      *
-     * The selection is ignored if there is nothing to choose from, as the switcher isn't shown then.
+     * The selection is ignored if there is nothing to choose from, as the switcher isn't shown then,
+     * or if it isn't a known cluster, e.g. a stale preference for a removed cluster.
      *
      * @return ?string
      */
@@ -51,7 +51,7 @@ class ClusterSwitcher extends Form
 
         $uuid = $this->getPopulatedValue(static::DEFAULT_CLUSTER_PARAM);
 
-        return is_string($uuid) && Uuid::isValid($uuid) ? $uuid : null;
+        return is_string($uuid) && isset($this->getClusters()[$uuid]) ? $uuid : null;
     }
 
     protected function assemble(): void
