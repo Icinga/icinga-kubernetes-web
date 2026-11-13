@@ -11,7 +11,6 @@ use Icinga\Exception\Json\JsonDecodeException;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
-use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
 use Icinga\Module\Kubernetes\Web\Controls\ClusterSwitcher;
 use Icinga\Module\Kubernetes\Web\Controls\ViewModeSwitcher;
@@ -55,19 +54,7 @@ abstract class ListController extends Controller
         $clusterSwitcher = $this->createClusterSwitcher();
         $clusterUuid = $clusterSwitcher->getClusterUuid();
 
-        $title = $this->getTitle();
-        if ($clusterUuid !== null) {
-            $clusterName = Cluster::on(Database::connection())
-                ->columns('name')
-                ->filter(Filter::equal('uuid', Uuid::fromString($clusterUuid)->getBytes()))
-                ->first()
-                ->name ?? $clusterUuid;
-
-            $title .= " ($clusterName)";
-        } else {
-            $title .= " ({$this->translate('All clusters')})";
-        }
-        $this->addTitleTab($title);
+        $this->addTitleTab($this->getClusterTitle($this->getTitle(), $clusterSwitcher));
 
         $q = Auth::getInstance()->withRestrictions($this->getPermission(), $this->getQuery());
 

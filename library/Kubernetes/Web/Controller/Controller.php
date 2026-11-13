@@ -96,6 +96,32 @@ abstract class Controller extends CompatController
     }
 
     /**
+     * Append the selected cluster's name to the given title
+     *
+     * "All clusters" is appended if no cluster is selected, unless there is only one cluster.
+     *
+     * @param string $title
+     * @param ClusterSwitcher $clusterSwitcher
+     *
+     * @return string
+     */
+    protected function getClusterTitle(string $title, ClusterSwitcher $clusterSwitcher): string
+    {
+        $clusterUuid = $clusterSwitcher->getClusterUuid();
+        if ($clusterUuid !== null) {
+            $clusterName = $clusterSwitcher->getClusters()[$clusterUuid] ?? $clusterUuid;
+
+            return "$title ($clusterName)";
+        }
+
+        if ($clusterSwitcher->hasMultipleClusters()) {
+            return "$title ({$this->translate('All clusters')})";
+        }
+
+        return $title;
+    }
+
+    /**
      * Merge the given values into the user's "kubernetes" preferences and persist them
      *
      * {@see PreferencesStore::save()} deletes every key of a section that isn't passed,

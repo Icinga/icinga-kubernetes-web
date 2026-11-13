@@ -82,7 +82,7 @@ class ClusterSwitcher extends Form
      *
      * @return array<string, string>
      */
-    protected function getClusters(): array
+    public function getClusters(): array
     {
         return $this->clusters ??= static::fetchClusters();
     }

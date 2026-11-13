@@ -16,10 +16,10 @@ class DashboardController extends Controller
 {
     public function indexAction(): void
     {
-        $this->addTitleTab($this->translate('Kubernetes'));
         $this->controls->addAttributes(['class' => ['no-shadow', 'kubernetes-dashboard-controls']]);
 
         $clusterSwitcher = $this->createClusterSwitcher();
+        $this->addTitleTab($this->getClusterTitle($this->translate('Kubernetes'), $clusterSwitcher));
         if ($clusterSwitcher->hasMultipleClusters()) {
             $this->addControl($clusterSwitcher);
         }
