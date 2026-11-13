@@ -44,8 +44,8 @@ class PersistentVolume extends Model
         $relations
             ->belongsToMany('pvc', PersistentVolumeClaim::class)
             ->through('persistent_volume_claim_ref')
-            ->setTargetCandidateKey('name')
-            ->setTargetForeignKey('name')
+            ->setTargetCandidateKey('uid')
+            ->setTargetForeignKey('uid')
             ->setCandidateKey('uuid')
             ->setForeignKey('persistent_volume_uuid');
 

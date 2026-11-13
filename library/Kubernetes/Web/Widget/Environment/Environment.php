@@ -151,6 +151,7 @@ class Environment extends BaseHtmlElement
 
             if ($list->count() === 3) {
                 $this->createSummary($node, $list, $forParents);
+
                 break;
             }
         }
