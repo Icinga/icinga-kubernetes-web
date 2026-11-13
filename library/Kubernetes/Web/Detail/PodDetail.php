@@ -7,12 +7,10 @@ namespace Icinga\Module\Kubernetes\Web\Detail;
 use DateInterval;
 use DateTime;
 use Icinga\Module\Kubernetes\Common\Auth;
-use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Container;
-use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\Annotations;
@@ -28,7 +26,6 @@ use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\Icon;
 
@@ -136,18 +133,6 @@ class PodDetail extends BaseHtmlElement
                     Auth::SHOW_PERSISTENT_VOLUME_CLAIMS,
                     $this->pod->pvc
                 )))
-                    ->setViewMode(ViewMode::Common)
-                    ->setCollapsible()
-            ));
-        }
-
-        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
-            $this->addHtml(new HtmlElement(
-                'section',
-                null,
-                new HtmlElement('h2', null, new Text('Events')),
-                (new ResourceList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->pod->uuid))))
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
             ));

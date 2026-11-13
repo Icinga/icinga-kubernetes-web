@@ -6,9 +6,7 @@ namespace Icinga\Module\Kubernetes\Web\Detail;
 
 use Icinga\Module\Kubernetes\Common\AccessModes;
 use Icinga\Module\Kubernetes\Common\Auth;
-use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
-use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\Annotations;
@@ -21,7 +19,6 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Stdlib\Filter;
 
 class PersistentVolumeDetail extends BaseHtmlElement
 {
@@ -77,18 +74,6 @@ class PersistentVolumeDetail extends BaseHtmlElement
                     Auth::SHOW_PERSISTENT_VOLUME_CLAIMS,
                     $this->persistentVolume->pvc
                 )))
-                    ->setViewMode(ViewMode::Common)
-                    ->setCollapsible()
-            ));
-        }
-
-        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
-            $this->addHtml(new HtmlElement(
-                'section',
-                null,
-                new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                (new ResourceList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->persistentVolume->uuid))))
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
             ));

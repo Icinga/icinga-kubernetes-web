@@ -4,12 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web\Detail;
 
-use Icinga\Module\Kubernetes\Common\Auth;
-use Icinga\Module\Kubernetes\Common\Database;
-use Icinga\Module\Kubernetes\Common\ViewMode;
-use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
-use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\Annotations;
 use Icinga\Module\Kubernetes\Web\Widget\Details;
 use Icinga\Module\Kubernetes\Web\Widget\Labels;
@@ -18,7 +13,6 @@ use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
 use ipl\I18n\Translation;
-use ipl\Stdlib\Filter;
 
 class NamespaceDetail extends BaseHtmlElement
 {
@@ -54,17 +48,5 @@ class NamespaceDetail extends BaseHtmlElement
             new Labels($this->namespace->label),
             new Annotations($this->namespace->annotation)
         );
-
-        if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
-            $this->addHtml(new HtmlElement(
-                'section',
-                null,
-                new HtmlElement('h2', null, new Text($this->translate('Events'))),
-                (new ResourceList(Event::on(Database::connection())
-                    ->filter(Filter::equal('reference_uuid', $this->namespace->uuid))))
-                    ->setViewMode(ViewMode::Common)
-                    ->setCollapsible()
-            ));
-        }
     }
 }
