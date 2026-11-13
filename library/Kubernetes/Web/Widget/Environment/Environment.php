@@ -149,7 +149,11 @@ class Environment extends BaseHtmlElement
                 )
             );
 
-            $this->createSummary($node, $list, $forParents);
+            if ($list->count() === 3) {
+                $this->createSummary($node, $list, $forParents);
+
+                break;
+            }
         }
 
         return $list;
