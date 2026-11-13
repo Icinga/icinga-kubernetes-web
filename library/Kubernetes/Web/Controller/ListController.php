@@ -137,7 +137,9 @@ abstract class ListController extends Controller
 
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
-        $this->addControl($clusterSwitcher);
+        if ($clusterSwitcher->hasMultipleClusters()) {
+            $this->addControl($clusterSwitcher);
+        }
         if (! $favoriteToggleActive) {
             $this->addControl($limitControl);
         }
