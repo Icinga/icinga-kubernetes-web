@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Web\Controller\Controller;
+use Icinga\Module\Kubernetes\Web\Controller\EventsTab;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\JobDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
@@ -19,6 +20,8 @@ use Ramsey\Uuid\Uuid;
 
 class JobController extends Controller
 {
+    use EventsTab;
+
     protected Job $job;
 
     public function init(): void

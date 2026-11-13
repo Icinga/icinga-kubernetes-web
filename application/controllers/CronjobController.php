@@ -10,6 +10,7 @@ use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\Favorite;
 use Icinga\Module\Kubernetes\Web\Controller\Controller;
+use Icinga\Module\Kubernetes\Web\Controller\EventsTab;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\CronJobDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
@@ -19,6 +20,8 @@ use Ramsey\Uuid\Uuid;
 
 class CronjobController extends Controller
 {
+    use EventsTab;
+
     protected CronJob $cronJob;
 
     public function init(): void
