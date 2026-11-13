@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\DaemonSetDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class DaemonsetController extends Controller
 {
-    public function indexAction(): void
+    protected DaemonSet $daemonSet;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_DAEMON_SETS);
 
-        $this->addTitleTab($this->translate('Daemon Set'));
+        $this->createResourceTabs($this->translate('Daemon Set'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class DaemonsetController extends Controller
 
         $this->addControl(new QuickActions($daemonSet, $favorite));
 
-        $this->addContent(new DaemonSetDetail($daemonSet));
+        $this->daemonSet = $daemonSet;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new DaemonSetDetail($this->daemonSet));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->daemonSet->yaml));
     }
 }

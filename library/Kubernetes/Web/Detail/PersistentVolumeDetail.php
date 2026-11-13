@@ -15,7 +15,6 @@ use Icinga\Module\Kubernetes\Web\Widget\Annotations;
 use Icinga\Module\Kubernetes\Web\Widget\Details;
 use Icinga\Module\Kubernetes\Web\Widget\Environment\PersistentVolumeEnvironment;
 use Icinga\Module\Kubernetes\Web\Widget\Labels;
-use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -93,10 +92,6 @@ class PersistentVolumeDetail extends BaseHtmlElement
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
             ));
-        }
-
-        if (Auth::getInstance()->canShowYaml()) {
-            $this->addHtml(new Yaml($this->persistentVolume->yaml));
         }
     }
 }

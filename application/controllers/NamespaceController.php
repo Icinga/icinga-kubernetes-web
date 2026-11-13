@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\NamespaceDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class NamespaceController extends Controller
 {
-    public function indexAction(): void
+    protected NamespaceModel $namespace;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_NAMESPACES);
 
-        $this->addTitleTab($this->translate('Namespace'));
+        $this->createResourceTabs($this->translate('Namespace'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class NamespaceController extends Controller
 
         $this->addControl(new QuickActions($namespace, $favorite));
 
-        $this->addContent(new NamespaceDetail($namespace));
+        $this->namespace = $namespace;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new NamespaceDetail($this->namespace));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->namespace->yaml));
     }
 }

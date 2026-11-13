@@ -13,7 +13,6 @@ use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\Annotations;
 use Icinga\Module\Kubernetes\Web\Widget\Details;
 use Icinga\Module\Kubernetes\Web\Widget\Labels;
-use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -66,10 +65,6 @@ class NamespaceDetail extends BaseHtmlElement
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
             ));
-        }
-
-        if (Auth::getInstance()->canShowYaml()) {
-            $this->addHtml(new Yaml($this->namespace->yaml));
         }
     }
 }

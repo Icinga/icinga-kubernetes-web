@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\NodeDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class NodeController extends Controller
 {
-    public function indexAction(): void
+    protected Node $node;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_NODES);
 
-        $this->addTitleTab($this->translate('Node'));
+        $this->createResourceTabs($this->translate('Node'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class NodeController extends Controller
 
         $this->addControl(new QuickActions($node, $favorite));
 
-        $this->addContent(new NodeDetail($node));
+        $this->node = $node;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new NodeDetail($this->node));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->node->yaml));
     }
 }

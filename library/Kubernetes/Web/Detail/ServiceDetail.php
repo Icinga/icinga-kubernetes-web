@@ -24,7 +24,6 @@ use Icinga\Module\Kubernetes\Web\Widget\IcingaStateReason\ServiceIcingaStateReas
 use Icinga\Module\Kubernetes\Web\Widget\Labels;
 use Icinga\Module\Kubernetes\Web\Widget\PortTable;
 use Icinga\Module\Kubernetes\Web\Widget\Selectors;
-use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -131,10 +130,6 @@ class ServiceDetail extends BaseHtmlElement
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
             ));
-        }
-
-        if (Auth::getInstance()->canShowYaml()) {
-            $this->addHtml(new Yaml($this->service->yaml));
         }
     }
 }

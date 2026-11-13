@@ -9,16 +9,19 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Detail\EventDetail;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class EventController extends Controller
 {
-    public function indexAction(): void
+    protected Event $event;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_EVENTS);
 
-        $this->addTitleTab($this->translate('Event'));
+        $this->createResourceTabs($this->translate('Event'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -32,6 +35,18 @@ class EventController extends Controller
             $this->httpNotFound($this->translate('Event not found'));
         }
 
-        $this->addContent(new EventDetail($event));
+        $this->event = $event;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new EventDetail($this->event));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->event->yaml));
     }
 }
