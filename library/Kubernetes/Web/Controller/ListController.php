@@ -24,7 +24,6 @@ use Icinga\Module\Kubernetes\Web\Widget\MoveFavoriteForm;
 use Icinga\User\Preferences;
 use Icinga\User\Preferences\PreferencesStore;
 use Icinga\Util\Json;
-use Icinga\Web\Session;
 use ipl\Orm\Query;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\SearchControls;
@@ -58,12 +57,16 @@ abstract class ListController extends Controller
     {
         $this->assertPermission($this->getPermission());
 
+        $preferredCluster = $this->Auth()->getUser()->getPreferences()->getValue('kubernetes', 'cluster');
+        $clusterParam = $this->params->shift(ClusterSwitcher::DEFAULT_CLUSTER_PARAM);
         $clusterSwitcher = (new ClusterSwitcher())->populate([
-            ClusterSwitcher::DEFAULT_CLUSTER_PARAM => $this->params->shift(ClusterSwitcher::DEFAULT_CLUSTER_PARAM)
-                // Fall back to the cluster selected on the dashboard
-                ?? Session::getSession()->getNamespace('kubernetes')->get('cluster_uuid')
+            ClusterSwitcher::DEFAULT_CLUSTER_PARAM => $clusterParam ?? $preferredCluster,
         ]);
         $clusterUuid = $clusterSwitcher->getClusterUuid();
+        if ($clusterParam !== null && $clusterUuid !== $preferredCluster) {
+            // null (all clusters) removes the preference
+            $this->saveKubernetesPreferences(['cluster' => $clusterUuid]);
+        }
 
         $title = $this->getTitle();
         if ($clusterUuid !== null) {
@@ -171,6 +174,40 @@ abstract class ListController extends Controller
             })->handleRequest($this->getServerRequest());
     }
 
+    /**
+     * Merge the given values into the user's "kubernetes" preferences and persist them
+     *
+     * {@see PreferencesStore::save()} deletes every key of a section that isn't passed,
+     * so the values are merged into the user's current preferences first. Null values remove the key.
+     *
+     * @param array<string, ?string> $values
+     *
+     * @return void
+     */
+    protected function saveKubernetesPreferences(array $values): void
+    {
+        $user = $this->Auth()->getUser();
+
+        try {
+            $preferencesStore = PreferencesStore::create(new ConfigObject([
+                'resource' => Config::app()->get('global', 'config_resource'),
+            ]), $user);
+            $preferences = $user->getPreferences()->toArray();
+            $preferences['kubernetes'] = array_filter(
+                array_merge($preferences['kubernetes'] ?? [], $values),
+                fn ($value) => $value !== null,
+            );
+            // save() diffs against the loaded state, so this is required to avoid duplicate inserts
+            $preferencesStore->load();
+            $preferencesStore->save(new Preferences(['kubernetes' => $preferences['kubernetes']]));
+
+            // Preferences are cached in the session user, keep them in sync
+            $user->setPreferences(new Preferences($preferences));
+        } catch (Exception $e) {
+            Logger::error('Failed to save preferences for user "%s": %s', $user->getUsername(), $e);
+        }
+    }
+
     abstract protected function getTitle(): string;
 
     abstract protected function getSortColumns(): array;
@@ -276,21 +313,7 @@ abstract class ListController extends Controller
                 $preferredModes[$requestUrl->getPath()] = $viewMode;
                 $user->setAdditional('kubernetes.view_modes', $preferredModes);
 
-                try {
-                    $preferencesStore = PreferencesStore::create(new ConfigObject([
-                        //TODO: Don't set store key as it will no longer be needed once we drop support for
-                        // lower version of icingaweb2 then v2.11.
-                        //https://github.com/Icinga/icingaweb2/pull/4765
-                        'store'    => Config::app()->get('global', 'config_backend', 'db'),
-                        'resource' => Config::app()->get('global', 'config_resource')
-                    ]), $user);
-                    $preferencesStore->load();
-                    $preferencesStore->save(
-                        new Preferences(['kubernetes' => ['view_modes' => Json::encode($preferredModes)]])
-                    );
-                } catch (Exception $e) {
-                    Logger::error('Failed to save preferred view mode for user "%s": %s', $user->getUsername(), $e);
-                }
+                $this->saveKubernetesPreferences(['view_modes' => Json::encode($preferredModes)]);
 
                 $pageParam = $paginationControl->getPageParam();
                 $limitParam = LimitControl::DEFAULT_LIMIT_PARAM;
