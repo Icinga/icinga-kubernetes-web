@@ -58,7 +58,11 @@ abstract class Controller extends CompatController
     }
 
     /**
-     * Create the detail and, if permitted, YAML tabs of the current resource and activate the current action's tab
+     * Create the detail and, if permitted, events and YAML tabs of the current resource
+     * and activate the current action's tab
+     *
+     * The events tab is only added if the controller implements `eventsAction()`. Actions without a tab of
+     * their own, e.g. search suggestions, leave all tabs inactive.
      *
      * @param string $title
      *
@@ -76,6 +80,13 @@ abstract class Controller extends CompatController
             'url'   => Url::fromPath($path, $params)
         ]);
 
+        if (method_exists($this, 'eventsAction') && Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {
+            $tabs->add('events', [
+                'label' => $this->translate('Events'),
+                'url'   => Url::fromPath("$path/events", $params)
+            ]);
+        }
+
         if (Auth::getInstance()->canShowYaml()) {
             $tabs->add('yaml', [
                 'label' => $this->translate('YAML'),
@@ -83,7 +94,10 @@ abstract class Controller extends CompatController
             ]);
         }
 
-        $tabs->activate($this->getRequest()->getActionName());
+        $action = $this->getRequest()->getActionName();
+        if ($tabs->get($action) !== null) {
+            $tabs->activate($action);
+        }
     }
 
     protected function getIgnoredViewModes(): array
