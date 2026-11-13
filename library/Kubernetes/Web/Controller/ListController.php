@@ -4,26 +4,20 @@
 
 namespace Icinga\Module\Kubernetes\Web\Controller;
 
-use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
-use Icinga\Application\Config;
 use Icinga\Application\Logger;
-use Icinga\Data\ConfigObject;
 use Icinga\Exception\Http\HttpMethodNotAllowedException;
 use Icinga\Exception\Json\JsonDecodeException;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
-use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\TBD\ObjectSuggestions;
+use Icinga\Module\Kubernetes\Web\Controls\ClusterSwitcher;
 use Icinga\Module\Kubernetes\Web\Controls\ViewModeSwitcher;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\FavoriteToggle;
 use Icinga\Module\Kubernetes\Web\Widget\MoveFavoriteForm;
-use Icinga\User\Preferences;
-use Icinga\User\Preferences\PreferencesStore;
 use Icinga\Util\Json;
-use Icinga\Web\Session;
 use ipl\Orm\Query;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\SearchControls;
@@ -57,23 +51,10 @@ abstract class ListController extends Controller
     {
         $this->assertPermission($this->getPermission());
 
-        $clusterUuid = Session::getSession()
-            ->getNamespace('kubernetes')
-            ->get('cluster_uuid');
+        $clusterSwitcher = $this->createClusterSwitcher();
+        $clusterUuid = $clusterSwitcher->getClusterUuid();
 
-        $title = $this->getTitle();
-        if ($clusterUuid !== null) {
-            $clusterName = Cluster::on(Database::connection())
-                ->columns('name')
-                ->filter(Filter::equal('uuid', Uuid::fromString($clusterUuid)->getBytes()))
-                ->first()
-                ->name ?? $clusterUuid;
-
-            $title .= " ($clusterName)";
-        } else {
-            $title .= " ({$this->translate('All clusters')})";
-        }
-        $this->addTitleTab($title);
+        $this->addTitleTab($this->getClusterTitle($this->getTitle(), $clusterSwitcher));
 
         $q = Auth::getInstance()->withRestrictions($this->getPermission(), $this->getQuery());
 
@@ -99,6 +80,7 @@ abstract class ListController extends Controller
         $searchBar = $this->createSearchBar($q, [
             $limitControl->getLimitParam(),
             $sortControl->getSortParam(),
+            ClusterSwitcher::DEFAULT_CLUSTER_PARAM,
             $viewModeSwitcher->getViewModeParam(),
             (isset($favoriteToggle) ? $favoriteToggle->getFavoriteParam() : ''),
             'columns',
@@ -129,6 +111,9 @@ abstract class ListController extends Controller
 
         $this->addControl($paginationControl);
         $this->addControl($sortControl);
+        if ($clusterSwitcher->hasMultipleClusters()) {
+            $this->addControl($clusterSwitcher);
+        }
         if (! $favoriteToggleActive) {
             $this->addControl($limitControl);
         }
@@ -184,7 +169,8 @@ abstract class ListController extends Controller
 
         $this->getDocument()->addHtml($this->createSearchEditor($this->getQuery(), [
             LimitControl::DEFAULT_LIMIT_PARAM,
-            SortControl::DEFAULT_SORT_PARAM
+            SortControl::DEFAULT_SORT_PARAM,
+            ClusterSwitcher::DEFAULT_CLUSTER_PARAM,
         ]));
     }
 
@@ -269,21 +255,7 @@ abstract class ListController extends Controller
                 $preferredModes[$requestUrl->getPath()] = $viewMode;
                 $user->setAdditional('kubernetes.view_modes', $preferredModes);
 
-                try {
-                    $preferencesStore = PreferencesStore::create(new ConfigObject([
-                        //TODO: Don't set store key as it will no longer be needed once we drop support for
-                        // lower version of icingaweb2 then v2.11.
-                        //https://github.com/Icinga/icingaweb2/pull/4765
-                        'store'    => Config::app()->get('global', 'config_backend', 'db'),
-                        'resource' => Config::app()->get('global', 'config_resource')
-                    ]), $user);
-                    $preferencesStore->load();
-                    $preferencesStore->save(
-                        new Preferences(['kubernetes' => ['view_modes' => Json::encode($preferredModes)]])
-                    );
-                } catch (Exception $e) {
-                    Logger::error('Failed to save preferred view mode for user "%s": %s', $user->getUsername(), $e);
-                }
+                $this->saveKubernetesPreferences(['view_modes' => Json::encode($preferredModes)]);
 
                 $pageParam = $paginationControl->getPageParam();
                 $limitParam = LimitControl::DEFAULT_LIMIT_PARAM;

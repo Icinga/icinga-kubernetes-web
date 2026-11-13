@@ -7,7 +7,6 @@ namespace Icinga\Module\Kubernetes\Dashboard;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Factory;
-use Icinga\Web\Session;
 use ipl\Sql\Expression;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
@@ -22,9 +21,8 @@ class IcingaStateDashlet extends Dashlet
                 Factory::createModel($this->kind)::on(Database::connection())
             );
 
-        $clusterUuid = Session::getSession()->getNamespace('kubernetes')->get('cluster_uuid');
-        if ($clusterUuid !== null) {
-            $q->filter(Filter::equal('cluster_uuid', Uuid::fromString($clusterUuid)->getBytes()));
+        if ($this->clusterUuid !== null) {
+            $q->filter(Filter::equal('cluster_uuid', Uuid::fromString($this->clusterUuid)->getBytes()));
         }
 
         $q->columns([
