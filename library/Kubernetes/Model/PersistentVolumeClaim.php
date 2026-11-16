@@ -44,8 +44,8 @@ class PersistentVolumeClaim extends Model
             ->through('persistent_volume_claim_ref')
             ->setTargetCandidateKey('uuid')
             ->setTargetForeignKey('persistent_volume_uuid')
-            ->setCandidateKey('name')
-            ->setForeignKey('name');
+            ->setCandidateKey('uid')
+            ->setForeignKey('uid');
 
         $relations
             ->hasMany('label', Label::class)
