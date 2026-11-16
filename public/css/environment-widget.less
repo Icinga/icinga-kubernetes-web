@@ -185,10 +185,10 @@
 
   .rounded-corners(.5em);
 
-  // Links to nodes drawn under another parent, by namespace-environment.js. Dashed to tell them from the tree, and
-  // behind the nodes so they don't cross them.
-  > svg.links {
+  // All edges, drawn by namespace-environment.js into one SVG behind the nodes, so they line up exactly.
+  > svg.edges {
     position: absolute;
+    z-index: 1;
     top: 0;
     left: 0;
     pointer-events: none;
@@ -196,13 +196,28 @@
     path {
       fill: none;
       stroke: @gray-light;
-      stroke-dasharray: 4 3;
+      // Snap all lines the same way, so lines on top of each other stay aligned.
+      shape-rendering: crispEdges;
     }
 
-    marker path, circle {
+    circle, path.arrowhead {
       fill: @gray-light;
       stroke: none;
     }
+
+    // Edges to the hovered node's neighbours.
+    path.highlight {
+      stroke: @icinga-blue;
+    }
+
+    circle.highlight, path.arrowhead.highlight {
+      fill: @icinga-blue;
+    }
+  }
+
+  // The hovered node and its direct neighbours.
+  li[data-node].highlight > .node {
+    outline: 1px solid @icinga-blue;
   }
 
   // Only the tree's own lists, not those inside nodes, e.g. the item count indicator of a summary.
@@ -219,67 +234,14 @@
     }
   }
 
-  // Edge from a parent to its children's vertical connector.
+  // Room for the edges: from a parent to its children's fork, and from the fork to each child. The fork is at the
+  // children's left edge, see namespace-environment.js.
   li > ul {
-    position: relative;
     margin-left: @edge;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: ~"calc(-1 * @{edge})";
-      width: @edge;
-      border-top: 1px solid @gray-light;
-    }
   }
 
-  // Vertical connector, trimmed at the first and last child, plus the edge to each child.
   li > ul > li {
-    position: relative;
     padding: 0.25em 0 0.25em @edge;
-
-    &::before, &::after {
-      content: "";
-      position: absolute;
-      left: 0;
-    }
-
-    &::before {
-      top: 50%;
-      width: @edge;
-      border-top: 1px solid @gray-light;
-    }
-
-    &::after {
-      top: 0;
-      bottom: 0;
-      border-left: 1px solid @gray-light;
-    }
-
-    &:first-child::after {
-      top: 50%;
-    }
-
-    &:last-child::after {
-      bottom: 50%;
-    }
-
-    &:only-child::after {
-      display: none;
-    }
-  }
-
-  // Arrowhead where an edge meets a child.
-  li > ul > li > a::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: -0.5em;
-    transform: translateY(-50%);
-    border-top: 0.3em solid transparent;
-    border-bottom: 0.3em solid transparent;
-    border-left: 0.5em solid @gray-light;
   }
 
   // Objects of a kind share a column. Top-level objects are indented to it, children further right than the next
@@ -288,10 +250,6 @@
 
   .skip(@columns) {
     padding-left: ~"calc(@{edge} + @{columns} * @{column})";
-
-    &::before {
-      width: ~"calc(@{edge} + @{columns} * @{column})";
-    }
   }
 
   // One rule per possible value, up to the 7 columns of NamespaceEnvironment::COLUMNS.
@@ -319,11 +277,6 @@
   .stem-skips(@i) when (@i > 0) {
     &[data-skip="@{i}"] {
       margin-left: ~"calc(@{edge} + @{i} * @{column})";
-
-      &::before {
-        left: ~"calc(-1 * (@{edge} + @{i} * @{column}))";
-        width: ~"calc(@{edge} + @{i} * @{column})";
-      }
     }
 
     .stem-skips(@i - 1);
@@ -378,7 +331,7 @@
 
   .node, .summary {
     position: relative;
-    z-index: 1; // Above svg.links.
+    z-index: 2; // Above svg.edges.
     display: flex;
     flex-shrink: 0;
     align-items: center;
