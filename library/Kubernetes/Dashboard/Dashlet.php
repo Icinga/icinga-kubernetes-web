@@ -26,7 +26,8 @@ class Dashlet extends BaseHtmlElement
         protected string $kind,
         protected string $title,
         string $summary,
-        protected ?string $url = null
+        protected ?string $url = null,
+        protected ?string $clusterUuid = null,
     ) {
         $this->url = $url !== null ? $url : Factory::createListUrl($kind);
         $this->summary = new FormatString($summary);

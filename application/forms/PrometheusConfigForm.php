@@ -4,16 +4,18 @@
 
 namespace Icinga\Module\Kubernetes\Forms;
 
+use Icinga\Module\Kubernetes\Common\ClusterOptions;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
-use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
 use ipl\Stdlib\Filter;
 use ipl\Web\Compat\CompatForm;
 use Ramsey\Uuid\Uuid;
 
 class PrometheusConfigForm extends CompatForm
 {
+    use ClusterOptions;
+
     public function getClusterUuid(): string
     {
         return $this->getPopulatedValue('cluster_uuid') ??
@@ -87,7 +89,7 @@ class PrometheusConfigForm extends CompatForm
                 'required' => true,
                 'class'    => 'autosubmit',
                 'label'    => $this->translate('Cluster'),
-                'options'  => iterator_to_array(ClusterForm::yieldClusters()),
+                'options'  => static::fetchClusters(),
                 'value'    => $clusterUuid,
                 'ignore'   => true
             ],

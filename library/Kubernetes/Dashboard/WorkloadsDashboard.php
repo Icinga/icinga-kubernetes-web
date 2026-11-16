@@ -25,7 +25,8 @@ class WorkloadsDashboard extends Dashboard
                 $this->translate(
                     'Out of {total} total Daemon Sets, {ok} are in OK state, {critical} are Critical,
                      {warning} are in Warning state, and {unknown} are Unknown.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             ),
             new IcingaStateDashlet(
                 'deployment',
@@ -33,7 +34,8 @@ class WorkloadsDashboard extends Dashboard
                 $this->translate(
                     'Out of {total} total Deployments, {ok} are in OK state, {critical} are Critical,
                      {warning} are in Warning state, and {unknown} are Unknown.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             ),
             new IcingaStateDashlet(
                 'job',
@@ -41,7 +43,8 @@ class WorkloadsDashboard extends Dashboard
                 $this->translate(
                     'Out of {total} total Jobs, {ok} are in OK state, {critical} are Critical, {warning} are in
                     Warning state, {unknown} are Unknown and {pending} are in Pending State.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             ),
             new IcingaStateDashlet(
                 'pod',
@@ -49,7 +52,8 @@ class WorkloadsDashboard extends Dashboard
                 $this->translate(
                     'Out of {total} total Pods, {ok} are in OK state, {critical} are Critical, {warning} are in
                     Warning state, {unknown} are Unknown, and {pending} are in Pending State.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             ),
             new IcingaStateDashlet(
                 'replicaset',
@@ -57,7 +61,8 @@ class WorkloadsDashboard extends Dashboard
                 $this->translate(
                     'Out of {total} total Replica Sets, {ok} are in OK state, {critical} are Critical,
                      {warning} are in Warning state, and {unknown} are Unknown.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             ),
             new IcingaStateDashlet(
                 'statefulset',
@@ -65,7 +70,8 @@ class WorkloadsDashboard extends Dashboard
                 $this->translate(
                     'Out of {total} total Stateful Sets, {ok} are in OK state, {critical} are Critical,
                     {warning} are in Warning state, and {unknown} are Unknown.'
-                )
+                ),
+                clusterUuid: $this->clusterUuid,
             )
         );
     }
