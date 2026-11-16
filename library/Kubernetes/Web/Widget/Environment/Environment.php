@@ -149,7 +149,13 @@ class Environment extends BaseHtmlElement
                 )
             );
 
-            $this->createSummary($node, $list, $forParents);
+            // Three nodes plus the summary give four entries, the most createSVGLines()
+            // has coordinates for.
+            if ($list->count() === 3) {
+                $this->createSummary($node, $list, $forParents);
+
+                break;
+            }
         }
 
         return $list;
@@ -403,32 +409,16 @@ class Environment extends BaseHtmlElement
             );
         }
 
-        if ($list->count() > 2) {
-            if ($forParents) {
-                $list->addHtml(
-                    new HtmlElement(
-                        'li',
-                        null,
-                        new Link(
-                            $summary,
-                            $url->setFilter($this->parentsFilter),
-                            Attributes::create(['class' => ['summary']])
-                        )
-                    )
-                );
-            } else {
-                $list->addHtml(
-                    new HtmlElement(
-                        'li',
-                        null,
-                        new Link(
-                            $summary,
-                            $url->setFilter($this->childrenFilter),
-                            Attributes::create(['class' => ['summary']])
-                        )
-                    )
-                );
-            }
-        }
+        $list->addHtml(
+            new HtmlElement(
+                'li',
+                null,
+                new Link(
+                    $summary,
+                    $url->setFilter($forParents ? $this->parentsFilter : $this->childrenFilter),
+                    Attributes::create(['class' => ['summary']])
+                )
+            )
+        );
     }
 }
