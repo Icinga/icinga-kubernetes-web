@@ -170,9 +170,12 @@
 }
 
 .namespace-environment {
-  @node-width: 16em;
+  // Nodes scale with the width of this container. cqw is relative to it, so it applies to descendants only.
+  @node-width: var(--node-width);
   @edge: 1.5em;
 
+  --node-width: 15cqw;
+  container-type: inline-size;
   overflow-x: auto;
   padding: 0.5em;
   border: 1px solid @gray-lighter;
@@ -258,28 +261,35 @@
 
   // Objects of a kind share a column. Top-level objects are indented to it, children further right than the next
   // column get a longer edge, e.g. a service's stateful set skips the deployment column.
-  @column: @node-width + 2 * @edge;
+  @column: ~"(var(--node-width) + 3em)"; // node + 2 * @edge
 
   .skip(@columns) {
-    padding-left: @edge + @columns * @column;
+    padding-left: ~"calc(@{edge} + @{columns} * @{column})";
 
     &::before {
-      width: @edge + @columns * @column;
+      width: ~"calc(@{edge} + @{columns} * @{column})";
     }
   }
 
+  // One rule per possible value, up to the 5 columns of NamespaceEnvironment::COLUMNS.
+  .skips(@i) when (@i > 0) {
+    &[data-skip="@{i}"] {
+      .skip(@i);
+    }
+
+    .skips(@i - 1);
+  }
+
+  .columns(@i) when (@i > 0) {
+    &[data-column="@{i}"] {
+      padding-left: ~"calc(@{i} * @{column})";
+    }
+
+    .columns(@i - 1);
+  }
+
   li > ul > li {
-    &[data-skip="1"] {
-      .skip(1);
-    }
-
-    &[data-skip="2"] {
-      .skip(2);
-    }
-
-    &[data-skip="3"] {
-      .skip(3);
-    }
+    .skips(3);
   }
 
   // Extra space between top-level trees, so it's clear where one ends.
@@ -288,21 +298,41 @@
   }
 
   > ul > li {
-    &[data-column="1"] {
-      padding-left: 1 * @column;
+    .columns(4);
+  }
+
+  // Labels above each group of top-level objects of the same kind, one per column the group uses, like the labels
+  // of .environment-widget.
+  .label-columns(@i) when (@i >= 0) {
+    > [data-column="@{i}"] {
+      left: ~"calc(@{i} * @{column})";
     }
 
-    &[data-column="2"] {
-      padding-left: 2 * @column;
+    .label-columns(@i - 1);
+  }
+
+  > ul > .group-label {
+    position: relative;
+    height: 1.5em;
+    margin-top: 0.75em;
+    margin-bottom: -0.5em; // Closer to its group than to the previous one.
+
+    color: @text-color-light;
+
+    &:first-child {
+      margin-top: 0;
     }
 
-    &[data-column="3"] {
-      padding-left: 3 * @column;
+    // Like .environment-widget .label, but centred over the whole node, as names here aren't centred.
+    > span {
+      position: absolute;
+      width: @node-width;
+      text-align: center;
+
+      .text-ellipsis();
     }
 
-    &[data-column="4"] {
-      padding-left: 4 * @column;
-    }
+    .label-columns(4);
   }
 
   .node, .summary {

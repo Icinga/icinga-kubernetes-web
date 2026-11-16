@@ -48,16 +48,21 @@ class NamespaceEnvironment implements ValidHtml
     /** @var int Children shown per parent, the rest collapse into a summary link */
     protected const LIMIT = 3;
 
-    /** @var array<string, int> Column of each kind, so objects of the same kind line up below each other */
+    /**
+     * @var array<string, int> Column of each kind, so objects of the same kind line up below each other
+     *
+     * Kinds with the same role share a column: top-level workloads, then the controllers they create, then pods.
+     * Stateful set and daemon set pods skip the controller column.
+     */
     protected const COLUMNS = [
         'ingress'     => 1,
         'service'     => 2,
         'deployment'  => 3,
         'cronjob'     => 3,
+        'statefulset' => 3,
+        'daemonset'   => 3,
         'replicaset'  => 4,
         'job'         => 4,
-        'statefulset' => 4,
-        'daemonset'   => 4,
         'pod'         => 5
     ];
 
@@ -67,9 +72,13 @@ class NamespaceEnvironment implements ValidHtml
     /** @var SplObjectStorage<HtmlElement, Model> Model of each node, for the summary of collapsed children */
     protected SplObjectStorage $models;
 
+    /** @var SplObjectStorage<HtmlElement, array<int, array<string, true>>> Kinds by column in each node's subtree */
+    protected SplObjectStorage $kinds;
+
     public function __construct(protected NamespaceModel $namespace)
     {
         $this->models = new SplObjectStorage();
+        $this->kinds = new SplObjectStorage();
     }
 
     public function render(): ValidHtml
@@ -220,7 +229,36 @@ class NamespaceEnvironment implements ValidHtml
             return new HtmlDocument();
         }
 
-        $tree = new HtmlElement('ul', null, ...$roots);
+        // Roots are ordered by kind. Group them by it and label every column a group uses, as kinds sharing a column
+        // can look alike.
+        $groups = [];
+        foreach ($roots as $root) {
+            $groups[Factory::getKindFromModel($this->models[$root])][] = $root;
+        }
+
+        $tree = new HtmlElement('ul');
+        foreach ($groups as $group) {
+            $kinds = [];
+            foreach ($group as $root) {
+                $kinds = array_replace_recursive($kinds, $this->kinds[$root]);
+            }
+
+            ksort($kinds);
+
+            $labels = new HtmlElement('li', Attributes::create(['class' => 'group-label']));
+            foreach ($kinds as $column => $kindsInColumn) {
+                $labels->addHtml(new HtmlElement(
+                    'span',
+                    Attributes::create(['data-column' => $column]),
+                    new Text(implode(', ', array_map(
+                        fn ($kind) => $this->translate(Factory::createTitle($kind)),
+                        array_keys($kindsInColumn)
+                    )))
+                ));
+            }
+
+            $tree->addHtml($labels, ...$group);
+        }
 
         return (new HtmlDocument())
             ->addHtml(
@@ -295,23 +333,20 @@ class NamespaceEnvironment implements ValidHtml
 
         $this->models[$li] = $model;
 
+        // Kinds in this subtree by column, for the group labels.
+        $kinds = [$column => [$kind => true]];
+        foreach ($children as $child) {
+            $kinds = array_replace_recursive($kinds, $this->kinds[$child]);
+        }
+
+        $this->kinds[$li] = $kinds;
+
         if (empty($children)) {
             return $li;
         }
 
         // Only children of a single kind can be summarized by a link to their list.
         $shown = $childKind === null ? $children : array_slice($children, 0, static::LIMIT);
-
-        // Children further right than the next column get a longer edge. A node can be drawn under several
-        // parents, e.g. a workload behind two services, so the attribute is set rather than added to.
-        foreach ($shown as $child) {
-            $skip = (int) $child->getAttributes()->get('data-column')->getValue() - $column - 1;
-            if ($skip > 0) {
-                $child->setAttribute('data-skip', $skip);
-            }
-        }
-
-        $list = new HtmlElement('ul', null, ...$shown);
 
         if (count($shown) < count($children)) {
             // Like the summary of the Environment widget: the state of all children if they have one, else their count.
@@ -323,9 +358,10 @@ class NamespaceEnvironment implements ValidHtml
                 }
             }
 
-            $list->addHtml(new HtmlElement(
+            // In the column of the children it summarizes.
+            $shown[] = new HtmlElement(
                 'li',
-                null,
+                Attributes::create(['data-column' => $this->columns[static::COLUMNS[$childKind]]]),
                 new Link(
                     new HorizontalKeyValue(
                         new KIcon($childKind),
@@ -339,10 +375,19 @@ class NamespaceEnvironment implements ValidHtml
                         'title'            => sprintf($this->translate('Show all %d'), count($children))
                     ])
                 )
-            ));
+            );
         }
 
-        return $li->addHtml($list);
+        // Children further right than the next column get a longer edge. A node can be drawn under several
+        // parents, e.g. a workload behind two services, so the attribute is set rather than added to.
+        foreach ($shown as $child) {
+            $skip = (int) $child->getAttributes()->get('data-column')->getValue() - $column - 1;
+            if ($skip > 0) {
+                $child->setAttribute('data-skip', $skip);
+            }
+        }
+
+        return $li->addHtml(new HtmlElement('ul', null, ...$shown));
     }
 
     /**
