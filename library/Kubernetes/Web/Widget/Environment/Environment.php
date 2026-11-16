@@ -409,32 +409,16 @@ class Environment extends BaseHtmlElement
             );
         }
 
-        if ($list->count() > 2) {
-            if ($forParents) {
-                $list->addHtml(
-                    new HtmlElement(
-                        'li',
-                        null,
-                        new Link(
-                            $summary,
-                            $url->setFilter($this->parentsFilter),
-                            Attributes::create(['class' => ['summary']])
-                        )
-                    )
-                );
-            } else {
-                $list->addHtml(
-                    new HtmlElement(
-                        'li',
-                        null,
-                        new Link(
-                            $summary,
-                            $url->setFilter($this->childrenFilter),
-                            Attributes::create(['class' => ['summary']])
-                        )
-                    )
-                );
-            }
-        }
+        $list->addHtml(
+            new HtmlElement(
+                'li',
+                null,
+                new Link(
+                    $summary,
+                    $url->setFilter($forParents ? $this->parentsFilter : $this->childrenFilter),
+                    Attributes::create(['class' => ['summary']])
+                )
+            )
+        );
     }
 }
