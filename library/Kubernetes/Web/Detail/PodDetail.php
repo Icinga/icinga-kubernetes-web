@@ -8,11 +8,13 @@ use DateInterval;
 use DateTime;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\Links;
 use Icinga\Module\Kubernetes\Common\Metrics;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Container;
 use Icinga\Module\Kubernetes\Model\Event;
+use Icinga\Module\Kubernetes\Model\Node;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\Annotations;
@@ -32,6 +34,7 @@ use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\Icon;
+use ipl\Web\Widget\Link;
 
 class PodDetail extends BaseHtmlElement
 {
@@ -79,12 +82,7 @@ class PodDetail extends BaseHtmlElement
             new Details(new ResourceDetails($this->pod, [
                 $this->translate('IP')                 => $this->pod->ip ??
                     new EmptyState($this->translate('None')),
-                $this->translate('Node')               => (new HtmlDocument())->addHtml(
-                    new Icon('share-nodes'),
-                    $this->pod->node_name ?
-                        new Text($this->pod->node_name) :
-                        new EmptyState($this->translate('None')),
-                ),
+                $this->translate('Node')               => $this->createNode(),
                 $this->translate('Container Restarts') => (new HtmlDocument())->addHtml(
                     new Icon('arrows-spin'),
                     new Text($containerRestarts)
@@ -157,5 +155,39 @@ class PodDetail extends BaseHtmlElement
         if (Auth::getInstance()->canShowYaml()) {
             $this->addHtml(new Yaml($this->pod->yaml));
         }
+    }
+
+    /**
+     * Create the node of the pod, linked to the node detail view if the user is permitted to see the node
+     *
+     * @return HtmlDocument|Link
+     */
+    protected function createNode(): HtmlDocument|Link
+    {
+        $content = (new HtmlDocument())->addHtml(
+            new Icon('share-nodes'),
+            $this->pod->node_name ?
+                new Text($this->pod->node_name) :
+                new EmptyState($this->translate('None')),
+        );
+
+        if (! $this->pod->node_name) {
+            return $content;
+        }
+
+        $node = Auth::getInstance()
+            ->withRestrictions(Auth::SHOW_NODES, Node::on(Database::connection()))
+            ->columns('uuid')
+            ->filter(Filter::all(
+                Filter::equal('cluster_uuid', $this->pod->cluster_uuid),
+                Filter::equal('name', $this->pod->node_name)
+            ))
+            ->first();
+
+        if ($node === null) {
+            return $content;
+        }
+
+        return new Link($content, Links::node($node), ['data-base-target' => '_next']);
     }
 }
