@@ -29,6 +29,7 @@ use ipl\Orm\Model;
 use ipl\Orm\Query;
 use ipl\Stdlib\Filter;
 use ipl\Web\Url;
+use ipl\Web\Widget\EmptyState;
 use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
 use Ramsey\Uuid\Uuid;
@@ -226,7 +227,7 @@ class NamespaceEnvironment implements ValidHtml
         );
 
         if (empty($roots)) {
-            return new HtmlDocument();
+            return new EmptyState($this->translate('No items found.'));
         }
 
         // Roots are ordered by kind. Group them by it and label every column a group uses, as kinds sharing a column
@@ -237,13 +238,22 @@ class NamespaceEnvironment implements ValidHtml
         }
 
         $tree = new HtmlElement('ul');
+        $labelled = [];
         foreach ($groups as $group) {
             $kinds = [];
             foreach ($group as $root) {
                 $kinds = array_replace_recursive($kinds, $this->kinds[$root]);
             }
 
+            // Fold the group into the one above if its labels already name all of the group's kinds.
+            if (array_replace_recursive($labelled, $kinds) == $labelled) {
+                $tree->addHtml(...$group);
+
+                continue;
+            }
+
             ksort($kinds);
+            $labelled = $kinds;
 
             $labels = new HtmlElement('li', Attributes::create(['class' => 'group-label']));
             foreach ($kinds as $column => $kindsInColumn) {
@@ -378,16 +388,27 @@ class NamespaceEnvironment implements ValidHtml
             );
         }
 
-        // Children further right than the next column get a longer edge. A node can be drawn under several
-        // parents, e.g. a workload behind two services, so the attribute is set rather than added to.
-        foreach ($shown as $child) {
-            $skip = (int) $child->getAttributes()->get('data-column')->getValue() - $column - 1;
-            if ($skip > 0) {
-                $child->setAttribute('data-skip', $skip);
+        // Children further right than the next column get a longer edge. The columns all children skip lengthen the
+        // stem, so the edge splits as late as possible, only the rest lengthens the edge to the child. A node can be
+        // drawn under several parents, e.g. a workload behind two services, so attributes are set, not added to.
+        $skips = [];
+        foreach ($shown as $i => $child) {
+            $skips[$i] = (int) $child->getAttributes()->get('data-column')->getValue() - $column - 1;
+        }
+
+        $stemSkip = min($skips);
+        foreach ($shown as $i => $child) {
+            if ($skips[$i] > $stemSkip) {
+                $child->setAttribute('data-skip', $skips[$i] - $stemSkip);
             }
         }
 
-        return $li->addHtml(new HtmlElement('ul', null, ...$shown));
+        $list = new HtmlElement('ul', null, ...$shown);
+        if ($stemSkip > 0) {
+            $list->setAttribute('data-skip', $stemSkip);
+        }
+
+        return $li->addHtml($list);
     }
 
     /**

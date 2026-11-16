@@ -292,6 +292,24 @@
     .skips(3);
   }
 
+  // Columns skipped by all children of a node lengthen the stem before the split instead.
+  .stem-skips(@i) when (@i > 0) {
+    &[data-skip="@{i}"] {
+      margin-left: ~"calc(@{edge} + @{i} * @{column})";
+
+      &::before {
+        left: ~"calc(-1 * (@{edge} + @{i} * @{column}))";
+        width: ~"calc(@{edge} + @{i} * @{column})";
+      }
+    }
+
+    .stem-skips(@i - 1);
+  }
+
+  li > ul {
+    .stem-skips(3);
+  }
+
   // Extra space between top-level trees, so it's clear where one ends.
   > ul {
     gap: 0.75em;

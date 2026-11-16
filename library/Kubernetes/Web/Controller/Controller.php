@@ -48,10 +48,11 @@ abstract class Controller extends CompatController
      * Create the detail and, if permitted, YAML tabs of the current resource and activate the current action's tab
      *
      * @param string $title
+     * @param array<string, string> $actions Labels of additional tabs between the detail and YAML tab, by action
      *
      * @return void
      */
-    protected function createResourceTabs(string $title): void
+    protected function createResourceTabs(string $title, array $actions = []): void
     {
         $this->setTitle($title);
 
@@ -62,6 +63,13 @@ abstract class Controller extends CompatController
             'label' => $title,
             'url'   => Url::fromPath($path, $params)
         ]);
+
+        foreach ($actions as $action => $label) {
+            $tabs->add($action, [
+                'label' => $label,
+                'url'   => Url::fromPath("$path/$action", $params)
+            ]);
+        }
 
         if (Auth::getInstance()->canShowYaml()) {
             $tabs->add('yaml', [
