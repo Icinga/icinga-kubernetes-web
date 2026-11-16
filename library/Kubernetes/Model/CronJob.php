@@ -48,7 +48,9 @@ class CronJob extends Model
 
         $relations
             ->belongsToMany('job', Job::class)
-            ->through('job_owner');
+            ->through('job_owner')
+            ->setTargetForeignKey('job_uuid')
+            ->setForeignKey('owner_uuid');
 
         $relations->hasMany('favorite', Favorite::class)
             ->setForeignKey('resource_uuid')
