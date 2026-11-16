@@ -8,6 +8,7 @@ use AppendIterator;
 use ArrayIterator;
 use Generator;
 use Icinga\Module\Kubernetes\Model\Cluster;
+use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
@@ -16,6 +17,7 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\Icon;
+use ipl\Web\Widget\Link;
 use IteratorAggregate;
 use Ramsey\Uuid\Uuid;
 use Traversable;
@@ -41,18 +43,39 @@ class ResourceDetails implements IteratorAggregate
             ->filter(Filter::equal('uuid', $this->resource->cluster_uuid))
             ->first()
             ?->name ?? (string) Uuid::fromBytes($this->resource->cluster_uuid);
+        $namespace = new HtmlElement(
+            'span',
+            new Attributes(['class' => 'namespace-badge']),
+            new KIcon('namespace'),
+            new Text($this->resource->namespace)
+        );
+
+        if ($this->resource->namespace) {
+            $namespaceModel = Auth::getInstance()
+                ->withRestrictions(Auth::SHOW_NAMESPACES, NamespaceModel::on(Database::connection()))
+                ->columns('uuid')
+                ->filter(Filter::all(
+                    Filter::equal('cluster_uuid', $this->resource->cluster_uuid),
+                    Filter::equal('name', $this->resource->namespace)
+                ))
+                ->first();
+
+            if ($namespaceModel !== null) {
+                $namespace = new Link(
+                    $namespace,
+                    Links::namespace($namespaceModel),
+                    ['data-base-target' => '_next']
+                );
+            }
+        }
+
         $iterator = new AppendIterator();
         $iterator->append(new ArrayIterator([
             $this->translate('Cluster')          => (new HtmlDocument())
                 ->addHtml(new Icon('circle-nodes'))
                 ->addHtml(new Text($clusterName)),
             $this->translate('Name')             => $this->resource->name,
-            $this->translate('Namespace')        => new HtmlElement(
-                'span',
-                new Attributes(['class' => 'namespace-badge']),
-                new KIcon('namespace'),
-                new Text($this->resource->namespace)
-            ),
+            $this->translate('Namespace')        => $namespace,
             $this->translate('UID')              => $this->resource->uid,
             $this->translate('Resource Version') => $this->resource->resource_version,
             $this->translate('Created')          => $this->resource->created->format('Y-m-d H:i:s')
