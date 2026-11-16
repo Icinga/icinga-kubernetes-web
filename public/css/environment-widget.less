@@ -169,6 +169,136 @@
   }
 }
 
+.namespace-environment {
+  @node-width: 16em;
+  @edge: 1.5em;
+
+  overflow-x: auto;
+  padding: 0.5em;
+  border: 1px solid @gray-lighter;
+
+  .rounded-corners(.5em);
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+  }
+
+  // Edge from a parent to its children's vertical connector.
+  li > ul {
+    position: relative;
+    margin-left: @edge;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: -@edge;
+      width: @edge;
+      border-top: 1px solid @gray-light;
+    }
+  }
+
+  // Vertical connector, trimmed at the first and last child, plus the edge to each child.
+  li > ul > li {
+    position: relative;
+    padding: 0.25em 0 0.25em @edge;
+
+    &::before, &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+
+    &::before {
+      top: 50%;
+      width: @edge;
+      border-top: 1px solid @gray-light;
+    }
+
+    &::after {
+      top: 0;
+      bottom: 0;
+      border-left: 1px solid @gray-light;
+    }
+
+    &:first-child::after {
+      top: 50%;
+    }
+
+    &:last-child::after {
+      bottom: 50%;
+    }
+
+    &:only-child::after {
+      display: none;
+    }
+  }
+
+  // Top-level objects are indented to their kind's column, e.g. a stateful set sits in the replica set column.
+  // Children always sit in the column right of their parent.
+  @column: @node-width + 2 * @edge;
+
+  > ul > li {
+    padding: 0.25em 0;
+
+    &.column-1 {
+      padding-left: 1 * @column;
+    }
+
+    &.column-2 {
+      padding-left: 2 * @column;
+    }
+
+    &.column-3 {
+      padding-left: 3 * @column;
+    }
+
+    &.column-4 {
+      padding-left: 4 * @column;
+    }
+  }
+
+  .node, .summary {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.5em;
+
+    height: 2.5em;
+    padding: 0.25em;
+
+    background-color: @gray-lighter;
+
+    .rounded-corners();
+
+    > .state-ball {
+      flex-shrink: 0;
+    }
+  }
+
+  .node {
+    width: @node-width;
+
+    .subject {
+      .text-ellipsis();
+    }
+  }
+
+  .node:hover, .summary:hover {
+    background-color: @gray-light;
+    text-decoration: none;
+  }
+}
+
 #layout {
   &.minimal-layout,
   &.poor-layout:not(.sidebar-collapsed),

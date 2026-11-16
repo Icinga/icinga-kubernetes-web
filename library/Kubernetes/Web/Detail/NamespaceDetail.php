@@ -12,6 +12,7 @@ use Icinga\Module\Kubernetes\Model\NamespaceModel;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\Annotations;
 use Icinga\Module\Kubernetes\Web\Widget\Details;
+use Icinga\Module\Kubernetes\Web\Widget\Environment\NamespaceEnvironment;
 use Icinga\Module\Kubernetes\Web\Widget\Labels;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -52,7 +53,8 @@ class NamespaceDetail extends BaseHtmlElement
                 )
             ]),
             new Labels($this->namespace->label),
-            new Annotations($this->namespace->annotation)
+            new Annotations($this->namespace->annotation),
+            new NamespaceEnvironment($this->namespace)
         );
 
         if (Auth::getInstance()->hasPermission(Auth::SHOW_EVENTS)) {

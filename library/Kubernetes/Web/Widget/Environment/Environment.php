@@ -162,7 +162,7 @@ class Environment extends BaseHtmlElement
      *
      * @return ValidHtml
      */
-    private function renderNode(Model $node): ValidHtml
+    public static function renderNode(Model $node): ValidHtml
     {
         $subject = new HtmlElement('span', Attributes::create(['class' => 'subject']));
 
