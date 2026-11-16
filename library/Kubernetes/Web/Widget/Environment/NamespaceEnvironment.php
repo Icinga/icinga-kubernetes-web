@@ -17,6 +17,7 @@ use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
+use Icinga\Module\Kubernetes\Web\Widget\ItemCountIndicator;
 use Icinga\Module\Kubernetes\Web\Widget\KIcon;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
@@ -28,15 +29,17 @@ use ipl\Orm\Model;
 use ipl\Orm\Query;
 use ipl\Stdlib\Filter;
 use ipl\Web\Url;
+use ipl\Web\Widget\HorizontalKeyValue;
 use ipl\Web\Widget\Link;
 use Ramsey\Uuid\Uuid;
+use SplObjectStorage;
 
 /**
  * Tree of all workloads in a namespace, from ingresses and services down to pods
  *
- * Edges follow owner references (Deployment → ReplicaSet → Pod, CronJob → Job → Pod, StatefulSet/DaemonSet → Pod)
- * and ingress backends (Ingress → Service). Service → Pod edges are omitted, as pods already appear under their
- * owner. Objects whose owner isn't shown become roots.
+ * Edges follow ingress backends (Ingress → Service), the workloads owning a service's pods (Service → Deployment etc.)
+ * and owner references (Deployment → ReplicaSet → Pod, CronJob → Job → Pod, StatefulSet/DaemonSet → Pod).
+ * Objects without a visible parent become roots.
  */
 class NamespaceEnvironment implements ValidHtml
 {
@@ -61,8 +64,12 @@ class NamespaceEnvironment implements ValidHtml
     /** @var array<int, int> Non-empty columns of {@see COLUMNS}, mapped to their position starting at 0 */
     protected array $columns = [];
 
+    /** @var SplObjectStorage<HtmlElement, Model> Model of each node, for the summary of collapsed children */
+    protected SplObjectStorage $models;
+
     public function __construct(protected NamespaceModel $namespace)
     {
+        $this->models = new SplObjectStorage();
     }
 
     public function render(): ValidHtml
@@ -92,8 +99,7 @@ class NamespaceEnvironment implements ValidHtml
             $services[$service->name] = $service;
         }
 
-        // Every fetched object is drawn, so a column is empty exactly if none of its kinds were fetched. Parent and
-        // child kinds sit in neighbouring columns that are both non-empty, so dropping empty columns keeps edges short.
+        // Every fetched object is drawn, so a column is empty exactly if none of its kinds were fetched.
         $columns = array_unique(array_intersect_key(static::COLUMNS, array_filter([
             'ingress'     => $ingresses,
             'service'     => $services,
@@ -108,6 +114,16 @@ class NamespaceEnvironment implements ValidHtml
         sort($columns);
         $this->columns = array_flip($columns);
 
+        // Owner of each pod, replica set and job, to find the workload a service's pods belong to.
+        $ownerOf = [];
+        foreach ([$pods, $replicaSets, $jobs] as $groups) {
+            foreach ($groups as $owner => $models) {
+                foreach ($models as $model) {
+                    $ownerOf[$model->uuid] = $owner;
+                }
+            }
+        }
+
         // By reference, so taken pods aren't drawn again as orphans. An arrow function would capture a copy.
         $podsOf = function (Model $owner) use (&$pods): HtmlElement {
             return $this->node(
@@ -118,33 +134,11 @@ class NamespaceEnvironment implements ValidHtml
             );
         };
 
-        $roots = [];
-        $exposed = [];
-
-        foreach ($ingresses as $ingress) {
-            $backends = [];
-            foreach ($ingress->backend_service as $backend) {
-                if (isset($services[$backend->service_name])) {
-                    $backends[$backend->service_name] = $services[$backend->service_name];
-                }
-            }
-
-            $roots[] = $this->node(
-                $ingress,
-                array_map(fn ($service) => $this->node($service), array_values($backends)),
-                'service',
-                Filter::equal('service.name', array_keys($backends))
-            );
-            $exposed += $backends;
-        }
-
-        // A service can back several ingresses, so it is drawn under each of them and only skipped as a root.
-        foreach (array_diff_key($services, $exposed) as $service) {
-            $roots[] = $this->node($service);
-        }
+        // Topmost visible object of each owner chain, keyed by binary uuid.
+        $workloads = [];
 
         foreach ($deployments as $deployment) {
-            $roots[] = $this->node(
+            $workloads[$deployment->uuid] = $this->node(
                 $deployment,
                 array_map($podsOf, static::take($replicaSets, $deployment->uuid)),
                 'replicaset',
@@ -152,16 +146,12 @@ class NamespaceEnvironment implements ValidHtml
             );
         }
 
-        foreach ($statefulSets as $statefulSet) {
-            $roots[] = $podsOf($statefulSet);
-        }
-
-        foreach ($daemonSets as $daemonSet) {
-            $roots[] = $podsOf($daemonSet);
+        foreach (array_merge($statefulSets, $daemonSets) as $owner) {
+            $workloads[$owner->uuid] = $podsOf($owner);
         }
 
         foreach ($cronJobs as $cronJob) {
-            $roots[] = $this->node(
+            $workloads[$cronJob->uuid] = $this->node(
                 $cronJob,
                 array_map($podsOf, static::take($jobs, $cronJob->uuid)),
                 'job',
@@ -171,12 +161,60 @@ class NamespaceEnvironment implements ValidHtml
 
         // Whatever is left has no visible owner.
         foreach (array_merge(...array_values($replicaSets), ...array_values($jobs)) as $orphan) {
-            $roots[] = $podsOf($orphan);
+            $workloads[$orphan->uuid] = $podsOf($orphan);
         }
 
         foreach (array_merge(...array_values($pods)) as $pod) {
-            $roots[] = $this->node($pod);
+            $workloads[$pod->uuid] = $this->node($pod);
         }
+
+        // A service links to the workloads its pods belong to rather than to the pods, which already sit under
+        // their owner. Workloads behind several services are drawn under each of them.
+        $serviceNodes = [];
+        $behindService = [];
+        foreach ($services as $name => $service) {
+            $backing = [];
+            foreach ($service->pod->columns(['uuid']) as $pod) {
+                $uuid = $pod->uuid;
+                while (! isset($workloads[$uuid]) && isset($ownerOf[$uuid])) {
+                    $uuid = $ownerOf[$uuid];
+                }
+
+                if (isset($workloads[$uuid])) {
+                    $backing[$uuid] = $workloads[$uuid];
+                }
+            }
+
+            $serviceNodes[$name] = $this->node($service, array_values($backing));
+            $behindService += $backing;
+        }
+
+        $roots = [];
+        $exposed = [];
+
+        foreach ($ingresses as $ingress) {
+            $backends = [];
+            foreach ($ingress->backend_service as $backend) {
+                if (isset($serviceNodes[$backend->service_name])) {
+                    $backends[$backend->service_name] = $serviceNodes[$backend->service_name];
+                }
+            }
+
+            $roots[] = $this->node(
+                $ingress,
+                array_values($backends),
+                'service',
+                Filter::equal('service.name', array_keys($backends))
+            );
+            $exposed += $backends;
+        }
+
+        // Like workloads, a service backing several ingresses is drawn under each of them and only skipped as a root.
+        array_push(
+            $roots,
+            ...array_values(array_diff_key($serviceNodes, $exposed)),
+            ...array_values(array_diff_key($workloads, $behindService))
+        );
 
         if (empty($roots)) {
             return new HtmlDocument();
@@ -243,10 +281,11 @@ class NamespaceEnvironment implements ValidHtml
         ?Filter\Rule $childFilter = null
     ): HtmlElement {
         $kind = Factory::getKindFromModel($model);
+        $column = $this->columns[static::COLUMNS[$kind]];
 
         $li = new HtmlElement(
             'li',
-            Attributes::create(['class' => 'column-' . $this->columns[static::COLUMNS[$kind]]]),
+            Attributes::create(['data-column' => $column]),
             new Link(
                 Environment::renderNode($model),
                 Factory::createDetailUrl($kind)->addParams(['id' => (string) Uuid::fromBytes($model->uuid)]),
@@ -254,21 +293,51 @@ class NamespaceEnvironment implements ValidHtml
             )
         );
 
+        $this->models[$li] = $model;
+
         if (empty($children)) {
             return $li;
         }
 
-        $list = new HtmlElement('ul', null, ...array_slice($children, 0, static::LIMIT));
+        // Only children of a single kind can be summarized by a link to their list.
+        $shown = $childKind === null ? $children : array_slice($children, 0, static::LIMIT);
 
-        if (count($children) > static::LIMIT) {
+        // Children further right than the next column get a longer edge. A node can be drawn under several
+        // parents, e.g. a workload behind two services, so the attribute is set rather than added to.
+        foreach ($shown as $child) {
+            $skip = (int) $child->getAttributes()->get('data-column')->getValue() - $column - 1;
+            if ($skip > 0) {
+                $child->setAttribute('data-skip', $skip);
+            }
+        }
+
+        $list = new HtmlElement('ul', null, ...$shown);
+
+        if (count($shown) < count($children)) {
+            // Like the summary of the Environment widget: the state of all children if they have one, else their count.
+            $states = new ItemCountIndicator();
+            foreach ($children as $child) {
+                $childModel = $this->models[$child];
+                if (isset($childModel->icinga_state)) {
+                    $states->addIndicator($childModel->icinga_state, 1);
+                }
+            }
+
             $list->addHtml(new HtmlElement(
                 'li',
                 null,
                 new Link(
-                    [new KIcon($childKind), new Text(sprintf('+%d', count($children) - static::LIMIT))],
+                    new HorizontalKeyValue(
+                        new KIcon($childKind),
+                        count($states) > 0 ? $states : new Text(count($children))
+                    ),
                     Url::fromPath('kubernetes/' . Factory::pluralizeKind($childKind))
                         ->setFilter(Filter::all(Filter::equal('namespace', $this->namespace->name), $childFilter)),
-                    Attributes::create(['class' => 'summary', 'data-base-target' => '_next'])
+                    Attributes::create([
+                        'class'            => 'summary',
+                        'data-base-target' => '_next',
+                        'title'            => sprintf($this->translate('Show all %d'), count($children))
+                    ])
                 )
             ));
         }
