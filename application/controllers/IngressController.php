@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\IngressDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class IngressController extends Controller
 {
-    public function indexAction(): void
+    protected Ingress $ingress;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_INGRESSES);
 
-        $this->addTitleTab($this->translate('Ingress'));
+        $this->createResourceTabs($this->translate('Ingress'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class IngressController extends Controller
 
         $this->addControl(new QuickActions($ingress, $favorite));
 
-        $this->addContent(new IngressDetail($ingress));
+        $this->ingress = $ingress;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new IngressDetail($this->ingress));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->ingress->yaml));
     }
 }

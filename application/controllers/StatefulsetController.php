@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\StatefulSetDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class StatefulsetController extends Controller
 {
-    public function indexAction(): void
+    protected StatefulSet $statefulSet;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_STATEFUL_SETS);
 
-        $this->addTitleTab($this->translate('Stateful Set'));
+        $this->createResourceTabs($this->translate('Stateful Set'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class StatefulsetController extends Controller
 
         $this->addControl(new QuickActions($statefulSet, $favorite));
 
-        $this->addContent(new StatefulSetDetail($statefulSet));
+        $this->statefulSet = $statefulSet;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new StatefulSetDetail($this->statefulSet));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->statefulSet->yaml));
     }
 }

@@ -30,6 +30,7 @@ class Auth
     public const SHOW_SECRETS = 'kubernetes/secrets/show';
     public const SHOW_SERVICES = 'kubernetes/services/show';
     public const SHOW_STATEFUL_SETS = 'kubernetes/stateful-sets/show';
+    public const SHOW_YAML = 'kubernetes/yaml/show';
 
     public const PERMISSIONS = [
         'configmap'             => self::SHOW_CONFIG_MAPS,
@@ -101,7 +102,7 @@ class Auth
      */
     public function canShowYaml(): bool
     {
-        return $this->auth->hasPermission('kubernetes/yaml/show');
+        return $this->auth->hasPermission(self::SHOW_YAML);
     }
 
     /**

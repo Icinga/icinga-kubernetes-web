@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\PersistentVolumeDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class PersistentvolumeController extends Controller
 {
-    public function indexAction(): void
+    protected PersistentVolume $persistentVolume;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_PERSISTENT_VOLUMES);
 
-        $this->addTitleTab($this->translate('Persistent Volume'));
+        $this->createResourceTabs($this->translate('Persistent Volume'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class PersistentvolumeController extends Controller
 
         $this->addControl(new QuickActions($persistentVolume, $favorite));
 
-        $this->addContent(new PersistentVolumeDetail($persistentVolume));
+        $this->persistentVolume = $persistentVolume;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new PersistentVolumeDetail($this->persistentVolume));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->persistentVolume->yaml));
     }
 }

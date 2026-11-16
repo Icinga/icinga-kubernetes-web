@@ -4,7 +4,6 @@
 
 namespace Icinga\Module\Kubernetes\Web\Detail;
 
-use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ResourceDetails;
 use Icinga\Module\Kubernetes\Model\Ingress;
@@ -17,7 +16,6 @@ use Icinga\Module\Kubernetes\Web\Widget\Details;
 use Icinga\Module\Kubernetes\Web\Widget\Environment\IngressEnvironment;
 use Icinga\Module\Kubernetes\Web\Widget\IngressRuleTable;
 use Icinga\Module\Kubernetes\Web\Widget\Labels;
-use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Html\BaseHtmlElement;
 use ipl\Stdlib\Filter;
 
@@ -71,10 +69,6 @@ class IngressDetail extends BaseHtmlElement
                     (new IngressTls())->getColumnDefinitions()
                 )
             );
-        }
-
-        if (Auth::getInstance()->canShowYaml()) {
-            $this->addHtml(new Yaml($this->ingress->yaml));
         }
     }
 }

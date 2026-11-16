@@ -4,7 +4,6 @@
 
 namespace Icinga\Module\Kubernetes\Web\Widget;
 
-use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
 use ipl\Html\Text;
@@ -29,8 +28,6 @@ class Yaml extends BaseHtmlElement
 
     protected function assemble(): void
     {
-        $this->addHtml(new HtmlElement('h2', null, new Text($this->translate('Yaml'))));
-
         if (! isset($this->yaml)) {
             $this->addHtml(new EmptyState($this->translate('No data to display.')));
 
@@ -41,13 +38,6 @@ class Yaml extends BaseHtmlElement
 
         CopyToClipboard::attachTo($yaml);
 
-        $this->addHtml(new HtmlElement(
-            'div',
-            new Attributes([
-                'class'               => 'collapsible',
-                'data-visible-height' => 100
-            ]),
-            $yaml
-        ));
+        $this->addHtml($yaml);
     }
 }

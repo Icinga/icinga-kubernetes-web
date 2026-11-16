@@ -284,7 +284,7 @@ $this->providePermission(
 );
 
 $this->providePermission(
-    'kubernetes/yaml/show',
+    Auth::SHOW_YAML,
     $this->translate('Allow to show yaml')
 );
 
