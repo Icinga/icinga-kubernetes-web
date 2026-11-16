@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Web\Controller;
 
+use GuzzleHttp\Psr7\ServerRequest;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\ViewMode;
@@ -59,6 +60,7 @@ trait EventsTab
         $searchBar = $this->createSearchBar($events, $preserveParams)
             ->setEditorUrl(Url::fromPath("$path-search-editor")->setParams($requestParams))
             ->setSuggestionUrl(Url::fromPath("$path-complete")->setParams(clone $requestParams));
+        $searchBar->handleRequest(ServerRequest::fromGlobals());
 
         if ($searchBar->hasBeenSent() && ! $searchBar->isValid()) {
             if ($searchBar->hasBeenSubmitted()) {
@@ -119,9 +121,23 @@ trait EventsTab
         $editor->setSuggestionUrl(
             Url::fromPath("$path-complete")->setParams(Url::fromRequest()->onlyWith($preserveParams)->getParams())
         );
+        $editor->handleRequest(ServerRequest::fromGlobals());
 
         $this->getDocument()->addHtml($editor);
         $this->setTitle($this->translate('Adjust Filter'));
+    }
+
+    /**
+     * Let the actions handle the request of search bars and editors themselves
+     *
+     * Overrides {@see SearchControls::callHandleRequest()}: Handling the request assembles the form,
+     * so the custom suggestion and editor URLs must be set before.
+     *
+     * @return bool
+     */
+    private function callHandleRequest(): bool
+    {
+        return false;
     }
 
     protected function getIgnoredViewModes(): array
