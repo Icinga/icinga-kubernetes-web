@@ -13,6 +13,7 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\IngressDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Environment\NamespaceEnvironment;
 use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
@@ -25,7 +26,7 @@ class IngressController extends Controller
     {
         $this->assertPermission(Auth::SHOW_INGRESSES);
 
-        $this->createResourceTabs($this->translate('Ingress'));
+        $this->createResourceTabs($this->translate('Ingress'), ['environment' => $this->translate('Environment')]);
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -62,6 +63,11 @@ class IngressController extends Controller
     public function indexAction(): void
     {
         $this->addContent(new IngressDetail($this->ingress));
+    }
+
+    public function environmentAction(): void
+    {
+        $this->addContent(NamespaceEnvironment::forObject($this->ingress));
     }
 
     public function yamlAction(): void

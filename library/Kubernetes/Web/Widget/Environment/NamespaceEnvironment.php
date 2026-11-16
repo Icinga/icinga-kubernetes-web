@@ -78,15 +78,58 @@ class NamespaceEnvironment implements ValidHtml
         'persistentvolume'      => 7
     ];
 
-    /** @var array<int, int> Non-empty columns of {@see COLUMNS}, mapped to their position starting at 0 */
+    /** @var array<int, int> Columns of {@see COLUMNS} with nodes drawn, mapped to their position starting at 0 */
     protected array $columns = [];
 
     /** @var SplObjectStorage<HtmlElement, Model> Model of each node, for the summary of collapsed children */
     protected SplObjectStorage $models;
 
-    public function __construct(protected NamespaceModel $namespace)
+    /**
+     * Create the tree of the given namespace
+     *
+     * @param NamespaceModel $namespace
+     * @param ?Model $focus Only show this object's context: its ancestors and descendants
+     */
+    public function __construct(protected NamespaceModel $namespace, protected ?Model $focus = null)
     {
         $this->models = new SplObjectStorage();
+    }
+
+    /**
+     * Create the tree of the given object's context: its ancestors and descendants
+     *
+     * @param Model $object
+     *
+     * @return ValidHtml
+     */
+    public static function forObject(Model $object): ValidHtml
+    {
+        $db = Database::connection();
+        $clusterUuid = (string) Uuid::fromBytes($object->cluster_uuid);
+
+        if ($object instanceof PersistentVolume) {
+            // Volumes aren't namespaced, but their claim is.
+            $namespace = PersistentVolumeClaim::on($db)
+                ->columns(['namespace'])
+                ->filter(Filter::all(
+                    Filter::equal('cluster_uuid', $clusterUuid),
+                    Filter::equal('volume_name', $object->name)
+                ))
+                ->first()
+                ?->namespace;
+        } else {
+            $namespace = $object->namespace;
+        }
+
+        $namespace = $namespace === null ? null : NamespaceModel::on($db)
+            ->filter(Filter::all(Filter::equal('cluster_uuid', $clusterUuid), Filter::equal('name', $namespace)))
+            ->first();
+
+        if ($namespace === null) {
+            return new EmptyState(t('No items found.'));
+        }
+
+        return new static($namespace, $object);
     }
 
     public function render(): ValidHtml
@@ -184,25 +227,6 @@ class NamespaceEnvironment implements ValidHtml
                 $claimsOf[$podPvc->pod_uuid][$podPvc->claim_name] = true;
             }
         }
-
-        // Every fetched object is drawn, so a column is empty exactly if none of its kinds were fetched.
-        $columns = array_unique(array_intersect_key(static::COLUMNS, array_filter([
-            'ingress'     => $ingresses,
-            'service'     => $services,
-            'deployment'  => $deployments,
-            'cronjob'     => $cronJobs,
-            'replicaset'  => $replicaSets,
-            'job'         => $jobs,
-            'statefulset' => $statefulSets,
-            'daemonset'   => $daemonSets,
-            'pod'         => $pods,
-            'persistentvolumeclaim' => $pvcs,
-            'configmap'             => $configMaps,
-            'secret'                => $secrets,
-            'persistentvolume'      => $pvs
-        ])));
-        sort($columns);
-        $this->columns = array_flip($columns);
 
         // Owner of each pod, replica set and job, to find the workload a service's pods belong to.
         $ownerOf = [];
@@ -359,6 +383,10 @@ class NamespaceEnvironment implements ValidHtml
             ...array_values(array_diff_key($secretNodes, $usedSecrets))
         );
 
+        if ($this->focus !== null) {
+            $roots = $this->focusOn($roots);
+        }
+
         if (empty($roots)) {
             return new EmptyState($this->translate('No items found.'));
         }
@@ -366,6 +394,18 @@ class NamespaceEnvironment implements ValidHtml
         $seen = [];
         foreach ($roots as $root) {
             $this->dedupe($root, $seen);
+        }
+
+        // Only columns with nodes drawn in them, e.g. no replica set column for a stateful set's context.
+        $drawn = [];
+        foreach ($roots as $root) {
+            $drawn += $this->drawnKinds($root);
+        }
+
+        ksort($drawn);
+        $this->columns = array_flip(array_keys($drawn));
+        foreach ($roots as $root) {
+            $this->place($root);
         }
 
         // Roots are ordered by kind. Group them by it and label every column a group uses, as kinds sharing a column
@@ -397,7 +437,7 @@ class NamespaceEnvironment implements ValidHtml
             foreach ($kinds as $column => $kindsInColumn) {
                 $labels->addHtml(new HtmlElement(
                     'span',
-                    Attributes::create(['data-column' => $column]),
+                    Attributes::create(['data-column' => $this->columns[$column]]),
                     new Text(implode(', ', array_map(
                         fn ($kind) => $this->translate(Factory::createTitle($kind)),
                         array_keys($kindsInColumn)
@@ -473,12 +513,12 @@ class NamespaceEnvironment implements ValidHtml
         ?Filter\Rule $childFilter = null
     ): HtmlElement {
         $kind = Factory::getKindFromModel($model);
-        $column = $this->columns[static::COLUMNS[$kind]];
 
         $li = new HtmlElement(
             'li',
-            // data-node identifies the node for links from other parents, see dedupe().
-            Attributes::create(['data-column' => $column, 'data-node' => bin2hex($model->uuid)]),
+            // data-node identifies the node for links from other parents, see dedupe(). data-column is the kind's
+            // column of COLUMNS until place().
+            Attributes::create(['data-column' => static::COLUMNS[$kind], 'data-node' => bin2hex($model->uuid)]),
             new Link(
                 Environment::renderNode($model),
                 Factory::createDetailUrl($kind)->addParams(['id' => (string) Uuid::fromBytes($model->uuid)]),
@@ -492,8 +532,9 @@ class NamespaceEnvironment implements ValidHtml
             return $li;
         }
 
-        // Only children of a single kind can be summarized by a link to their list.
-        $shown = $childKind === null ? $children : array_slice($children, 0, static::LIMIT);
+        // Only children of a single kind can be summarized by a link to their list. The context of an object is
+        // small enough to show all.
+        $shown = $childKind === null || $this->focus !== null ? $children : array_slice($children, 0, static::LIMIT);
 
         if (count($shown) < count($children)) {
             // Like the summary of the Environment widget: the state of all children if they have one, else their count.
@@ -508,7 +549,7 @@ class NamespaceEnvironment implements ValidHtml
             // In the column of the children it summarizes.
             $shown[] = new HtmlElement(
                 'li',
-                Attributes::create(['data-column' => $this->columns[static::COLUMNS[$childKind]]]),
+                Attributes::create(['data-column' => static::COLUMNS[$childKind]]),
                 new Link(
                     new HorizontalKeyValue(
                         new KIcon($childKind),
@@ -525,27 +566,133 @@ class NamespaceEnvironment implements ValidHtml
             );
         }
 
+        return $li->addHtml(new HtmlElement('ul', null, ...$shown));
+    }
+
+    /**
+     * Place the given node and its subtree in the columns drawn
+     *
+     * Only after {@see dedupe()}, as nodes are then in a single list, and with {@see $columns} set.
+     *
+     * @param HtmlElement $li
+     *
+     * @return void
+     */
+    protected function place(HtmlElement $li): void
+    {
+        $column = $this->columns[(int) $li->getAttributes()->get('data-column')->getValue()];
+        $li->setAttribute('data-column', $column);
+
+        $list = static::childList($li);
+        if ($list === null) {
+            return;
+        }
+
         // Children further right than the next column get a longer edge. The columns all children skip lengthen the
-        // stem, so the edge splits as late as possible, only the rest lengthens the edge to the child. A node can be
-        // drawn under several parents, e.g. a workload behind two services, so attributes are set, not added to.
+        // stem, so the edge splits as late as possible, only the rest lengthens the edge to the child.
         $skips = [];
-        foreach ($shown as $i => $child) {
+        foreach ($list->getContent() as $i => $child) {
+            $this->place($child);
             $skips[$i] = (int) $child->getAttributes()->get('data-column')->getValue() - $column - 1;
         }
 
         $stemSkip = min($skips);
-        foreach ($shown as $i => $child) {
+        foreach ($list->getContent() as $i => $child) {
             if ($skips[$i] > $stemSkip) {
                 $child->setAttribute('data-skip', $skips[$i] - $stemSkip);
             }
         }
 
-        $list = new HtmlElement('ul', null, ...$shown);
         if ($stemSkip > 0) {
             $list->setAttribute('data-skip', $stemSkip);
         }
+    }
 
-        return $li->addHtml($list);
+    /**
+     * Keep only the focused object, its ancestors and its descendants
+     *
+     * Siblings, e.g. other pods using the same secret, are dropped. Before {@see dedupe()}, as nodes with several
+     * parents are then in each of their lists, which tells their parents.
+     *
+     * @param HtmlElement[] $roots
+     *
+     * @return HtmlElement[] The new roots, the topmost ancestors
+     */
+    protected function focusOn(array $roots): array
+    {
+        $children = fn (HtmlElement $li) => array_filter(
+            static::childList($li)?->getContent() ?? [],
+            fn ($child) => isset($this->models[$child])
+        );
+
+        // All nodes in tree order, and the parents of each, by object id.
+        $nodes = [];
+        $parents = [];
+        $walk = function (HtmlElement $li) use (&$walk, &$nodes, &$parents, $children): void {
+            if (isset($nodes[spl_object_id($li)])) {
+                return;
+            }
+
+            $nodes[spl_object_id($li)] = $li;
+            foreach ($children($li) as $child) {
+                $parents[spl_object_id($child)][spl_object_id($li)] = $li;
+                $walk($child);
+            }
+        };
+        foreach ($roots as $root) {
+            $walk($root);
+        }
+
+        $focus = null;
+        foreach ($nodes as $li) {
+            if ($this->models[$li]->uuid === $this->focus->uuid) {
+                $focus = $li;
+
+                break;
+            }
+        }
+
+        if ($focus === null) {
+            return [];
+        }
+
+        $focus->getAttributes()->add('class', 'focus');
+
+        $keep = [spl_object_id($focus) => true];
+        $down = function (HtmlElement $li) use (&$down, &$keep, $children): void {
+            foreach ($children($li) as $child) {
+                $keep[spl_object_id($child)] = true;
+                $down($child);
+            }
+        };
+        $up = function (HtmlElement $li) use (&$up, &$keep, $parents): void {
+            foreach ($parents[spl_object_id($li)] ?? [] as $parent) {
+                $keep[spl_object_id($parent)] = true;
+                $up($parent);
+            }
+        };
+        $down($focus);
+        $up($focus);
+
+        // Drop everything else from the lists of the nodes kept.
+        foreach (array_intersect_key($nodes, $keep) as $li) {
+            $list = static::childList($li);
+            foreach ($children($li) as $child) {
+                if (! isset($keep[spl_object_id($child)])) {
+                    $list->remove($child);
+                }
+            }
+
+            if ($list !== null && empty($list->getContent())) {
+                $li->remove($list);
+            }
+        }
+
+        return array_values(array_filter(
+            array_intersect_key($nodes, $keep),
+            fn ($id) => empty(array_intersect_key($parents[$id] ?? [], $keep)),
+            ARRAY_FILTER_USE_KEY
+        ));
     }
 
     /**
@@ -594,7 +741,7 @@ class NamespaceEnvironment implements ValidHtml
     }
 
     /**
-     * Get the kinds drawn in the given node's subtree by column, for the group labels
+     * Get the kinds drawn in the given node's subtree by their column of {@see COLUMNS}, for columns and labels
      *
      * Only after {@see dedupe()}, as nodes drawn elsewhere don't count.
      *
@@ -605,7 +752,7 @@ class NamespaceEnvironment implements ValidHtml
     protected function drawnKinds(HtmlElement $li): array
     {
         $kind = Factory::getKindFromModel($this->models[$li]);
-        $kinds = [$this->columns[static::COLUMNS[$kind]] => [$kind => true]];
+        $kinds = [static::COLUMNS[$kind] => [$kind => true]];
 
         foreach (static::childList($li)?->getContent() ?? [] as $child) {
             if (isset($this->models[$child])) {

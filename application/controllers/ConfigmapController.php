@@ -9,16 +9,23 @@ use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\ConfigMap;
 use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Detail\ConfigMapDetail;
+use Icinga\Module\Kubernetes\Web\Widget\Environment\NamespaceEnvironment;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class ConfigmapController extends Controller
 {
-    public function indexAction(): void
+    protected ConfigMap $configMap;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_CONFIG_MAPS);
 
-        $this->addTitleTab('Config Map');
+        $this->createResourceTabs(
+            $this->translate('Config Map'),
+            ['environment' => $this->translate('Environment')],
+            false
+        );
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -32,6 +39,16 @@ class ConfigmapController extends Controller
             $this->httpNotFound($this->translate('Config Map not found'));
         }
 
-        $this->addContent(new ConfigMapDetail($configMap));
+        $this->configMap = $configMap;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new ConfigMapDetail($this->configMap));
+    }
+
+    public function environmentAction(): void
+    {
+        $this->addContent(NamespaceEnvironment::forObject($this->configMap));
     }
 }

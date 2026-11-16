@@ -220,6 +220,12 @@
     outline: 1px solid @icinga-blue;
   }
 
+  // The object whose context is shown, like .self of .environment-widget.
+  li[data-node].focus > .node {
+    outline: .25em solid @icinga-blue;
+    outline-offset: 1px;
+  }
+
   // Only the tree's own lists, not those inside nodes, e.g. the item count indicator of a summary.
   > ul, li > ul {
     display: flex;

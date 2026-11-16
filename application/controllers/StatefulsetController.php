@@ -13,6 +13,7 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\StatefulSetDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Environment\NamespaceEnvironment;
 use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
@@ -25,7 +26,7 @@ class StatefulsetController extends Controller
     {
         $this->assertPermission(Auth::SHOW_STATEFUL_SETS);
 
-        $this->createResourceTabs($this->translate('Stateful Set'));
+        $this->createResourceTabs($this->translate('Stateful Set'), ['environment' => $this->translate('Environment')]);
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -62,6 +63,11 @@ class StatefulsetController extends Controller
     public function indexAction(): void
     {
         $this->addContent(new StatefulSetDetail($this->statefulSet));
+    }
+
+    public function environmentAction(): void
+    {
+        $this->addContent(NamespaceEnvironment::forObject($this->statefulSet));
     }
 
     public function yamlAction(): void

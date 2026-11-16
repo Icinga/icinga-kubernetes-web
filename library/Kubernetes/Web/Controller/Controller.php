@@ -49,10 +49,11 @@ abstract class Controller extends CompatController
      *
      * @param string $title
      * @param array<string, string> $actions Labels of additional tabs between the detail and YAML tab, by action
+     * @param bool $yaml Whether the resource has YAML, which config maps and secrets don't
      *
      * @return void
      */
-    protected function createResourceTabs(string $title, array $actions = []): void
+    protected function createResourceTabs(string $title, array $actions = [], bool $yaml = true): void
     {
         $this->setTitle($title);
 
@@ -71,7 +72,7 @@ abstract class Controller extends CompatController
             ]);
         }
 
-        if (Auth::getInstance()->canShowYaml()) {
+        if ($yaml && Auth::getInstance()->canShowYaml()) {
             $tabs->add('yaml', [
                 'label' => $this->translate('YAML'),
                 'url'   => Url::fromPath("$path/yaml", $params)

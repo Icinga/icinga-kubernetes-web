@@ -13,6 +13,7 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\DeploymentDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Environment\NamespaceEnvironment;
 use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
@@ -25,7 +26,7 @@ class DeploymentController extends Controller
     {
         $this->assertPermission(Auth::SHOW_DEPLOYMENTS);
 
-        $this->createResourceTabs($this->translate('Deployment'));
+        $this->createResourceTabs($this->translate('Deployment'), ['environment' => $this->translate('Environment')]);
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -62,6 +63,11 @@ class DeploymentController extends Controller
     public function indexAction(): void
     {
         $this->addContent(new DeploymentDetail($this->deployment));
+    }
+
+    public function environmentAction(): void
+    {
+        $this->addContent(NamespaceEnvironment::forObject($this->deployment));
     }
 
     public function yamlAction(): void
