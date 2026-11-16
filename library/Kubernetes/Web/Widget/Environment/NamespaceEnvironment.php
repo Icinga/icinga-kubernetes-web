@@ -7,14 +7,20 @@ namespace Icinga\Module\Kubernetes\Web\Widget\Environment;
 use Icinga\Module\Kubernetes\Common\Auth;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\Factory;
+use Icinga\Module\Kubernetes\Model\ConfigMap;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\Deployment;
 use Icinga\Module\Kubernetes\Model\Ingress;
 use Icinga\Module\Kubernetes\Model\Job;
 use Icinga\Module\Kubernetes\Model\NamespaceModel;
+use Icinga\Module\Kubernetes\Model\PersistentVolume;
+use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\Pod;
+use Icinga\Module\Kubernetes\Model\PodPvc;
+use Icinga\Module\Kubernetes\Model\PodVolume;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
+use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Web\Widget\ItemCountIndicator;
@@ -64,7 +70,12 @@ class NamespaceEnvironment implements ValidHtml
         'daemonset'   => 3,
         'replicaset'  => 4,
         'job'         => 4,
-        'pod'         => 5
+        'pod'         => 5,
+        // What pods use: claims, which are bound to volumes, config maps and secrets.
+        'persistentvolumeclaim' => 6,
+        'configmap'             => 6,
+        'secret'                => 6,
+        'persistentvolume'      => 7
     ];
 
     /** @var array<int, int> Non-empty columns of {@see COLUMNS}, mapped to their position starting at 0 */
@@ -73,13 +84,9 @@ class NamespaceEnvironment implements ValidHtml
     /** @var SplObjectStorage<HtmlElement, Model> Model of each node, for the summary of collapsed children */
     protected SplObjectStorage $models;
 
-    /** @var SplObjectStorage<HtmlElement, array<int, array<string, true>>> Kinds by column in each node's subtree */
-    protected SplObjectStorage $kinds;
-
     public function __construct(protected NamespaceModel $namespace)
     {
         $this->models = new SplObjectStorage();
-        $this->kinds = new SplObjectStorage();
     }
 
     public function render(): ValidHtml
@@ -109,6 +116,75 @@ class NamespaceEnvironment implements ValidHtml
             $services[$service->name] = $service;
         }
 
+        $pvcs = [];
+        $pvcList = $this->fetch(Auth::SHOW_PERSISTENT_VOLUME_CLAIMS, PersistentVolumeClaim::class, ['volume_name']);
+        foreach ($pvcList as $pvc) {
+            $pvcs[$pvc->name] = $pvc;
+        }
+
+        // Volumes aren't namespaced, so only those bound to a claim of this namespace.
+        $pvs = [];
+        $volumeNames = array_filter(array_map(fn ($pvc) => $pvc->volume_name, $pvcs));
+        if (! empty($volumeNames)) {
+            $pvList = $this->fetch(
+                Auth::SHOW_PERSISTENT_VOLUMES,
+                PersistentVolume::class,
+                filter: Filter::all(
+                    Filter::equal('cluster_uuid', (string) Uuid::fromBytes($this->namespace->cluster_uuid)),
+                    Filter::equal('name', array_values($volumeNames))
+                )
+            );
+            foreach ($pvList as $pv) {
+                $pvs[$pv->name] = $pv;
+            }
+        }
+
+        $configMaps = [];
+        foreach ($this->fetch(Auth::SHOW_CONFIG_MAPS, ConfigMap::class) as $configMap) {
+            $configMaps[$configMap->name] = $configMap;
+        }
+
+        $secrets = [];
+        foreach ($this->fetch(Auth::SHOW_SECRETS, Secret::class) as $secret) {
+            $secrets[$secret->name] = $secret;
+        }
+
+        // Config maps and secrets each pod mounts or reads environment variables from, by binary pod uuid and kind.
+        $mountsOf = [];
+        if (! empty($configMaps) || ! empty($secrets)) {
+            // Environment variable references are only stored in the pod's YAML.
+            foreach ($this->fetch(Auth::SHOW_PODS, Pod::class, ['yaml']) as $pod) {
+                foreach (static::referencedConfig($pod->yaml ?? '') as [$kind, $name]) {
+                    $mountsOf[$pod->uuid][$kind][$name] = true;
+                }
+            }
+
+            $volumes = PodVolume::on(Database::connection())
+                ->columns(['pod_uuid', 'volume_name', 'type', 'source'])
+                ->filter(Filter::all(
+                    Filter::equal('pod.namespace', $this->namespace->name),
+                    Filter::equal('type', ['ConfigMap', 'Secret', 'Projected']),
+                    // Injected into almost every pod for the service account token and the cluster's CA.
+                    Filter::unlike('volume_name', 'kube-api-access-*')
+                ));
+            foreach ($volumes as $volume) {
+                foreach (static::mountedConfig($volume->type, $volume->source) as [$kind, $name]) {
+                    $mountsOf[$volume->pod_uuid][$kind][$name] = true;
+                }
+            }
+        }
+
+        // Claims used by each pod, by binary pod uuid.
+        $claimsOf = [];
+        if (! empty($pvcs)) {
+            $podPvcs = PodPvc::on(Database::connection())
+                ->columns(['pod_uuid', 'claim_name'])
+                ->filter(Filter::equal('pod.namespace', $this->namespace->name));
+            foreach ($podPvcs as $podPvc) {
+                $claimsOf[$podPvc->pod_uuid][$podPvc->claim_name] = true;
+            }
+        }
+
         // Every fetched object is drawn, so a column is empty exactly if none of its kinds were fetched.
         $columns = array_unique(array_intersect_key(static::COLUMNS, array_filter([
             'ingress'     => $ingresses,
@@ -119,7 +195,11 @@ class NamespaceEnvironment implements ValidHtml
             'job'         => $jobs,
             'statefulset' => $statefulSets,
             'daemonset'   => $daemonSets,
-            'pod'         => $pods
+            'pod'         => $pods,
+            'persistentvolumeclaim' => $pvcs,
+            'configmap'             => $configMaps,
+            'secret'                => $secrets,
+            'persistentvolume'      => $pvs
         ])));
         sort($columns);
         $this->columns = array_flip($columns);
@@ -134,11 +214,48 @@ class NamespaceEnvironment implements ValidHtml
             }
         }
 
+        // Claims with their volume, by name. A claim used by several pods is drawn under each of them.
+        $pvcNodes = [];
+        foreach ($pvcs as $name => $pvc) {
+            // Unbound claims have no volume name.
+            $pv = $pvc->volume_name === null ? null : $pvs[$pvc->volume_name] ?? null;
+            $pvcNodes[$name] = $this->node($pvc, $pv === null ? [] : [$this->node($pv)]);
+        }
+
+        $configMapNodes = array_map(fn ($configMap) => $this->node($configMap), $configMaps);
+        $secretNodes = array_map(fn ($secret) => $this->node($secret), $secrets);
+
+        $usedPvcs = [];
+        $usedConfigMaps = [];
+        $usedSecrets = [];
+        $podNode = function (Model $pod) use (
+            $claimsOf,
+            $mountsOf,
+            $pvcNodes,
+            $configMapNodes,
+            $secretNodes,
+            &$usedPvcs,
+            &$usedConfigMaps,
+            &$usedSecrets
+        ): HtmlElement {
+            $claims = array_intersect_key($pvcNodes, $claimsOf[$pod->uuid] ?? []);
+            $mountedConfigMaps = array_intersect_key($configMapNodes, $mountsOf[$pod->uuid]['configmap'] ?? []);
+            $mountedSecrets = array_intersect_key($secretNodes, $mountsOf[$pod->uuid]['secret'] ?? []);
+            $usedPvcs += $claims;
+            $usedConfigMaps += $mountedConfigMaps;
+            $usedSecrets += $mountedSecrets;
+
+            return $this->node(
+                $pod,
+                array_merge(array_values($claims), array_values($mountedConfigMaps), array_values($mountedSecrets))
+            );
+        };
+
         // By reference, so taken pods aren't drawn again as orphans. An arrow function would capture a copy.
-        $podsOf = function (Model $owner) use (&$pods): HtmlElement {
+        $podsOf = function (Model $owner) use (&$pods, $podNode): HtmlElement {
             return $this->node(
                 $owner,
-                array_map(fn ($pod) => $this->node($pod), static::take($pods, $owner->uuid)),
+                array_map($podNode, static::take($pods, $owner->uuid)),
                 'pod',
                 Filter::equal('pod.owner.owner_uuid', (string) Uuid::fromBytes($owner->uuid))
             );
@@ -175,7 +292,7 @@ class NamespaceEnvironment implements ValidHtml
         }
 
         foreach (array_merge(...array_values($pods)) as $pod) {
-            $workloads[$pod->uuid] = $this->node($pod);
+            $workloads[$pod->uuid] = $podNode($pod);
         }
 
         // A service links to the workloads its pods belong to rather than to the pods, which already sit under
@@ -210,24 +327,45 @@ class NamespaceEnvironment implements ValidHtml
                 }
             }
 
+            $tlsSecrets = [];
+            foreach ($ingress->ingress_tls as $tls) {
+                if ($tls->tls_secret !== null && isset($secretNodes[$tls->tls_secret])) {
+                    $tlsSecrets[$tls->tls_secret] = $secretNodes[$tls->tls_secret];
+                }
+            }
+
             $roots[] = $this->node(
                 $ingress,
-                array_values($backends),
-                'service',
+                array_merge(array_values($backends), array_values($tlsSecrets)),
+                // Services and secrets mixed can't be summarized by a link to a single list.
+                empty($tlsSecrets) ? 'service' : null,
                 Filter::equal('service.name', array_keys($backends))
             );
             $exposed += $backends;
+            $usedSecrets += $tlsSecrets;
         }
+
+        // Used by every pod through the injected kube-api-access volume skipped above, so not unused.
+        $usedConfigMaps['kube-root-ca.crt'] = true;
 
         // Like workloads, a service backing several ingresses is drawn under each of them and only skipped as a root.
         array_push(
             $roots,
             ...array_values(array_diff_key($serviceNodes, $exposed)),
-            ...array_values(array_diff_key($workloads, $behindService))
+            ...array_values(array_diff_key($workloads, $behindService)),
+            // Claims, config maps and secrets nothing uses.
+            ...array_values(array_diff_key($pvcNodes, $usedPvcs)),
+            ...array_values(array_diff_key($configMapNodes, $usedConfigMaps)),
+            ...array_values(array_diff_key($secretNodes, $usedSecrets))
         );
 
         if (empty($roots)) {
             return new EmptyState($this->translate('No items found.'));
+        }
+
+        $seen = [];
+        foreach ($roots as $root) {
+            $this->dedupe($root, $seen);
         }
 
         // Roots are ordered by kind. Group them by it and label every column a group uses, as kinds sharing a column
@@ -242,7 +380,7 @@ class NamespaceEnvironment implements ValidHtml
         foreach ($groups as $group) {
             $kinds = [];
             foreach ($group as $root) {
-                $kinds = array_replace_recursive($kinds, $this->kinds[$root]);
+                $kinds = array_replace_recursive($kinds, $this->drawnKinds($root));
             }
 
             // Fold the group into the one above if its labels already name all of the group's kinds.
@@ -288,18 +426,24 @@ class NamespaceEnvironment implements ValidHtml
      * @param class-string<Model> $model
      * @param string[] $columns Additional columns
      * @param array<string, string> $orderBy
+     * @param ?Filter\Rule $filter Instead of the namespace filter, e.g. for objects that aren't namespaced
      *
      * @return Model[]
      */
-    protected function fetch(string $permission, string $model, array $columns = [], array $orderBy = []): array
-    {
+    protected function fetch(
+        string $permission,
+        string $model,
+        array $columns = [],
+        array $orderBy = [],
+        ?Filter\Rule $filter = null
+    ): array {
         if (! Auth::getInstance()->hasPermission($permission)) {
             return [];
         }
 
         $query = $model::on(Database::connection())
             ->columns(array_merge(['uuid', 'name'], $columns))
-            ->filter(Filter::equal('namespace', $this->namespace->name))
+            ->filter($filter ?? Filter::equal('namespace', $this->namespace->name))
             ->orderBy(array_merge($orderBy, ['name' => 'asc']));
 
         // Relation columns don't join their table on their own.
@@ -333,7 +477,8 @@ class NamespaceEnvironment implements ValidHtml
 
         $li = new HtmlElement(
             'li',
-            Attributes::create(['data-column' => $column]),
+            // data-node identifies the node for links from other parents, see dedupe().
+            Attributes::create(['data-column' => $column, 'data-node' => bin2hex($model->uuid)]),
             new Link(
                 Environment::renderNode($model),
                 Factory::createDetailUrl($kind)->addParams(['id' => (string) Uuid::fromBytes($model->uuid)]),
@@ -342,14 +487,6 @@ class NamespaceEnvironment implements ValidHtml
         );
 
         $this->models[$li] = $model;
-
-        // Kinds in this subtree by column, for the group labels.
-        $kinds = [$column => [$kind => true]];
-        foreach ($children as $child) {
-            $kinds = array_replace_recursive($kinds, $this->kinds[$child]);
-        }
-
-        $this->kinds[$li] = $kinds;
 
         if (empty($children)) {
             return $li;
@@ -409,6 +546,158 @@ class NamespaceEnvironment implements ValidHtml
         }
 
         return $li->addHtml($list);
+    }
+
+    /**
+     * Draw every node once, where it first appears in the tree, and link its other parents to it instead
+     *
+     * Nodes with several parents, e.g. a config map used by many pods, are the same element in each parent's list.
+     * Repeats are removed from their parent's list, which gets the node's id in data-links. Those links are drawn by
+     * namespace-environment.js, as they can't follow the tree.
+     *
+     * @param HtmlElement $li
+     * @param array<int, true> $seen Ids of the nodes drawn so far
+     *
+     * @return void
+     */
+    protected function dedupe(HtmlElement $li, array &$seen): void
+    {
+        $seen[spl_object_id($li)] = true;
+
+        $list = static::childList($li);
+        if ($list === null) {
+            return;
+        }
+
+        $links = [];
+        foreach ($list->getContent() as $child) {
+            if (! isset($this->models[$child])) {
+                // The summary.
+                continue;
+            }
+
+            if (isset($seen[spl_object_id($child)])) {
+                $list->remove($child);
+                $links[] = $child->getAttributes()->get('data-node')->getValue();
+            } else {
+                $this->dedupe($child, $seen);
+            }
+        }
+
+        if (! empty($links)) {
+            $li->setAttribute('data-links', implode(' ', $links));
+        }
+
+        if (empty($list->getContent())) {
+            $li->remove($list);
+        }
+    }
+
+    /**
+     * Get the kinds drawn in the given node's subtree by column, for the group labels
+     *
+     * Only after {@see dedupe()}, as nodes drawn elsewhere don't count.
+     *
+     * @param HtmlElement $li
+     *
+     * @return array<int, array<string, true>>
+     */
+    protected function drawnKinds(HtmlElement $li): array
+    {
+        $kind = Factory::getKindFromModel($this->models[$li]);
+        $kinds = [$this->columns[static::COLUMNS[$kind]] => [$kind => true]];
+
+        foreach (static::childList($li)?->getContent() ?? [] as $child) {
+            if (isset($this->models[$child])) {
+                $kinds = array_replace_recursive($kinds, $this->drawnKinds($child));
+            }
+        }
+
+        return $kinds;
+    }
+
+    /**
+     * Get the list of the given node's children, if any
+     *
+     * @param HtmlElement $li
+     *
+     * @return ?HtmlElement
+     */
+    protected static function childList(HtmlElement $li): ?HtmlElement
+    {
+        foreach ($li->getContent() as $content) {
+            if ($content instanceof HtmlElement && $content->getTag() === 'ul') {
+                return $content;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the config maps and secrets a pod volume mounts
+     *
+     * The type is the field name of the volume source in the Kubernetes API, the source is that field as JSON.
+     *
+     * @param string $type
+     * @param string $source
+     *
+     * @return array<array{string, string}> Kind and name of each
+     */
+    public static function mountedConfig(string $type, string $source): array
+    {
+        $source = json_decode($source, true);
+        if (! is_array($source)) {
+            return [];
+        }
+
+        $mounts = match ($type) {
+            'ConfigMap' => [['configmap', $source['name'] ?? null]],
+            'Secret'    => [['secret', $source['secretName'] ?? null]],
+            'Projected' => array_map(
+                fn ($projection) => match (true) {
+                    isset($projection['configMap']) => ['configmap', $projection['configMap']['name'] ?? null],
+                    isset($projection['secret'])    => ['secret', $projection['secret']['name'] ?? null],
+                    default                         => [null, null]
+                },
+                $source['sources'] ?? []
+            ),
+            default     => []
+        };
+
+        return array_values(array_filter($mounts, fn ($mount) => is_string($mount[0]) && is_string($mount[1])));
+    }
+
+    /**
+     * Get the config maps and secrets a pod reads environment variables from, according to its YAML
+     *
+     * Covers envFrom (configMapRef, secretRef) and valueFrom (configMapKeyRef, secretKeyRef) of all containers.
+     *
+     * ponytail: pattern over the YAML the daemon writes, not a YAML parser. A table of env references written by the
+     * daemon, like pod_pvc, would be exact and spare loading every pod's YAML.
+     *
+     * @param string $yaml
+     *
+     * @return array<array{string, string}> Kind and name of each
+     */
+    public static function referencedConfig(string $yaml): array
+    {
+        // The reference key, then its more indented lines, which hold the name.
+        preg_match_all(
+            '/^( *)(?:- )?(configMapRef|configMapKeyRef|secretRef|secretKeyRef):[ \t]*\n((?:\1 +\S.*(?:\n|$))*)/m',
+            $yaml,
+            $matches,
+            PREG_SET_ORDER
+        );
+
+        $references = [];
+        foreach ($matches as [, , $key, $block]) {
+            if (preg_match('/^ +name: *[\'"]?([^\'"\s]+)/m', $block, $name)) {
+                $references[] = [str_starts_with($key, 'configMap') ? 'configmap' : 'secret', $name[1]];
+            }
+        }
+
+        return $references;
     }
 
     /**

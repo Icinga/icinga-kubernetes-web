@@ -5,6 +5,7 @@
 namespace Icinga\Module\Kubernetes\Web\Widget\Environment;
 
 use Icinga\Module\Kubernetes\Common\Factory;
+use Icinga\Module\Kubernetes\Model\ConfigMap;
 use Icinga\Module\Kubernetes\Model\CronJob;
 use Icinga\Module\Kubernetes\Model\DaemonSet;
 use Icinga\Module\Kubernetes\Model\Deployment;
@@ -14,6 +15,7 @@ use Icinga\Module\Kubernetes\Model\PersistentVolume;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Model\ReplicaSet;
+use Icinga\Module\Kubernetes\Model\Secret;
 use Icinga\Module\Kubernetes\Model\Service;
 use Icinga\Module\Kubernetes\Model\StatefulSet;
 use Icinga\Module\Kubernetes\Web\Widget\ItemCountIndicator;
@@ -177,6 +179,7 @@ class Environment extends BaseHtmlElement
         if (
             $node instanceof Service || $node instanceof Ingress || $node instanceof CronJob
             || $node instanceof PersistentVolume || $node instanceof PersistentVolumeClaim
+            || $node instanceof ConfigMap || $node instanceof Secret
         ) {
             $mainBall = new StateBall('', StateBall::SIZE_LARGE);
         } else {

@@ -172,15 +172,38 @@
 .namespace-environment {
   // Nodes scale with the width of this container. cqw is relative to it, so it applies to descendants only.
   @node-width: var(--node-width);
-  @edge: 1.5em;
+  // Half the gap between columns. namespace-environment.js widens the gap if links need more room.
+  @edge: ~"calc(var(--gap) / 2)";
 
   --node-width: 15cqw;
+  --gap: 3em;
   container-type: inline-size;
+  position: relative;
   overflow-x: auto;
   padding: 0.5em;
   border: 1px solid @gray-lighter;
 
   .rounded-corners(.5em);
+
+  // Links to nodes drawn under another parent, by namespace-environment.js. Dashed to tell them from the tree, and
+  // behind the nodes so they don't cross them.
+  > svg.links {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+
+    path {
+      fill: none;
+      stroke: @gray-light;
+      stroke-dasharray: 4 3;
+    }
+
+    marker path, circle {
+      fill: @gray-light;
+      stroke: none;
+    }
+  }
 
   // Only the tree's own lists, not those inside nodes, e.g. the item count indicator of a summary.
   > ul, li > ul {
@@ -205,7 +228,7 @@
       content: "";
       position: absolute;
       top: 50%;
-      left: -@edge;
+      left: ~"calc(-1 * @{edge})";
       width: @edge;
       border-top: 1px solid @gray-light;
     }
@@ -261,7 +284,7 @@
 
   // Objects of a kind share a column. Top-level objects are indented to it, children further right than the next
   // column get a longer edge, e.g. a service's stateful set skips the deployment column.
-  @column: ~"(var(--node-width) + 3em)"; // node + 2 * @edge
+  @column: ~"(var(--node-width) + var(--gap))";
 
   .skip(@columns) {
     padding-left: ~"calc(@{edge} + @{columns} * @{column})";
@@ -271,7 +294,7 @@
     }
   }
 
-  // One rule per possible value, up to the 5 columns of NamespaceEnvironment::COLUMNS.
+  // One rule per possible value, up to the 7 columns of NamespaceEnvironment::COLUMNS.
   .skips(@i) when (@i > 0) {
     &[data-skip="@{i}"] {
       .skip(@i);
@@ -289,7 +312,7 @@
   }
 
   li > ul > li {
-    .skips(3);
+    .skips(5);
   }
 
   // Columns skipped by all children of a node lengthen the stem before the split instead.
@@ -307,7 +330,7 @@
   }
 
   li > ul {
-    .stem-skips(3);
+    .stem-skips(5);
   }
 
   // Extra space between top-level trees, so it's clear where one ends.
@@ -316,7 +339,7 @@
   }
 
   > ul > li {
-    .columns(4);
+    .columns(6);
   }
 
   // Labels above each group of top-level objects of the same kind, one per column the group uses, like the labels
@@ -350,11 +373,12 @@
       .text-ellipsis();
     }
 
-    .label-columns(4);
+    .label-columns(6);
   }
 
   .node, .summary {
     position: relative;
+    z-index: 1; // Above svg.links.
     display: flex;
     flex-shrink: 0;
     align-items: center;
