@@ -5,6 +5,8 @@
 namespace Icinga\Module\Kubernetes\Forms;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\NotificationsDiscovery;
+use Icinga\Module\Kubernetes\Common\NotificationsUrl;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
 use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
@@ -14,8 +16,23 @@ use ipl\Web\Compat\CompatForm;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Cluster-specific Notifications transport configuration
+ */
 class NotificationsConfigForm extends CompatForm
 {
+    protected ?NotificationsDiscovery $discovery = null;
+
+    /**
+     * Get the fresh discovery evidence for the selected cluster
+     *
+     * @return NotificationsDiscovery
+     */
+    public function getDiscovery(): NotificationsDiscovery
+    {
+        return $this->discovery ??= NotificationsDiscovery::load(Database::connection(), $this->getClusterUuid());
+    }
+
     public static function transformKeyForForm(string $key): string
     {
         return strtr($key, ['notifications.' => 'notifications_']);
@@ -37,6 +54,13 @@ class NotificationsConfigForm extends CompatForm
         return $this->getPopulatedValue('old_cluster_uuid', $this->getClusterUuid());
     }
 
+    /**
+     * Get all Notifications settings and their local locks for a cluster
+     *
+     * @param string $clusterUuid
+     *
+     * @return array<string, KConfig>
+     */
     public function getKConfig(string $clusterUuid): array
     {
         $kconfig = [];
@@ -106,24 +130,14 @@ class NotificationsConfigForm extends CompatForm
         return $request->getSchemeAndHttpHost() . $request->getBaseUrl();
     }
 
-    protected function isValidUri(string $uri): string
-    {
-        $components = parse_url($uri);
-
-        return $components !== false && isset($components['scheme'], $components['host']);
-    }
-
-//    public function hasBeenSubmitted(): bool
-//    {
-//        return $this->hasBeenSent() && ($this->getPopulatedValue('submit') || $this->getPopulatedValue('remove'));
-//    }
-
     protected function assemble(): void
     {
         $clusterUuid = $this->getClusterUuid();
 
         if ($clusterUuid !== $this->getOldClusterUuid()) {
             $this->clearPopulatedValue('old_cluster_uuid');
+            $this->clearPopulatedValue('use_discovered_socket');
+            $this->discovery = null;
             $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_URL));
             $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_ICINGAWEB2_URL));
         }
@@ -145,19 +159,52 @@ class NotificationsConfigForm extends CompatForm
 
         $kconfig = $this->getKConfig($clusterUuid);
 
+        $discovery = $this->getDiscovery();
+        $assistanceAvailable = $discovery->socketPath !== null && $discovery->serviceUser !== null
+            && ! ($kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false)
+            && (
+                ! ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->locked ?? false)
+                || ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->value ?? '') === ''
+            )
+            && (
+                ! ($kconfig[KConfig::NOTIFICATIONS_PASSWORD]->locked ?? false)
+                || ($kconfig[KConfig::NOTIFICATIONS_PASSWORD]->value ?? '') === ''
+            );
+        $this->addElement('checkbox', 'use_discovered_socket', [
+            'label'       => $this->translate('Use discovered Unix socket'),
+            'class'       => 'autosubmit',
+            'disabled'    => ! $assistanceAvailable,
+            'ignore'      => true,
+            'description' => $assistanceAvailable
+                ? sprintf($this->translate(
+                    'Prefill the discovered socket URL and configure a source for the daemon user "%s" when saving.',
+                ), $discovery->serviceUser)
+                : $this->translate(
+                    'Assistance requires matching socket and process user metadata from live cluster instances'
+                    . ' and writable Notifications settings. Update the daemon if metadata is unavailable.',
+                ),
+        ]);
+        if ($assistanceAvailable && $this->getElement('use_discovered_socket')->getValue() === 'y') {
+            $this->populate([
+                static::transformKeyForForm(KConfig::NOTIFICATIONS_URL)
+                    => NotificationsUrl::fromSocketPath($discovery->socketPath),
+            ]);
+        }
+
         $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_URL), [
             'label'       => $this->translate('Icinga Notifications URL'),
             'disabled'    => $kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false,
             'value'       => $kconfig[KConfig::NOTIFICATIONS_URL]->value ?? null,
             'placeholder' => 'http://localhost:5680',
             'description' => $this->translate(
-                'Icinga Notifications URL. Leave/set blank to turn off notifications.'
+                'Use an HTTP(S) URL or unix:///absolute/path. Leave blank to turn off notifications.'
+                . ' Restart Icinga for Kubernetes after saving changes.',
             ),
             'validators'  => [
-                'Callback' => function ($value, CallbackValidator $validator) {
-                    if (! $this->isValidUri($value)) {
+                'Callback' => function ($value, CallbackValidator $validator): bool {
+                    if (! NotificationsUrl::isValid($value)) {
                         $validator->addMessage($this->translate(
-                            'Invalid URL: Both host and scheme must be specified.'
+                            'Use an HTTP(S) URL with a host or a Unix URL with an absolute socket path.',
                         ));
 
                         return false;
@@ -174,10 +221,10 @@ class NotificationsConfigForm extends CompatForm
             'value'       => $kconfig[KConfig::NOTIFICATIONS_ICINGAWEB2_URL]->value ?? $this->getIcingaWeb2Url(),
             'description' => $this->translate('Icinga Web URL.'),
             'validators'  => [
-                'Callback' => function ($value, CallbackValidator $validator) {
-                    if (! $this->isValidUri($value)) {
+                'Callback' => function ($value, CallbackValidator $validator): bool {
+                    if (! NotificationsUrl::isWeb($value)) {
                         $validator->addMessage($this->translate(
-                            'Invalid URL: Both host and scheme must be specified.'
+                            'Use an HTTP(S) URL with a host.',
                         ));
 
                         return false;
