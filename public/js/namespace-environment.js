@@ -108,8 +108,16 @@
             const originY = box.top + widget.clientTop - widget.scrollTop;
             const dpr = window.devicePixelRatio || 1;
             const snap = (value, origin) => (Math.round(value * dpr - dpr / 2) + dpr / 2) / dpr - origin;
-            const left = element => snap(element.getBoundingClientRect().left, originX);
-            const right = element => snap(element.getBoundingClientRect().right, originX);
+            // Edges end at the outline of an element, e.g. of the focused node, instead of under it.
+            const outline = element => {
+                const style = getComputedStyle(element);
+
+                return style.outlineStyle === 'none'
+                    ? 0
+                    : parseFloat(style.outlineWidth) + parseFloat(style.outlineOffset);
+            };
+            const left = element => snap(element.getBoundingClientRect().left - outline(element), originX);
+            const right = element => snap(element.getBoundingClientRect().right + outline(element), originX);
             const middle = element => {
                 const rect = element.getBoundingClientRect();
 
@@ -142,7 +150,8 @@
             // little as possible.
             const columns = new Map();
             for (const id of sourcesOf.keys()) {
-                const column = left(node(nodeLi(id)));
+                // Without outlines, so all nodes of a column share it.
+                const column = snap(node(nodeLi(id)).getBoundingClientRect().left, originX);
                 columns.set(column, [...(columns.get(column) || []), id]);
             }
 

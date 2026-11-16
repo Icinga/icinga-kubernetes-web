@@ -215,12 +215,13 @@
     }
   }
 
-  // The hovered node and its direct neighbours.
+  // The hovered node and its direct neighbours. Inside the node, so edges still end at it instead of under a border.
   li[data-node].highlight > .node {
-    outline: 1px solid @icinga-blue;
+    box-shadow: inset 0 0 0 1px @icinga-blue;
   }
 
-  // The object whose context is shown, like .self of .environment-widget.
+  // The object whose context is shown, like .self of .environment-widget. Edges end at its outline, see
+  // namespace-environment.js.
   li[data-node].focus > .node {
     outline: .25em solid @icinga-blue;
     outline-offset: 1px;
