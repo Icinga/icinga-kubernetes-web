@@ -30,6 +30,11 @@ class IcingaStateReasonRow extends BaseHtmlElement
 
     public function assemble(): void
     {
+        $isValidDelta = !empty($this->parentName) && str_contains($this->name, $this->parentName);
+        $nameElement = $isValidDelta
+            ? new HighlightDelta($this->name, $this->parentName, new Attributes(['class' => 'tooltip-holder', 'title' => $this->tooltip]))
+            : new HtmlElement('span', new Attributes(['class' => 'tooltip-holder', 'title' => $this->tooltip]), new Text($this->name));
+
         $this->addHtml(
             new HtmlElement(
                 'span',
@@ -40,11 +45,7 @@ class IcingaStateReasonRow extends BaseHtmlElement
             new HtmlElement(
                 'span',
                 new Attributes(['class' => 'reason']),
-                new HighlightDelta(
-                    $this->name,
-                    $this->parentName ?? '',
-                    new Attributes(['class' => 'tooltip-holder', 'title' => $this->tooltip])
-                ),
+                $nameElement,
                 new Text(' ' . $this->reason)
             )
         );
