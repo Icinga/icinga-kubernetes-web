@@ -4,7 +4,6 @@
 
 namespace Icinga\Module\Kubernetes\Web\Widget;
 
-use InvalidArgumentException;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
 use ipl\Html\HtmlElement;
@@ -19,15 +18,16 @@ class HighlightDelta extends BaseHtmlElement
         protected string $short,
         ?Attributes $attributes = null
     ) {
-        if (! str_contains($long, $short)) {
-            throw new InvalidArgumentException('Short name must be part of long name');
-        }
 
         $this->addAttributes($attributes);
     }
 
     public function assemble(): void
     {
+        if (! str_contains($this->long, $this->short)) {
+            $this->addHtml(new Text($this->long));
+            return;
+        }
         $this->addHtml(
             new Text($this->short),
             new HtmlElement(
