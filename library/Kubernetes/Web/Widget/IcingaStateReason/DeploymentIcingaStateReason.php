@@ -14,8 +14,6 @@ class DeploymentIcingaStateReason extends WorkloadIcingaStateReason
 {
     protected function assemble(): void
     {
-        $rs = ReplicaSet::on(Database::connection())->filter(Filter::equal('owner.owner_uuid', $this->uuid))->first();
-
         [$kind, $namespaceSlashName, $reason] = explode(' ', $this->icingaStateReason, 3);
         $workloadName = explode('/', $namespaceSlashName)[1];
 
@@ -26,6 +24,13 @@ class DeploymentIcingaStateReason extends WorkloadIcingaStateReason
             $reason,
             $this->buildTooltip($kind, $namespaceSlashName),
         ));
+
+        $rs = ReplicaSet::on(Database::connection())->filter(Filter::equal('owner.owner_uuid', $this->uuid))->first();
+
+        // Nothing to list below the deployment if it has no replica set yet
+        if ($rs === null) {
+            return;
+        }
 
         $this->addHtml(new HtmlElement(
             'div',
