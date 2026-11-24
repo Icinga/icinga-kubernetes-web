@@ -27,7 +27,7 @@ class DeploymentIcingaStateReason extends WorkloadIcingaStateReason
 
         $rs = ReplicaSet::on(Database::connection())->filter(Filter::equal('owner.owner_uuid', $this->uuid))->first();
 
-        // Nothing to list below the deployment if it has no replica set yet
+        // Nothing to list below the deployment if it has no replica set.
         if ($rs === null) {
             return;
         }
