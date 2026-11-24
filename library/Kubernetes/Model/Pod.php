@@ -106,8 +106,8 @@ class Pod extends Model
 
         $relations
             ->belongsTo('node', Node::class)
-            ->setCandidateKey('node_name')
-            ->setForeignKey('name')
+            ->setCandidateKey(['cluster_uuid', 'node_name'])
+            ->setForeignKey(['cluster_uuid', 'name'])
             ->setJoinType('LEFT');
 
         $relations->hasMany('favorite', Favorite::class)
