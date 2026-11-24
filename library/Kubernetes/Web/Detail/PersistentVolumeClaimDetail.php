@@ -12,6 +12,7 @@ use Icinga\Module\Kubernetes\Common\ViewMode;
 use Icinga\Module\Kubernetes\Model\Event;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaimCondition;
+use Icinga\Module\Kubernetes\Model\Pod;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
 use Icinga\Module\Kubernetes\Web\Widget\Annotations;
 use Icinga\Module\Kubernetes\Web\Widget\ConditionTable;
@@ -27,6 +28,7 @@ use ipl\Html\Text;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
 use ipl\Web\Widget\EmptyState;
+use Ramsey\Uuid\Uuid;
 
 class PersistentVolumeClaimDetail extends BaseHtmlElement
 {
@@ -83,7 +85,8 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
                 new HtmlElement('h2', null, new Text($this->translate('Pods'))),
                 (new ResourceList(Auth::getInstance()->withRestrictions(
                     Auth::SHOW_PODS,
-                    $this->pvc->pod
+                    Pod::on(Database::connection())
+                        ->filter(Filter::equal('pod.pvc.uuid', (string) Uuid::fromBytes($this->pvc->uuid)))
                 )))
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()

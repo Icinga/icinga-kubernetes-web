@@ -10,6 +10,8 @@ use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
+use ipl\Sql\Expression;
+use ipl\Stdlib\Filter;
 
 class Pod extends Model
 {
@@ -43,7 +45,12 @@ class Pod extends Model
             ->setTargetCandidateKey('name')
             ->setTargetForeignKey('claim_name')
             ->setCandidateKey('uuid')
-            ->setForeignKey('pod_uuid');
+            ->setForeignKey('pod_uuid')
+            // `pod_pvc` only stores the claim name, which is unique per namespace and cluster only.
+            ->setFilter(Filter::all(
+                Filter::equal('pvc.namespace', new Expression('%s', ['pod.namespace'])),
+                Filter::equal('pvc.cluster_uuid', new Expression('%s', ['pod.cluster_uuid']))
+            ));
 
         $relations
             ->hasMany('label', Label::class)

@@ -61,15 +61,22 @@ class ContainerMountTable extends Table
 
             $row = new HtmlElement('tr');
             if ($podPvc !== null) {
+                // Claim names are only unique per namespace and cluster, which the `pod` relation accounts for.
                 $pvc = PersistentVolumeClaim::on(Database::connection())
-                    ->filter(Filter::all(Filter::equal('pvc.name', $podPvc->claim_name)))->first();
+                    ->filter(Filter::all(
+                        Filter::equal('pvc.name', $podPvc->claim_name),
+                        Filter::equal('pvc.pod.uuid', $this->container->pod_uuid)
+                    ))
+                    ->first();
 
                 foreach ($this->mountColumnDefinitions as $column => $_) {
                     $content = Text::create($mount->$column ?? '-');
                     $row->addHtml(new HtmlElement('td', null, $content));
                 }
                 foreach ($this->volumeColumnDefinitions as $column => $_) {
-                    if ($column === 'source') {
+                    if ($column === 'source' && $pvc === null) {
+                        $content = Text::create($podPvc->claim_name);
+                    } elseif ($column === 'source') {
                         $content = new Link(
                             $podPvc->claim_name,
                             Links::persistentvolumeclaim($pvc),
