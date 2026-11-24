@@ -39,17 +39,17 @@ class Deployment extends Model
             ->belongsToMany('replica_set', ReplicaSet::class)
             ->through('replica_set_owner')
             ->setTargetCandidateKey('uuid')
-            ->setTargetForeignKey('owner_uuid')
+            ->setTargetForeignKey('replica_set_uuid')
             ->setCandidateKey('uuid')
-            ->setForeignKey('replica_set_uuid');
+            ->setForeignKey('owner_uuid');
 
         $relations
             ->belongsToMany('pod', Pod::class)
             ->through('pod_owner')
             ->setTargetCandidateKey('uuid')
-            ->setTargetForeignKey('owner_uuid')
+            ->setTargetForeignKey('pod_uuid')
             ->setCandidateKey('uuid')
-            ->setForeignKey('pod_uuid');
+            ->setForeignKey('owner_uuid');
 
         $relations
             ->hasMany('label', Label::class)
