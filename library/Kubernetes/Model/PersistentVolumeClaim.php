@@ -10,6 +10,8 @@ use ipl\Orm\Behavior\MillisecondTimestamp;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
+use ipl\Sql\Expression;
+use ipl\Stdlib\Filter;
 
 class PersistentVolumeClaim extends Model
 {
@@ -61,7 +63,12 @@ class PersistentVolumeClaim extends Model
             ->setTargetCandidateKey('uuid')
             ->setTargetForeignKey('pod_uuid')
             ->setCandidateKey('name')
-            ->setForeignKey('claim_name');
+            ->setForeignKey('claim_name')
+            // `pod_pvc` only stores the claim name, which is unique per namespace and cluster only.
+            ->setFilter(Filter::all(
+                Filter::equal('pod.namespace', new Expression('%s', ['pvc.namespace'])),
+                Filter::equal('pod.cluster_uuid', new Expression('%s', ['pvc.cluster_uuid']))
+            ));
 
         $relations->hasMany('favorite', Favorite::class)
             ->setForeignKey('resource_uuid')

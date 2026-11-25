@@ -53,6 +53,7 @@ class EndpointSlice extends Model
     public function getColumns(): array
     {
         return [
+            'cluster_uuid',
             'namespace',
             'name',
             'uid',

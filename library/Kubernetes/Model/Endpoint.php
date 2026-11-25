@@ -18,7 +18,8 @@ class Endpoint extends Model
     public function createBehaviors(Behaviors $behaviors): void
     {
         $behaviors->add(new Uuid([
-            'uuid'
+            'uuid',
+            'endpoint_slice_uuid'
         ]));
 
         $behaviors->add(new BoolCast([
@@ -52,6 +53,7 @@ class Endpoint extends Model
     public function getColumns(): array
     {
         return [
+            'endpoint_slice_uuid',
             'host_name',
             'node_name',
             'ready',

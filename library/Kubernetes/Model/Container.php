@@ -36,7 +36,8 @@ class Container extends Model
 
     public function createRelations(Relations $relations): void
     {
-        $relations->hasMany('mount', ContainerMount::class);
+        $relations->hasMany('mount', ContainerMount::class)
+            ->setForeignKey('container_uuid');
 
         $relations
             ->hasOne('log', ContainerLog::class)

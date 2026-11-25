@@ -49,8 +49,8 @@ class Node extends Model
 
         $relations
             ->hasMany('pod', Pod::class)
-            ->setCandidateKey('name')
-            ->setForeignKey('node_name');
+            ->setCandidateKey(['cluster_uuid', 'name'])
+            ->setForeignKey(['cluster_uuid', 'node_name']);
 
         $relations->hasMany('favorite', Favorite::class)
             ->setForeignKey('resource_uuid')

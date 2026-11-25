@@ -26,6 +26,9 @@ class ContainerMount extends Model
     {
         $relations->belongsTo('container', Container::class);
 
+        $relations->belongsTo('sidecar_container', SidecarContainer::class)
+            ->setCandidateKey('container_uuid');
+
         $relations->belongsTo('pod', Pod::class);
     }
 

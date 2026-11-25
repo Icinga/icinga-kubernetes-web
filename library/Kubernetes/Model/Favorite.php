@@ -23,31 +23,57 @@ class Favorite extends Model
 
     public function createRelations(Relations $relations)
     {
-        $relations->belongsTo('cron_job', CronJob::class)->setJoinType('LEFT');
+        $relations->belongsTo('cron_job', CronJob::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('daemon_set', DaemonSet::class)->setJoinType('LEFT');
+        $relations->belongsTo('daemon_set', DaemonSet::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('deployment', Deployment::class)->setJoinType('LEFT');
+        $relations->belongsTo('deployment', Deployment::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('ingress', Ingress::class)->setJoinType('LEFT');
+        $relations->belongsTo('ingress', Ingress::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('job', Job::class)->setJoinType('LEFT');
+        $relations->belongsTo('job', Job::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('namespace', NamespaceModel::class)->setJoinType('LEFT');
+        $relations->belongsTo('namespace', NamespaceModel::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('node', Node::class)->setJoinType('LEFT');
+        $relations->belongsTo('node', Node::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('persistent_volume', PersistentVolume::class)->setJoinType('LEFT');
+        $relations->belongsTo('persistent_volume', PersistentVolume::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('pvc', PersistentVolumeClaim::class)->setJoinType('LEFT');
+        $relations->belongsTo('pvc', PersistentVolumeClaim::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('pod', Pod::class)->setJoinType('LEFT');
+        $relations->belongsTo('pod', Pod::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('replica_set', ReplicaSet::class)->setJoinType('LEFT');
+        $relations->belongsTo('replica_set', ReplicaSet::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('service', Service::class)->setJoinType('LEFT');
+        $relations->belongsTo('service', Service::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
 
-        $relations->belongsTo('stateful_set', StatefulSet::class)->setJoinType('LEFT');
+        $relations->belongsTo('stateful_set', StatefulSet::class)
+            ->setCandidateKey('resource_uuid')
+            ->setJoinType('LEFT');
     }
 
     public function getColumnDefinitions(): array

@@ -4,7 +4,9 @@
 
 namespace Icinga\Module\Kubernetes\Web\Widget\Environment;
 
+use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\PersistentVolumeClaim;
+use Icinga\Module\Kubernetes\Model\Pod;
 use ipl\Html\Attributes;
 use ipl\Html\HtmlDocument;
 use ipl\Html\HtmlElement;
@@ -12,6 +14,7 @@ use ipl\Html\Text;
 use ipl\Html\ValidHtml;
 use ipl\I18n\Translation;
 use ipl\Stdlib\Filter;
+use Ramsey\Uuid\Uuid;
 
 class PersistentVolumeClaimEnvironment implements ValidHtml
 {
@@ -23,9 +26,12 @@ class PersistentVolumeClaimEnvironment implements ValidHtml
 
     public function render(): ValidHtml
     {
-        $childrenFilter = Filter::equal('pod.pvc.name', $this->pvc->name);
+        $childrenFilter = Filter::all(
+            Filter::equal('namespace', $this->pvc->namespace),
+            Filter::equal('pod.pvc.uuid', (string) Uuid::fromBytes($this->pvc->uuid))
+        );
 
-        $pods = $this->pvc->pod
+        $pods = Pod::on(Database::connection())
             ->filter($childrenFilter)
             ->limit(3);
 
