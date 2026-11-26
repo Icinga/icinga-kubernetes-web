@@ -12,3 +12,8 @@ jobs:
   php:
     name: PHP
     uses: Icinga/github-actions/.github/workflows/php.yml@main
+    with:
+      dependencies: >-
+        {
+          "./vendor/tests/modules/notifications": "https://github.com/Icinga/icinga-notifications-web.git#v1.0.0"
+        }
