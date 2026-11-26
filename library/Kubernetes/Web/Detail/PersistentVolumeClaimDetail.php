@@ -18,7 +18,6 @@ use Icinga\Module\Kubernetes\Web\Widget\ConditionTable;
 use Icinga\Module\Kubernetes\Web\Widget\Details;
 use Icinga\Module\Kubernetes\Web\Widget\Environment\PersistentVolumeClaimEnvironment;
 use Icinga\Module\Kubernetes\Web\Widget\Labels;
-use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use Icinga\Util\Format;
 use ipl\Html\Attributes;
 use ipl\Html\BaseHtmlElement;
@@ -100,10 +99,6 @@ class PersistentVolumeClaimDetail extends BaseHtmlElement
                     ->setViewMode(ViewMode::Common)
                     ->setCollapsible()
             ));
-        }
-
-        if (Auth::getInstance()->canShowYaml()) {
-            $this->addHtml(new Yaml($this->pvc->yaml));
         }
     }
 }

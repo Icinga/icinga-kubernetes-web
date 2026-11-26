@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\DeploymentDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class DeploymentController extends Controller
 {
-    public function indexAction(): void
+    protected Deployment $deployment;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_DEPLOYMENTS);
 
-        $this->addTitleTab($this->translate('Deployment'));
+        $this->createResourceTabs($this->translate('Deployment'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class DeploymentController extends Controller
 
         $this->addControl(new QuickActions($deployment, $favorite));
 
-        $this->addContent(new DeploymentDetail($deployment));
+        $this->deployment = $deployment;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new DeploymentDetail($this->deployment));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->deployment->yaml));
     }
 }

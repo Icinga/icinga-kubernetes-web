@@ -13,16 +13,19 @@ use Icinga\Module\Kubernetes\Web\Controller\Controller;
 use Icinga\Module\Kubernetes\Web\Controls\QuickActions;
 use Icinga\Module\Kubernetes\Web\Detail\JobDetail;
 use Icinga\Module\Kubernetes\Web\ItemList\ResourceList;
+use Icinga\Module\Kubernetes\Web\Widget\Yaml;
 use ipl\Stdlib\Filter;
 use Ramsey\Uuid\Uuid;
 
 class JobController extends Controller
 {
-    public function indexAction(): void
+    protected Job $job;
+
+    public function init(): void
     {
         $this->assertPermission(Auth::SHOW_JOBS);
 
-        $this->addTitleTab($this->translate('Job'));
+        $this->createResourceTabs($this->translate('Job'));
 
         $uuid = $this->params->getRequired('id');
         $uuidBytes = Uuid::fromString($uuid)->getBytes();
@@ -53,6 +56,18 @@ class JobController extends Controller
 
         $this->addControl(new QuickActions($job, $favorite));
 
-        $this->addContent(new JobDetail($job));
+        $this->job = $job;
+    }
+
+    public function indexAction(): void
+    {
+        $this->addContent(new JobDetail($this->job));
+    }
+
+    public function yamlAction(): void
+    {
+        $this->assertPermission(Auth::SHOW_YAML);
+
+        $this->addContent(new Yaml($this->job->yaml));
     }
 }
