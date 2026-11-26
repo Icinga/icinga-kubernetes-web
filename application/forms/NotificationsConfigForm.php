@@ -4,10 +4,10 @@
 
 namespace Icinga\Module\Kubernetes\Forms;
 
+use Icinga\Module\Kubernetes\Common\ClusterOptions;
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
-use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
 use ipl\Stdlib\Filter;
 use ipl\Validator\CallbackValidator;
 use ipl\Web\Compat\CompatForm;
@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NotificationsConfigForm extends CompatForm
 {
+    use ClusterOptions;
+
     public static function transformKeyForForm(string $key): string
     {
         return strtr($key, ['notifications.' => 'notifications_']);
@@ -137,7 +139,7 @@ class NotificationsConfigForm extends CompatForm
                 'required' => true,
                 'class'    => 'autosubmit',
                 'label'    => $this->translate('Cluster'),
-                'options'  => iterator_to_array(ClusterForm::yieldClusters()),
+                'options'  => static::fetchClusters(),
                 'value'    => $clusterUuid,
                 'ignore'   => true
             ],

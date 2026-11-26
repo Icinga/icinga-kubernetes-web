@@ -68,6 +68,7 @@ pre {
   .limit-control,
   .view-mode-switcher,
   .sort-control,
+  .cluster-switcher,
   .favorite-toggle {
     float: right;
     margin-left: 1em;
@@ -77,6 +78,16 @@ pre {
   .view-mode-switcher,
   .favorite-toggle {
     margin-right: 0;
+  }
+
+  // Inline label like ipl's .sort-control
+  .cluster-switcher .form-element {
+    display: inline-flex;
+    align-items: baseline;
+
+    label {
+      margin-right: .5em;
+    }
   }
 
   .item-list .list-item {

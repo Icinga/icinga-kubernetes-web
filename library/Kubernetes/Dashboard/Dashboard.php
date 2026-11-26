@@ -18,6 +18,13 @@ abstract class Dashboard extends BaseHtmlElement
 
     protected $tag = 'ul';
 
+    /**
+     * @param ?string $clusterUuid UUID of the cluster to show, or null for all clusters
+     */
+    public function __construct(protected ?string $clusterUuid = null)
+    {
+    }
+
     abstract protected function getTitle(): string;
 
     protected function beforeAssemble(): void
