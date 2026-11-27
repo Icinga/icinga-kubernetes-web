@@ -13,6 +13,7 @@ use Icinga\Module\Notifications\Integrations\V1\Source;
 use ipl\Sql\Adapter\Mysql;
 use ipl\Sql\Adapter\Pgsql;
 use ipl\Sql\Connection;
+use ipl\Sql\Contract\Adapter;
 use PDOStatement;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -174,6 +175,29 @@ class NotificationsConfigTest extends TestCase
             ]]);
             self::assertSame('selected-cluster', NotificationsDiscovery::load($db, static::OTHER_CLUSTER)->serviceUser);
         }
+    }
+
+    #[DataProvider('clusterUuidBindings')]
+    public function testSaveBindsTheSameClusterUuidForReadsAndWrites(Adapter $adapter, string $uuid): void
+    {
+        $service = $this->service($adapter, $uuid);
+        $service->expects(self::never())->method('getSource');
+        $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL]);
+
+        self::assertSame(static::SOCKET_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
+    }
+
+    /**
+     * @return array<string, array{Adapter, string}>
+     */
+    public static function clusterUuidBindings(): array
+    {
+        $hex = 'd64a88272de649159aad7c75fb32e798';
+
+        return [
+            'MySQL'      => [new Mysql(), hex2bin($hex)],
+            'PostgreSQL' => [new Pgsql(), '\\x' . $hex],
+        ];
     }
 
     public function testAssistedUnixSetupCreatesPasswordlessSourceAndRetainsHttpCredentials(): void
@@ -784,27 +808,33 @@ class NotificationsConfigTest extends TestCase
         return hash('sha256', static::CLUSTER . "\0" . $path . "\0" . $user);
     }
 
-    protected function service(): NotificationsConfig&MockObject
+    protected function service(Adapter $adapter = new Mysql(), ?string $uuid = null): NotificationsConfig&MockObject
     {
+        $uuid ??= Uuid::fromString(static::CLUSTER)->getBytes();
+        $quotedKey = $adapter->quoteIdentifier('key');
         $db = $this->createStub(Connection::class);
-        $db->method('getAdapter')->willReturn(new Mysql());
-        $db->method('quoteIdentifier')->willReturnCallback(static function (string $identifier): string {
-            self::assertSame('key', $identifier);
+        $db->method('getAdapter')->willReturn($adapter);
+        $db->method('quoteIdentifier')->willReturnCallback(
+            static function (string $identifier) use ($quotedKey): string {
+                self::assertSame('key', $identifier);
 
-            return '`key`';
-        });
-        $db->method('fetchOne')->willReturnCallback(static function (string $sql, array $params): object {
-            $uuid = Uuid::fromString(static::CLUSTER)->getBytes();
+                return $quotedKey;
+            }
+        );
+        $db->method('fetchOne')->willReturnCallback(static function (string $sql, array $params) use ($uuid): object {
             self::assertSame('SELECT uuid FROM cluster WHERE uuid = ? FOR UPDATE', $sql);
             self::assertSame([$uuid], $params);
 
             return (object) ['uuid' => $uuid];
         });
-        $db->method('fetchAll')->willReturnCallback(function (string $query): array {
+        $db->method('fetchAll')->willReturnCallback(function (string $query, array $params) use ($uuid): array {
             if (str_contains($query, 'FROM kubernetes_instance')) {
+                self::assertSame([$uuid], $params);
+
                 return $this->instances;
             }
 
+            self::assertSame($uuid, $params[4]);
             $settings = [];
             foreach ($this->settings as $key => $value) {
                 $settings[] = (object) [
@@ -832,24 +862,30 @@ class NotificationsConfigTest extends TestCase
                 throw $e;
             }
         });
-        $db->method('delete')->willReturnCallback(function (string $table, array $where): PDOStatement {
-            self::assertSame('config', $table);
-            $this->deletes[] = $where;
-            foreach ($where['`key` IN (?)'] as $key) {
-                self::assertArrayNotHasKey($key, $this->locks);
-                unset($this->settings[$key]);
+        $db->method('delete')->willReturnCallback(
+            function (string $table, array $where) use ($quotedKey, $uuid): PDOStatement {
+                self::assertSame('config', $table);
+                self::assertSame($uuid, $where['cluster_uuid = ?']);
+                $this->deletes[] = $where;
+                foreach ($where["$quotedKey IN (?)"] as $key) {
+                    self::assertArrayNotHasKey($key, $this->locks);
+                    unset($this->settings[$key]);
+                }
+
+                return $this->createStub(PDOStatement::class);
             }
+        );
+        $db->method('insert')->willReturnCallback(
+            function (string $table, array $data) use ($quotedKey, $uuid): PDOStatement {
+                self::assertSame('config', $table);
+                self::assertSame('n', $data['locked']);
+                self::assertSame($uuid, $data['cluster_uuid']);
+                $this->inserts[] = $data;
+                $this->settings[$data[$quotedKey]] = $data['value'];
 
-            return $this->createStub(PDOStatement::class);
-        });
-        $db->method('insert')->willReturnCallback(function (string $table, array $data): PDOStatement {
-            self::assertSame('config', $table);
-            self::assertSame('n', $data['locked']);
-            $this->inserts[] = $data;
-            $this->settings[$data['`key`']] = $data['value'];
-
-            return $this->createStub(PDOStatement::class);
-        });
+                return $this->createStub(PDOStatement::class);
+            }
+        );
 
         return $this->getMockBuilder(NotificationsConfig::class)
             ->setConstructorArgs([$db])

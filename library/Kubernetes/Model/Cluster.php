@@ -9,10 +9,31 @@ use ipl\I18n\Translation;
 use ipl\Orm\Behaviors;
 use ipl\Orm\Model;
 use ipl\Orm\Relations;
+use ipl\Sql\Connection;
+use Ramsey\Uuid\Uuid as RamseyUuid;
 
 class Cluster extends Model
 {
     use Translation;
+
+    /**
+     * Encode a cluster UUID for use in a raw database statement
+     *
+     * @param Connection $db The connection that executes the statement
+     * @param string $uuid Textual cluster UUID
+     *
+     * @return string The encoded UUID to bind as a statement parameter
+     *
+     * @throws \Ramsey\Uuid\Exception\InvalidArgumentException If the UUID is invalid
+     */
+    public static function encodeUuid(Connection $db, string $uuid): string
+    {
+        $query = static::on($db);
+
+        return $query->getResolver()
+            ->getBehaviors($query->getModel())
+            ->persistProperty(RamseyUuid::fromString($uuid)->getBytes(), 'uuid');
+    }
 
     public function createBehaviors(Behaviors $behaviors): void
     {

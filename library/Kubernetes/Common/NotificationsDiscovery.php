@@ -4,9 +4,8 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
-use ipl\Sql\Adapter\Pgsql;
+use Icinga\Module\Kubernetes\Model\Cluster;
 use ipl\Sql\Connection;
-use Ramsey\Uuid\Uuid;
 use stdClass;
 
 /**
@@ -39,23 +38,8 @@ readonly class NotificationsDiscovery
         // Selecting existing columns also supports schemas without discovery metadata.
         return static::fromRows($db->fetchAll(
             'SELECT * FROM kubernetes_instance WHERE cluster_uuid = ?',
-            [static::encodeClusterUuid($db, $clusterUuid)],
+            [Cluster::encodeUuid($db, $clusterUuid)],
         ), time());
-    }
-
-    /**
-     * Encode a cluster UUID for comparison with a binary database column
-     *
-     * @param Connection $db
-     * @param string $clusterUuid
-     *
-     * @return string
-     */
-    public static function encodeClusterUuid(Connection $db, string $clusterUuid): string
-    {
-        $uuid = Uuid::fromString($clusterUuid)->getBytes();
-
-        return $db->getAdapter() instanceof Pgsql ? '\\x' . bin2hex($uuid) : $uuid;
     }
 
     /**

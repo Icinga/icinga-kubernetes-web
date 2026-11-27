@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
+use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config;
 use Icinga\Module\Notifications\Integrations\V1\Source;
 use ipl\I18n\Translation;
@@ -86,7 +87,7 @@ class NotificationsConfig
         ?string $rotateHttpUser,
         bool $stagePassword,
     ): bool {
-        $uuid = NotificationsDiscovery::encodeClusterUuid($this->db, $clusterUuid);
+        $uuid = Cluster::encodeUuid($this->db, $clusterUuid);
         if ($this->db->fetchOne('SELECT uuid FROM cluster WHERE uuid = ? FOR UPDATE', [$uuid]) === false) {
             throw new RuntimeException($this->translate('The selected cluster is no longer available.'));
         }
