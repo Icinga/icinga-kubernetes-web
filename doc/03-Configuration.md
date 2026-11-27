@@ -36,10 +36,11 @@ same path and username. The form ignores heartbeats more than 60 seconds old. If
 path or username changes before saving, select the new discovery result again.
 
 Assisted setup creates a Kubernetes source without a password when the process username
-is available in Icinga Notifications. If the username already belongs to a source,
-verify in Icinga Notifications that the source is a Kubernetes source configured for
-that process user. To use this source, clear the discovery checkbox and save the
-socket URL manually. Clusters running under the same OS user can use that source.
+is available. When Icinga Notifications Web can report the source type, assisted setup
+reuses an existing Kubernetes source as is and rejects a username assigned to a
+different source type. Clusters running under the same OS user can share the source.
+With Icinga Notifications Web 1.0.0, verify an existing source's type in Icinga
+Notifications, clear the discovery checkbox, and save the socket URL manually.
 
 For manual setup, create or verify the Kubernetes source for the process username in
 Icinga Notifications, then enter a URL such as
@@ -49,8 +50,10 @@ Use this procedure when the daemon does not publish discovery metadata. Encode s
 If the encoded URL exceeds 255 bytes, use a shorter path or a symlink the
 Icinga for Kubernetes process can access.
 
-If automatic HTTP setup reports an existing source, verify its listener username and
-Kubernetes source type in Icinga Notifications. The form creates locked sources named
+If Icinga Notifications Web can report the source type, the form rejects an HTTP
+listener username assigned to a different source type. If HTTP setup asks you to
+confirm an existing source, verify its listener username and Kubernetes source type
+in Icinga Notifications. The form creates locked sources named
 `Icinga for Kubernetes (<cluster UUID>)`. Select **Use an existing HTTP source** if the
 source is already configured for this cluster. For a manually provisioned source with
 different credentials, set its username and password in the daemon configuration.

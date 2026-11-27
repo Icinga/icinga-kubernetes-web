@@ -227,7 +227,7 @@ class NotificationsConfigTest extends TestCase
         ];
     }
 
-    public function testExistingUnixSourceRequiresManualSetupAndRemainsUntouched(): void
+    public function testExistingUnixSourceRequiresManualSetupWithoutTypeLookup(): void
     {
         $discovery = $this->discovery();
         $service = $this->service();
@@ -245,6 +245,36 @@ class NotificationsConfigTest extends TestCase
         self::assertSame([], $this->deletes);
         $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL]);
         self::assertSame(static::SOCKET_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
+    }
+
+    public function testAssistedUnixSetupReusesVerifiedKubernetesSourceWithoutChangingIt(): void
+    {
+        $discovery = $this->discovery();
+        $service = $this->service();
+        $service->expects(self::once())->method('getSource')->with('kubernetes')
+            ->willReturn($this->unchangedSource('Shared Kubernetes source', true));
+
+        $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL], $discovery);
+
+        self::assertSame(static::SOCKET_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
+    }
+
+    public function testAssistedUnixSetupRejectsAnotherSourceTypeBeforeWritingSettings(): void
+    {
+        $discovery = $this->discovery();
+        $service = $this->service();
+        $service->expects(self::once())->method('getSource')->with('kubernetes')
+            ->willReturn($this->unchangedSource(Config::DEFAULT_NOTIFICATIONS_NAME, false));
+
+        try {
+            $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::SOCKET_URL], $discovery);
+            self::fail('A different source type must reject the assisted save');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('listener username "kubernetes" belongs to a different', $e->getMessage());
+        } finally {
+            self::assertSame([], $this->deletes);
+            self::assertSame([], $this->inserts);
+        }
     }
 
     public function testManualUnixSetupDoesNotRequireDiscoveryOrNotificationsWeb(): void
@@ -389,18 +419,97 @@ class NotificationsConfigTest extends TestCase
             Config::NOTIFICATIONS_URL      => static::HTTP_URL,
         ];
         $this->locks[Config::NOTIFICATIONS_PASSWORD] = true;
-        $source = $this->source($this->httpSourceName());
+        $source = $this->source($this->httpSourceName(), true);
         $source->expects(self::once())->method('rotatePassword')->with('new-local-password');
         $source->expects(self::never())->method('create');
         $service = $this->service();
         $service->expects(self::exactly(2))->method('getSource')->with(static::CLUSTER)->willReturnOnConsecutiveCalls(
-            $this->unchangedSource($this->httpSourceName()),
+            $this->unchangedSource($this->httpSourceName(), true),
             $source,
         );
         $values = [Config::NOTIFICATIONS_URL => static::HTTP_URL];
 
         $service->save(static::CLUSTER, $values);
         $service->save(static::CLUSTER, $values, rotateHttpUser: static::CLUSTER);
+    }
+
+    public function testVerifiedHttpSourceTypeDoesNotReplaceCredentialOwnershipChecks(): void
+    {
+        $this->settings = [
+            Config::NOTIFICATIONS_USERNAME => static::CLUSTER,
+            Config::NOTIFICATIONS_PASSWORD => 'stored-password',
+            Config::NOTIFICATIONS_URL      => static::HTTP_URL,
+        ];
+        $service = $this->service();
+        $service->expects(self::exactly(2))->method('getSource')->with(static::CLUSTER)->willReturnOnConsecutiveCalls(
+            $this->unchangedSource('Manually configured Kubernetes source', true),
+            $this->unchangedSource('Manually configured Kubernetes source', true),
+        );
+        $url = 'https://notifications.example';
+        $values = [Config::NOTIFICATIONS_URL => $url];
+
+        try {
+            $service->save(static::CLUSTER, $values);
+            self::fail('Matching type alone must leave HTTP source reuse unconfirmed');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('Use an existing HTTP source', $e->getMessage());
+        }
+        self::assertSame(static::HTTP_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
+
+        $service->save(static::CLUSTER, $values, confirmedHttpUser: static::CLUSTER);
+        self::assertSame($url, $this->getSetting(Config::NOTIFICATIONS_URL));
+        self::assertSame('stored-password', $this->getSetting(Config::NOTIFICATIONS_PASSWORD));
+    }
+
+    #[DataProvider('foreignHttpSourceRequests')]
+    public function testHttpSetupRejectsAnotherSourceTypeBeforeWritingSettings(
+        bool $usernameLocked,
+        bool $passwordLocked,
+        ?string $confirmedUser,
+        ?string $rotateUser,
+    ): void {
+        $this->settings = [
+            Config::NOTIFICATIONS_USERNAME => static::CLUSTER,
+            Config::NOTIFICATIONS_PASSWORD => 'local-password',
+            Config::NOTIFICATIONS_URL      => static::HTTP_URL,
+        ];
+        if ($usernameLocked) {
+            $this->locks[Config::NOTIFICATIONS_USERNAME] = true;
+        }
+        if ($passwordLocked) {
+            $this->locks[Config::NOTIFICATIONS_PASSWORD] = true;
+        }
+        $service = $this->service();
+        $service->expects(self::once())->method('getSource')->with(static::CLUSTER)
+            ->willReturn($this->unchangedSource($this->httpSourceName(), false));
+
+        try {
+            $service->save(
+                static::CLUSTER,
+                [Config::NOTIFICATIONS_URL => static::HTTP_URL],
+                confirmedHttpUser: $confirmedUser,
+                rotateHttpUser: $rotateUser,
+            );
+            self::fail('A different source type must reject the HTTP save');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('belongs to a different source type', $e->getMessage());
+        } finally {
+            self::assertSame([], $this->deletes);
+            self::assertSame([], $this->inserts);
+        }
+    }
+
+    /**
+     * @return array<string, array{bool, bool, ?string, ?string}>
+     */
+    public static function foreignHttpSourceRequests(): array
+    {
+        return [
+            'stored credentials'           => [false, false, null, null],
+            'locally supplied credentials' => [true, true, null, null],
+            'confirmed reuse'              => [false, false, static::CLUSTER, null],
+            'password rotation'            => [false, true, null, static::CLUSTER],
+        ];
     }
 
     #[DataProvider('ambiguousRotationRequests')]
@@ -638,19 +747,20 @@ class NotificationsConfigTest extends TestCase
         return $source;
     }
 
-    protected function unchangedSource(?string $name): NotificationsSource
+    protected function unchangedSource(?string $name, ?bool $isKubernetes = null): NotificationsSource
     {
-        $source = $this->source($name);
+        $source = $this->source($name, $isKubernetes);
         $source->expects(self::never())->method('create');
         $source->expects(self::never())->method('rotatePassword');
 
         return $source;
     }
 
-    protected function source(?string $name): NotificationsSource&MockObject
+    protected function source(?string $name, ?bool $isKubernetes = null): NotificationsSource&MockObject
     {
         $source = $this->createMock(NotificationsSource::class);
         $source->expects(self::once())->method('getName')->willReturn($name);
+        $source->method('isKubernetes')->willReturn($isKubernetes);
 
         return $source;
     }

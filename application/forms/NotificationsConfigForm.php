@@ -230,7 +230,7 @@ class NotificationsConfigForm extends CompatForm
         );
         if ($assistanceAvailable) {
             $assistanceDescription = sprintf($this->translate(
-                'Use "%s" and create a source for the process user "%s" when saving.'
+                'Use "%s" for the process user "%s". A source is created if the username is available.'
             ), $discoveredUrl, $discovery->serviceUser);
         } elseif ($discoveredUrl !== null && strlen($discoveredUrl) > NotificationsUrl::MAX_UNIX_URL_LENGTH) {
             $assistanceDescription = $longUrlMessage;

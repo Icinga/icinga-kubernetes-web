@@ -160,10 +160,14 @@ class NotificationsConfig
                 if ($serviceUser !== null) {
                     $source = $this->getSource($serviceUser);
                     if ($source->getName() !== null) {
-                        throw new RuntimeException(sprintf($this->translate(
-                            'A Notifications source already uses "%s". Verify that it is a Kubernetes source,'
-                            . ' then clear the discovery checkbox and save the socket URL manually.'
-                        ), $serviceUser));
+                        if (! $this->checkSourceType($source, $serviceUser)) {
+                            throw new RuntimeException(sprintf($this->translate(
+                                'A Notifications source already uses "%s". Verify that it is a Kubernetes source,'
+                                . ' then clear the discovery checkbox and save the socket URL manually.'
+                            ), $serviceUser));
+                        }
+
+                        $source = null;
                     }
                 }
             } elseif ($url !== '') {
@@ -263,6 +267,10 @@ class NotificationsConfig
         $username = $usernameLocked ? $storedUser : $clusterUuid;
         $source = $this->getSource($username);
         $existingName = $source->getName();
+        if ($existingName !== null) {
+            $this->checkSourceType($source, $username);
+        }
+
         if ($rotateUser !== null) {
             if (
                 $confirmedUser !== null
@@ -306,6 +314,28 @@ class NotificationsConfig
         }
 
         return $source;
+    }
+
+    /**
+     * Reject a different source type when the installed API can check it
+     *
+     * @param NotificationsSource $source Handle for an existing source
+     * @param string $username The source listener username
+     *
+     * @return bool Whether the API verified the Kubernetes source type
+     *
+     * @throws RuntimeException If the API reports an incompatible source type
+     */
+    protected function checkSourceType(NotificationsSource $source, string $username): bool
+    {
+        $isKubernetes = $source->isKubernetes();
+        if ($isKubernetes === false) {
+            throw new RuntimeException(sprintf($this->translate(
+                'The Notifications listener username "%s" belongs to a different source type.'
+            ), $username));
+        }
+
+        return $isKubernetes === true;
     }
 
     /**

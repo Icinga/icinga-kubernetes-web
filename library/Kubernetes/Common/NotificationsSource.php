@@ -45,6 +45,16 @@ class NotificationsSource
     }
 
     /**
+     * Check whether the source has the Kubernetes type
+     *
+     * @return ?bool Null if the installed Notifications V1 API cannot report the source type
+     */
+    public function isKubernetes(): ?bool
+    {
+        return self::isKubernetesSource($this->source);
+    }
+
+    /**
      * Create a Kubernetes source if the handle was loaded for a vacant username
      *
      * @param string $name
@@ -78,5 +88,17 @@ class NotificationsSource
     public function rotatePassword(string $password): void
     {
         $this->source->setPassword($password)->save();
+    }
+
+    /**
+     * Check for the source type getter at runtime across Notifications V1 versions
+     *
+     * @param object $source A source from the installed Notifications V1 API
+     *
+     * @return ?bool Null when the getter is unavailable
+     */
+    private static function isKubernetesSource(object $source): ?bool
+    {
+        return method_exists($source, 'getType') ? $source->getType() === Config::DEFAULT_NOTIFICATIONS_TYPE : null;
     }
 }
