@@ -171,7 +171,8 @@ class NotificationsConfig
             if (NotificationsUrl::isUnix($url)) {
                 if (($usernameLocked && $username !== '') || ($passwordLocked && $password !== '')) {
                     throw new RuntimeException($this->translate(
-                        'Remove locally configured Notifications credentials before using a Unix socket.'
+                        'Clear the Notifications URL in Web and save it first. Remove locally configured'
+                        . ' Notifications credentials, restart the daemon, then save the Unix socket URL.'
                     ));
                 }
 

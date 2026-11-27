@@ -23,17 +23,29 @@ and generates a password.
 
 For Unix socket transport, use versions of Icinga for Kubernetes and Icinga Notifications
 that support Unix socket URLs and OS user authentication. The Icinga for Kubernetes
-process must be able to access the Notifications socket. Remove Notifications credentials
-set in the daemon configuration before switching to a Unix socket. The daemon ignores
-stored HTTP credentials over Unix, so the form keeps them for a later return to HTTP.
+process must be able to access the Notifications socket. The daemon ignores HTTP
+credentials stored by Web over Unix and can reuse them when switching back to HTTP.
 Before switching a cluster that was configured for HTTP, upgrade Icinga for Kubernetes
 to a release with Unix socket discovery support. Earlier releases can use manual Unix
 URLs for clusters without stored HTTP credentials.
 
+If Web manages the HTTP URL and the daemon configuration supplies a username or
+password, switch transports in this order:
+
+1. Clear the Notifications URL in Web and save it. This lets the daemon restart
+   without trying to use the HTTP endpoint after you remove its credentials.
+2. Remove the Notifications username, password and password file settings from the
+   daemon configuration or environment, wherever they are set. Restart the daemon.
+3. Save the Unix URL in Web using assisted or manual setup, then restart the daemon
+   to enable notifications over the socket.
+
+If the daemon configuration supplies the URL, set the Unix URL and remove the HTTP
+credentials together before restarting the daemon.
+
 Select **Use discovered Unix socket** to prefill the URL and check the process username,
-then select **Save Changes**. All live instances of the selected cluster must report the
-same path and username. The form ignores heartbeats more than 60 seconds old. If the
-path or username changes before saving, select the new discovery result again.
+then select **Save Changes**. Run one daemon per cluster and database. The form uses
+heartbeat records from the last 60 seconds and requires them to agree on the socket
+path and username. If either changes before saving, select the new discovery result.
 
 Assisted setup creates a Kubernetes source without a password when the process username
 is available. When Icinga Notifications Web can report the source type, assisted setup
