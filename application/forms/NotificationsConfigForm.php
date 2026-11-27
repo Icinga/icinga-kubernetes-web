@@ -5,17 +5,83 @@
 namespace Icinga\Module\Kubernetes\Forms;
 
 use Icinga\Module\Kubernetes\Common\Database;
+use Icinga\Module\Kubernetes\Common\NotificationsDiscovery;
+use Icinga\Module\Kubernetes\Common\NotificationsSource;
+use Icinga\Module\Kubernetes\Common\NotificationsUrl;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
 use Icinga\Module\Kubernetes\Web\Widget\ClusterForm;
 use ipl\Stdlib\Filter;
 use ipl\Validator\CallbackValidator;
+use ipl\Web\Common\CalloutType;
 use ipl\Web\Compat\CompatForm;
+use ipl\Web\Widget\Callout;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Cluster-specific Notifications transport configuration
+ */
 class NotificationsConfigForm extends CompatForm
 {
+    protected ?string $discoveryConfirmation = null;
+
+    protected bool $clusterChanged = false;
+
+    /**
+     * Get the fresh discovery evidence for the selected cluster
+     *
+     * @return NotificationsDiscovery
+     */
+    public function getDiscovery(): NotificationsDiscovery
+    {
+        return NotificationsDiscovery::load(Database::connection(), $this->getClusterUuid());
+    }
+
+    /**
+     * Get the discovery confirmation submitted with the form
+     *
+     * @return ?string Null for manual setup, or an empty string for a missing confirmation
+     */
+    public function getDiscoveryConfirmation(): ?string
+    {
+        return $this->discoveryConfirmation;
+    }
+
+    /**
+     * Get the listener username the user explicitly selected for HTTP reuse
+     *
+     * @return ?string
+     */
+    public function getConfirmedHttpUsername(): ?string
+    {
+        $username = $this->getPopulatedValue('use_existing_http_source');
+
+        return is_string($username) && str_starts_with($username, 'source:') ? substr($username, 7) : null;
+    }
+
+    /**
+     * Get the listener username the user explicitly selected for password rotation
+     *
+     * @return ?string
+     */
+    public function getHttpPasswordRotationUsername(): ?string
+    {
+        $username = $this->getPopulatedValue('rotate_http_password');
+
+        return is_string($username) && str_starts_with($username, 'source:') ? substr($username, 7) : null;
+    }
+
+    /**
+     * Check whether the user is loading settings for another cluster
+     *
+     * @return bool
+     */
+    public function isChangingCluster(): bool
+    {
+        return $this->clusterChanged;
+    }
+
     public static function transformKeyForForm(string $key): string
     {
         return strtr($key, ['notifications.' => 'notifications_']);
@@ -37,6 +103,13 @@ class NotificationsConfigForm extends CompatForm
         return $this->getPopulatedValue('old_cluster_uuid', $this->getClusterUuid());
     }
 
+    /**
+     * Get all Notifications settings and their local locks for a cluster
+     *
+     * @param string $clusterUuid
+     *
+     * @return array<string, KConfig>
+     */
     public function getKConfig(string $clusterUuid): array
     {
         $kconfig = [];
@@ -106,24 +179,17 @@ class NotificationsConfigForm extends CompatForm
         return $request->getSchemeAndHttpHost() . $request->getBaseUrl();
     }
 
-    protected function isValidUri(string $uri): string
-    {
-        $components = parse_url($uri);
-
-        return $components !== false && isset($components['scheme'], $components['host']);
-    }
-
-//    public function hasBeenSubmitted(): bool
-//    {
-//        return $this->hasBeenSent() && ($this->getPopulatedValue('submit') || $this->getPopulatedValue('remove'));
-//    }
-
     protected function assemble(): void
     {
         $clusterUuid = $this->getClusterUuid();
 
         if ($clusterUuid !== $this->getOldClusterUuid()) {
+            $this->clusterChanged = true;
             $this->clearPopulatedValue('old_cluster_uuid');
+            $this->clearPopulatedValue('use_discovered_socket');
+            $this->clearPopulatedValue('discovery_confirmation');
+            $this->clearPopulatedValue('use_existing_http_source');
+            $this->clearPopulatedValue('rotate_http_password');
             $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_URL));
             $this->clearPopulatedValue(static::transformKeyForForm(KConfig::NOTIFICATIONS_ICINGAWEB2_URL));
         }
@@ -137,7 +203,7 @@ class NotificationsConfigForm extends CompatForm
                 'required' => true,
                 'class'    => 'autosubmit',
                 'label'    => $this->translate('Cluster'),
-                'options'  => iterator_to_array(ClusterForm::yieldClusters()),
+                'options'  => $this->getClusterOptions(),
                 'value'    => $clusterUuid,
                 'ignore'   => true
             ],
@@ -145,20 +211,96 @@ class NotificationsConfigForm extends CompatForm
 
         $kconfig = $this->getKConfig($clusterUuid);
 
-        $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_URL), [
+        $sourceApiAvailable = $this->hasSourceApi();
+        $sourceApiRequired = $this->translate(
+            'Enable Icinga Notifications Web 1.0 or later to configure HTTP or use assisted Unix setup.'
+        );
+        $discovery = $this->getDiscovery();
+        $discoveredUrl = $discovery->socketPath === null
+            ? null
+            : NotificationsUrl::fromSocketPath($discovery->socketPath);
+        $confirmation = $discovery->getConfirmation($clusterUuid);
+        $assistanceAvailable = $sourceApiAvailable && $confirmation !== null
+            && ! ($kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false)
+            && (
+                ! ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->locked ?? false)
+                || ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->value ?? '') === ''
+            )
+            && (
+                ! ($kconfig[KConfig::NOTIFICATIONS_PASSWORD]->locked ?? false)
+                || ($kconfig[KConfig::NOTIFICATIONS_PASSWORD]->value ?? '') === ''
+            );
+        $longUrlMessage = $this->translate(
+            'The socket URL is too long to save. Use a shorter path or a symlink accessible to the daemon.'
+        );
+        if (! $sourceApiAvailable) {
+            $assistanceDescription = $sourceApiRequired;
+        } elseif ($assistanceAvailable) {
+            $assistanceDescription = sprintf($this->translate(
+                'Use "%s" for the process user "%s". A source is created if the username is available.'
+            ), $discoveredUrl, $discovery->serviceUser);
+        } elseif ($discoveredUrl !== null && strlen($discoveredUrl) > NotificationsUrl::MAX_UNIX_URL_LENGTH) {
+            $assistanceDescription = $longUrlMessage;
+        } else {
+            $assistanceDescription = $this->translate(
+                'Assistance requires writable Notifications settings and matching socket paths and process users'
+                . ' from live daemon instances.'
+            );
+        }
+
+        if ($this->getPopulatedValue('use_discovered_socket') === 'y') {
+            $submitted = $this->getPopulatedValue('discovery_confirmation');
+            $this->discoveryConfirmation = is_string($submitted) ? $submitted : '';
+        }
+
+        $previewMatches = $assistanceAvailable && $this->discoveryConfirmation === $confirmation;
+        $urlField = static::transformKeyForForm(KConfig::NOTIFICATIONS_URL);
+        if (! $previewMatches) {
+            $this->clearPopulatedValue('use_discovered_socket');
+            if ($this->discoveryConfirmation !== null) {
+                $this->clearPopulatedValue($urlField);
+            }
+        }
+
+        $this->clearPopulatedValue('discovery_confirmation');
+        $this->addElement('hidden', 'discovery_confirmation', ['value' => $confirmation, 'ignore' => true]);
+        $this->addElement('checkbox', 'use_discovered_socket', [
+            'label'       => $this->translate('Use discovered Unix socket'),
+            'class'       => 'autosubmit',
+            'disabled'    => ! $assistanceAvailable,
+            'ignore'      => true,
+            'description' => $assistanceDescription,
+        ]);
+
+        $this->addElement('text', $urlField, [
             'label'       => $this->translate('Icinga Notifications URL'),
             'disabled'    => $kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false,
+            'readonly'    => $previewMatches,
             'value'       => $kconfig[KConfig::NOTIFICATIONS_URL]->value ?? null,
-            'placeholder' => 'http://localhost:5680',
+            'placeholder' => $sourceApiAvailable ? 'http://localhost:5680' : 'unix:///absolute/path',
             'description' => $this->translate(
-                'Icinga Notifications URL. Leave/set blank to turn off notifications.'
+                'Use an HTTP(S) URL or unix:///absolute/path. Leave blank to turn off notifications.'
+                . ' Restart Icinga for Kubernetes after saving changes.',
             ),
             'validators'  => [
-                'Callback' => function ($value, CallbackValidator $validator) {
-                    if (! $this->isValidUri($value)) {
-                        $validator->addMessage($this->translate(
-                            'Invalid URL: Both host and scheme must be specified.'
+                'Callback' => function (
+                    $value,
+                    CallbackValidator $validator,
+                ) use (
+                    $longUrlMessage,
+                    $sourceApiAvailable,
+                    $sourceApiRequired,
+                ): bool {
+                    if (! NotificationsUrl::isValid($value)) {
+                        $validator->addMessage(NotificationsUrl::isUnix($value) ? $longUrlMessage : $this->translate(
+                            'Use an HTTP(S) URL with a host or a Unix URL with an absolute socket path.',
                         ));
+
+                        return false;
+                    }
+
+                    if (! $sourceApiAvailable && NotificationsUrl::isWeb($value)) {
+                        $validator->addMessage($sourceApiRequired);
 
                         return false;
                     }
@@ -168,14 +310,49 @@ class NotificationsConfigForm extends CompatForm
             ]
         ]);
 
+        if (
+            $sourceApiAvailable
+            && ! ($kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false)
+            && ($kconfig[KConfig::NOTIFICATIONS_PASSWORD]->value ?? '') !== ''
+        ) {
+            $httpUser = ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->locked ?? false)
+                ? $kconfig[KConfig::NOTIFICATIONS_USERNAME]->value
+                : $clusterUuid;
+            $this->addElement('checkbox', 'use_existing_http_source', [
+                'label'        => $this->translate('Use an existing HTTP source'),
+                'ignore'       => true,
+                'checkedValue' => 'source:' . $httpUser,
+                'description'  => sprintf($this->translate(
+                    'Verify that "%s" is the intended Kubernetes source in Icinga Notifications. A source'
+                    . ' created by this form is locked and named "%s".'
+                ), $httpUser, KConfig::DEFAULT_NOTIFICATIONS_NAME . " ($clusterUuid)"),
+            ]);
+            if (
+                ($kconfig[KConfig::NOTIFICATIONS_PASSWORD]->locked ?? false)
+                && ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->value ?? '') === $httpUser
+                && NotificationsUrl::isWeb($kconfig[KConfig::NOTIFICATIONS_URL]->value ?? '')
+            ) {
+                $this->addElement('checkbox', 'rotate_http_password', [
+                    'label'        => $this->translate('Apply the locally configured HTTP password'),
+                    'ignore'       => true,
+                    'checkedValue' => 'source:' . $httpUser,
+                    'description'  => sprintf($this->translate(
+                        'Verify that "%s" is the listener username of the locked Kubernetes source "%s" before'
+                        . ' selecting this option. Coordinate changes to shared sources with their administrators.'
+                    ), $httpUser, KConfig::DEFAULT_NOTIFICATIONS_NAME . " ($clusterUuid)"),
+                ]);
+            }
+        }
+
         $this->addElement('text', static::transformKeyForForm(KConfig::NOTIFICATIONS_ICINGAWEB2_URL), [
             'label'       => $this->translate('Icinga Web URL'),
             'disabled'    => $kconfig[KConfig::NOTIFICATIONS_ICINGAWEB2_URL]->locked ?? false,
             'value'       => $kconfig[KConfig::NOTIFICATIONS_ICINGAWEB2_URL]->value ?? $this->getIcingaWeb2Url(),
             'description' => $this->translate('Icinga Web URL.'),
             'validators'  => [
-                'Callback' => function ($value, CallbackValidator $validator) {
-                    if (! $this->isValidUri($value)) {
+                'Callback' => function ($value, CallbackValidator $validator): bool {
+                    $components = parse_url($value);
+                    if ($components === false || ! isset($components['scheme'], $components['host'])) {
                         $validator->addMessage($this->translate(
                             'Invalid URL: Both host and scheme must be specified.'
                         ));
@@ -198,5 +375,35 @@ class NotificationsConfigForm extends CompatForm
             'label'    => $this->translate('Save Changes'),
             'disabled' => $locked
         ]);
+
+        if ($previewMatches && ! $this->hasBeenSubmitted()) {
+            $this->populate([$urlField => $discoveredUrl]);
+        }
+
+        if ($this->discoveryConfirmation !== null && ! $previewMatches && ! $this->hasBeenSubmitted()) {
+            $this->prependHtml(new Callout(CalloutType::Warning, $this->translate(
+                'The discovered socket or process user changed, or the settings were locked. Confirm them again.'
+            )));
+        }
+    }
+
+    /**
+     * Get the available clusters for the selector
+     *
+     * @return array<string, string>
+     */
+    protected function getClusterOptions(): array
+    {
+        return iterator_to_array(ClusterForm::yieldClusters());
+    }
+
+    /**
+     * Check whether the form can provision Notifications sources
+     *
+     * @return bool
+     */
+    protected function hasSourceApi(): bool
+    {
+        return NotificationsSource::isAvailable();
     }
 }

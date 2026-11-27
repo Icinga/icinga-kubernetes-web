@@ -4,7 +4,6 @@
 
 /** @var Module $this */
 
-use Icinga\Application\Modules\Module;
 use Icinga\Module\Kubernetes\Common\Auth;
 
 $section = $this->menuSection(
@@ -188,16 +187,14 @@ $this->provideConfigTab(
     ]
 );
 
-if (Module::exists('notifications')) {
-    $this->provideConfigTab(
-        'notifications',
-        [
-            'title' => $this->translate('Notifications'),
-            'label' => $this->translate('Notifications'),
-            'url'   => 'config/notifications'
-        ]
-    );
-}
+$this->provideConfigTab(
+    'notifications',
+    [
+        'title' => $this->translate('Notifications'),
+        'label' => $this->translate('Notifications'),
+        'url'   => 'config/notifications'
+    ]
+);
 
 $this->provideConfigTab(
     'prometheus',
