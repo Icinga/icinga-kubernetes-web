@@ -18,11 +18,6 @@ class WorkloadIcingaStateReason extends PodIcingaStateReason
 
         [$kind, $namespaceSlashName, $reason] = explode(' ', $this->icingaStateReason, 3);
         $workloadName = explode('/', $namespaceSlashName)[1];
-        $podNamePrefix = $workloadName;
-        if (in_array($kind, ['ReplicaSet', 'DaemonSet'], true)) {
-            // Kubernetes limits generated Pod names to 63 characters, including a five-character suffix.
-            $podNamePrefix = substr($workloadName, 0, 58);
-        }
 
         $this->addHtml(new IcingaStateReasonRow(
             $this->icingaState,
@@ -36,15 +31,11 @@ class WorkloadIcingaStateReason extends PodIcingaStateReason
         $podRows = new HtmlElement('div', new Attributes(['class' => 'pod-rows']));
 
         foreach ($pods as $pod) {
-            $parentName = strlen($pod->name) === 63 && str_starts_with($pod->name, $podNamePrefix)
-                ? $podNamePrefix
-                : $workloadName;
-
             $podRows->addHtml(new PodIcingaStateReason(
                 $pod->uuid,
                 $pod->icinga_state_reason,
                 $pod->icinga_state,
-                $parentName
+                $workloadName
             ));
         }
         $this->addHtml($podRows);
