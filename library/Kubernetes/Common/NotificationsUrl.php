@@ -23,12 +23,29 @@ class NotificationsUrl
     {
         $parts = parse_url($url);
 
-        return $parts !== false
-            && isset($parts['scheme'], $parts['host'])
-            && in_array(strtolower($parts['scheme']), ['http', 'https'], true)
-            && ! preg_match('/[\x00-\x1f\x7f]/', $url)
-            && ! preg_match('/[\x00-\x20\x7f]/', $parts['host'])
-            && ! preg_match('/%(?![a-fA-F0-9]{2})/', $parts['path'] ?? '');
+        if (
+            $parts === false
+            || ! isset($parts['scheme'], $parts['host'])
+            || ! in_array(strtolower($parts['scheme']), ['http', 'https'], true)
+            || preg_match('/[\x00-\x1f\x7f]/', $url)
+            || preg_match('/[\x00-\x20\x7f]/', $parts['host'])
+        ) {
+            return false;
+        }
+
+        // Go decodes these components when loading the URL and leaves the query opaque.
+        foreach (['user', 'pass', 'host', 'path', 'fragment'] as $component) {
+            if (preg_match('/%(?![a-fA-F0-9]{2})/', $parts[$component] ?? '')) {
+                return false;
+            }
+        }
+
+        $host = $parts['host'];
+
+        return ! str_contains($host, '[') || (
+            preg_match('/^\[([^\[\]%]+)(?:%25[^\[\]]+)?\]$/D', $host, $matches)
+            && filter_var($matches[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false
+        );
     }
 
     /**
