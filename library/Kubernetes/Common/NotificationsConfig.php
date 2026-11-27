@@ -30,9 +30,9 @@ class NotificationsConfig
     /**
      * Save writable settings, rechecking cluster settings and discovery before provisioning a source
      *
-     * A new HTTP password is committed before provisioning, while the username and URL are activated together.
-     * The Notifications API commits separately. If an insert succeeded before activation failed, only an
-     * administrator can confirm reuse of the existing source.
+     * Stage a fresh generated password before inserting a vacant HTTP source. A second transaction verifies
+     * the staged settings and activates the username and URL. If the insert succeeded before activation failed,
+     * an administrator must confirm reuse of the existing source.
      *
      * @param string $clusterUuid
      * @param array<string, ?string> $values Submitted URL settings
@@ -51,17 +51,18 @@ class NotificationsConfig
         ?string $confirmedHttpUser = null,
         ?string $rotateHttpUser = null,
     ): void {
-        $save = fn(bool $stagePassword): bool => $this->saveSettings(
+        $save = fn(?PendingHttpSource $pending): ?PendingHttpSource => $this->saveSettings(
             $clusterUuid,
             $values,
             $discoveryConfirmation,
             $confirmedHttpUser,
             $rotateHttpUser,
-            $stagePassword,
+            $pending,
         );
 
-        if (! $this->db->transaction(fn(): bool => $save(true))) {
-            $this->db->transaction(fn(): bool => $save(false));
+        $pending = $this->db->transaction(fn(): ?PendingHttpSource => $save(null));
+        if ($pending !== null) {
+            $this->db->transaction(fn(): ?PendingHttpSource => $save($pending));
         }
     }
 
@@ -73,9 +74,9 @@ class NotificationsConfig
      * @param ?string $discoveryConfirmation
      * @param ?string $confirmedHttpUser
      * @param ?string $rotateHttpUser
-     * @param bool $stagePassword Whether to allow creating an inactive password
+     * @param ?PendingHttpSource $pending Credentials and settings committed by the first transaction
      *
-     * @return bool Whether the settings have been saved
+     * @return ?PendingHttpSource Credentials awaiting source creation, or null after saving the settings
      *
      * @throws RuntimeException If the cluster disappeared or the settings conflict
      */
@@ -85,8 +86,8 @@ class NotificationsConfig
         ?string $discoveryConfirmation,
         ?string $confirmedHttpUser,
         ?string $rotateHttpUser,
-        bool $stagePassword,
-    ): bool {
+        ?PendingHttpSource $pending,
+    ): ?PendingHttpSource {
         $uuid = Cluster::encodeUuid($this->db, $clusterUuid);
         if ($this->db->fetchOne('SELECT uuid FROM cluster WHERE uuid = ? FOR UPDATE', [$uuid]) === false) {
             throw new RuntimeException($this->translate('The selected cluster is no longer available.'));
@@ -110,6 +111,27 @@ class NotificationsConfig
         }
 
         $urlLocked = ($settings[Config::NOTIFICATIONS_URL]->locked ?? 'n') === 'y';
+        $storedUrl = $settings[Config::NOTIFICATIONS_URL]->value ?? '';
+        $username = $settings[Config::NOTIFICATIONS_USERNAME]->value ?? '';
+        $password = $settings[Config::NOTIFICATIONS_PASSWORD]->value ?? '';
+        $usernameLocked = ($settings[Config::NOTIFICATIONS_USERNAME]->locked ?? 'n') === 'y';
+        $passwordLocked = ($settings[Config::NOTIFICATIONS_PASSWORD]->locked ?? 'n') === 'y';
+        if (
+            $pending !== null
+            && (
+                $urlLocked
+                || $storedUrl !== $pending->storedUrl
+                || $usernameLocked !== $pending->usernameLocked
+                || $username !== $pending->storedUsername
+                || $passwordLocked
+                || $password !== $pending->password
+            )
+        ) {
+            throw new RuntimeException($this->translate(
+                'The Notifications settings changed during source setup. Reload the form and try again.'
+            ));
+        }
+
         $updates = [];
         if (($settings[Config::NOTIFICATIONS_ICINGAWEB2_URL]->locked ?? 'n') !== 'y') {
             $updates[Config::NOTIFICATIONS_ICINGAWEB2_URL] = $values[Config::NOTIFICATIONS_ICINGAWEB2_URL] ?? null;
@@ -146,11 +168,6 @@ class NotificationsConfig
             }
 
             $updates[Config::NOTIFICATIONS_URL] = $url;
-            $username = $settings[Config::NOTIFICATIONS_USERNAME]->value ?? '';
-            $password = $settings[Config::NOTIFICATIONS_PASSWORD]->value ?? '';
-            $usernameLocked = ($settings[Config::NOTIFICATIONS_USERNAME]->locked ?? 'n') === 'y';
-            $passwordLocked = ($settings[Config::NOTIFICATIONS_PASSWORD]->locked ?? 'n') === 'y';
-
             if (NotificationsUrl::isUnix($url)) {
                 if (($usernameLocked && $username !== '') || ($passwordLocked && $password !== '')) {
                     throw new RuntimeException($this->translate(
@@ -173,7 +190,7 @@ class NotificationsConfig
                 }
             } elseif ($url !== '') {
                 $sourceName .= " ($clusterUuid)";
-                $httpActive = NotificationsUrl::isWeb($settings[Config::NOTIFICATIONS_URL]->value ?? '');
+                $httpActive = NotificationsUrl::isWeb($storedUrl);
                 $source = $this->prepareHttpSource(
                     $clusterUuid,
                     $username,
@@ -186,30 +203,28 @@ class NotificationsConfig
                     $rotateHttpUser,
                 );
 
-                if ($password === '') {
-                    if ($usernameLocked && $httpActive) {
-                        throw new RuntimeException($this->translate(
-                            'Disable Notifications for the cluster before regenerating its missing HTTP password.'
-                        ));
-                    }
-
-                    if (! $stagePassword) {
-                        throw new RuntimeException($this->translate(
-                            'The Notifications credentials changed. Reload the form and try again.'
-                        ));
-                    }
-
-                    $credentials = [
-                        Config::NOTIFICATIONS_PASSWORD => bin2hex(random_bytes(20)),
-                    ];
+                if ($pending === null && $source !== null && ! $passwordLocked) {
+                    $password = bin2hex(random_bytes(20));
+                    $credentials = [Config::NOTIFICATIONS_PASSWORD => $password];
                     if (! $usernameLocked) {
                         // Without a username, an unactivated password cannot be used to adopt an existing source.
                         $credentials[Config::NOTIFICATIONS_USERNAME] = null;
                     }
 
+                    if ($httpActive) {
+                        // Keep HTTP inactive until these staged credentials can be used with the source.
+                        $credentials[Config::NOTIFICATIONS_URL] = null;
+                        $storedUrl = '';
+                    }
+
                     $this->writeSettings($uuid, $credentials);
 
-                    return false;
+                    return new PendingHttpSource(
+                        $usernameLocked ? $username : '',
+                        $usernameLocked,
+                        $password,
+                        $storedUrl,
+                    );
                 }
 
                 if (! $usernameLocked) {
@@ -228,7 +243,7 @@ class NotificationsConfig
             $source?->create($sourceName, $sourcePassword);
         }
 
-        return true;
+        return null;
     }
 
     /**
@@ -297,8 +312,9 @@ class NotificationsConfig
         }
 
         if ($existingName !== null) {
-            $established = $storedUser === $username && $password !== '' && $existingName === $name
-                && (! $usernameLocked || $httpActive);
+            // A locally configured username may have replaced the owner of a retained generated password.
+            $established = ! $usernameLocked && $storedUser === $username
+                && $password !== '' && $existingName === $name;
             if (
                 $confirmedUser !== null
                 || ($usernameLocked && $passwordLocked)

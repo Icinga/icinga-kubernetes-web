@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Test;
 
+use Closure;
 use Icinga\Module\Kubernetes\Common\NotificationsConfig;
 use Icinga\Module\Kubernetes\Common\NotificationsDiscovery;
 use Icinga\Module\Kubernetes\Common\NotificationsSource;
@@ -389,24 +390,89 @@ class NotificationsConfigTest extends TestCase
         self::assertIsString($password);
         self::assertMatchesRegularExpression('/^[a-f0-9]{40}$/D', $password);
 
-        $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::HTTP_URL]);
+        $service->save(
+            static::CLUSTER,
+            [Config::NOTIFICATIONS_URL => static::HTTP_URL],
+            confirmedHttpUser: 'custom-user',
+        );
     }
 
-    public function testLegacyHttpSourceWithLocalUsernameIsLeftUntouched(): void
+    #[DataProvider('localUsernameChanges')]
+    public function testVacantHttpSourceGetsFreshPasswordWhenLocalUsernameChanges(?string $newUsername): void
+    {
+        $this->settings[Config::NOTIFICATIONS_USERNAME] = 'original-user';
+        $this->locks[Config::NOTIFICATIONS_USERNAME] = true;
+        $effectiveUsername = $newUsername ?? static::CLUSTER;
+        $usernames = ['original-user', 'original-user', $effectiveUsername, $effectiveUsername];
+        $sources = [$this->source(null), $this->newHttpSource(), $this->source(null), $this->newHttpSource()];
+        $service = $this->service();
+        $service->expects(self::exactly(4))->method('getSource')->willReturnCallback(
+            static function (string $username) use (&$usernames, &$sources): NotificationsSource {
+                self::assertSame(array_shift($usernames), $username);
+                $source = array_shift($sources);
+                self::assertInstanceOf(NotificationsSource::class, $source);
+
+                return $source;
+            }
+        );
+        $values = [Config::NOTIFICATIONS_URL => static::HTTP_URL];
+        $service->save(static::CLUSTER, $values);
+        $previousPassword = $this->getSetting(Config::NOTIFICATIONS_PASSWORD);
+        self::assertIsString($previousPassword);
+
+        if ($newUsername === null) {
+            unset($this->settings[Config::NOTIFICATIONS_USERNAME], $this->locks[Config::NOTIFICATIONS_USERNAME]);
+        } else {
+            $this->settings[Config::NOTIFICATIONS_USERNAME] = $newUsername;
+        }
+        $service->save(static::CLUSTER, $values);
+
+        $password = $this->getSetting(Config::NOTIFICATIONS_PASSWORD);
+        self::assertIsString($password);
+        self::assertNotSame($previousPassword, $password);
+        self::assertSame($effectiveUsername, $this->getSetting(Config::NOTIFICATIONS_USERNAME));
+        self::assertSame(static::HTTP_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
+    }
+
+    /**
+     * @return array<string, array{?string}>
+     */
+    public static function localUsernameChanges(): array
+    {
+        return [
+            'override changed' => ['replacement-user'],
+            'override removed' => [null],
+        ];
+    }
+
+    public function testExistingHttpSourceWithOnlyLocalUsernameRequiresConfirmation(): void
     {
         $this->settings = [
             Config::NOTIFICATIONS_USERNAME => 'custom-user',
-            Config::NOTIFICATIONS_PASSWORD => 'legacy-generated-password',
+            Config::NOTIFICATIONS_PASSWORD => 'old-password-for-unverified-source',
             Config::NOTIFICATIONS_URL      => static::HTTP_URL,
         ];
         $this->locks[Config::NOTIFICATIONS_USERNAME] = true;
         $service = $this->service();
-        $service->expects(self::once())->method('getSource')->with('custom-user')
-            ->willReturn($this->unchangedSource($this->httpSourceName()));
-        $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => 'https://notifications.example']);
+        $service->expects(self::exactly(2))->method('getSource')->with('custom-user')->willReturnOnConsecutiveCalls(
+            $this->unchangedSource($this->httpSourceName()),
+            $this->unchangedSource($this->httpSourceName()),
+        );
+        $values = [Config::NOTIFICATIONS_URL => 'https://notifications.example'];
 
+        try {
+            $service->save(static::CLUSTER, $values);
+            self::fail('A local username alone cannot verify the stored password belongs to this source');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('Use an existing HTTP source', $e->getMessage());
+        }
+        self::assertSame(static::HTTP_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
+        self::assertSame([], $this->deletes);
+        self::assertSame([], $this->inserts);
+
+        $service->save(static::CLUSTER, $values, confirmedHttpUser: 'custom-user');
         self::assertSame('https://notifications.example', $this->getSetting(Config::NOTIFICATIONS_URL));
-        self::assertSame('legacy-generated-password', $this->getSetting(Config::NOTIFICATIONS_PASSWORD));
+        self::assertSame('old-password-for-unverified-source', $this->getSetting(Config::NOTIFICATIONS_PASSWORD));
     }
 
     public function testReenablingHttpWithLocalUsernameUsesExistingSourceAfterConfirmation(): void
@@ -677,12 +743,14 @@ class NotificationsConfigTest extends TestCase
         }
     }
 
-    public function testNetworkFailureBeforeHttpSourceCreationCanBeRetriedWithSamePassword(): void
+    public function testNetworkFailureBeforeHttpSourceCreationKeepsUnixActiveAndAllowsRetry(): void
     {
+        $this->settings[Config::NOTIFICATIONS_URL] = static::SOCKET_URL;
         $service = $this->service();
-        $service->expects(self::exactly(3))->method('getSource')->with(static::CLUSTER)->willReturnOnConsecutiveCalls(
+        $service->expects(self::exactly(4))->method('getSource')->with(static::CLUSTER)->willReturnOnConsecutiveCalls(
             $this->source(null),
             $this->newHttpSource(throws: new RuntimeException('Notifications database unavailable')),
+            $this->source(null),
             $this->newHttpSource(),
         );
 
@@ -694,18 +762,30 @@ class NotificationsConfigTest extends TestCase
         }
 
         $password = $this->getSetting(Config::NOTIFICATIONS_PASSWORD);
-        self::assertArrayNotHasKey(Config::NOTIFICATIONS_URL, $this->settings);
+        self::assertIsString($password);
+        self::assertSame(static::SOCKET_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
         self::assertArrayNotHasKey(Config::NOTIFICATIONS_USERNAME, $this->settings);
         $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::HTTP_URL]);
-        self::assertSame($password, $this->getSetting(Config::NOTIFICATIONS_PASSWORD));
+        self::assertNotSame($password, $this->getSetting(Config::NOTIFICATIONS_PASSWORD));
         self::assertSame(static::HTTP_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
     }
 
-    public function testHttpActivationCanResumeAfterItsCommitFailsWithExplicitConfirmation(): void
-    {
+    #[DataProvider('httpActivationFailures')]
+    public function testHttpActivationCanResumeAfterItsCommitFailsWithExplicitConfirmation(
+        string $username,
+        bool $usernameLocked,
+    ): void {
+        $this->settings = [
+            Config::NOTIFICATIONS_URL      => static::HTTP_URL,
+            Config::NOTIFICATIONS_USERNAME => $username,
+            Config::NOTIFICATIONS_PASSWORD => 'old-web-password',
+        ];
+        if ($usernameLocked) {
+            $this->locks[Config::NOTIFICATIONS_USERNAME] = true;
+        }
         $this->failCommit = 2;
         $service = $this->service();
-        $service->expects(self::exactly(5))->method('getSource')->with(static::CLUSTER)->willReturnOnConsecutiveCalls(
+        $service->expects(self::exactly(5))->method('getSource')->with($username)->willReturnOnConsecutiveCalls(
             $this->source(null),
             $this->newHttpSource(),
             $this->unchangedSource($this->httpSourceName()),
@@ -722,16 +802,18 @@ class NotificationsConfigTest extends TestCase
         }
 
         $password = $this->getSetting(Config::NOTIFICATIONS_PASSWORD);
+        self::assertIsString($password);
+        self::assertNotSame('old-web-password', $password);
         self::assertArrayNotHasKey(Config::NOTIFICATIONS_URL, $this->settings);
-        self::assertArrayNotHasKey(Config::NOTIFICATIONS_USERNAME, $this->settings);
+        self::assertSame($usernameLocked ? $username : null, $this->getSetting(Config::NOTIFICATIONS_USERNAME));
 
         $unconfirmedAttempts = [
             'A Notifications source already uses' => null,
             'The confirmed HTTP source or its stored credentials are unavailable' => static::OTHER_CLUSTER,
         ];
-        foreach ($unconfirmedAttempts as $message => $username) {
+        foreach ($unconfirmedAttempts as $message => $confirmedUsername) {
             try {
-                $service->save(static::CLUSTER, $values, confirmedHttpUser: $username);
+                $service->save(static::CLUSTER, $values, confirmedHttpUser: $confirmedUsername);
                 self::fail('The existing source requires explicit confirmation of the correct username');
             } catch (RuntimeException $e) {
                 self::assertStringContainsString($message, $e->getMessage());
@@ -739,10 +821,95 @@ class NotificationsConfigTest extends TestCase
             }
         }
 
-        $service->save(static::CLUSTER, $values, confirmedHttpUser: static::CLUSTER);
+        $service->save(static::CLUSTER, $values, confirmedHttpUser: $username);
         self::assertSame($password, $this->getSetting(Config::NOTIFICATIONS_PASSWORD));
         self::assertSame(static::HTTP_URL, $this->getSetting(Config::NOTIFICATIONS_URL));
-        self::assertSame(static::CLUSTER, $this->getSetting(Config::NOTIFICATIONS_USERNAME));
+        self::assertSame($username, $this->getSetting(Config::NOTIFICATIONS_USERNAME));
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     */
+    public static function httpActivationFailures(): array
+    {
+        return [
+            'generated username' => [static::CLUSTER, false],
+            'locked username'    => ['custom-user', true],
+        ];
+    }
+
+    public function testHttpSetupRejectsAUsernameClaimedBetweenStagingAndProvisioning(): void
+    {
+        $this->settings = [
+            Config::NOTIFICATIONS_URL      => static::HTTP_URL,
+            Config::NOTIFICATIONS_USERNAME => 'custom-user',
+            Config::NOTIFICATIONS_PASSWORD => 'old-web-password',
+        ];
+        $this->locks[Config::NOTIFICATIONS_USERNAME] = true;
+        $service = $this->service();
+        $service->expects(self::exactly(3))->method('getSource')->with('custom-user')->willReturnOnConsecutiveCalls(
+            $this->source(null),
+            $this->unchangedSource($this->httpSourceName(), true),
+            $this->unchangedSource($this->httpSourceName(), true),
+        );
+        for ($attempt = 0; $attempt < 2; ++$attempt) {
+            try {
+                $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::HTTP_URL]);
+                self::fail('An unconfirmed claim must reject the save');
+            } catch (RuntimeException $e) {
+                self::assertStringContainsString('A Notifications source already uses', $e->getMessage());
+                self::assertArrayNotHasKey(Config::NOTIFICATIONS_URL, $this->settings);
+            }
+        }
+    }
+
+    #[DataProvider('stagedSettingChanges')]
+    public function testStagedHttpSetupRejectsInterleavedSettingChanges(
+        string $key,
+        ?string $value,
+        ?bool $locked,
+    ): void {
+        $this->settings[Config::NOTIFICATIONS_USERNAME] = 'custom-user';
+        $this->locks[Config::NOTIFICATIONS_USERNAME] = true;
+        $service = $this->service(afterCommit: function () use ($key, $value, $locked): void {
+            if ($value !== null) {
+                $this->settings[$key] = $value;
+            }
+            if ($locked === true) {
+                $this->locks[$key] = true;
+            } elseif ($locked === false) {
+                unset($this->locks[$key]);
+            }
+        });
+        $service->expects(self::once())->method('getSource')->with('custom-user')->willReturn($this->source(null));
+
+        try {
+            $service->save(static::CLUSTER, [Config::NOTIFICATIONS_URL => static::HTTP_URL]);
+            self::fail('An interleaved change must reject the staged save');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('settings changed during source setup', $e->getMessage());
+        }
+
+        self::assertSame(
+            $key === Config::NOTIFICATIONS_URL ? $value : null,
+            $this->getSetting(Config::NOTIFICATIONS_URL),
+        );
+        self::assertCount(1, $this->deletes);
+        self::assertCount(1, $this->inserts);
+    }
+
+    /**
+     * @return array<string, array{string, ?string, ?bool}>
+     */
+    public static function stagedSettingChanges(): array
+    {
+        return [
+            'daemon changes username' => [Config::NOTIFICATIONS_USERNAME, 'another-user', null],
+            'daemon unlocks username' => [Config::NOTIFICATIONS_USERNAME, null, false],
+            'daemon locks password'   => [Config::NOTIFICATIONS_PASSWORD, null, true],
+            'another save stages'     => [Config::NOTIFICATIONS_PASSWORD, 'interleaved-password', null],
+            'another save uses Unix'  => [Config::NOTIFICATIONS_URL, static::SOCKET_URL, null],
+        ];
     }
 
     public function testNotificationsV1ProvidesThePublicSourceMethods(): void
@@ -811,8 +978,11 @@ class NotificationsConfigTest extends TestCase
         return hash('sha256', static::CLUSTER . "\0" . $path . "\0" . $user);
     }
 
-    protected function service(Adapter $adapter = new Mysql(), ?string $uuid = null): NotificationsConfig&MockObject
-    {
+    protected function service(
+        Adapter $adapter = new Mysql(),
+        ?string $uuid = null,
+        ?Closure $afterCommit = null,
+    ): NotificationsConfig&MockObject {
         $uuid ??= Uuid::fromString(static::CLUSTER)->getBytes();
         $quotedKey = $adapter->quoteIdentifier('key');
         $db = $this->createStub(Connection::class);
@@ -849,7 +1019,7 @@ class NotificationsConfigTest extends TestCase
 
             return $settings;
         });
-        $db->method('transaction')->willReturnCallback(function (callable $save) use ($db): mixed {
+        $db->method('transaction')->willReturnCallback(function (callable $save) use ($db, $afterCommit): mixed {
             $original = $this->settings;
             ++$this->transactions;
             try {
@@ -857,13 +1027,15 @@ class NotificationsConfigTest extends TestCase
                 if ($this->transactions === $this->failCommit) {
                     throw new RuntimeException('Simulated Kubernetes commit failure');
                 }
-
-                return $result;
             } catch (RuntimeException $e) {
                 $this->settings = $original;
 
                 throw $e;
             }
+
+            $afterCommit?->__invoke();
+
+            return $result;
         });
         $db->method('delete')->willReturnCallback(
             function (string $table, array $where) use ($quotedKey, $uuid): PDOStatement {
