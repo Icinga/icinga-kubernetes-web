@@ -111,12 +111,48 @@ class NotificationsConfigFormTest extends TestCase
         self::assertFalse($form->isValid());
     }
 
-    protected function form(NotificationsDiscovery $discovery): NotificationsConfigForm
+    public function testManualUnixSubmissionIsAvailableWithoutTheSourceApi(): void
     {
+        $discovery = new NotificationsDiscovery(static::SOCKET, 'kubernetes');
+        $form = $this->form($discovery, sourceApiAvailable: false);
+        $request = $this->request($discovery, submit: true);
+        $form->handleRequest($request->withParsedBody(array_replace($request->getParsedBody(), [
+            'use_discovered_socket' => 'n',
+        ])));
+
+        $discoveryControl = $form->getElement('use_discovered_socket');
+        self::assertTrue($discoveryControl->getAttributes()->get('disabled')->getValue());
+        self::assertStringContainsString('Enable Icinga Notifications Web', $discoveryControl->getDescription());
+        self::assertTrue($form->isValid());
+        self::assertSame('unix://' . static::SOCKET, $form->getValue(Config::NOTIFICATIONS_URL));
+        self::assertNull($form->getDiscoveryConfirmation());
+    }
+
+    public function testHttpSubmissionExplainsTheMissingSourceApi(): void
+    {
+        $discovery = new NotificationsDiscovery(null, null);
+        $form = $this->form($discovery, sourceApiAvailable: false);
+        $request = $this->request($discovery, submit: true, url: 'https://notifications.example');
+        $form->handleRequest($request->withParsedBody(array_replace($request->getParsedBody(), [
+            'use_discovered_socket' => 'n',
+        ])));
+
+        self::assertFalse($form->isValid());
+        self::assertStringContainsString(
+            'Enable Icinga Notifications Web',
+            implode(' ', $form->getElement('notifications_url')->getMessages()),
+        );
+    }
+
+    protected function form(
+        NotificationsDiscovery $discovery,
+        bool $sourceApiAvailable = true,
+    ): NotificationsConfigForm {
         $form = $this->createPartialMock(NotificationsConfigForm::class, [
             'getClusterOptions',
             'getDiscovery',
             'getKConfig',
+            'hasSourceApi',
         ]);
         $form->expects(self::once())->method('getClusterOptions')->willReturn([
             static::CLUSTER       => 'First Cluster',
@@ -124,6 +160,7 @@ class NotificationsConfigFormTest extends TestCase
         ]);
         $form->expects(self::once())->method('getDiscovery')->willReturn($discovery);
         $form->expects(self::once())->method('getKConfig')->willReturn([]);
+        $form->expects(self::once())->method('hasSourceApi')->willReturn($sourceApiAvailable);
 
         return $form;
     }

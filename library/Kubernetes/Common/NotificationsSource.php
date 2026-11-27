@@ -4,6 +4,7 @@
 
 namespace Icinga\Module\Kubernetes\Common;
 
+use Icinga\Application\Modules\Module;
 use Icinga\Module\Kubernetes\Model\Config;
 use Icinga\Module\Notifications\Integrations\V1\Source;
 use RuntimeException;
@@ -32,6 +33,16 @@ class NotificationsSource
     public static function get(string $username): static
     {
         return new static(Source::get($username));
+    }
+
+    /**
+     * Check whether the enabled Notifications module provides the public source API
+     *
+     * @return bool
+     */
+    public static function isAvailable(): bool
+    {
+        return Module::exists('notifications') && class_exists(Source::class);
     }
 
     /**

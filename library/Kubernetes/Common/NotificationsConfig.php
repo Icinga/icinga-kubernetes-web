@@ -6,7 +6,6 @@ namespace Icinga\Module\Kubernetes\Common;
 
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config;
-use Icinga\Module\Notifications\Integrations\V1\Source;
 use ipl\I18n\Translation;
 use ipl\Sql\Connection;
 use RuntimeException;
@@ -402,9 +401,9 @@ class NotificationsConfig
      */
     protected function getSource(string $username): NotificationsSource
     {
-        if (! class_exists(Source::class)) {
+        if (! NotificationsSource::isAvailable()) {
             throw new RuntimeException($this->translate(
-                'Automatic source setup requires Icinga Notifications Web 1.0 or later.'
+                'Enable Icinga Notifications Web 1.0 or later for automatic source setup.'
             ));
         }
 

@@ -6,6 +6,7 @@ namespace Icinga\Module\Kubernetes\Forms;
 
 use Icinga\Module\Kubernetes\Common\Database;
 use Icinga\Module\Kubernetes\Common\NotificationsDiscovery;
+use Icinga\Module\Kubernetes\Common\NotificationsSource;
 use Icinga\Module\Kubernetes\Common\NotificationsUrl;
 use Icinga\Module\Kubernetes\Model\Cluster;
 use Icinga\Module\Kubernetes\Model\Config as KConfig;
@@ -210,12 +211,16 @@ class NotificationsConfigForm extends CompatForm
 
         $kconfig = $this->getKConfig($clusterUuid);
 
+        $sourceApiAvailable = $this->hasSourceApi();
+        $sourceApiRequired = $this->translate(
+            'Enable Icinga Notifications Web 1.0 or later to configure HTTP or use assisted Unix setup.'
+        );
         $discovery = $this->getDiscovery();
         $discoveredUrl = $discovery->socketPath === null
             ? null
             : NotificationsUrl::fromSocketPath($discovery->socketPath);
         $confirmation = $discovery->getConfirmation($clusterUuid);
-        $assistanceAvailable = $confirmation !== null
+        $assistanceAvailable = $sourceApiAvailable && $confirmation !== null
             && ! ($kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false)
             && (
                 ! ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->locked ?? false)
@@ -228,7 +233,9 @@ class NotificationsConfigForm extends CompatForm
         $longUrlMessage = $this->translate(
             'The socket URL is too long to save. Use a shorter path or a symlink accessible to the daemon.'
         );
-        if ($assistanceAvailable) {
+        if (! $sourceApiAvailable) {
+            $assistanceDescription = $sourceApiRequired;
+        } elseif ($assistanceAvailable) {
             $assistanceDescription = sprintf($this->translate(
                 'Use "%s" for the process user "%s". A source is created if the username is available.'
             ), $discoveredUrl, $discovery->serviceUser);
@@ -270,17 +277,30 @@ class NotificationsConfigForm extends CompatForm
             'disabled'    => $kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false,
             'readonly'    => $previewMatches,
             'value'       => $kconfig[KConfig::NOTIFICATIONS_URL]->value ?? null,
-            'placeholder' => 'http://localhost:5680',
+            'placeholder' => $sourceApiAvailable ? 'http://localhost:5680' : 'unix:///absolute/path',
             'description' => $this->translate(
                 'Use an HTTP(S) URL or unix:///absolute/path. Leave blank to turn off notifications.'
                 . ' Restart Icinga for Kubernetes after saving changes.',
             ),
             'validators'  => [
-                'Callback' => function ($value, CallbackValidator $validator) use ($longUrlMessage): bool {
+                'Callback' => function (
+                    $value,
+                    CallbackValidator $validator,
+                ) use (
+                    $longUrlMessage,
+                    $sourceApiAvailable,
+                    $sourceApiRequired,
+                ): bool {
                     if (! NotificationsUrl::isValid($value)) {
                         $validator->addMessage(NotificationsUrl::isUnix($value) ? $longUrlMessage : $this->translate(
                             'Use an HTTP(S) URL with a host or a Unix URL with an absolute socket path.',
                         ));
+
+                        return false;
+                    }
+
+                    if (! $sourceApiAvailable && NotificationsUrl::isWeb($value)) {
+                        $validator->addMessage($sourceApiRequired);
 
                         return false;
                     }
@@ -291,7 +311,8 @@ class NotificationsConfigForm extends CompatForm
         ]);
 
         if (
-            ! ($kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false)
+            $sourceApiAvailable
+            && ! ($kconfig[KConfig::NOTIFICATIONS_URL]->locked ?? false)
             && ($kconfig[KConfig::NOTIFICATIONS_PASSWORD]->value ?? '') !== ''
         ) {
             $httpUser = ($kconfig[KConfig::NOTIFICATIONS_USERNAME]->locked ?? false)
@@ -374,5 +395,15 @@ class NotificationsConfigForm extends CompatForm
     protected function getClusterOptions(): array
     {
         return iterator_to_array(ClusterForm::yieldClusters());
+    }
+
+    /**
+     * Check whether the form can provision Notifications sources
+     *
+     * @return bool
+     */
+    protected function hasSourceApi(): bool
+    {
+        return NotificationsSource::isAvailable();
     }
 }
