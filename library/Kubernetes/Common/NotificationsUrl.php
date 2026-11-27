@@ -27,7 +27,8 @@ class NotificationsUrl
             && isset($parts['scheme'], $parts['host'])
             && in_array(strtolower($parts['scheme']), ['http', 'https'], true)
             && ! preg_match('/[\x00-\x1f\x7f]/', $url)
-            && ! preg_match('/[\x00-\x20\x7f]/', $parts['host']);
+            && ! preg_match('/[\x00-\x20\x7f]/', $parts['host'])
+            && ! preg_match('/%(?![a-fA-F0-9]{2})/', $parts['path'] ?? '');
     }
 
     /**
