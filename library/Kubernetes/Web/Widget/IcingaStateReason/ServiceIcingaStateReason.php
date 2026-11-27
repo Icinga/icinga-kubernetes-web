@@ -54,7 +54,9 @@ class ServiceIcingaStateReason extends BaseHtmlElement
             return;
         }
 
-        $states = [];
+        $total = 0;
+        $pendingCount = 0;
+        $problemCount = 0;
         $podRows = new HtmlElement('div', new Attributes(['class' => 'pod-rows']));
         foreach ($pods as $pod) {
             $podRows->addHtml(new PodIcingaStateReason(
@@ -64,29 +66,24 @@ class ServiceIcingaStateReason extends BaseHtmlElement
                 null
             ));
 
-            $states[] = match ($pod->icinga_state) {
-                "ok"       => 0,
-                "warning"  => 1,
-                "critical" => 2,
-                "unknown"  => 3,
-                "peding"   => 99,
-            };
+            $total++;
+            // Pending Pods are still starting. The daemon reports them with OK severity, so they are no problem here.
+            if ($pod->icinga_state === 'pending') {
+                $pendingCount++;
+            } elseif ($pod->icinga_state !== 'ok') {
+                $problemCount++;
+            }
         }
         $this->addHtml($podRows);
-        $nonZeroCount = count(array_filter($states, fn($v) => $v !== 0));
-        $total = count($states);
-        if ($nonZeroCount / $total > 0.8) {
-            $state = 2;
-        } elseif ($nonZeroCount / $total > 0.2) {
-            $state = 1;
+        if ($pendingCount === $total) {
+            $this->state = 'pending';
+        } elseif ($problemCount / $total > 0.8) {
+            $this->state = 'critical';
+        } elseif ($problemCount / $total > 0.2) {
+            $this->state = 'warning';
         } else {
-            $state = 0;
+            $this->state = 'ok';
         }
-        $this->state = match ($state) {
-            0 => "ok",
-            1 => "warning",
-            2 => "critical"
-        };
         $this->prependHtml(new IcingaStateReasonRow(
             $this->state,
             "service",
